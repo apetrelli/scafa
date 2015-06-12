@@ -19,6 +19,7 @@ package com.github.apetrelli.scafa.server.processor.http.impl;
 
 import java.io.IOException;
 import java.net.SocketAddress;
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
@@ -100,8 +101,9 @@ public class DirectHttpConnection implements HttpConnection {
     public void sendHeader(String method, String url,
             Map<String, List<String>> headers, String httpVersion) throws IOException {
         Charset charset = StandardCharsets.US_ASCII;
+        URL realurl = new URL(url);
         buffer.put(method.getBytes(charset)).put(SPACE)
-                .put(url.getBytes(charset)).put(SPACE)
+                .put(realurl.getFile().getBytes(charset)).put(SPACE)
                 .put(httpVersion.getBytes(charset)).put(CR).put(LF);
         headers.entrySet().stream().forEach(t -> {
             String key = t.getKey();
@@ -149,6 +151,13 @@ public class DirectHttpConnection implements HttpConnection {
 
     private void flushBuffer() throws IOException {
         buffer.flip();
+        if (LOG.isLoggable(Level.FINEST)) {
+            int position = buffer.position();
+            String request = new String(buffer.array(), position, buffer.limit() - position);
+            LOG.finest("-- Real request sent to " + channel.getRemoteAddress() + " --");
+            LOG.finest(request);
+            LOG.finest("-- End of request --");
+        }
         getFuture(channel.write(buffer));
         buffer.clear();
     }
