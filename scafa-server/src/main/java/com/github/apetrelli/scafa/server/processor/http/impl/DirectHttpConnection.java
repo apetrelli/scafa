@@ -57,7 +57,7 @@ public class DirectHttpConnection implements HttpConnection {
 
     private static final Logger LOG = Logger.getLogger(DirectHttpConnection.class.getName());
 
-    private AsynchronousSocketChannel channel;
+    private AsynchronousSocketChannel channel, sourceChannel;
 
     private ByteBuffer buffer = ByteBuffer.allocate(16384);
 
@@ -65,6 +65,7 @@ public class DirectHttpConnection implements HttpConnection {
             AsynchronousSocketChannel sourceChannel, SocketAddress socketAddress)
             throws IOException {
         channel = AsynchronousSocketChannel.open();
+        this.sourceChannel = sourceChannel;
         getFuture(channel.connect(socketAddress));
         ByteBuffer readBuffer = ByteBuffer.allocate(16384);
         SocketAddress source = sourceChannel.getRemoteAddress();
@@ -115,6 +116,18 @@ public class DirectHttpConnection implements HttpConnection {
         buffer.put(CR).put(LF);
         flushBuffer();
     }
+    
+    @Override
+    public void connect(String method, String url, Map<String, List<String>> headers, String httpVersion)
+            throws IOException {
+        Charset charset = StandardCharsets.US_ASCII;
+        // Already connected, need only to send a 200.
+        buffer.put(httpVersion.getBytes(charset)).put(SPACE).put("200".getBytes(charset)).put(SPACE)
+                .put("OK".getBytes(charset)).put(CR).put(LF).put(CR).put(LF);
+        buffer.flip();
+        getFuture(sourceChannel.write(buffer));
+        buffer.clear();
+    }
 
     @Override
     public void send(byte currentByte) throws IOException {
@@ -122,6 +135,11 @@ public class DirectHttpConnection implements HttpConnection {
             flushBuffer();
         }
         buffer.put(currentByte);
+    }
+    
+    @Override
+    public void send(ByteBuffer buffer) throws IOException {
+        getFuture(channel.write(buffer));
     }
 
     @Override

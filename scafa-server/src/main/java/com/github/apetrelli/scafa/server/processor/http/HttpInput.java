@@ -17,30 +17,37 @@
  */
 package com.github.apetrelli.scafa.server.processor.http;
 
+import java.nio.ByteBuffer;
+
 import com.github.apetrelli.scafa.server.processor.Input;
 
 
 public class HttpInput implements Input {
-    private byte currentByte = 0;
+    private ByteBuffer buffer;
 
     private HttpBodyMode bodyMode = HttpBodyMode.EMPTY;
 
     private long countdown = 0L;
 
     private boolean caughtError = false;
+    
+    private boolean httpConnected = false;
 
     public HttpInput() {
     }
-
-    public byte getCurrentByte() {
-        if (countdown > 0L) {
-            countdown --;
-        }
-        return currentByte;
+    
+    @Override
+    public byte peekNextByte() {
+        return buffer.array()[buffer.position()];
     }
-
-    public void setCurrentByte(byte currentByte) {
-        this.currentByte = currentByte;
+    
+    public void setBuffer(ByteBuffer buffer) {
+        this.buffer = buffer;
+    }
+    
+    @Override
+    public ByteBuffer getBuffer() {
+        return buffer;
     }
 
     public HttpBodyMode getBodyMode() {
@@ -58,6 +65,13 @@ public class HttpInput implements Input {
     public void setCountdown(long countdown) {
         this.countdown = countdown;
     }
+    
+    public void reduceCountdown(int toSubstract) {
+        countdown -= toSubstract;
+        if (countdown < 0L) {
+            countdown = 0L;
+        }
+    }
 
     public boolean isCaughtError() {
         return caughtError;
@@ -66,9 +80,16 @@ public class HttpInput implements Input {
     public void setCaughtError(boolean caughtError) {
         this.caughtError = caughtError;
     }
+    
+    public boolean isHttpConnected() {
+        return httpConnected;
+    }
+    
+    public void setHttpConnected(boolean httpConnected) {
+        this.httpConnected = httpConnected;
+    }
 
     public void reset() {
-        currentByte = 0;
         bodyMode = HttpBodyMode.EMPTY;
         countdown = 0L;
         caughtError = false;

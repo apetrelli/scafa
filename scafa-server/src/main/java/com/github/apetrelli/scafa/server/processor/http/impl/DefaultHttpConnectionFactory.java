@@ -19,6 +19,7 @@ package com.github.apetrelli.scafa.server.processor.http.impl;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.MalformedURLException;
 import java.net.SocketAddress;
 import java.net.URL;
 import java.nio.channels.AsynchronousSocketChannel;
@@ -54,10 +55,8 @@ public class DefaultHttpConnectionFactory implements HttpConnectionFactory {
         public int hashCode() {
             final int prime = 31;
             int result = 1;
-            result = prime * result
-                    + ((source == null) ? 0 : source.hashCode());
-            result = prime * result
-                    + ((target == null) ? 0 : target.hashCode());
+            result = prime * result + ((source == null) ? 0 : source.hashCode());
+            result = prime * result + ((target == null) ? 0 : target.hashCode());
             return result;
         }
 
@@ -131,8 +130,7 @@ public class DefaultHttpConnectionFactory implements HttpConnectionFactory {
     }
 
     @Override
-    public void dispose(SocketAddress source, SocketAddress target)
-            throws IOException {
+    public void dispose(SocketAddress source, SocketAddress target) throws IOException {
         Pipe pipe = new Pipe(source, target);
         HttpConnection connection = connectionCache.get(pipe);
         if (connection != null) {
@@ -148,31 +146,42 @@ public class DefaultHttpConnectionFactory implements HttpConnectionFactory {
     private SocketAddress getHostToConnect(String url, Map<String, List<String>> headers) throws IOException {
         SocketAddress retValue = null;
         List<String> hosts = headers.get("HOST");
-        URL realUrl = new URL(url);
         if (hosts != null) {
             if (hosts.size() == 1) {
                 String hostString = hosts.iterator().next();
                 String[] hostStringSplit = hostString.split(":");
-                Integer port;
+                Integer port = null;
                 if (hostStringSplit.length == 1) {
-                    port = protocol2port.get(realUrl.getProtocol());
-                } else if (hostStringSplit.length == 2) {
+                    try {
+                        URL realUrl = new URL(url);
+                        port = protocol2port.get(realUrl.getProtocol());
+                    } catch (MalformedURLException e) {
+                        // Rare, only in HTTP 1.0
+                        LOG.log(Level.FINE, "Host header not present and connect executed!", e);
+                        hostStringSplit = url.split(":");
+                        if (hostStringSplit.length != 2) {
+                            throw new IOException("Malformed Host url: " + url);
+                        }
+                    }
+                } else if (hostStringSplit.length != 2) {
+                    throw new IOException("Malformed Host header: " + hostString);
+                }
+                if (port == null) {
                     try {
                         port = Integer.decode(hostStringSplit[1]);
                     } catch (NumberFormatException e) {
                         throw new IOException("Malformed port: " + hostStringSplit[1], e);
                     }
-                } else {
-                    throw new IOException("Malformed Host header: " + hostString);
                 }
                 if (port == null || port < 0) {
-                    throw new IOException("Invalid port " + port + " for protocol " + realUrl.getProtocol());
+                    throw new IOException("Invalid port " + port + " for connection to " + url);
                 }
                 retValue = new InetSocketAddress(hostStringSplit[0], port);
             } else {
                 throw new IOException("Multiple hosts defined: " + hosts.toString());
             }
         } else {
+            URL realUrl = new URL(url);
             retValue = new InetSocketAddress(realUrl.getHost(), realUrl.getPort());
         }
         return retValue;

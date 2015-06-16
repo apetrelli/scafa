@@ -40,12 +40,12 @@ public enum HttpStatus implements Status<HttpInput, HttpByteSink> {
 
         @Override
         public HttpStatus next(HttpInput input) {
-            return input.getCurrentByte() == CR ? REQUEST_LINE_CR : REQUEST_LINE;
+            return input.peekNextByte() == CR ? REQUEST_LINE_CR : REQUEST_LINE;
         }
 
         @Override
         public void out(HttpInput input, HttpByteSink sink) {
-            sink.appendRequestLine(input.getCurrentByte());
+            sink.appendRequestLine(input.getBuffer().get());
         }
 
     },
@@ -58,7 +58,7 @@ public enum HttpStatus implements Status<HttpInput, HttpByteSink> {
 
         @Override
         public void out(HttpInput input, HttpByteSink sink) {
-            sink.endRequestLine(input.getCurrentByte());
+            sink.endRequestLine(input.getBuffer().get());
         }
 
     },
@@ -66,12 +66,12 @@ public enum HttpStatus implements Status<HttpInput, HttpByteSink> {
 
         @Override
         public HttpStatus next(HttpInput input) {
-            return input.getCurrentByte() == CR ? POSSIBLE_HEADER_CR : HEADER;
+            return input.peekNextByte() == CR ? POSSIBLE_HEADER_CR : HEADER;
         }
 
         @Override
         public void out(HttpInput input, HttpByteSink sink) {
-            sink.beforeHeader(input.getCurrentByte());
+            sink.beforeHeader(input.getBuffer().get());
         }
 
     },
@@ -79,12 +79,12 @@ public enum HttpStatus implements Status<HttpInput, HttpByteSink> {
 
         @Override
         public HttpStatus next(HttpInput input) {
-            return input.getCurrentByte() == CR ? POSSIBLE_HEADER_CR : HEADER;
+            return input.peekNextByte() == CR ? POSSIBLE_HEADER_CR : HEADER;
         }
 
         @Override
         public void out(HttpInput input, HttpByteSink sink) {
-            sink.appendHeader(input.getCurrentByte());
+            sink.appendHeader(input.getBuffer().get());
         }
 
     },
@@ -105,7 +105,7 @@ public enum HttpStatus implements Status<HttpInput, HttpByteSink> {
 
         @Override
         public HttpStatus next(HttpInput input) {
-            return IDLE;
+            return input.isHttpConnected() ? CONNECT : IDLE;
         }
 
         @Override
@@ -142,12 +142,12 @@ public enum HttpStatus implements Status<HttpInput, HttpByteSink> {
 
         @Override
         public HttpStatus next(HttpInput input) {
-            return input.getCurrentByte() == CR ? HEADER_CR : HEADER;
+            return input.peekNextByte() == CR ? HEADER_CR : HEADER;
         }
 
         @Override
         public void out(HttpInput input, HttpByteSink sink) {
-            sink.appendHeader(input.getCurrentByte());
+            sink.appendHeader(input.getBuffer().get());
         }
 
     },
@@ -160,7 +160,7 @@ public enum HttpStatus implements Status<HttpInput, HttpByteSink> {
 
         @Override
         public void out(HttpInput input, HttpByteSink sink) {
-            sink.endHeaderLine(input.getCurrentByte());
+            sink.endHeaderLine(input.getBuffer().get());
         }
 
     },
@@ -168,12 +168,12 @@ public enum HttpStatus implements Status<HttpInput, HttpByteSink> {
 
         @Override
         public HttpStatus next(HttpInput input) {
-            return input.getCurrentByte() == CR ? POSSIBLE_HEADER_CR : HEADER;
+            return input.peekNextByte() == CR ? POSSIBLE_HEADER_CR : HEADER;
         }
 
         @Override
         public void out(HttpInput input, HttpByteSink sink) {
-            sink.beforeHeaderLine(input.getCurrentByte());
+            sink.beforeHeaderLine(input.getBuffer().get());
         }
 
     },
@@ -181,7 +181,7 @@ public enum HttpStatus implements Status<HttpInput, HttpByteSink> {
 
         @Override
         public HttpStatus next(HttpInput input) {
-            return input.getCountdown() > 0L ? BODY : LAST_BYTE;
+            return input.getCountdown() > 0L ? BODY : IDLE;
         }
 
         @Override
@@ -220,12 +220,12 @@ public enum HttpStatus implements Status<HttpInput, HttpByteSink> {
 
         @Override
         public HttpStatus next(HttpInput input) {
-            return input.getCurrentByte() == CR ? CHUNK_COUNT_CR : CHUNK_COUNT;
+            return input.peekNextByte() == CR ? CHUNK_COUNT_CR : CHUNK_COUNT;
         }
 
         @Override
         public void out(HttpInput input, HttpByteSink sink) throws IOException {
-            sink.appendChunkCount(input.getCurrentByte());
+            sink.appendChunkCount(input.getBuffer().get());
         }
     },
     CHUNK_COUNT_CR() {
@@ -302,9 +302,22 @@ public enum HttpStatus implements Status<HttpInput, HttpByteSink> {
 
         @Override
         public void out(HttpInput input, HttpByteSink sink) throws IOException {
-            sink.beforeChunkCount(input.getCurrentByte());
+            sink.beforeChunkCount(input.getBuffer().get());
         }
 
+    },
+    CONNECT() {
+
+        @Override
+        public Status<HttpInput, HttpByteSink> next(HttpInput input) {
+            return CONNECT;
+        }
+
+        @Override
+        public void out(HttpInput input, HttpByteSink sink) throws IOException {
+            sink.send(input);
+        }
+        
     };
 
     private static final byte CR = 13; // LF is implicit.

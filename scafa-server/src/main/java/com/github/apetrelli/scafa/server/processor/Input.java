@@ -17,9 +17,13 @@
  */
 package com.github.apetrelli.scafa.server.processor;
 
+import java.nio.ByteBuffer;
+
 public interface Input {
 
-    void setCurrentByte(byte currentByte);
-
     void setCaughtError(boolean caughtError);
+    
+    ByteBuffer getBuffer();
+    
+    byte peekNextByte();
 }

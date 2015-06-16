@@ -83,12 +83,15 @@ public class DefaultHttpByteSink implements HttpByteSink {
 
     @Override
     public HttpInput createInput() {
-        return new HttpInput();
+        HttpInput retValue = new HttpInput();
+        ByteBuffer buffer = ByteBuffer.allocate(16384);
+        retValue.setBuffer(buffer);
+        return retValue;
     }
 
     @Override
     public void start(HttpInput input) {
-        buffer[0] = input.getCurrentByte();
+        buffer[0] = input.getBuffer().get();
         bufferCount = 1;
         method = null;
         url = null;
@@ -154,7 +157,7 @@ public class DefaultHttpByteSink implements HttpByteSink {
 
     @Override
     public void preEndHeader(HttpInput input) {
-        appendToBuffer(input.getCurrentByte());
+        appendToBuffer(input.getBuffer().get());
         input.setBodyMode(HttpBodyMode.EMPTY);
         List<String> contentLengths = headers.get("CONTENT-LENGTH");
         if (contentLengths != null) { // Check for body
@@ -186,7 +189,7 @@ public class DefaultHttpByteSink implements HttpByteSink {
 
     @Override
     public void endHeader(HttpInput input) throws IOException {
-        appendToBuffer(input.getCurrentByte());
+        appendToBuffer(input.getBuffer().get());
         chunkCountBufferCount = 0;
         if (LOG.isLoggable(Level.FINEST)) {
             String request = new String(buffer, 0, bufferCount);
@@ -195,7 +198,12 @@ public class DefaultHttpByteSink implements HttpByteSink {
             LOG.finest("-- End of request --");
         }
         connection = connectionFactory.create(sourceChannel, method, url, headers, httpVersion);
-        connection.sendHeader(method, url, headers, httpVersion);
+        if ("CONNECT".equalsIgnoreCase(method)) {
+            connection.connect(method, url, headers, httpVersion);
+            input.setHttpConnected(true);
+        } else {
+            connection.sendHeader(method, url, headers, httpVersion);
+        }
     }
 
     @Override
@@ -233,7 +241,7 @@ public class DefaultHttpByteSink implements HttpByteSink {
         } else {
             LOG.severe("Chunk count empty, invalid");
         }
-        connection.send(input.getCurrentByte());
+        connection.send(input.getBuffer().get());
         if (input.getCountdown() == 0L) {
             connection.end();
         }
@@ -242,14 +250,16 @@ public class DefaultHttpByteSink implements HttpByteSink {
     @Override
     public void send(HttpInput input) throws IOException {
         if (!input.isCaughtError()) {
-            connection.send(input.getCurrentByte());
+            int size = input.getBuffer().limit() - input.getBuffer().position();
+            connection.send(input.getBuffer());
+            input.reduceCountdown(size);
         }
     }
 
     @Override
     public void end(HttpInput input) throws IOException {
         if (!input.isCaughtError()) {
-            connection.send(input.getCurrentByte());
+            connection.send(input.getBuffer().get());
             connection.end();
         } else {
             sendErrorPage(sourceChannel, HTTP_502, generic502Page);

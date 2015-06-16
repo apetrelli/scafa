@@ -55,18 +55,17 @@ public class ScafaListener<I extends Input, S extends ByteSink<I>> {
             @Override
             public void completed(AsynchronousSocketChannel client,
                     Void attachment) {
-                ByteBuffer buffer = ByteBuffer.allocate(16384);
                 S sink = factory.create(client);
                 ObjectHolder<Status<I, S>> statusHolder = new ObjectHolder<>();
                 statusHolder.obj = initialStatus;
                 I input = sink.createInput();
-                client.read(buffer, buffer, new CompletionHandler<Integer, ByteBuffer>() {
+                client.read(input.getBuffer(), input, new CompletionHandler<Integer, I>() {
                     @Override
-                    public void completed(Integer result, ByteBuffer attachment) {
+                    public void completed(Integer result, I attachment) {
+                        ByteBuffer buffer = attachment.getBuffer();
                         if (result >= 0) {
-                            attachment.flip();
-                            while (attachment.position() < attachment.limit()) {
-                                input.setCurrentByte(attachment.get());
+                            buffer.flip();
+                            while (buffer.position() < buffer.limit()) {
                                 statusHolder.obj = statusHolder.obj.next(input);
                                 try {
                                     statusHolder.obj.out(input, sink);
@@ -79,8 +78,8 @@ public class ScafaListener<I extends Input, S extends ByteSink<I>> {
                                 }
                             }
                             if (client.isOpen()) {
-                                attachment.clear();
-                                client.read(attachment, attachment, this);
+                                buffer.clear();
+                                client.read(buffer, attachment, this);
                             }
                         } else {
                             try {
@@ -92,7 +91,7 @@ public class ScafaListener<I extends Input, S extends ByteSink<I>> {
                     }
 
                     @Override
-                    public void failed(Throwable exc, ByteBuffer attachment) {
+                    public void failed(Throwable exc, I attachment) {
                         exc.printStackTrace();
                         try {
                             client.close();
