@@ -92,11 +92,11 @@ public class ScafaListener<I extends Input, S extends ByteSink<I>> {
 
                     @Override
                     public void failed(Throwable exc, I attachment) {
-                        exc.printStackTrace();
+                        LOG.log(Level.INFO, "Error when listening to I/O");
                         try {
                             client.close();
                         } catch (IOException e) {
-                            e.printStackTrace();
+                            LOG.log(Level.FINE, "Error when closing client");
                         }
                     }
                 });
