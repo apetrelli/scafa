@@ -26,14 +26,16 @@ import java.nio.channels.CompletionHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.github.apetrelli.scafa.server.processor.BufferProcessor;
 import com.github.apetrelli.scafa.server.processor.ByteSink;
 import com.github.apetrelli.scafa.server.processor.ByteSinkFactory;
 import com.github.apetrelli.scafa.server.processor.Input;
+import com.github.apetrelli.scafa.server.processor.impl.DefaultBufferProcessor;
 
 public class ScafaListener<I extends Input, S extends ByteSink<I>> {
 
     private static class ObjectHolder<T> {
-        T obj;
+        private T obj;
     }
 
     private static final Logger LOG = Logger.getLogger(ScafaListener.class.getName());
@@ -59,31 +61,21 @@ public class ScafaListener<I extends Input, S extends ByteSink<I>> {
                 ObjectHolder<Status<I, S>> statusHolder = new ObjectHolder<>();
                 statusHolder.obj = initialStatus;
                 I input = sink.createInput();
+                BufferProcessor<I, S> processor = new DefaultBufferProcessor<>(sink);
                 client.read(input.getBuffer(), input, new CompletionHandler<Integer, I>() {
                     @Override
                     public void completed(Integer result, I attachment) {
-                        ByteBuffer buffer = attachment.getBuffer();
                         if (result >= 0) {
+                            ByteBuffer buffer = attachment.getBuffer();
                             buffer.flip();
-                            while (buffer.position() < buffer.limit()) {
-                                statusHolder.obj = statusHolder.obj.next(input);
-                                try {
-                                    statusHolder.obj.out(input, sink);
-                                } catch (IOException e) {
-                                    LOG.log(Level.INFO, "Generic I/O error", e);
-                                    input.setCaughtError(true);
-                                } catch (RuntimeException e) {
-                                    LOG.log(Level.INFO, "Generic runtime error", e);
-                                    input.setCaughtError(true);
-                                }
-                            }
+                            statusHolder.obj = processor.process(input, statusHolder.obj);
                             if (client.isOpen()) {
                                 buffer.clear();
                                 client.read(buffer, attachment, this);
                             }
                         } else {
                             try {
-                                sink.dispose();
+                                sink.disconnect();
                             } catch (IOException e) {
                                 LOG.log(Level.SEVERE, "Error when disposing client", e);
                             }

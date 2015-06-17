@@ -27,7 +27,7 @@ public interface ByteSink<T> {
 
     void send(T input) throws IOException;
 
-    void end(T input) throws IOException;
+    void sendChunkData(T input) throws IOException;
 
-    void dispose() throws IOException;
+    void disconnect() throws IOException;
 }

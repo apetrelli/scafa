@@ -199,7 +199,7 @@ public enum HttpStatus implements Status<HttpInput, HttpByteSink> {
 
         @Override
         public void out(HttpInput input, HttpByteSink sink) throws IOException {
-            sink.send(input);
+            input.getBuffer().get(); // Skipping penultimate byte of chunked transfer.
         }
 
     },
@@ -212,7 +212,7 @@ public enum HttpStatus implements Status<HttpInput, HttpByteSink> {
 
         @Override
         public void out(HttpInput input, HttpByteSink sink) throws IOException {
-            sink.end(input);
+            input.getBuffer().get(); // Skipping last byte of chunked transfer.
         }
 
     },
@@ -317,7 +317,7 @@ public enum HttpStatus implements Status<HttpInput, HttpByteSink> {
         public void out(HttpInput input, HttpByteSink sink) throws IOException {
             sink.send(input);
         }
-        
+
     };
 
     private static final byte CR = 13; // LF is implicit.

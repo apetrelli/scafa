@@ -28,23 +28,33 @@ public class HttpInput implements Input {
     private HttpBodyMode bodyMode = HttpBodyMode.EMPTY;
 
     private long countdown = 0L;
+    
+    private long bodySize;
+    
+    private long bodyOffset;
+    
+    private long totalChunkedTransferLength;
+    
+    private long chunkOffset;
+    
+    private long chunkLength;
 
     private boolean caughtError = false;
-    
+
     private boolean httpConnected = false;
 
     public HttpInput() {
     }
-    
+
     @Override
     public byte peekNextByte() {
         return buffer.array()[buffer.position()];
     }
-    
+
     public void setBuffer(ByteBuffer buffer) {
         this.buffer = buffer;
     }
-    
+
     @Override
     public ByteBuffer getBuffer() {
         return buffer;
@@ -61,16 +71,53 @@ public class HttpInput implements Input {
     public long getCountdown() {
         return countdown;
     }
-
-    public void setCountdown(long countdown) {
-        this.countdown = countdown;
+    
+    public long getBodySize() {
+        return bodySize;
     }
     
-    public void reduceCountdown(int toSubstract) {
-        countdown -= toSubstract;
+    public void setBodySize(long bodySize) {
+        this.bodySize = bodySize;
+        countdown = bodySize;
+        bodyOffset = 0L;
+    }
+    
+    public long getBodyOffset() {
+        return bodyOffset;
+    }
+    
+    public long getTotalChunkedTransferLength() {
+        return totalChunkedTransferLength;
+    }
+    
+    public long getChunkOffset() {
+        return chunkOffset;
+    }
+    
+    public long getChunkLength() {
+        return chunkLength;
+    }
+    
+    public void setChunkLength(long chunkLength) {
+        this.chunkLength = chunkLength;
+        totalChunkedTransferLength += chunkLength;
+        chunkOffset = 0L;
+    }
+
+    public void reduceBody(int toSubtract) {
+        countdown -= toSubtract;
         if (countdown < 0L) {
             countdown = 0L;
         }
+        bodyOffset += toSubtract;
+    }
+    
+    public void reduceChunk(long toSubtract) {
+        countdown -= toSubtract;
+        if (countdown < 0L) {
+            countdown = 0L;
+        }
+        chunkOffset += toSubtract;
     }
 
     public boolean isCaughtError() {
@@ -80,11 +127,11 @@ public class HttpInput implements Input {
     public void setCaughtError(boolean caughtError) {
         this.caughtError = caughtError;
     }
-    
+
     public boolean isHttpConnected() {
         return httpConnected;
     }
-    
+
     public void setHttpConnected(boolean httpConnected) {
         this.httpConnected = httpConnected;
     }
@@ -92,6 +139,11 @@ public class HttpInput implements Input {
     public void reset() {
         bodyMode = HttpBodyMode.EMPTY;
         countdown = 0L;
+        bodySize = 0L;
+        bodyOffset = 0L;
+        totalChunkedTransferLength = 0L;
+        chunkOffset = 0L;
+        chunkLength = 0L;
         caughtError = false;
     }
 }

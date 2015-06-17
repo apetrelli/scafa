@@ -15,16 +15,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.apetrelli.scafa.server.processor.http.impl;
+package com.github.apetrelli.scafa.server.processor.http.ntlm;
 
 import java.io.IOException;
 import java.net.SocketAddress;
-import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -35,7 +36,7 @@ import java.util.logging.Logger;
 import com.github.apetrelli.scafa.server.processor.http.HttpConnection;
 import com.github.apetrelli.scafa.server.processor.http.HttpConnectionFactory;
 
-public class DirectHttpConnection implements HttpConnection {
+public class NtlmHttpConnection implements HttpConnection {
 
     private static final byte CR = 13;
 
@@ -55,22 +56,34 @@ public class DirectHttpConnection implements HttpConnection {
 
     private static final byte CAPITALIZE_CONST = A_LOWER - A_UPPER;
 
-    private static final Logger LOG = Logger.getLogger(DirectHttpConnection.class.getName());
+    private static final Logger LOG = Logger.getLogger(NtlmHttpConnection.class.getName());
 
     private AsynchronousSocketChannel channel, sourceChannel;
 
     private ByteBuffer buffer = ByteBuffer.allocate(16384);
+    
+    private HttpConnectionFactory factory;
+    
+    private SocketAddress socketAddress;
+    
+    private boolean authenticated = false;
 
-    public DirectHttpConnection(HttpConnectionFactory factory,
+    public NtlmHttpConnection(HttpConnectionFactory factory,
             AsynchronousSocketChannel sourceChannel, SocketAddress socketAddress)
             throws IOException {
         channel = AsynchronousSocketChannel.open();
         this.sourceChannel = sourceChannel;
+        this.factory = factory;
+        this.socketAddress = socketAddress;
         getFuture(channel.connect(socketAddress));
+        prepareReadStream();
+    }
+
+    private void prepareReadStream() throws IOException {
         ByteBuffer readBuffer = ByteBuffer.allocate(16384);
         SocketAddress source = sourceChannel.getRemoteAddress();
         channel.read(readBuffer, readBuffer, new CompletionHandler<Integer, ByteBuffer>() {
-
+        
             @Override
             public void completed(Integer result, ByteBuffer attachment) {
                 if (result >= 0) {
@@ -90,7 +103,7 @@ public class DirectHttpConnection implements HttpConnection {
                     }
                 }
             }
-
+        
             @Override
             public void failed(Throwable exc, ByteBuffer attachment) {
                 LOG.log(Level.SEVERE, "Error when writing to source", exc);
@@ -101,20 +114,22 @@ public class DirectHttpConnection implements HttpConnection {
     @Override
     public void sendHeader(String method, String url,
             Map<String, List<String>> headers, String httpVersion) throws IOException {
-        Charset charset = StandardCharsets.US_ASCII;
-        URL realurl = new URL(url);
-        buffer.put(method.getBytes(charset)).put(SPACE)
-                .put(realurl.getFile().getBytes(charset)).put(SPACE)
-                .put(httpVersion.getBytes(charset)).put(CR).put(LF);
-        headers.entrySet().stream().forEach(t -> {
-            String key = t.getKey();
-            byte[] convertedKey = putCapitalized(key);
-            t.getValue().forEach(u -> {
-                buffer.put(convertedKey).put(COLON).put(SPACE).put(u.getBytes(charset)).put(CR).put(LF);
-            });
-        });
-        buffer.put(CR).put(LF);
-        flushBuffer();
+        Map<String, List<String>> modifiedHeaders = new LinkedHashMap<>(headers);
+        modifiedHeaders.put("PROXY-CONNECTION", Arrays.asList("keep-alive"));
+        if (!authenticated) {
+//            prepareReadStream();
+//            authenticated = true;
+            if (sendRequestImmediate(method, url, modifiedHeaders, httpVersion) >= 0) {
+                if (getFuture(channel.read(buffer)) >= 0) {
+                    
+                }
+            }
+            if (!authenticated) {
+                throw new IOException("NTLM authentication failed");
+            }
+        } else {
+            sendRequestImmediate(method, url, modifiedHeaders, httpVersion);
+        }
     }
 
     @Override
@@ -167,7 +182,7 @@ public class DirectHttpConnection implements HttpConnection {
         }
     }
 
-    private void flushBuffer() throws IOException {
+    private Integer flushBuffer() throws IOException {
         buffer.flip();
         if (LOG.isLoggable(Level.FINEST)) {
             int position = buffer.position();
@@ -176,8 +191,9 @@ public class DirectHttpConnection implements HttpConnection {
             LOG.finest(request);
             LOG.finest("-- End of request --");
         }
-        getFuture(channel.write(buffer));
+        Integer result = getFuture(channel.write(buffer));
         buffer.clear();
+        return result;
     }
 
     private byte[] putCapitalized(String string) {
@@ -203,5 +219,22 @@ public class DirectHttpConnection implements HttpConnection {
             converted[i] = currentByte;
         }
         return converted;
+    }
+
+    private Integer sendRequestImmediate(String method, String url, Map<String, List<String>> headers, String httpVersion)
+            throws IOException {
+        Charset charset = StandardCharsets.US_ASCII;
+        buffer.put(method.getBytes(charset)).put(SPACE)
+                .put(url.getBytes(charset)).put(SPACE)
+                .put(httpVersion.getBytes(charset)).put(CR).put(LF);
+        headers.entrySet().stream().forEach(t -> {
+            String key = t.getKey();
+            byte[] convertedKey = putCapitalized(key);
+            t.getValue().forEach(u -> {
+                buffer.put(convertedKey).put(COLON).put(SPACE).put(u.getBytes(charset)).put(CR).put(LF);
+            });
+        });
+        buffer.put(CR).put(LF);
+        return flushBuffer();
     }
 }

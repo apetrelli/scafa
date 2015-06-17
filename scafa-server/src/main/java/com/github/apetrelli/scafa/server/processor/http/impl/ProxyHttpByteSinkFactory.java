@@ -23,11 +23,11 @@ import com.github.apetrelli.scafa.server.processor.ByteSinkFactory;
 import com.github.apetrelli.scafa.server.processor.http.HttpByteSink;
 import com.github.apetrelli.scafa.server.processor.http.HttpInput;
 
-public class HttpByteSinkFactory implements ByteSinkFactory<HttpInput, HttpByteSink> {
+public class ProxyHttpByteSinkFactory implements ByteSinkFactory<HttpInput, HttpByteSink> {
 
     @Override
     public HttpByteSink create(AsynchronousSocketChannel client) {
-        return new DefaultHttpByteSink(new DefaultHttpConnectionFactory(), client);
+        return new DefaultHttpByteSink(client, new DefaultProxyHttpHandler(new DefaultHttpConnectionFactory(), client));
     }
 
 }

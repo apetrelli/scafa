@@ -29,7 +29,7 @@ public interface HttpConnection {
             Map<String, List<String>> headers, String httpVersion)
             throws IOException;
 
-    void connect(String method, String url, Map<String, List<String>> headers, String httpVersion) throws IOException;
+    void connect(String method, String host, int port, Map<String, List<String>> headers, String httpVersion) throws IOException;
 
     void send(ByteBuffer buffer) throws IOException;
 

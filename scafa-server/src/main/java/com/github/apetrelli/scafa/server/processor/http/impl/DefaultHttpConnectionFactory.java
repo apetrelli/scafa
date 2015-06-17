@@ -101,20 +101,14 @@ public class DefaultHttpConnectionFactory implements HttpConnectionFactory {
     public HttpConnection create(AsynchronousSocketChannel sourceChannel, String method, String url,
             Map<String, List<String>> headers, String httpVersion) throws IOException {
         SocketAddress hostPort = getHostToConnect(url, headers);
-        SocketAddress source = sourceChannel.getRemoteAddress();
-        Pipe pipe = new Pipe(source, hostPort);
-        HttpConnection connection = connectionCache.get(pipe);
-        if (connection == null) {
-            connection = new DirectHttpConnection(this, sourceChannel, hostPort);
-            connectionCache.put(pipe, connection);
-            Set<Pipe> pipes = openPipes.get(source);
-            if (pipes == null) {
-                pipes = new HashSet<>();
-                openPipes.put(source, pipes);
-            }
-            pipes.add(pipe);
-        }
-        return connection;
+        return create(sourceChannel, hostPort);
+    }
+    
+    @Override
+    public HttpConnection create(AsynchronousSocketChannel sourceChannel, String method, String host, int port,
+            Map<String, List<String>> headers, String httpVersion) throws IOException {
+        SocketAddress hostPort = new InetSocketAddress(host, port);
+        return create(sourceChannel, hostPort);
     }
 
     @Override
@@ -134,13 +128,30 @@ public class DefaultHttpConnectionFactory implements HttpConnectionFactory {
         Pipe pipe = new Pipe(source, target);
         HttpConnection connection = connectionCache.get(pipe);
         if (connection != null) {
-            closeQuietly(connection);
+//            closeQuietly(connection);
             connectionCache.remove(pipe);
             Set<Pipe> pipes = openPipes.get(source);
             if (pipes != null) {
                 pipes.remove(pipe);
             }
         }
+    }
+
+    private HttpConnection create(AsynchronousSocketChannel sourceChannel, SocketAddress hostPort) throws IOException {
+        SocketAddress source = sourceChannel.getRemoteAddress();
+        Pipe pipe = new Pipe(source, hostPort);
+        HttpConnection connection = connectionCache.get(pipe);
+        if (connection == null) {
+            connection = new DirectHttpConnection(this, sourceChannel, hostPort);
+            connectionCache.put(pipe, connection);
+            Set<Pipe> pipes = openPipes.get(source);
+            if (pipes == null) {
+                pipes = new HashSet<>();
+                openPipes.put(source, pipes);
+            }
+            pipes.add(pipe);
+        }
+        return connection;
     }
 
     private SocketAddress getHostToConnect(String url, Map<String, List<String>> headers) throws IOException {

@@ -28,6 +28,9 @@ public interface HttpConnectionFactory {
     HttpConnection create(AsynchronousSocketChannel sourceChannel, String method, String url,
             Map<String, List<String>> headers, String httpVersion) throws IOException;
 
+    HttpConnection create(AsynchronousSocketChannel sourceChannel, String method, String host, int port,
+            Map<String, List<String>> headers, String httpVersion) throws IOException;
+
     void dispose(SocketAddress source) throws IOException;
 
     void dispose(SocketAddress sourceChannel, SocketAddress target) throws IOException;

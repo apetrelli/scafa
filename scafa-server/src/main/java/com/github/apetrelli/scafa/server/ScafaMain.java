@@ -26,7 +26,7 @@ import java.util.logging.Logger;
 import com.github.apetrelli.scafa.server.processor.http.HttpByteSink;
 import com.github.apetrelli.scafa.server.processor.http.HttpInput;
 import com.github.apetrelli.scafa.server.processor.http.HttpStatus;
-import com.github.apetrelli.scafa.server.processor.http.impl.HttpByteSinkFactory;
+import com.github.apetrelli.scafa.server.processor.http.impl.ProxyHttpByteSinkFactory;
 
 public class ScafaMain {
 
@@ -39,7 +39,7 @@ public class ScafaMain {
             LOG.log(Level.SEVERE, "Cannot load logging configuration, exiting", e);
             System.exit(1);
         }
-        ScafaListener<HttpInput, HttpByteSink> proxy = new ScafaListener<>(new HttpByteSinkFactory(), HttpStatus.IDLE);
+        ScafaListener<HttpInput, HttpByteSink> proxy = new ScafaListener<>(new ProxyHttpByteSinkFactory(), HttpStatus.IDLE);
         try {
             proxy.listen();
         } catch (IOException e) {

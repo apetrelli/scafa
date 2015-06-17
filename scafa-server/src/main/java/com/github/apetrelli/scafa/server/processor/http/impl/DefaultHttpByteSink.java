@@ -20,7 +20,6 @@ package com.github.apetrelli.scafa.server.processor.http.impl;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.charset.StandardCharsets;
@@ -34,9 +33,8 @@ import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.server.processor.http.HttpBodyMode;
 import com.github.apetrelli.scafa.server.processor.http.HttpByteSink;
-import com.github.apetrelli.scafa.server.processor.http.HttpConnection;
-import com.github.apetrelli.scafa.server.processor.http.HttpConnectionFactory;
 import com.github.apetrelli.scafa.server.processor.http.HttpInput;
+import com.github.apetrelli.scafa.server.processor.http.ProxyHttpHandler;
 
 public class DefaultHttpByteSink implements HttpByteSink {
 
@@ -47,13 +45,9 @@ public class DefaultHttpByteSink implements HttpByteSink {
             + "Connection: close\r\n"
             + "Content-Length: %1$d\r\n\r\n";
 
-    private HttpConnectionFactory connectionFactory;
-
     private AsynchronousSocketChannel sourceChannel;
-
-    private SocketAddress source;
-
-    private HttpConnection connection;
+    
+    private ProxyHttpHandler handler;
 
     private byte[] buffer = new byte[16384];
 
@@ -69,12 +63,10 @@ public class DefaultHttpByteSink implements HttpByteSink {
 
     private byte[] generic502Page;
 
-    public DefaultHttpByteSink(HttpConnectionFactory connectionFactory,
-            AsynchronousSocketChannel sourceChannel) {
-        this.connectionFactory = connectionFactory;
+    public DefaultHttpByteSink(AsynchronousSocketChannel sourceChannel, ProxyHttpHandler handler) {
         this.sourceChannel = sourceChannel;
+        this.handler = handler;
         try {
-            source = sourceChannel.getRemoteAddress();
             generic502Page = loadResource("/errorpages/generic-502.html");
         } catch (IOException e) {
             throw new IllegalStateException("Error page not found", e);
@@ -166,7 +158,7 @@ public class DefaultHttpByteSink implements HttpByteSink {
                 try {
                     long length = Long.parseLong(lengthString);
                     input.setBodyMode(HttpBodyMode.BODY);
-                    input.setCountdown(length);
+                    input.setBodySize(length);
                 } catch (NumberFormatException e) {
                     LOG.log(Level.SEVERE, "The provided length is not an integer: " + lengthString, e);
                 }
@@ -197,12 +189,20 @@ public class DefaultHttpByteSink implements HttpByteSink {
             LOG.finest(request);
             LOG.finest("-- End of request --");
         }
-        connection = connectionFactory.create(sourceChannel, method, url, headers, httpVersion);
         if ("CONNECT".equalsIgnoreCase(method)) {
-            connection.connect(method, url, headers, httpVersion);
-            input.setHttpConnected(true);
+            String[] strings = url.split(":");
+            if (strings.length != 2) {
+                throw new IOException("Invalid host:port " + url);
+            }
+            try {
+                int port = Integer.parseInt(strings[1]);
+                handler.onConnectMethod(strings[0], port, httpVersion, headers);
+                input.setHttpConnected(true);
+            } catch (NumberFormatException e) {
+                throw new IOException("Invalid port in host:port " + url, e);
+            }
         } else {
-            connection.sendHeader(method, url, headers, httpVersion);
+            handler.onRequestHeader(method, url, httpVersion, headers);
         }
     }
 
@@ -219,13 +219,11 @@ public class DefaultHttpByteSink implements HttpByteSink {
     @Override
     public void beforeChunkCount(byte currentByte) throws IOException {
         chunkCountBufferCount = 0;
-        connection.send(currentByte);
     }
 
     @Override
     public void appendChunkCount(byte currentByte) throws IOException {
         chunkCountBuffer[chunkCountBufferCount] = currentByte;
-        connection.send(currentByte);
     }
 
     @Override
@@ -234,37 +232,52 @@ public class DefaultHttpByteSink implements HttpByteSink {
             String chunkCountHex = new String(chunkCountBuffer, 0, chunkCountBufferCount, StandardCharsets.US_ASCII);
             try {
                 long chunkCount = Long.parseLong(chunkCountHex, 16);
-                input.setCountdown(chunkCount);
+                input.setChunkLength(chunkCount);
+                if (!input.isCaughtError()) {
+                    handler.onChunkStart(input.getTotalChunkedTransferLength(), chunkCount);
+                }
+                if (chunkCount == 0L) {
+                    if (!input.isCaughtError()) {
+                        handler.onChunkEnd();
+                        handler.onChunkedTransferEnd();
+                        handler.onEnd();
+                    } else {
+                        sendErrorPage(sourceChannel, HTTP_502, generic502Page);
+                    }
+                }
             } catch (NumberFormatException e) {
                 LOG.log(Level.SEVERE, "Chunk count invalid for an hex value: " + chunkCountHex, e);
             }
         } else {
             LOG.severe("Chunk count empty, invalid");
         }
-        connection.send(input.getBuffer().get());
-        if (input.getCountdown() == 0L) {
-            connection.end();
-        }
     }
 
     @Override
     public void send(HttpInput input) throws IOException {
+        int size = input.getBuffer().limit() - input.getBuffer().position();
         if (!input.isCaughtError()) {
-            int size = input.getBuffer().limit() - input.getBuffer().position();
-            connection.send(input.getBuffer());
-            input.reduceCountdown(size);
+            handler.onBody(input.getBuffer(), input.getBodyOffset(), input.getBodySize());
         }
-    }
-
-    @Override
-    public void end(HttpInput input) throws IOException {
-        if (!input.isCaughtError()) {
-            connection.send(input.getBuffer().get());
-            connection.end();
-        } else {
+        input.reduceBody(size);
+        if (!input.isHttpConnected() && input.isCaughtError() && input.getCountdown() <= 0L) {
             sendErrorPage(sourceChannel, HTTP_502, generic502Page);
         }
-        input.reset();
+    }
+    
+    @Override
+    public void sendChunkData(HttpInput input) throws IOException {
+        if (!input.isCaughtError()) {
+            long bufferSize = input.getBuffer().limit() - input.getBuffer().position();
+            long maxsize = input.getCountdown();
+            if (bufferSize > maxsize) {
+                bufferSize = maxsize;
+            }
+            handler.onChunk(input.getBuffer().array(), input.getBuffer().position(), new Long(bufferSize).intValue(),
+                    input.getTotalChunkedTransferLength() - input.getChunkLength(), input.getChunkOffset(),
+                    input.getChunkLength());
+            input.reduceChunk(bufferSize);
+        }
     }
 
     private void appendToBuffer(byte currentByte) {
@@ -299,7 +312,7 @@ public class DefaultHttpByteSink implements HttpByteSink {
     }
 
     @Override
-    public void dispose() throws IOException {
-        connectionFactory.dispose(source);
+    public void disconnect() throws IOException {
+        handler.onDisconnect();
     }
 }
