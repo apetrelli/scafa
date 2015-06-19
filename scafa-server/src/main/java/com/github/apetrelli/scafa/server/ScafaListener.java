@@ -31,12 +31,9 @@ import com.github.apetrelli.scafa.server.processor.ByteSink;
 import com.github.apetrelli.scafa.server.processor.ByteSinkFactory;
 import com.github.apetrelli.scafa.server.processor.Input;
 import com.github.apetrelli.scafa.server.processor.impl.DefaultBufferProcessor;
+import com.github.apetrelli.scafa.util.ObjectHolder;
 
 public class ScafaListener<I extends Input, S extends ByteSink<I>> {
-
-    private static class ObjectHolder<T> {
-        private T obj;
-    }
 
     private static final Logger LOG = Logger.getLogger(ScafaListener.class.getName());
 
@@ -58,41 +55,45 @@ public class ScafaListener<I extends Input, S extends ByteSink<I>> {
             public void completed(AsynchronousSocketChannel client,
                     Void attachment) {
                 S sink = factory.create(client);
-                ObjectHolder<Status<I, S>> statusHolder = new ObjectHolder<>();
-                statusHolder.obj = initialStatus;
-                I input = sink.createInput();
-                BufferProcessor<I, S> processor = new DefaultBufferProcessor<>(sink);
-                client.read(input.getBuffer(), input, new CompletionHandler<Integer, I>() {
-                    @Override
-                    public void completed(Integer result, I attachment) {
-                        if (result >= 0) {
-                            ByteBuffer buffer = attachment.getBuffer();
-                            buffer.flip();
-                            statusHolder.obj = processor.process(input, statusHolder.obj);
-                            if (client.isOpen()) {
-                                buffer.clear();
-                                client.read(buffer, attachment, this);
+                try {
+                    sink.connect();
+                    ObjectHolder<Status<I, S>> statusHolder = new ObjectHolder<>();
+                    statusHolder.setObj(initialStatus);
+                    I input = sink.createInput();
+                    BufferProcessor<I, S> processor = new DefaultBufferProcessor<>(sink);
+                    client.read(input.getBuffer(), input, new CompletionHandler<Integer, I>() {
+                        @Override
+                        public void completed(Integer result, I attachment) {
+                            if (result >= 0) {
+                                ByteBuffer buffer = attachment.getBuffer();
+                                buffer.flip();
+                                statusHolder.setObj(processor.process(input, statusHolder.getObj()));
+                                if (client.isOpen()) {
+                                    buffer.clear();
+                                    client.read(buffer, attachment, this);
+                                }
+                            } else {
+                                try {
+                                    sink.disconnect();
+                                } catch (IOException e) {
+                                    LOG.log(Level.SEVERE, "Error when disposing client", e);
+                                }
                             }
-                        } else {
+                        }
+    
+                        @Override
+                        public void failed(Throwable exc, I attachment) {
+                            LOG.log(Level.INFO, "Error when listening to I/O");
                             try {
-                                sink.disconnect();
+                                client.close();
                             } catch (IOException e) {
-                                LOG.log(Level.SEVERE, "Error when disposing client", e);
+                                LOG.log(Level.FINE, "Error when closing client");
                             }
                         }
-                    }
-
-                    @Override
-                    public void failed(Throwable exc, I attachment) {
-                        LOG.log(Level.INFO, "Error when listening to I/O");
-                        try {
-                            client.close();
-                        } catch (IOException e) {
-                            LOG.log(Level.FINE, "Error when closing client");
-                        }
-                    }
-                });
-
+                    });
+                } catch (IOException e) {
+                    LOG.log(Level.INFO, "Error when establishing a connection", e);
+                }
 
                 server.accept(null, this);
             }

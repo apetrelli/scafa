@@ -27,7 +27,7 @@ public class ProxyHttpByteSinkFactory implements ByteSinkFactory<HttpInput, Http
 
     @Override
     public HttpByteSink create(AsynchronousSocketChannel client) {
-        return new DefaultHttpByteSink(client, new DefaultProxyHttpHandler(new DefaultHttpConnectionFactory(), client));
+        return new ProxyHttpByteSink(client, new DefaultProxyHttpHandler(new DefaultHttpConnectionFactory(), client));
     }
 
 }

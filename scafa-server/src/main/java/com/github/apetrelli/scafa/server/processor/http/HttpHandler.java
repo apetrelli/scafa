@@ -17,7 +17,7 @@ public interface HttpHandler {
     void onRequestHeader(String method, String url, String httpVersion, Map<String, List<String>> headers)
             throws IOException;
 
-    long onBody(ByteBuffer buffer, long offset, long length) throws IOException;
+    void onBody(ByteBuffer buffer, long offset, long length) throws IOException;
 
     void onChunkStart(long totalOffset, long chunkLength) throws IOException;
 

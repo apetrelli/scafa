@@ -26,14 +26,12 @@ import java.util.Map;
 public interface HttpConnection {
 
     void sendHeader(String method, String url,
-            Map<String, List<String>> headers, String httpVersion)
+            String httpVersion, Map<String, List<String>> headers)
             throws IOException;
 
-    void connect(String method, String host, int port, Map<String, List<String>> headers, String httpVersion) throws IOException;
+    void connect(String method, String host, int port, String httpVersion, Map<String, List<String>> headers) throws IOException;
 
     void send(ByteBuffer buffer) throws IOException;
-
-    void send(byte currentByte) throws IOException;
 
     void end() throws IOException;
 

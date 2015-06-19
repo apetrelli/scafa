@@ -37,6 +37,20 @@ import com.github.apetrelli.scafa.server.processor.http.HttpConnectionFactory;
 
 public class DirectHttpConnection implements HttpConnection {
 
+    protected static <T> T getFuture(Future<T> future) throws IOException {
+        try {
+            return future.get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new IOException("Future problem", e);
+        }
+    }
+
+    protected AsynchronousSocketChannel channel, sourceChannel;
+
+    protected ByteBuffer buffer = ByteBuffer.allocate(16384);
+
+    protected ByteBuffer readBuffer = ByteBuffer.allocate(16384);
+
     private static final byte CR = 13;
 
     private static final byte LF = 10;
@@ -57,17 +71,59 @@ public class DirectHttpConnection implements HttpConnection {
 
     private static final Logger LOG = Logger.getLogger(DirectHttpConnection.class.getName());
 
-    private AsynchronousSocketChannel channel, sourceChannel;
-
-    private ByteBuffer buffer = ByteBuffer.allocate(16384);
-
     public DirectHttpConnection(HttpConnectionFactory factory,
             AsynchronousSocketChannel sourceChannel, SocketAddress socketAddress)
             throws IOException {
-        channel = AsynchronousSocketChannel.open();
         this.sourceChannel = sourceChannel;
+        channel = AsynchronousSocketChannel.open();
         getFuture(channel.connect(socketAddress));
-        ByteBuffer readBuffer = ByteBuffer.allocate(16384);
+        prepareChannel(factory, sourceChannel, socketAddress);
+    }
+
+    @Override
+    public void sendHeader(String method, String url,
+            String httpVersion, Map<String, List<String>> headers) throws IOException {
+        URL realurl = new URL(url);
+        String requestLine = method + " " + realurl.getFile() + " " + httpVersion;
+        sendHeader(requestLine, headers);
+    }
+
+    @Override
+    public void connect(String method, String host, int port, String httpVersion, Map<String, List<String>> headers)
+            throws IOException {
+        Charset charset = StandardCharsets.US_ASCII;
+        // Already connected, need only to send a 200.
+        buffer.put(httpVersion.getBytes(charset)).put(SPACE).put("200".getBytes(charset)).put(SPACE)
+                .put("OK".getBytes(charset)).put(CR).put(LF).put(CR).put(LF);
+        buffer.flip();
+        getFuture(sourceChannel.write(buffer));
+        buffer.clear();
+    }
+
+    @Override
+    public void send(ByteBuffer buffer) throws IOException {
+        getFuture(channel.write(buffer));
+    }
+
+    @Override
+    public void end() throws IOException {
+        // Does nothing.
+    }
+
+    @Override
+    public boolean isOpen() {
+        return channel.isOpen();
+    }
+
+    @Override
+    public void close() throws IOException {
+        if (channel.isOpen()) {
+            channel.close();
+        }
+    }
+
+    protected void prepareChannel(HttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
+            SocketAddress socketAddress) throws IOException {
         SocketAddress source = sourceChannel.getRemoteAddress();
         channel.read(readBuffer, readBuffer, new CompletionHandler<Integer, ByteBuffer>() {
 
@@ -98,14 +154,9 @@ public class DirectHttpConnection implements HttpConnection {
         });
     }
 
-    @Override
-    public void sendHeader(String method, String url,
-            Map<String, List<String>> headers, String httpVersion) throws IOException {
+    protected Integer sendHeader(String requestLine, Map<String, List<String>> headers) throws IOException {
         Charset charset = StandardCharsets.US_ASCII;
-        URL realurl = new URL(url);
-        buffer.put(method.getBytes(charset)).put(SPACE)
-                .put(realurl.getFile().getBytes(charset)).put(SPACE)
-                .put(httpVersion.getBytes(charset)).put(CR).put(LF);
+        buffer.put(requestLine.getBytes(charset)).put(CR).put(LF);
         headers.entrySet().stream().forEach(t -> {
             String key = t.getKey();
             byte[] convertedKey = putCapitalized(key);
@@ -114,60 +165,10 @@ public class DirectHttpConnection implements HttpConnection {
             });
         });
         buffer.put(CR).put(LF);
-        flushBuffer();
+        return flushBuffer();
     }
 
-    @Override
-    public void connect(String method, String host, int port, Map<String, List<String>> headers, String httpVersion)
-            throws IOException {
-        Charset charset = StandardCharsets.US_ASCII;
-        // Already connected, need only to send a 200.
-        buffer.put(httpVersion.getBytes(charset)).put(SPACE).put("200".getBytes(charset)).put(SPACE)
-                .put("OK".getBytes(charset)).put(CR).put(LF).put(CR).put(LF);
-        buffer.flip();
-        getFuture(sourceChannel.write(buffer));
-        buffer.clear();
-    }
-
-    @Override
-    public void send(byte currentByte) throws IOException {
-        if (buffer.position() >= buffer.limit()) {
-            flushBuffer();
-        }
-        buffer.put(currentByte);
-    }
-
-    @Override
-    public void send(ByteBuffer buffer) throws IOException {
-        getFuture(channel.write(buffer));
-    }
-
-    @Override
-    public void end() throws IOException {
-        flushBuffer();
-    }
-
-    @Override
-    public boolean isOpen() {
-        return channel.isOpen();
-    }
-
-    @Override
-    public void close() throws IOException {
-        if (channel.isOpen()) {
-            channel.close();
-        }
-    }
-
-    private <T> T getFuture(Future<T> future) throws IOException {
-        try {
-            return future.get();
-        } catch (InterruptedException | ExecutionException e) {
-            throw new IOException("Future problem", e);
-        }
-    }
-
-    private void flushBuffer() throws IOException {
+    private Integer flushBuffer() throws IOException {
         buffer.flip();
         if (LOG.isLoggable(Level.FINEST)) {
             int position = buffer.position();
@@ -176,8 +177,9 @@ public class DirectHttpConnection implements HttpConnection {
             LOG.finest(request);
             LOG.finest("-- End of request --");
         }
-        getFuture(channel.write(buffer));
+        Integer result = getFuture(channel.write(buffer));
         buffer.clear();
+        return result;
     }
 
     private byte[] putCapitalized(String string) {

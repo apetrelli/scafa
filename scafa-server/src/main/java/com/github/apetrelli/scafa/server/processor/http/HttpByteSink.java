@@ -25,7 +25,7 @@ public interface HttpByteSink extends ByteSink<HttpInput>{
 
     void appendRequestLine(byte currentByte);
 
-    void endRequestLine(byte currentByte);
+    void endRequestLine(HttpInput input);
 
     void beforeHeader(byte currentByte);
 

@@ -58,7 +58,7 @@ public enum HttpStatus implements Status<HttpInput, HttpByteSink> {
 
         @Override
         public void out(HttpInput input, HttpByteSink sink) {
-            sink.endRequestLine(input.getBuffer().get());
+            sink.endRequestLine(input);
         }
 
     },

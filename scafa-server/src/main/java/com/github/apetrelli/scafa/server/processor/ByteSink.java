@@ -20,8 +20,12 @@ package com.github.apetrelli.scafa.server.processor;
 import java.io.IOException;
 
 public interface ByteSink<T> {
+    
+    void connect() throws IOException;
 
     T createInput();
+    
+    void reset();
 
     void start(T input);
 

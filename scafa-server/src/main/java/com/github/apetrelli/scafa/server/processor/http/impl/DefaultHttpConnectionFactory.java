@@ -33,6 +33,7 @@ import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.server.processor.http.HttpConnection;
 import com.github.apetrelli.scafa.server.processor.http.HttpConnectionFactory;
+import com.github.apetrelli.scafa.server.processor.http.ntlm.NtlmProxyHttpConnection;
 
 public class DefaultHttpConnectionFactory implements HttpConnectionFactory {
 
@@ -112,7 +113,7 @@ public class DefaultHttpConnectionFactory implements HttpConnectionFactory {
     }
 
     @Override
-    public void dispose(SocketAddress source) throws IOException {
+    public void disconnectAll(SocketAddress source) throws IOException {
         Set<Pipe> pipes = openPipes.get(source);
         if (pipes != null) {
             for (Pipe pipe : pipes) {
@@ -128,7 +129,6 @@ public class DefaultHttpConnectionFactory implements HttpConnectionFactory {
         Pipe pipe = new Pipe(source, target);
         HttpConnection connection = connectionCache.get(pipe);
         if (connection != null) {
-//            closeQuietly(connection);
             connectionCache.remove(pipe);
             Set<Pipe> pipes = openPipes.get(source);
             if (pipes != null) {
@@ -142,7 +142,8 @@ public class DefaultHttpConnectionFactory implements HttpConnectionFactory {
         Pipe pipe = new Pipe(source, hostPort);
         HttpConnection connection = connectionCache.get(pipe);
         if (connection == null) {
-            connection = new DirectHttpConnection(this, sourceChannel, hostPort);
+//            connection = new DirectHttpConnection(this, sourceChannel, hostPort);
+            connection = new NtlmProxyHttpConnection(this, sourceChannel, hostPort);
             connectionCache.put(pipe, connection);
             Set<Pipe> pipes = openPipes.get(source);
             if (pipes == null) {
@@ -156,6 +157,11 @@ public class DefaultHttpConnectionFactory implements HttpConnectionFactory {
 
     private SocketAddress getHostToConnect(String url, Map<String, List<String>> headers) throws IOException {
         SocketAddress retValue = null;
+        return new InetSocketAddress("proxyeur.rete.poste", 8080);
+    }
+
+    private SocketAddress getDirectHostToConnect(String url, Map<String, List<String>> headers, SocketAddress retValue)
+            throws IOException, MalformedURLException {
         List<String> hosts = headers.get("HOST");
         if (hosts != null) {
             if (hosts.size() == 1) {

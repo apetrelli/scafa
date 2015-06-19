@@ -52,14 +52,12 @@ public class DefaultProxyHttpHandler implements ProxyHttpHandler {
     public void onRequestHeader(String method, String url, String httpVersion, Map<String, List<String>> headers)
             throws IOException {
         connection = connectionFactory.create(sourceChannel, method, url, headers, httpVersion);
-        connection.sendHeader(method, url, headers, httpVersion);
+        connection.sendHeader(method, url, httpVersion, headers);
     }
 
     @Override
-    public long onBody(ByteBuffer buffer, long offset, long length) throws IOException {
-        int size = buffer.limit() - buffer.position();
+    public void onBody(ByteBuffer buffer, long offset, long length) throws IOException {
         connection.send(buffer);
-        return offset + size;
     }
 
     @Override
@@ -91,7 +89,7 @@ public class DefaultProxyHttpHandler implements ProxyHttpHandler {
     public void onConnectMethod(String host, int port, String httpVersion, Map<String, List<String>> headers)
             throws IOException {
         connection = connectionFactory.create(sourceChannel, "CONNECT", host, port, headers, httpVersion);
-        connection.connect("CONNECT", host, port, headers, httpVersion);
+        connection.connect("CONNECT", host, port, httpVersion, headers);
     }
 
     @Override
@@ -106,6 +104,8 @@ public class DefaultProxyHttpHandler implements ProxyHttpHandler {
 
     @Override
     public void onDisconnect() throws IOException {
-        connection.close();
+        if (connection != null) {
+            connection.close();
+        }
     }
 }
