@@ -1,4 +1,4 @@
-package com.github.apetrelli.scafa.server.processor;
+package com.github.apetrelli.scafa.processor;
 
 import com.github.apetrelli.scafa.server.Status;
 

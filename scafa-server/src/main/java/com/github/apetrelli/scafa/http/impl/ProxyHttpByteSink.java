@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.apetrelli.scafa.server.processor.http.impl;
+package com.github.apetrelli.scafa.http.impl;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -29,8 +29,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.github.apetrelli.scafa.server.processor.http.HttpInput;
-import com.github.apetrelli.scafa.server.processor.http.ProxyHttpHandler;
+import com.github.apetrelli.scafa.http.HttpInput;
+import com.github.apetrelli.scafa.http.ProxyHttpHandler;
 
 public class ProxyHttpByteSink extends DefaultHttpByteSink<ProxyHttpHandler> {
 

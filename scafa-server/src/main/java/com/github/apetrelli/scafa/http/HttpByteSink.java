@@ -15,11 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.apetrelli.scafa.server.processor.http;
+package com.github.apetrelli.scafa.http;
 
 import java.io.IOException;
 
-import com.github.apetrelli.scafa.server.processor.ByteSink;
+import com.github.apetrelli.scafa.processor.ByteSink;
 
 public interface HttpByteSink extends ByteSink<HttpInput>{
 

@@ -15,23 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.apetrelli.scafa.server.processor;
+package com.github.apetrelli.scafa.processor;
 
-import java.io.IOException;
+import java.nio.channels.AsynchronousSocketChannel;
 
-public interface ByteSink<T> {
-    
-    void connect() throws IOException;
+public interface ByteSinkFactory<I extends Input, S extends ByteSink<I>> {
 
-    T createInput();
-    
-    void reset();
-
-    void start(T input);
-
-    void send(T input) throws IOException;
-
-    void sendChunkData(T input) throws IOException;
-
-    void disconnect() throws IOException;
+    S create(AsynchronousSocketChannel client);
 }

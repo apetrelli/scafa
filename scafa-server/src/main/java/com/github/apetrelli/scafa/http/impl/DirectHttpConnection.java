@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.apetrelli.scafa.server.processor.http.impl;
+package com.github.apetrelli.scafa.http.impl;
 
 import java.io.IOException;
 import java.net.SocketAddress;
@@ -32,8 +32,8 @@ import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.github.apetrelli.scafa.server.processor.http.HttpConnection;
-import com.github.apetrelli.scafa.server.processor.http.HttpConnectionFactory;
+import com.github.apetrelli.scafa.http.HttpConnection;
+import com.github.apetrelli.scafa.http.HttpConnectionFactory;
 
 public class DirectHttpConnection implements HttpConnection {
 

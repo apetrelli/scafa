@@ -23,10 +23,10 @@ import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
-import com.github.apetrelli.scafa.server.processor.http.HttpByteSink;
-import com.github.apetrelli.scafa.server.processor.http.HttpInput;
-import com.github.apetrelli.scafa.server.processor.http.HttpStatus;
-import com.github.apetrelli.scafa.server.processor.http.impl.ProxyHttpByteSinkFactory;
+import com.github.apetrelli.scafa.http.HttpByteSink;
+import com.github.apetrelli.scafa.http.HttpInput;
+import com.github.apetrelli.scafa.http.HttpStatus;
+import com.github.apetrelli.scafa.http.impl.ProxyHttpByteSinkFactory;
 
 public class ScafaMain {
 

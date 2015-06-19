@@ -15,11 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.apetrelli.scafa.server.processor;
+package com.github.apetrelli.scafa.processor;
 
-import java.nio.channels.AsynchronousSocketChannel;
+public interface InputFactory<T extends Input> {
 
-public interface ByteSinkFactory<I extends Input, S extends ByteSink<I>> {
-
-    S create(AsynchronousSocketChannel client);
+    Input create();
 }

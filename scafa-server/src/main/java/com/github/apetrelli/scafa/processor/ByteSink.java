@@ -15,15 +15,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.apetrelli.scafa.server.processor;
+package com.github.apetrelli.scafa.processor;
 
-import java.nio.ByteBuffer;
+import java.io.IOException;
 
-public interface Input {
+public interface ByteSink<T> {
+    
+    void connect() throws IOException;
 
-    void setCaughtError(boolean caughtError);
+    T createInput();
+    
+    void reset();
 
-    ByteBuffer getBuffer();
+    void start(T input);
 
-    byte peekNextByte();
+    void send(T input) throws IOException;
+
+    void sendChunkData(T input) throws IOException;
+
+    void disconnect() throws IOException;
 }

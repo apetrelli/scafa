@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.apetrelli.scafa.server.processor.http.impl;
+package com.github.apetrelli.scafa.http.impl;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -27,10 +27,10 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.github.apetrelli.scafa.server.processor.http.HttpBodyMode;
-import com.github.apetrelli.scafa.server.processor.http.HttpByteSink;
-import com.github.apetrelli.scafa.server.processor.http.HttpHandler;
-import com.github.apetrelli.scafa.server.processor.http.HttpInput;
+import com.github.apetrelli.scafa.http.HttpBodyMode;
+import com.github.apetrelli.scafa.http.HttpByteSink;
+import com.github.apetrelli.scafa.http.HttpHandler;
+import com.github.apetrelli.scafa.http.HttpInput;
 
 public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink {
 

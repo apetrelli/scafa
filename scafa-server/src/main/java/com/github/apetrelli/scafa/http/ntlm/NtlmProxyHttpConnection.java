@@ -1,4 +1,4 @@
-package com.github.apetrelli.scafa.server.processor.http.ntlm;
+package com.github.apetrelli.scafa.http.ntlm;
 
 import java.io.IOException;
 import java.net.SocketAddress;
@@ -14,16 +14,16 @@ import jcifs.ntlmssp.Type2Message;
 import jcifs.ntlmssp.Type3Message;
 import jcifs.util.Base64;
 
+import com.github.apetrelli.scafa.http.HttpByteSink;
+import com.github.apetrelli.scafa.http.HttpConnectionFactory;
+import com.github.apetrelli.scafa.http.HttpHandler;
+import com.github.apetrelli.scafa.http.HttpInput;
+import com.github.apetrelli.scafa.http.HttpStatus;
+import com.github.apetrelli.scafa.http.impl.DefaultHttpByteSink;
+import com.github.apetrelli.scafa.http.impl.DirectHttpConnection;
+import com.github.apetrelli.scafa.processor.BufferProcessor;
+import com.github.apetrelli.scafa.processor.impl.DefaultBufferProcessor;
 import com.github.apetrelli.scafa.server.Status;
-import com.github.apetrelli.scafa.server.processor.BufferProcessor;
-import com.github.apetrelli.scafa.server.processor.http.HttpByteSink;
-import com.github.apetrelli.scafa.server.processor.http.HttpConnectionFactory;
-import com.github.apetrelli.scafa.server.processor.http.HttpHandler;
-import com.github.apetrelli.scafa.server.processor.http.HttpInput;
-import com.github.apetrelli.scafa.server.processor.http.HttpStatus;
-import com.github.apetrelli.scafa.server.processor.http.impl.DefaultHttpByteSink;
-import com.github.apetrelli.scafa.server.processor.http.impl.DirectHttpConnection;
-import com.github.apetrelli.scafa.server.processor.impl.DefaultBufferProcessor;
 
 public class NtlmProxyHttpConnection extends DirectHttpConnection {
     

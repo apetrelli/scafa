@@ -15,8 +15,27 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.apetrelli.scafa.server.processor.http;
+package com.github.apetrelli.scafa.http;
 
-public enum HttpBodyMode {
-    EMPTY, BODY, CHUNKED;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.List;
+import java.util.Map;
+
+
+public interface HttpConnection {
+
+    void sendHeader(String method, String url,
+            String httpVersion, Map<String, List<String>> headers)
+            throws IOException;
+
+    void connect(String method, String host, int port, String httpVersion, Map<String, List<String>> headers) throws IOException;
+
+    void send(ByteBuffer buffer) throws IOException;
+
+    void end() throws IOException;
+
+    boolean isOpen();
+
+    void close() throws IOException;
 }

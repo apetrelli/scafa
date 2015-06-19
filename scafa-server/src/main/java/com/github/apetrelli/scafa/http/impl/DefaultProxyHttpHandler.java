@@ -1,4 +1,4 @@
-package com.github.apetrelli.scafa.server.processor.http.impl;
+package com.github.apetrelli.scafa.http.impl;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -7,9 +7,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
-import com.github.apetrelli.scafa.server.processor.http.HttpConnection;
-import com.github.apetrelli.scafa.server.processor.http.HttpConnectionFactory;
-import com.github.apetrelli.scafa.server.processor.http.ProxyHttpHandler;
+import com.github.apetrelli.scafa.http.HttpConnection;
+import com.github.apetrelli.scafa.http.HttpConnectionFactory;
+import com.github.apetrelli.scafa.http.ProxyHttpHandler;
 
 public class DefaultProxyHttpHandler implements ProxyHttpHandler {
 

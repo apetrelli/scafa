@@ -15,9 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.apetrelli.scafa.server.processor;
+package com.github.apetrelli.scafa.http;
 
-public interface InputFactory<T extends Input> {
-
-    Input create();
+public enum HttpBodyMode {
+    EMPTY, BODY, CHUNKED;
 }

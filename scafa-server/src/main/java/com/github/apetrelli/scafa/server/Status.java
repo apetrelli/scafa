@@ -19,8 +19,8 @@ package com.github.apetrelli.scafa.server;
 
 import java.io.IOException;
 
-import com.github.apetrelli.scafa.server.processor.ByteSink;
-import com.github.apetrelli.scafa.server.processor.Input;
+import com.github.apetrelli.scafa.processor.ByteSink;
+import com.github.apetrelli.scafa.processor.Input;
 
 public interface Status<I extends Input, S extends ByteSink<I>> {
 

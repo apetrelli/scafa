@@ -1,10 +1,10 @@
-package com.github.apetrelli.scafa.server.processor.http.ntlm;
+package com.github.apetrelli.scafa.http.ntlm;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import com.github.apetrelli.scafa.server.processor.http.impl.HttpHandlerSupport;
+import com.github.apetrelli.scafa.http.impl.HttpHandlerSupport;
 
 public class CapturingHandler extends HttpHandlerSupport {
     

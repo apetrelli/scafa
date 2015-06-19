@@ -1,11 +1,11 @@
-package com.github.apetrelli.scafa.server.processor.http.impl;
+package com.github.apetrelli.scafa.http.impl;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
 
-import com.github.apetrelli.scafa.server.processor.http.HttpHandler;
+import com.github.apetrelli.scafa.http.HttpHandler;
 
 public class HttpHandlerSupport implements HttpHandler {
 

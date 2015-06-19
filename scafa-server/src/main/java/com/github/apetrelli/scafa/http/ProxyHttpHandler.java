@@ -1,4 +1,4 @@
-package com.github.apetrelli.scafa.server.processor.http;
+package com.github.apetrelli.scafa.http;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

@@ -26,11 +26,11 @@ import java.nio.channels.CompletionHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.github.apetrelli.scafa.server.processor.BufferProcessor;
-import com.github.apetrelli.scafa.server.processor.ByteSink;
-import com.github.apetrelli.scafa.server.processor.ByteSinkFactory;
-import com.github.apetrelli.scafa.server.processor.Input;
-import com.github.apetrelli.scafa.server.processor.impl.DefaultBufferProcessor;
+import com.github.apetrelli.scafa.processor.BufferProcessor;
+import com.github.apetrelli.scafa.processor.ByteSink;
+import com.github.apetrelli.scafa.processor.ByteSinkFactory;
+import com.github.apetrelli.scafa.processor.Input;
+import com.github.apetrelli.scafa.processor.impl.DefaultBufferProcessor;
 import com.github.apetrelli.scafa.util.ObjectHolder;
 
 public class ScafaListener<I extends Input, S extends ByteSink<I>> {

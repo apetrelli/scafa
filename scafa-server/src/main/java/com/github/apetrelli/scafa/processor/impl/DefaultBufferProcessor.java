@@ -1,14 +1,14 @@
-package com.github.apetrelli.scafa.server.processor.impl;
+package com.github.apetrelli.scafa.processor.impl;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.github.apetrelli.scafa.processor.BufferProcessor;
+import com.github.apetrelli.scafa.processor.ByteSink;
+import com.github.apetrelli.scafa.processor.Input;
 import com.github.apetrelli.scafa.server.Status;
-import com.github.apetrelli.scafa.server.processor.BufferProcessor;
-import com.github.apetrelli.scafa.server.processor.ByteSink;
-import com.github.apetrelli.scafa.server.processor.Input;
 
 public class DefaultBufferProcessor<I extends Input, S extends ByteSink<I>> implements BufferProcessor<I, S> {
 
