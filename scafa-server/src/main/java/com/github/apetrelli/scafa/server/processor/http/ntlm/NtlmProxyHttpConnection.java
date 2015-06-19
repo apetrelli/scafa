@@ -53,51 +53,73 @@ public class NtlmProxyHttpConnection extends DirectHttpConnection {
     @Override
     public void sendHeader(String method, String url, String httpVersion, Map<String, List<String>> headers)
             throws IOException {
+        String requestLine = method + " " + url + " " + httpVersion;
         if (!authenticated) {
-            authenticate(method + " " + url + " " + httpVersion, headers);
+            authenticate(requestLine, headers);
         } else{
-            sendHeader(method + " " + url + " " + httpVersion, headers);
+            sendHeader(requestLine, headers);
         }
     }
     
     @Override
     public void connect(String method, String host, int port, String httpVersion, Map<String, List<String>> headers)
             throws IOException {
+        String requestLine = method + " " + host + ":" + port + " " + httpVersion;
         if (!authenticated) {
-            authenticate(method + " " + host + ":" + port + " " + httpVersion, headers);
+            authenticateOnConnect(headers, requestLine);
         } else {
-            super.connect(method, host, port, httpVersion, headers);
+            sendHeader(requestLine, headers);
         }
     }
 
-    private void authenticate(String requestLine, Map<String, List<String>> headers) throws IOException {
+    private void authenticateOnConnect(Map<String, List<String>> headers, String requestLine) throws IOException {
         Map<String, List<String>> modifiedHeaders = new LinkedHashMap<>(headers);
         modifiedHeaders.put("PROXY-CONNECTION", Arrays.asList("keep-alive"));
-        if (super.sendHeader(requestLine, modifiedHeaders) >= 0) {
+        CapturingHandler handler = new CapturingHandler();
+        HttpByteSink sink = new DefaultHttpByteSink<HttpHandler>(handler);
+        BufferProcessor<HttpInput, HttpByteSink> processor = new DefaultBufferProcessor<>(sink);
+        ntlmAuthenticate(requestLine, modifiedHeaders, modifiedHeaders, handler, sink, processor);
+    }
+
+    private void authenticate(String requestLine, Map<String, List<String>> headers) throws IOException {
+        Map<String, List<String>> finalHeaders = new LinkedHashMap<>(headers);
+        finalHeaders.put("PROXY-CONNECTION", Arrays.asList("keep-alive"));
+        Map<String, List<String>> modifiedHeaders = finalHeaders;
+        List<String> lengthList = headers.get("CONTENT-LENGTH");
+        if (lengthList != null && !lengthList.isEmpty()) {
+            modifiedHeaders.put("CONTENT-LENGTH", Arrays.asList("0"));
+        }
+        if (sendHeader(requestLine, modifiedHeaders) >= 0) {
             CapturingHandler handler = new CapturingHandler();
             HttpByteSink sink = new DefaultHttpByteSink<HttpHandler>(handler);
             BufferProcessor<HttpInput, HttpByteSink> processor = new DefaultBufferProcessor<>(sink);
             if (readResponse(handler, sink, processor) >= 0 && handler.getResponseCode() == 407
                     && handler.getHeaders().get("PROXY-AUTHENTICATE").contains("NTLM")) {
-                Type1Message message1 = new Type1Message(TYPE_1_FLAGS, null, null);
-                modifiedHeaders.put("PROXY-AUTHORIZATION", Arrays.asList("NTLM " + Base64.encode(message1.toByteArray())));
-                if (super.sendHeader(requestLine, modifiedHeaders) >= 0) {
-                    if (readResponse(handler, sink, processor) >= 0 && handler.getResponseCode() == 407) {
-                        List<String> authenticates = handler.getHeaders().get("PROXY-AUTHENTICATE");
-                        if (authenticates != null && authenticates.size() == 1) {
-                            String authenticate = authenticates.get(0);
-                            if (authenticate.startsWith("NTLM ")) {
-                                String base64 = authenticate.substring(5);
-                                Type2Message message2 = new Type2Message(Base64.decode(base64));
-                                // TODO Get from configuration.
-                                Type3Message message3 = new Type3Message(message2, "password", "domain", "username",
-                                        null, message2.getFlags());
-                                modifiedHeaders.put("PROXY-AUTHORIZATION", Arrays.asList("NTLM " + Base64.encode(message3.toByteArray())));
-                                sendHeader(requestLine, modifiedHeaders);
-                                authenticated = true;
-                                super.prepareChannel(factory, sourceChannel, socketAddress);
-                            }
-                        }
+                ntlmAuthenticate(requestLine, modifiedHeaders, finalHeaders, handler, sink, processor);
+            }
+        }
+    }
+
+    private void ntlmAuthenticate(String requestLine, Map<String, List<String>> modifiedHeaders,
+            Map<String, List<String>> finalHeaders, CapturingHandler handler, HttpByteSink sink,
+            BufferProcessor<HttpInput, HttpByteSink> processor) throws IOException {
+        Type1Message message1 = new Type1Message(TYPE_1_FLAGS, null, null);
+        modifiedHeaders.put("PROXY-AUTHORIZATION", Arrays.asList("NTLM " + Base64.encode(message1.toByteArray())));
+        if (sendHeader(requestLine, modifiedHeaders) >= 0) {
+            if (readResponse(handler, sink, processor) >= 0 && handler.getResponseCode() == 407) {
+                List<String> authenticates = handler.getHeaders().get("PROXY-AUTHENTICATE");
+                if (authenticates != null && authenticates.size() == 1) {
+                    String authenticate = authenticates.get(0);
+                    if (authenticate.startsWith("NTLM ")) {
+                        String base64 = authenticate.substring(5);
+                        Type2Message message2 = new Type2Message(Base64.decode(base64));
+                        // TODO use configuration.
+                        Type3Message message3 = new Type3Message(message2, "password", "domain", "username",
+                                null, message2.getFlags());
+                        finalHeaders.put("PROXY-AUTHORIZATION", Arrays.asList("NTLM " + Base64.encode(message3.toByteArray())));
+                        sendHeader(requestLine, finalHeaders);
+                        authenticated = true;
+                        super.prepareChannel(factory, sourceChannel, socketAddress);
                     }
                 }
             }

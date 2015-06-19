@@ -108,7 +108,8 @@ public class DefaultHttpConnectionFactory implements HttpConnectionFactory {
     @Override
     public HttpConnection create(AsynchronousSocketChannel sourceChannel, String method, String host, int port,
             Map<String, List<String>> headers, String httpVersion) throws IOException {
-        SocketAddress hostPort = new InetSocketAddress(host, port);
+        // TODO Get from configuration
+        SocketAddress hostPort = new InetSocketAddress("whatever", 8080);
         return create(sourceChannel, hostPort);
     }
 
@@ -157,7 +158,8 @@ public class DefaultHttpConnectionFactory implements HttpConnectionFactory {
 
     private SocketAddress getHostToConnect(String url, Map<String, List<String>> headers) throws IOException {
         SocketAddress retValue = null;
-        return new InetSocketAddress("proxyeur.rete.poste", 8080);
+        // TODO Get from configuration.
+        return new InetSocketAddress("whatever", 8080);
     }
 
     private SocketAddress getDirectHostToConnect(String url, Map<String, List<String>> headers, SocketAddress retValue)
