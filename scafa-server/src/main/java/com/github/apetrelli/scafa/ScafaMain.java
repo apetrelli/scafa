@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.apetrelli.scafa.server;
+package com.github.apetrelli.scafa;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,6 +27,7 @@ import com.github.apetrelli.scafa.http.HttpByteSink;
 import com.github.apetrelli.scafa.http.HttpInput;
 import com.github.apetrelli.scafa.http.HttpStatus;
 import com.github.apetrelli.scafa.http.impl.ProxyHttpByteSinkFactory;
+import com.github.apetrelli.scafa.server.ScafaListener;
 
 public class ScafaMain {
 
