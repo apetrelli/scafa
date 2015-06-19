@@ -18,7 +18,6 @@
 package com.github.apetrelli.scafa.http.impl;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.SocketAddress;
 import java.net.URL;
@@ -31,6 +30,9 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.ini4j.Profile.Section;
+
+import com.github.apetrelli.scafa.config.Configuration;
 import com.github.apetrelli.scafa.http.HttpConnection;
 import com.github.apetrelli.scafa.http.HttpConnectionFactory;
 import com.github.apetrelli.scafa.http.ntlm.NtlmProxyHttpConnection;
@@ -45,9 +47,9 @@ public class DefaultHttpConnectionFactory implements HttpConnectionFactory {
 
         private SocketAddress source;
 
-        private SocketAddress target;
+        private HostPort target;
 
-        public Pipe(SocketAddress source, SocketAddress target) {
+        public Pipe(SocketAddress source, HostPort target) {
             this.source = source;
             this.target = target;
         }
@@ -97,20 +99,24 @@ public class DefaultHttpConnectionFactory implements HttpConnectionFactory {
     private Map<Pipe, HttpConnection> connectionCache = new HashMap<>();
 
     private Map<SocketAddress, Set<Pipe>> openPipes = new HashMap<>();
+    
+    private Configuration configuration;
+    
+    public DefaultHttpConnectionFactory(Configuration configuration) {
+        this.configuration = configuration;
+    }
 
     @Override
     public HttpConnection create(AsynchronousSocketChannel sourceChannel, String method, String url,
             Map<String, List<String>> headers, String httpVersion) throws IOException {
-        SocketAddress hostPort = getHostToConnect(url, headers);
+        HostPort hostPort = getHostToConnect(url, headers);
         return create(sourceChannel, hostPort);
     }
     
     @Override
     public HttpConnection create(AsynchronousSocketChannel sourceChannel, String method, String host, int port,
             Map<String, List<String>> headers, String httpVersion) throws IOException {
-        // TODO Get from configuration
-        SocketAddress hostPort = new InetSocketAddress("whatever", 8080);
-        return create(sourceChannel, hostPort);
+        return create(sourceChannel, new HostPort(host, port));
     }
 
     @Override
@@ -126,7 +132,7 @@ public class DefaultHttpConnectionFactory implements HttpConnectionFactory {
     }
 
     @Override
-    public void dispose(SocketAddress source, SocketAddress target) throws IOException {
+    public void dispose(SocketAddress source, HostPort target) throws IOException {
         Pipe pipe = new Pipe(source, target);
         HttpConnection connection = connectionCache.get(pipe);
         if (connection != null) {
@@ -138,13 +144,22 @@ public class DefaultHttpConnectionFactory implements HttpConnectionFactory {
         }
     }
 
-    private HttpConnection create(AsynchronousSocketChannel sourceChannel, SocketAddress hostPort) throws IOException {
+    private HttpConnection create(AsynchronousSocketChannel sourceChannel, HostPort hostPort) throws IOException {
         SocketAddress source = sourceChannel.getRemoteAddress();
         Pipe pipe = new Pipe(source, hostPort);
         HttpConnection connection = connectionCache.get(pipe);
         if (connection == null) {
-//            connection = new DirectHttpConnection(this, sourceChannel, hostPort);
-            connection = new NtlmProxyHttpConnection(this, sourceChannel, hostPort);
+            Section section = configuration.getConfigurationByHost(hostPort.getHost());
+            String type = section.get("type");
+            if (section != null && type != null) {
+                switch (type) {
+                case "ntlm":
+                    connection = new NtlmProxyHttpConnection(this, sourceChannel, section);
+                }
+            }
+            if (connection == null) {
+                connection = new DirectHttpConnection(this, sourceChannel, hostPort);
+            }
             connectionCache.put(pipe, connection);
             Set<Pipe> pipes = openPipes.get(source);
             if (pipes == null) {
@@ -156,14 +171,8 @@ public class DefaultHttpConnectionFactory implements HttpConnectionFactory {
         return connection;
     }
 
-    private SocketAddress getHostToConnect(String url, Map<String, List<String>> headers) throws IOException {
-        SocketAddress retValue = null;
-        // TODO Get from configuration.
-        return new InetSocketAddress("whatever", 8080);
-    }
-
-    private SocketAddress getDirectHostToConnect(String url, Map<String, List<String>> headers, SocketAddress retValue)
-            throws IOException, MalformedURLException {
+    private HostPort getHostToConnect(String url, Map<String, List<String>> headers) throws IOException {
+        HostPort retValue;
         List<String> hosts = headers.get("HOST");
         if (hosts != null) {
             if (hosts.size() == 1) {
@@ -195,13 +204,13 @@ public class DefaultHttpConnectionFactory implements HttpConnectionFactory {
                 if (port == null || port < 0) {
                     throw new IOException("Invalid port " + port + " for connection to " + url);
                 }
-                retValue = new InetSocketAddress(hostStringSplit[0], port);
+                retValue = new HostPort(hostStringSplit[0], port);
             } else {
                 throw new IOException("Multiple hosts defined: " + hosts.toString());
             }
         } else {
             URL realUrl = new URL(url);
-            retValue = new InetSocketAddress(realUrl.getHost(), realUrl.getPort());
+            retValue = new HostPort(realUrl.getHost(), realUrl.getPort());
         }
         return retValue;
     }

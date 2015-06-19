@@ -23,6 +23,8 @@ import java.nio.channels.AsynchronousSocketChannel;
 import java.util.List;
 import java.util.Map;
 
+import com.github.apetrelli.scafa.http.impl.HostPort;
+
 public interface HttpConnectionFactory {
 
     HttpConnection create(AsynchronousSocketChannel sourceChannel, String method, String url,
@@ -33,5 +35,5 @@ public interface HttpConnectionFactory {
 
     void disconnectAll(SocketAddress source) throws IOException;
 
-    void dispose(SocketAddress sourceChannel, SocketAddress target) throws IOException;
+    void dispose(SocketAddress sourceChannel, HostPort target) throws IOException;
 }

@@ -1,7 +1,7 @@
 package com.github.apetrelli.scafa.http.ntlm;
 
 import java.io.IOException;
-import java.net.SocketAddress;
+import java.net.InetSocketAddress;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -14,18 +14,21 @@ import jcifs.ntlmssp.Type2Message;
 import jcifs.ntlmssp.Type3Message;
 import jcifs.util.Base64;
 
+import org.ini4j.Profile.Section;
+
 import com.github.apetrelli.scafa.http.HttpByteSink;
 import com.github.apetrelli.scafa.http.HttpConnectionFactory;
 import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpInput;
 import com.github.apetrelli.scafa.http.HttpStatus;
+import com.github.apetrelli.scafa.http.impl.AbstractHttpConnection;
 import com.github.apetrelli.scafa.http.impl.DefaultHttpByteSink;
-import com.github.apetrelli.scafa.http.impl.DirectHttpConnection;
+import com.github.apetrelli.scafa.http.impl.HostPort;
 import com.github.apetrelli.scafa.processor.BufferProcessor;
 import com.github.apetrelli.scafa.processor.impl.DefaultBufferProcessor;
 import com.github.apetrelli.scafa.server.Status;
 
-public class NtlmProxyHttpConnection extends DirectHttpConnection {
+public class NtlmProxyHttpConnection extends AbstractHttpConnection {
     
     private static final int TYPE_1_FLAGS = NtlmFlags.NTLMSSP_NEGOTIATE_128 | NtlmFlags.NTLMSSP_NEGOTIATE_ALWAYS_SIGN
             | NtlmFlags.NTLMSSP_NEGOTIATE_LM_KEY | NtlmFlags.NTLMSSP_NEGOTIATE_TARGET_INFO
@@ -35,19 +38,19 @@ public class NtlmProxyHttpConnection extends DirectHttpConnection {
     
     private HttpConnectionFactory factory;
     
-    private SocketAddress socketAddress;
+    private HostPort socketAddress;
+    
+    private String domain, username, password;
     
     public NtlmProxyHttpConnection(HttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
-            SocketAddress socketAddress) throws IOException {
-        super(factory, sourceChannel, socketAddress);
+            Section config) throws IOException {
+        super(factory, sourceChannel);
         this.factory = factory;
-        this.socketAddress = socketAddress;
-    }
-
-    @Override
-    protected void prepareChannel(HttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
-            SocketAddress socketAddress) throws IOException {
-        // Do nothing
+        this.socketAddress = new HostPort(config.get("host"), config.get("port", Integer.class));
+        domain = config.get("domain");
+        username = config.get("username");
+        password = config.get("password");
+        getFuture(channel.connect(new InetSocketAddress(socketAddress.getHost(), socketAddress.getPort())));
     }
     
     @Override
@@ -113,13 +116,12 @@ public class NtlmProxyHttpConnection extends DirectHttpConnection {
                     if (authenticate.startsWith("NTLM ")) {
                         String base64 = authenticate.substring(5);
                         Type2Message message2 = new Type2Message(Base64.decode(base64));
-                        // TODO use configuration.
-                        Type3Message message3 = new Type3Message(message2, "password", "domain", "username",
+                        Type3Message message3 = new Type3Message(message2, password, domain, username,
                                 null, message2.getFlags());
                         finalHeaders.put("PROXY-AUTHORIZATION", Arrays.asList("NTLM " + Base64.encode(message3.toByteArray())));
                         sendHeader(requestLine, finalHeaders);
                         authenticated = true;
-                        super.prepareChannel(factory, sourceChannel, socketAddress);
+                        prepareChannel(factory, sourceChannel, socketAddress);
                     }
                 }
             }
