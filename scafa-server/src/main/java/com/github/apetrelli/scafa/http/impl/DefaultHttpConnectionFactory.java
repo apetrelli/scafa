@@ -19,14 +19,11 @@ package com.github.apetrelli.scafa.http.impl;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.SocketAddress;
 import java.net.URL;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -43,62 +40,12 @@ public class DefaultHttpConnectionFactory implements HttpConnectionFactory {
 
     private static final Logger LOG = Logger.getLogger(DefaultHttpConnectionFactory.class.getName());
 
-    private static class Pipe {
-
-        private SocketAddress source;
-
-        private HostPort target;
-
-        public Pipe(SocketAddress source, HostPort target) {
-            this.source = source;
-            this.target = target;
-        }
-
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + ((source == null) ? 0 : source.hashCode());
-            result = prime * result + ((target == null) ? 0 : target.hashCode());
-            return result;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj)
-                return true;
-            if (obj == null)
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-            Pipe other = (Pipe) obj;
-            if (source == null) {
-                if (other.source != null)
-                    return false;
-            } else if (!source.equals(other.source))
-                return false;
-            if (target == null) {
-                if (other.target != null)
-                    return false;
-            } else if (!target.equals(other.target))
-                return false;
-            return true;
-        }
-
-        @Override
-        public String toString() {
-            return "Pipe [source=" + source + ", target=" + target + "]";
-        }
-    }
-
     static {
         protocol2port.put("http", 80);
         protocol2port.put("https", 443);
     }
 
-    private Map<Pipe, HttpConnection> connectionCache = new HashMap<>();
-
-    private Map<SocketAddress, Set<Pipe>> openPipes = new HashMap<>();
+    private Map<HostPort, HttpConnection> connectionCache = new HashMap<>();
     
     private Configuration configuration;
     
@@ -120,34 +67,21 @@ public class DefaultHttpConnectionFactory implements HttpConnectionFactory {
     }
 
     @Override
-    public void disconnectAll(SocketAddress source) throws IOException {
-        Set<Pipe> pipes = openPipes.get(source);
-        if (pipes != null) {
-            for (Pipe pipe : pipes) {
-                HttpConnection connection = connectionCache.get(pipe);
-                closeQuietly(connection);
-                connectionCache.remove(pipe);
-            }
-        }
+    public void disconnectAll() throws IOException {
+        connectionCache.values().stream().forEach(t -> closeQuietly(t));
+        connectionCache.clear();
     }
 
     @Override
-    public void dispose(SocketAddress source, HostPort target) throws IOException {
-        Pipe pipe = new Pipe(source, target);
-        HttpConnection connection = connectionCache.get(pipe);
+    public void dispose(HostPort target) throws IOException {
+        HttpConnection connection = connectionCache.get(target);
         if (connection != null) {
-            connectionCache.remove(pipe);
-            Set<Pipe> pipes = openPipes.get(source);
-            if (pipes != null) {
-                pipes.remove(pipe);
-            }
+            connectionCache.remove(target);
         }
     }
 
     private HttpConnection create(AsynchronousSocketChannel sourceChannel, HostPort hostPort) throws IOException {
-        SocketAddress source = sourceChannel.getRemoteAddress();
-        Pipe pipe = new Pipe(source, hostPort);
-        HttpConnection connection = connectionCache.get(pipe);
+        HttpConnection connection = connectionCache.get(hostPort);
         if (connection == null) {
             Section section = configuration.getConfigurationByHost(hostPort.getHost());
             String type = section.get("type");
@@ -160,13 +94,7 @@ public class DefaultHttpConnectionFactory implements HttpConnectionFactory {
             if (connection == null) {
                 connection = new DirectHttpConnection(this, sourceChannel, hostPort);
             }
-            connectionCache.put(pipe, connection);
-            Set<Pipe> pipes = openPipes.get(source);
-            if (pipes == null) {
-                pipes = new HashSet<>();
-                openPipes.put(source, pipes);
-            }
-            pipes.add(pipe);
+            connectionCache.put(hostPort, connection);
         }
         return connection;
     }

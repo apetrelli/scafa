@@ -120,7 +120,7 @@ public abstract class AbstractHttpConnection implements HttpConnection {
                     }
                 } else {
                     try {
-                        factory.dispose(source, socketAddress);
+                        factory.dispose(socketAddress);
                     } catch (IOException e) {
                         failed(e, attachment);
                     }

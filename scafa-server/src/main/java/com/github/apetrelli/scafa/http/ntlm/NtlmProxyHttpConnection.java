@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import jcifs.ntlmssp.NtlmFlags;
 import jcifs.ntlmssp.Type1Message;
@@ -34,6 +35,8 @@ public class NtlmProxyHttpConnection extends AbstractHttpConnection {
             | NtlmFlags.NTLMSSP_NEGOTIATE_LM_KEY | NtlmFlags.NTLMSSP_NEGOTIATE_TARGET_INFO
             | NtlmFlags.NTLMSSP_NEGOTIATE_OEM | NtlmFlags.NTLMSSP_NEGOTIATE_UNICODE;
     
+    private static final Logger LOG = Logger.getLogger(NtlmProxyHttpConnection.class.getName());
+    
     private boolean authenticated = false;
     
     private HttpConnectionFactory factory;
@@ -50,6 +53,7 @@ public class NtlmProxyHttpConnection extends AbstractHttpConnection {
         domain = config.get("domain");
         username = config.get("username");
         password = config.get("password");
+        LOG.finest("Trying to connect to " + socketAddress.toString());
         getFuture(channel.connect(new InetSocketAddress(socketAddress.getHost(), socketAddress.getPort())));
     }
     

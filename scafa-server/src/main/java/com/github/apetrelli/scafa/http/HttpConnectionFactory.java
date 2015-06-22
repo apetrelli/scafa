@@ -18,7 +18,6 @@
 package com.github.apetrelli.scafa.http;
 
 import java.io.IOException;
-import java.net.SocketAddress;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +32,7 @@ public interface HttpConnectionFactory {
     HttpConnection create(AsynchronousSocketChannel sourceChannel, String method, String host, int port,
             Map<String, List<String>> headers, String httpVersion) throws IOException;
 
-    void disconnectAll(SocketAddress source) throws IOException;
+    void disconnectAll() throws IOException;
 
-    void dispose(SocketAddress sourceChannel, HostPort target) throws IOException;
+    void dispose(HostPort target) throws IOException;
 }

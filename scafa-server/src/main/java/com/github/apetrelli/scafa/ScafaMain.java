@@ -31,10 +31,8 @@ import org.apache.commons.io.IOUtils;
 
 import com.github.apetrelli.scafa.config.Configuration;
 import com.github.apetrelli.scafa.http.HttpByteSink;
-import com.github.apetrelli.scafa.http.HttpConnectionFactory;
 import com.github.apetrelli.scafa.http.HttpInput;
 import com.github.apetrelli.scafa.http.HttpStatus;
-import com.github.apetrelli.scafa.http.impl.DefaultHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.impl.ProxyHttpByteSinkFactory;
 import com.github.apetrelli.scafa.server.ScafaListener;
 
@@ -57,9 +55,8 @@ public class ScafaMain {
             profile = args[0];
         }
         try {
-            HttpConnectionFactory factory = new DefaultHttpConnectionFactory(Configuration.create(profile));
-            ScafaListener<HttpInput, HttpByteSink> proxy = new ScafaListener<>(new ProxyHttpByteSinkFactory(factory),
-                    HttpStatus.IDLE);
+            ScafaListener<HttpInput, HttpByteSink> proxy = new ScafaListener<>(new ProxyHttpByteSinkFactory(
+                    Configuration.create(profile)), HttpStatus.IDLE);
             proxy.listen();
         } catch (IOException e) {
             LOG.log(Level.SEVERE, "Cannot start proxy", e);
