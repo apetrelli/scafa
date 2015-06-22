@@ -40,10 +40,18 @@ public interface HttpByteSink extends ByteSink<HttpInput>{
     void endHeader(HttpInput input) throws IOException;
 
     void endHeaderAndRequest(HttpInput input) throws IOException;
+    
+    void afterEndOfChunk(byte currentByte) throws IOException;
 
     void beforeChunkCount(byte currentByte) throws IOException;
 
     void appendChunkCount(byte currentByte) throws IOException;
 
+    void preEndChunkCount(byte currentByte) throws IOException;
+
     void endChunkCount(HttpInput input) throws IOException;
+
+    void chunkedTransferLastCr(byte currentByte);
+
+    void chunkedTransferLastLf(byte currentByte);
 }

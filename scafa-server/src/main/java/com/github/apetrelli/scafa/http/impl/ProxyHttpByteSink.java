@@ -55,6 +55,15 @@ public class ProxyHttpByteSink extends DefaultHttpByteSink<ProxyHttpHandler> {
     }
     
     @Override
+    public void send(HttpInput input) throws IOException {
+        if (input.isHttpConnected()) {
+            handler.onDataToPassAlong(input.getBuffer());
+        } else {
+            super.send(input);
+        }
+    }
+    
+    @Override
     protected void manageError() {
         sendErrorPage(sourceChannel, HTTP_502, generic502Page);
     }

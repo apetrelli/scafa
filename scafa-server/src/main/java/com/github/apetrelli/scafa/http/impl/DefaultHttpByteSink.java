@@ -237,6 +237,11 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
             throw e;
         }
     }
+    
+    @Override
+    public void afterEndOfChunk(byte currentByte) throws IOException {
+        handler.onChunkEnd();
+    }
 
     @Override
     public void beforeChunkCount(byte currentByte) throws IOException {
@@ -246,14 +251,22 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
     @Override
     public void appendChunkCount(byte currentByte) throws IOException {
         chunkCountBuffer[chunkCountBufferCount] = currentByte;
+        chunkCountBufferCount++;
+    }
+    
+    @Override
+    public void preEndChunkCount(byte currentByte) throws IOException {
+        LOG.finest("Pre End chunk count");
     }
 
     @Override
     public void endChunkCount(HttpInput input) throws IOException {
+        input.getBuffer().get(); // Skipping LF.
         if (chunkCountBufferCount > 0) {
             String chunkCountHex = new String(chunkCountBuffer, 0, chunkCountBufferCount, StandardCharsets.US_ASCII);
             try {
                 long chunkCount = Long.parseLong(chunkCountHex, 16);
+                LOG.log(Level.FINEST, "Preparing to read {0} bytes of a chunk", chunkCount);
                 input.setChunkLength(chunkCount);
                 if (!input.isCaughtError()) {
                     handler.onChunkStart(input.getTotalChunkedTransferLength(), chunkCount);
@@ -277,11 +290,16 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
 
     @Override
     public void send(HttpInput input) throws IOException {
-        int size = input.getBuffer().limit() - input.getBuffer().position();
+        ByteBuffer buffer = input.getBuffer();
+        int oldLimit = buffer.limit();
+        int size = oldLimit - buffer.position();
+        int sizeToSend = (int) Math.min(size, input.getCountdown());
+        buffer.limit(buffer.position() + sizeToSend);
         if (!input.isCaughtError()) {
-            handler.onBody(input.getBuffer(), input.getBodyOffset(), input.getBodySize());
+            handler.onBody(buffer, input.getBodyOffset(), input.getBodySize());
         }
-        input.reduceBody(size);
+        input.reduceBody(sizeToSend);
+        buffer.limit(oldLimit);
         if (!input.isHttpConnected() && input.getCountdown() <= 0L) {
             handler.onEnd();
             if (input.isCaughtError()) {
@@ -291,16 +309,32 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
     }
     
     @Override
+    public void chunkedTransferLastCr(byte currentByte) {
+        LOG.finest("Chunked transfer last CR");
+    }
+    
+    @Override
+    public void chunkedTransferLastLf(byte currentByte) {
+        LOG.finest("Chunked transfer last LF");
+    }
+    
+    @Override
     public void sendChunkData(HttpInput input) throws IOException {
         if (!input.isCaughtError()) {
-            long bufferSize = input.getBuffer().limit() - input.getBuffer().position();
+            ByteBuffer buffer = input.getBuffer();
+            int bufferSize = buffer.limit() - buffer.position();
             long maxsize = input.getCountdown();
             if (bufferSize > maxsize) {
-                bufferSize = maxsize;
+                bufferSize = (int) maxsize;
             }
-            handler.onChunk(input.getBuffer().array(), input.getBuffer().position(), new Long(bufferSize).intValue(),
+            handler.onChunk(buffer.array(), buffer.position(), new Long(bufferSize).intValue(),
                     input.getTotalChunkedTransferLength() - input.getChunkLength(), input.getChunkOffset(),
                     input.getChunkLength());
+            buffer.position(buffer.position() + bufferSize);
+            if (LOG.isLoggable(Level.FINEST)) {
+                LOG.log(Level.FINEST, "Handling chunk from {0} to {1}",
+                        new Object[] { input.getChunkOffset(), input.getChunkOffset() + bufferSize });
+            }
             input.reduceChunk(bufferSize);
         }
     }

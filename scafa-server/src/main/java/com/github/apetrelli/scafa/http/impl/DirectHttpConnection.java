@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.github.apetrelli.scafa.http.HttpConnectionFactory;
+import com.github.apetrelli.scafa.util.HttpUtils;
 
 public class DirectHttpConnection extends AbstractHttpConnection {
 
@@ -34,7 +35,7 @@ public class DirectHttpConnection extends AbstractHttpConnection {
             AsynchronousSocketChannel sourceChannel, HostPort socketAddress)
             throws IOException {
         super(factory, sourceChannel);
-        getFuture(channel.connect(new InetSocketAddress(socketAddress.getHost(), socketAddress.getPort())));
+        HttpUtils.getFuture(channel.connect(new InetSocketAddress(socketAddress.getHost(), socketAddress.getPort())));
         prepareChannel(factory, sourceChannel, socketAddress);
     }
 
@@ -43,7 +44,7 @@ public class DirectHttpConnection extends AbstractHttpConnection {
             String httpVersion, Map<String, List<String>> headers) throws IOException {
         URL realurl = new URL(url);
         String requestLine = method + " " + realurl.getFile() + " " + httpVersion;
-        sendHeader(requestLine, headers);
+        HttpUtils.sendHeader(requestLine, headers, buffer, channel);
     }
 
     @Override
@@ -54,7 +55,7 @@ public class DirectHttpConnection extends AbstractHttpConnection {
         buffer.put(httpVersion.getBytes(charset)).put(SPACE).put("200".getBytes(charset)).put(SPACE)
                 .put("OK".getBytes(charset)).put(CR).put(LF).put(CR).put(LF);
         buffer.flip();
-        getFuture(sourceChannel.write(buffer));
+        HttpUtils.getFuture(sourceChannel.write(buffer));
         buffer.clear();
     }
 

@@ -199,7 +199,7 @@ public enum HttpStatus implements Status<HttpInput, HttpByteSink> {
 
         @Override
         public void out(HttpInput input, HttpByteSink sink) throws IOException {
-            input.getBuffer().get(); // Skipping penultimate byte of chunked transfer.
+            sink.chunkedTransferLastCr(input.getBuffer().get());
         }
 
     },
@@ -212,7 +212,7 @@ public enum HttpStatus implements Status<HttpInput, HttpByteSink> {
 
         @Override
         public void out(HttpInput input, HttpByteSink sink) throws IOException {
-            input.getBuffer().get(); // Skipping last byte of chunked transfer.
+            sink.chunkedTransferLastLf(input.getBuffer().get());
         }
 
     },
@@ -237,7 +237,7 @@ public enum HttpStatus implements Status<HttpInput, HttpByteSink> {
 
         @Override
         public void out(HttpInput input, HttpByteSink sink) throws IOException {
-            sink.send(input);
+            sink.preEndChunkCount(input.getBuffer().get());
         }
 
     },
@@ -254,19 +254,6 @@ public enum HttpStatus implements Status<HttpInput, HttpByteSink> {
         }
 
     },
-    EVALUATE_CHUNK_COUNT() {
-
-        @Override
-        public HttpStatus next(HttpInput input) {
-            return input.getCountdown() > 0L ? CHUNK : PENULTIMATE_BYTE;
-        }
-
-        @Override
-        public void out(HttpInput input, HttpByteSink sink) throws IOException {
-            sink.send(input);
-        }
-
-    },
     CHUNK() {
 
         @Override
@@ -276,7 +263,7 @@ public enum HttpStatus implements Status<HttpInput, HttpByteSink> {
 
         @Override
         public void out(HttpInput input, HttpByteSink sink) throws IOException {
-            sink.send(input);
+            sink.sendChunkData(input);
         }
 
     },
@@ -289,7 +276,7 @@ public enum HttpStatus implements Status<HttpInput, HttpByteSink> {
 
         @Override
         public void out(HttpInput input, HttpByteSink sink) throws IOException {
-            sink.send(input);
+            sink.afterEndOfChunk(input.getBuffer().get());
         }
 
     },

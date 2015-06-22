@@ -28,14 +28,27 @@ public class DefaultBufferProcessor<I extends Input, S extends ByteSink<I>> impl
             try {
                 status.out(input, sink);
             } catch (IOException e) {
-                LOG.log(Level.INFO, "Generic I/O error", e);
-                input.setCaughtError(true);
+                String message = "Generic I/O error";
+                manageError(input, e, message);
             } catch (RuntimeException e) {
                 LOG.log(Level.INFO, "Generic runtime error", e);
                 input.setCaughtError(true);
             }
         }
         return status;
+    }
+
+    private void manageError(I input, IOException e, String message) {
+        LOG.log(Level.INFO, message, e);
+        if (input.isHttpConnected()) {
+            try {
+                sink.disconnect();
+            } catch (IOException e1) {
+                LOG.log(Level.INFO, "Generic runtime error", e);
+            }
+        } else {
+            input.setCaughtError(true);
+        }
     }
 
 }

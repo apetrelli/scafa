@@ -24,7 +24,7 @@ public interface HttpHandler {
     void onChunk(byte[] buffer, int position, int length, long totalOffset, long chunkOffset, long chunkLength)
             throws IOException;
 
-    void onChunkEnd();
+    void onChunkEnd() throws IOException;
 
     void onChunkedTransferEnd() throws IOException;
 

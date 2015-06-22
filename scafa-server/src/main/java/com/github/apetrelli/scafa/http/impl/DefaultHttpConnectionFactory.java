@@ -82,7 +82,7 @@ public class DefaultHttpConnectionFactory implements HttpConnectionFactory {
 
     private HttpConnection create(AsynchronousSocketChannel sourceChannel, HostPort hostPort) throws IOException {
         HttpConnection connection = connectionCache.get(hostPort);
-        if (connection == null) {
+        if (connection == null || !connection.isOpen()) {
             Section section = configuration.getConfigurationByHost(hostPort.getHost());
             String type = section.get("type");
             if (section != null && type != null) {

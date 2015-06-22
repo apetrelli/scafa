@@ -42,7 +42,7 @@ public class HttpHandlerSupport implements HttpHandler {
     }
 
     @Override
-    public void onChunkEnd() {
+    public void onChunkEnd() throws IOException {
     }
 
     @Override

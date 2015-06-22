@@ -100,6 +100,7 @@ public class HttpInput implements Input {
     
     public void setChunkLength(long chunkLength) {
         this.chunkLength = chunkLength;
+        countdown = chunkLength;
         totalChunkedTransferLength += chunkLength;
         chunkOffset = 0L;
     }
