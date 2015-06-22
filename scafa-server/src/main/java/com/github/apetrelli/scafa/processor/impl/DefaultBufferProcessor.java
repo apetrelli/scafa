@@ -31,7 +31,7 @@ public class DefaultBufferProcessor<I extends Input, S extends ByteSink<I>> impl
                 String message = "Generic I/O error";
                 manageError(input, e, message);
             } catch (RuntimeException e) {
-                LOG.log(Level.INFO, "Generic runtime error", e);
+                LOG.log(Level.SEVERE, "Generic runtime error", e);
                 input.setCaughtError(true);
             }
         }

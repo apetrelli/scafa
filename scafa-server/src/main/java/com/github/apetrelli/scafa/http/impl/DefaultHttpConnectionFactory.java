@@ -43,6 +43,7 @@ public class DefaultHttpConnectionFactory implements HttpConnectionFactory {
     static {
         protocol2port.put("http", 80);
         protocol2port.put("https", 443);
+        protocol2port.put("ftp", 80); // This works only with a proxy.
     }
 
     private Map<HostPort, HttpConnection> connectionCache = new HashMap<>();
