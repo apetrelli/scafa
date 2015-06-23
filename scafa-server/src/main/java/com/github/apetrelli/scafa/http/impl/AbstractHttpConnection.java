@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousCloseException;
 import java.nio.channels.AsynchronousSocketChannel;
+import java.nio.channels.ClosedChannelException;
 import java.nio.channels.CompletionHandler;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
@@ -104,15 +105,17 @@ public abstract class AbstractHttpConnection implements HttpConnection {
 
             @Override
             public void failed(Throwable exc, ByteBuffer attachment) {
-                if (exc instanceof AsynchronousCloseException) {
-                    LOG.log(Level.INFO, "Channel has been closed", exc);
+                if (exc instanceof AsynchronousCloseException || exc instanceof ClosedChannelException) {
+                    LOG.log(Level.INFO, "Channel closed", exc);
+                } else if (exc instanceof IOException){
+                    LOG.log(Level.INFO, "I/O exception, closing", exc);
+                    try {
+                        channel.close();
+                    } catch (IOException e) {
+                        LOG.log(Level.WARNING, "Error when closing channel", exc);
+                    }
                 } else {
-                    LOG.log(Level.SEVERE, "Error when writing to source", exc);
-                }
-                try {
-                    channel.close();
-                } catch (IOException e) {
-                    LOG.log(Level.WARNING, "Error when closing channel", exc);
+                    LOG.log(Level.SEVERE, "Unrecognized exception, don't know what to do...", exc);
                 }
             }
         });
