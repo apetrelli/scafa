@@ -75,7 +75,7 @@ public abstract class AbstractHttpConnection implements HttpConnection {
     @Override
     public void close() throws IOException {
         if (channel.isOpen()) {
-            channel.close();
+            channel.shutdownInput();
         }
     }
 
@@ -97,6 +97,7 @@ public abstract class AbstractHttpConnection implements HttpConnection {
                 } else {
                     try {
                         factory.dispose(socketAddress);
+                        disconnect();
                     } catch (IOException e) {
                         failed(e, attachment);
                     }
@@ -109,13 +110,17 @@ public abstract class AbstractHttpConnection implements HttpConnection {
                     LOG.log(Level.INFO, "Channel closed", exc);
                 } else if (exc instanceof IOException){
                     LOG.log(Level.INFO, "I/O exception, closing", exc);
-                    try {
-                        channel.close();
-                    } catch (IOException e) {
-                        LOG.log(Level.WARNING, "Error when closing channel", exc);
-                    }
+                    disconnect();
                 } else {
                     LOG.log(Level.SEVERE, "Unrecognized exception, don't know what to do...", exc);
+                }
+            }
+
+            private void disconnect() {
+                try {
+                    channel.close();
+                } catch (IOException e) {
+                    LOG.log(Level.WARNING, "Error when closing channel", e);
                 }
             }
         });
