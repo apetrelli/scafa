@@ -105,7 +105,7 @@ public abstract class AbstractHttpConnection implements HttpConnection {
             @Override
             public void failed(Throwable exc, ByteBuffer attachment) {
                 if (exc instanceof AsynchronousCloseException) {
-                    LOG.log(Level.FINE, "Channel has been closed", exc);
+                    LOG.log(Level.INFO, "Channel has been closed", exc);
                 } else {
                     LOG.log(Level.SEVERE, "Error when writing to source", exc);
                 }

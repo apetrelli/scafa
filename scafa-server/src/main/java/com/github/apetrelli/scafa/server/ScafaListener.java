@@ -20,8 +20,10 @@ package com.github.apetrelli.scafa.server;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.channels.AsynchronousCloseException;
 import java.nio.channels.AsynchronousServerSocketChannel;
 import java.nio.channels.AsynchronousSocketChannel;
+import java.nio.channels.ClosedChannelException;
 import java.nio.channels.CompletionHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -73,21 +75,30 @@ public class ScafaListener<I extends Input, S extends ByteSink<I>> {
                                     client.read(buffer, attachment, this);
                                 }
                             } else {
-                                try {
-                                    sink.disconnect();
-                                } catch (IOException e) {
-                                    LOG.log(Level.SEVERE, "Error when disposing client", e);
-                                }
+                                disconnect();
                             }
                         }
     
                         @Override
                         public void failed(Throwable exc, I attachment) {
-                            LOG.log(Level.INFO, "Error when listening to I/O", exc);
+                            if (exc instanceof AsynchronousCloseException || exc instanceof ClosedChannelException) {
+                                LOG.log(Level.INFO, "Channel closed", exc);
+                            } else if (exc instanceof IOException){
+                                LOG.log(Level.INFO, "I/O exception, closing", exc);
+                                disconnect();
+                            } else {
+                                LOG.log(Level.SEVERE, "Unrecognized exception, don't know what to do...", exc);
+                            }
+                        }
+                        
+                        private void disconnect() {
                             try {
-                                client.close();
+                                sink.disconnect();
+                                if (client.isOpen()) {
+                                    client.close();
+                                }
                             } catch (IOException e) {
-                                LOG.log(Level.FINE, "Error when closing client", e);
+                                LOG.log(Level.SEVERE, "Error when disposing client", e);
                             }
                         }
                     });

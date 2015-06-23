@@ -94,8 +94,7 @@ public class ProxyHttpByteSink extends DefaultHttpByteSink<ProxyHttpHandler> {
         try {
             client.write(ByteBuffer.wrap(realHeader.getBytes(StandardCharsets.US_ASCII))).get();
             client.write(ByteBuffer.wrap(page)).get();
-            client.close();
-        } catch (InterruptedException | ExecutionException | IOException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.log(Level.SEVERE, "Error when sending error page", e);
         }
     }
