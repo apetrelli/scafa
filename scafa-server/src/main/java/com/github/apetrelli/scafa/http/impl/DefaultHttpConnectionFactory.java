@@ -47,9 +47,9 @@ public class DefaultHttpConnectionFactory implements HttpConnectionFactory {
     }
 
     private Map<HostPort, HttpConnection> connectionCache = new HashMap<>();
-    
+
     private Configuration configuration;
-    
+
     public DefaultHttpConnectionFactory(Configuration configuration) {
         this.configuration = configuration;
     }
@@ -60,7 +60,7 @@ public class DefaultHttpConnectionFactory implements HttpConnectionFactory {
         HostPort hostPort = getHostToConnect(url, headers);
         return create(sourceChannel, hostPort);
     }
-    
+
     @Override
     public HttpConnection create(AsynchronousSocketChannel sourceChannel, String method, String host, int port,
             Map<String, List<String>> headers, String httpVersion) throws IOException {

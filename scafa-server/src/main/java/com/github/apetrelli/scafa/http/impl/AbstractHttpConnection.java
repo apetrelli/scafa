@@ -39,7 +39,7 @@ public abstract class AbstractHttpConnection implements HttpConnection {
     protected static final byte LF = 10;
 
     protected static final byte SPACE = 32;
-    
+
     protected HttpConnectionFactory factory;
 
     protected AsynchronousSocketChannel channel, sourceChannel;

@@ -42,7 +42,7 @@ public class ScafaListener<I extends Input, S extends ByteSink<I>> {
     private ByteSinkFactory<I, S> factory;
 
     private Status<I, S> initialStatus;
-    
+
     private int portNumber;
 
     public ScafaListener(ByteSinkFactory<I, S> factory,
@@ -81,7 +81,7 @@ public class ScafaListener<I extends Input, S extends ByteSink<I>> {
                                 disconnect();
                             }
                         }
-    
+
                         @Override
                         public void failed(Throwable exc, I attachment) {
                             if (exc instanceof AsynchronousCloseException || exc instanceof ClosedChannelException) {
@@ -93,7 +93,7 @@ public class ScafaListener<I extends Input, S extends ByteSink<I>> {
                                 LOG.log(Level.SEVERE, "Unrecognized exception, don't know what to do...", exc);
                             }
                         }
-                        
+
                         private void disconnect() {
                             try {
                                 sink.disconnect();

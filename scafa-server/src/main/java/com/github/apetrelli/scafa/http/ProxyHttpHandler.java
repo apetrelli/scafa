@@ -26,6 +26,6 @@ public interface ProxyHttpHandler extends HttpHandler {
 
     void onConnectMethod(String host, int port, String httpVersion, Map<String, List<String>> headers)
             throws IOException;
-    
+
     void onDataToPassAlong(ByteBuffer buffer) throws IOException;
 }

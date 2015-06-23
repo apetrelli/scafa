@@ -36,7 +36,7 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
 
     private final static Logger LOG = Logger
             .getLogger(DefaultHttpByteSink.class.getName());
-    
+
     protected H handler;
 
     private byte[] buffer = new byte[16384];
@@ -48,9 +48,9 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
     private int chunkCountBufferCount = 0;
 
     private String method, url, httpVersion, responseMessage;
-    
+
     private int responseCode = 0;
-    
+
     private boolean isRequest = true;
 
     private Map<String, List<String>> headers = new LinkedHashMap<>();
@@ -58,7 +58,7 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
     public DefaultHttpByteSink(H handler) {
         this.handler = handler;
     }
-    
+
     @Override
     public void connect() throws IOException {
         handler.onConnect();
@@ -71,7 +71,7 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
         retValue.setBuffer(buffer);
         return retValue;
     }
-    
+
     @Override
     public void reset() {
         bufferCount = 0;
@@ -237,7 +237,7 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
             throw e;
         }
     }
-    
+
     @Override
     public void afterEndOfChunk(byte currentByte) throws IOException {
         handler.onChunkEnd();
@@ -253,7 +253,7 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
         chunkCountBuffer[chunkCountBufferCount] = currentByte;
         chunkCountBufferCount++;
     }
-    
+
     @Override
     public void preEndChunkCount(byte currentByte) throws IOException {
         LOG.finest("Pre End chunk count");
@@ -307,17 +307,17 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
             }
         }
     }
-    
+
     @Override
     public void chunkedTransferLastCr(byte currentByte) {
         LOG.finest("Chunked transfer last CR");
     }
-    
+
     @Override
     public void chunkedTransferLastLf(byte currentByte) {
         LOG.finest("Chunked transfer last LF");
     }
-    
+
     @Override
     public void sendChunkData(HttpInput input) throws IOException {
         if (!input.isCaughtError()) {

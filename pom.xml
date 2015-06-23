@@ -27,7 +27,7 @@
   <description>Scafa: a universal non-caching proxy for the road warrior</description>
   <url>https://github.com/apetrelli/scafa</url>
   <properties>
-  	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
   <parent>
     <groupId>com.github.apetrelli</groupId>
@@ -48,6 +48,7 @@
   </scm>
   <modules>
     <module>scafa-server</module>
+    <module>scafa-assembly</module>
   </modules>
   <build>
     <plugins>

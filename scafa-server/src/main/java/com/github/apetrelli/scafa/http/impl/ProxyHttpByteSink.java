@@ -43,7 +43,7 @@ public class ProxyHttpByteSink extends DefaultHttpByteSink<ProxyHttpHandler> {
     private AsynchronousSocketChannel sourceChannel;
 
     private byte[] generic502Page;
-    
+
     public ProxyHttpByteSink(AsynchronousSocketChannel sourceChannel, ProxyHttpHandler handler) {
         super(handler);
         this.sourceChannel = sourceChannel;
@@ -53,7 +53,7 @@ public class ProxyHttpByteSink extends DefaultHttpByteSink<ProxyHttpHandler> {
             throw new IllegalStateException("Error page not found", e);
         }
     }
-    
+
     @Override
     public void send(HttpInput input) throws IOException {
         if (input.isHttpConnected()) {
@@ -62,7 +62,7 @@ public class ProxyHttpByteSink extends DefaultHttpByteSink<ProxyHttpHandler> {
             super.send(input);
         }
     }
-    
+
     @Override
     protected void manageError() {
         sendErrorPage(sourceChannel, HTTP_502, generic502Page);

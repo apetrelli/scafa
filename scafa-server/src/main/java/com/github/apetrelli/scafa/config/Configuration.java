@@ -31,7 +31,7 @@ import org.ini4j.Profile.Section;
 
 public class Configuration {
     private Ini ini;
-    
+
     public static Configuration create(String profile) throws InvalidFileFormatException, IOException {
         if (profile == null) {
             profile = "direct";
@@ -40,15 +40,15 @@ public class Configuration {
         ini.load(new File(System.getProperty("user.home") + "/.scafa/" + profile + ".ini"));
         return new Configuration(ini);
     }
-    
+
     private Configuration(Ini ini) {
         this.ini = ini;
     }
-    
+
     public Section getMainConfiguration() {
         return ini.get("main");
     }
-    
+
     public Section getConfigurationByHost(String host) {
         boolean found = false;
         Iterator<String> keyIt = ini.keySet().iterator();
@@ -73,7 +73,7 @@ public class Configuration {
         }
         return found ? section : null;
     }
-    
+
     private String createRegexpFromWildcard(String subject) {
         Pattern regex = Pattern.compile("[^*]+|(\\*)");
         Matcher m = regex.matcher(subject);
@@ -83,6 +83,6 @@ public class Configuration {
             else m.appendReplacement(b, "\\\\Q" + m.group(0) + "\\\\E");
         }
         m.appendTail(b);
-        return b.toString();        
+        return b.toString();
     }
 }

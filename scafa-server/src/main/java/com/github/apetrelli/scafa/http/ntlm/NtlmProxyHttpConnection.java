@@ -48,25 +48,25 @@ import com.github.apetrelli.scafa.server.Status;
 import com.github.apetrelli.scafa.util.HttpUtils;
 
 public class NtlmProxyHttpConnection extends AbstractHttpConnection {
-    
+
     private static final int TYPE_1_FLAGS = NtlmFlags.NTLMSSP_NEGOTIATE_128 | NtlmFlags.NTLMSSP_NEGOTIATE_ALWAYS_SIGN
             | NtlmFlags.NTLMSSP_NEGOTIATE_LM_KEY | NtlmFlags.NTLMSSP_NEGOTIATE_TARGET_INFO
             | NtlmFlags.NTLMSSP_NEGOTIATE_OEM | NtlmFlags.NTLMSSP_NEGOTIATE_UNICODE;
-    
+
     private static final Logger LOG = Logger.getLogger(NtlmProxyHttpConnection.class.getName());
-    
+
     private boolean authenticated = false;
-    
+
     private HttpConnectionFactory factory;
-    
+
     private HostPort socketAddress;
-    
+
     private String domain, username, password;
 
     private TentativeHandler tentativeHandler;
 
     private CapturingHandler capturingHandler;
-    
+
     public NtlmProxyHttpConnection(HttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
             Section config) throws IOException {
         super(factory, sourceChannel);
@@ -80,7 +80,7 @@ public class NtlmProxyHttpConnection extends AbstractHttpConnection {
         tentativeHandler = new TentativeHandler(sourceChannel);
         capturingHandler = new CapturingHandler();
     }
-    
+
     @Override
     public void sendHeader(String method, String url, String httpVersion, Map<String, List<String>> headers)
             throws IOException {
@@ -91,7 +91,7 @@ public class NtlmProxyHttpConnection extends AbstractHttpConnection {
             HttpUtils.sendHeader(requestLine, headers, buffer, channel);
         }
     }
-    
+
     @Override
     public void connect(String method, String host, int port, String httpVersion, Map<String, List<String>> headers)
             throws IOException {

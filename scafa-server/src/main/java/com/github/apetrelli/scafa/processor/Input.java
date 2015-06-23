@@ -22,7 +22,7 @@ import java.nio.ByteBuffer;
 public interface Input {
 
     void setCaughtError(boolean caughtError);
-    
+
     boolean isHttpConnected();
 
     ByteBuffer getBuffer();

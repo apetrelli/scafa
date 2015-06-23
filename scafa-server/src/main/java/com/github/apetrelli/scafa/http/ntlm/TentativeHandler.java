@@ -28,7 +28,7 @@ import com.github.apetrelli.scafa.util.HttpUtils;
 public class TentativeHandler extends CapturingHandler {
 
     private boolean needsAuthorizing = false;
-    
+
     private boolean onlyCaptureMode = false;
 
     private ByteBuffer buffer = ByteBuffer.allocate(16384);
@@ -44,11 +44,11 @@ public class TentativeHandler extends CapturingHandler {
         onlyCaptureMode = false;
         super.reset();
     }
-    
+
     public boolean isNeedsAuthorizing() {
         return needsAuthorizing;
     }
-    
+
     public void setOnlyCaptureMode(boolean onlyCaptureMode) {
         this.onlyCaptureMode = onlyCaptureMode;
     }
@@ -64,7 +64,7 @@ public class TentativeHandler extends CapturingHandler {
                     sourceChannel);
         }
     }
-    
+
     @Override
     public void onBody(ByteBuffer buffer, long offset, long length) throws IOException {
         if (needsAuthorizing) {
@@ -73,7 +73,7 @@ public class TentativeHandler extends CapturingHandler {
             sourceChannel.write(buffer);
         }
     }
-    
+
     @Override
     public void onChunkStart(long totalOffset, long chunkLength) throws IOException {
         if (needsAuthorizing) {
@@ -82,7 +82,7 @@ public class TentativeHandler extends CapturingHandler {
             HttpUtils.sendChunkSize(chunkLength, buffer, sourceChannel);
         }
     }
-    
+
     @Override
     public void onChunk(byte[] buffer, int position, int length, long totalOffset, long chunkOffset, long chunkLength)
             throws IOException {
@@ -93,7 +93,7 @@ public class TentativeHandler extends CapturingHandler {
             sourceChannel.write(readBuffer);
         }
     }
-    
+
     @Override
     public void onChunkEnd() throws IOException {
         if (needsAuthorizing) {
@@ -102,7 +102,7 @@ public class TentativeHandler extends CapturingHandler {
             HttpUtils.sendNewline(buffer, sourceChannel);
         }
     }
-    
+
     @Override
     public void onChunkedTransferEnd() throws IOException {
         if (needsAuthorizing) {

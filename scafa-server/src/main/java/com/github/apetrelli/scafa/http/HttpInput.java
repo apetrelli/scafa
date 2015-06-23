@@ -28,15 +28,15 @@ public class HttpInput implements Input {
     private HttpBodyMode bodyMode = HttpBodyMode.EMPTY;
 
     private long countdown = 0L;
-    
+
     private long bodySize;
-    
+
     private long bodyOffset;
-    
+
     private long totalChunkedTransferLength;
-    
+
     private long chunkOffset;
-    
+
     private long chunkLength;
 
     private boolean caughtError = false;
@@ -71,33 +71,33 @@ public class HttpInput implements Input {
     public long getCountdown() {
         return countdown;
     }
-    
+
     public long getBodySize() {
         return bodySize;
     }
-    
+
     public void setBodySize(long bodySize) {
         this.bodySize = bodySize;
         countdown = bodySize;
         bodyOffset = 0L;
     }
-    
+
     public long getBodyOffset() {
         return bodyOffset;
     }
-    
+
     public long getTotalChunkedTransferLength() {
         return totalChunkedTransferLength;
     }
-    
+
     public long getChunkOffset() {
         return chunkOffset;
     }
-    
+
     public long getChunkLength() {
         return chunkLength;
     }
-    
+
     public void setChunkLength(long chunkLength) {
         this.chunkLength = chunkLength;
         countdown = chunkLength;
@@ -112,7 +112,7 @@ public class HttpInput implements Input {
         }
         bodyOffset += toSubtract;
     }
-    
+
     public void reduceChunk(long toSubtract) {
         countdown -= toSubtract;
         if (countdown < 0L) {

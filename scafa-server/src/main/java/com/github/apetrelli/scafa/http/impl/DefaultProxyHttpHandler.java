@@ -96,7 +96,7 @@ public class DefaultProxyHttpHandler implements ProxyHttpHandler {
     public void onChunkEnd() {
         // Does nothing.
     }
-    
+
     @Override
     public void onChunkedTransferEnd() throws IOException {
         connection.send(ByteBuffer.wrap(CRLF));
