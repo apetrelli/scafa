@@ -1,5 +1,5 @@
 /**
- * Scafa - Universal roadwarrior non-caching proxy
+ * Scafa - A universal non-caching proxy for the road warrior
  * Copyright (C) 2015  Antonio Petrelli
  *
  * This program is free software: you can redistribute it and/or modify
@@ -55,8 +55,9 @@ public class ScafaMain {
             profile = args[0];
         }
         try {
+            Configuration configuration = Configuration.create(profile);
             ScafaListener<HttpInput, HttpByteSink> proxy = new ScafaListener<>(new ProxyHttpByteSinkFactory(
-                    Configuration.create(profile)), HttpStatus.IDLE);
+                    configuration), HttpStatus.IDLE, configuration.getMainConfiguration().get("port", int.class));
             proxy.listen();
         } catch (IOException e) {
             LOG.log(Level.SEVERE, "Cannot start proxy", e);

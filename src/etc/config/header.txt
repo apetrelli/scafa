@@ -1,4 +1,4 @@
-${project.name} - ${project.description}
+Scafa - A universal non-caching proxy for the road warrior
 Copyright (C) ${years}  ${owner}
 
 This program is free software: you can redistribute it and/or modify

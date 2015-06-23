@@ -1,5 +1,5 @@
 /**
- * Scafa - Universal roadwarrior non-caching proxy
+ * Scafa - A universal non-caching proxy for the road warrior
  * Copyright (C) 2015  Antonio Petrelli
  *
  * This program is free software: you can redistribute it and/or modify
@@ -42,15 +42,18 @@ public class ScafaListener<I extends Input, S extends ByteSink<I>> {
     private ByteSinkFactory<I, S> factory;
 
     private Status<I, S> initialStatus;
+    
+    private int portNumber;
 
     public ScafaListener(ByteSinkFactory<I, S> factory,
-            Status<I, S> initialStatus) {
+            Status<I, S> initialStatus, int portNumber) {
         this.factory = factory;
         this.initialStatus = initialStatus;
+        this.portNumber = portNumber;
     }
 
     public void listen() throws IOException {
-        AsynchronousServerSocketChannel server = AsynchronousServerSocketChannel.open().bind(new InetSocketAddress(9000));
+        AsynchronousServerSocketChannel server = AsynchronousServerSocketChannel.open().bind(new InetSocketAddress(portNumber));
         server.accept((Void) null, new CompletionHandler<AsynchronousSocketChannel, Void>() {
 
             @Override

@@ -1,5 +1,5 @@
 /**
- * Scafa - Universal roadwarrior non-caching proxy
+ * Scafa - A universal non-caching proxy for the road warrior
  * Copyright (C) 2015  Antonio Petrelli
  *
  * This program is free software: you can redistribute it and/or modify
