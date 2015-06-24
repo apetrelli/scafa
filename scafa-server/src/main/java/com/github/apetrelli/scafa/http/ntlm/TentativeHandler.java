@@ -70,7 +70,7 @@ public class TentativeHandler extends CapturingHandler {
         if (needsAuthorizing) {
             super.onBody(buffer, offset, length);
         } else {
-            sourceChannel.write(buffer);
+            HttpUtils.getFuture(sourceChannel.write(buffer));
         }
     }
 

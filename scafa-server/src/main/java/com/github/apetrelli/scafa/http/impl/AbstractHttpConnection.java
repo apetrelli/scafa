@@ -114,9 +114,6 @@ public abstract class AbstractHttpConnection implements HttpConnection {
             private void disconnect() {
                 factory.dispose(socketAddress);
                 try {
-                    if (sourceChannel.isOpen()) {
-                        sourceChannel.shutdownOutput();
-                    }
                     if (channel.isOpen()) {
                         channel.close();
                     }
