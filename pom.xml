@@ -49,6 +49,7 @@
   <modules>
     <module>scafa-server</module>
     <module>scafa-assembly</module>
+    <module>scafa-systray</module>
   </modules>
   <build>
     <plugins>
