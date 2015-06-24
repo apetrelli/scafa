@@ -23,7 +23,7 @@ import java.util.logging.Logger;
 import com.github.apetrelli.scafa.http.HttpInput;
 import com.github.apetrelli.scafa.processor.ByteSink;
 
-public class ProxyBufferProcessor<S extends ByteSink<HttpInput>> extends DefaultBufferProcessor<HttpInput, S> {
+public class ProxyBufferProcessor<S extends ByteSink<HttpInput>> extends AbstractBufferProcessor<HttpInput, S> {
 
     private static final Logger LOG = Logger.getLogger(ProxyBufferProcessor.class.getName());
 

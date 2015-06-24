@@ -43,7 +43,7 @@ import com.github.apetrelli.scafa.http.impl.AbstractHttpConnection;
 import com.github.apetrelli.scafa.http.impl.DefaultHttpByteSink;
 import com.github.apetrelli.scafa.http.impl.HostPort;
 import com.github.apetrelli.scafa.processor.BufferProcessor;
-import com.github.apetrelli.scafa.processor.impl.DefaultBufferProcessor;
+import com.github.apetrelli.scafa.processor.impl.ClientBufferProcessor;
 import com.github.apetrelli.scafa.server.Status;
 import com.github.apetrelli.scafa.util.HttpUtils;
 
@@ -107,7 +107,7 @@ public class NtlmProxyHttpConnection extends AbstractHttpConnection {
         Map<String, List<String>> modifiedHeaders = new LinkedHashMap<>(headers);
         modifiedHeaders.put("PROXY-CONNECTION", Arrays.asList("keep-alive"));
         HttpByteSink sink = new DefaultHttpByteSink<HttpHandler>(capturingHandler);
-        BufferProcessor<HttpInput, HttpByteSink> processor = new DefaultBufferProcessor<>(sink);
+        BufferProcessor<HttpInput, HttpByteSink> processor = new ClientBufferProcessor<>(sink);
         ntlmAuthenticate(requestLine, modifiedHeaders, modifiedHeaders, sink, capturingHandler, processor);
     }
 
@@ -121,7 +121,7 @@ public class NtlmProxyHttpConnection extends AbstractHttpConnection {
         }
         if (HttpUtils.sendHeader(requestLine, modifiedHeaders, buffer, channel) >= 0) {
             HttpByteSink sink = new DefaultHttpByteSink<HttpHandler>(tentativeHandler);
-            BufferProcessor<HttpInput, HttpByteSink> processor = new DefaultBufferProcessor<>(sink);
+            BufferProcessor<HttpInput, HttpByteSink> processor = new ClientBufferProcessor<>(sink);
             if (readResponse(tentativeHandler, sink, processor) >= 0) {
                 if (tentativeHandler.isNeedsAuthorizing()) {
                     tentativeHandler.setOnlyCaptureMode(true);

@@ -26,8 +26,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class HttpUtils {
+    
+    private static final Logger LOG = Logger.getLogger(HttpUtils.class.getName());
 
     private static final byte CR = 13;
 
@@ -62,6 +66,12 @@ public class HttpUtils {
             });
         });
         buffer.put(CR).put(LF);
+        if (LOG.isLoggable(Level.FINEST)) {
+            String request = new String(buffer.array(), 0, buffer.limit());
+            LOG.finest("-- Raw request/response header");
+            LOG.finest(request);
+            LOG.finest("-- End of header --");
+        }
         return flushBuffer(buffer, channelToSend);
     }
 

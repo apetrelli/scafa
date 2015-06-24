@@ -25,12 +25,12 @@ import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.http.HttpInput;
 import com.github.apetrelli.scafa.http.ProxyHttpHandler;
+import com.github.apetrelli.scafa.util.HttpUtils;
 
 public class ProxyHttpByteSink extends DefaultHttpByteSink<ProxyHttpHandler> {
 
@@ -92,9 +92,9 @@ public class ProxyHttpByteSink extends DefaultHttpByteSink<ProxyHttpHandler> {
             byte[] page) {
         String realHeader = String.format(header, page.length);
         try {
-            client.write(ByteBuffer.wrap(realHeader.getBytes(StandardCharsets.US_ASCII))).get();
-            client.write(ByteBuffer.wrap(page)).get();
-        } catch (InterruptedException | ExecutionException e) {
+            HttpUtils.getFuture(client.write(ByteBuffer.wrap(realHeader.getBytes(StandardCharsets.US_ASCII))));
+            HttpUtils.getFuture(client.write(ByteBuffer.wrap(page)));
+        } catch (IOException e) {
             LOG.log(Level.SEVERE, "Error when sending error page", e);
         }
     }

@@ -19,21 +19,17 @@ package com.github.apetrelli.scafa.processor.impl;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.processor.BufferProcessor;
 import com.github.apetrelli.scafa.processor.ByteSink;
 import com.github.apetrelli.scafa.processor.Input;
 import com.github.apetrelli.scafa.server.Status;
 
-public class DefaultBufferProcessor<I extends Input, S extends ByteSink<I>> implements BufferProcessor<I, S> {
-
-    private static final Logger LOG = Logger.getLogger(DefaultBufferProcessor.class.getName());
+public abstract class AbstractBufferProcessor<I extends Input, S extends ByteSink<I>> implements BufferProcessor<I, S> {
 
     private S sink;
 
-    public DefaultBufferProcessor(S sink) {
+    public AbstractBufferProcessor(S sink) {
         this.sink = sink;
     }
 
@@ -54,9 +50,6 @@ public class DefaultBufferProcessor<I extends Input, S extends ByteSink<I>> impl
         return status;
     }
 
-    protected <T extends Exception> void manageException(I input, T e, String message) throws T {
-        LOG.log(Level.INFO, message, e);
-        input.setCaughtError(true);
-    }
+    protected abstract <T extends Exception> void manageException(I input, T e, String message) throws T;
 
 }
