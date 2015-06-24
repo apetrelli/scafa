@@ -47,6 +47,8 @@ public class ScafaListener<I extends Input, S extends ByteSink<I>> {
 
     private int portNumber;
 
+    private AsynchronousServerSocketChannel server;
+
     public ScafaListener(ByteSinkFactory<I, S> factory, BufferProcessorFactory<I, S> bufferProcessorFactory,
             Status<I, S> initialStatus, int portNumber) {
         this.factory = factory;
@@ -56,7 +58,7 @@ public class ScafaListener<I extends Input, S extends ByteSink<I>> {
     }
 
     public void listen() throws IOException {
-        AsynchronousServerSocketChannel server = AsynchronousServerSocketChannel.open().bind(new InetSocketAddress(portNumber));
+        server = AsynchronousServerSocketChannel.open().bind(new InetSocketAddress(portNumber));
         server.accept((Void) null, new CompletionHandler<AsynchronousSocketChannel, Void>() {
 
             @Override
@@ -126,5 +128,15 @@ public class ScafaListener<I extends Input, S extends ByteSink<I>> {
             }
         });
 
+    }
+    
+    public void stop() {
+        if (server != null) {
+            try {
+                server.close();
+            } catch (IOException e) {
+                LOG.log(Level.WARNING, "Error when closing server channel", e); 
+            }
+        }
     }
 }
