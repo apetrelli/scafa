@@ -38,7 +38,7 @@ public class DefaultBufferProcessor<I extends Input, S extends ByteSink<I>> impl
     }
 
     @Override
-    public Status<I, S> process(I input, Status<I, S> status) {
+    public Status<I, S> process(I input, Status<I, S> status) throws IOException {
         ByteBuffer buffer = input.getBuffer();
         while (buffer.position() < buffer.limit()) {
             status = status.next(input);
@@ -46,26 +46,17 @@ public class DefaultBufferProcessor<I extends Input, S extends ByteSink<I>> impl
                 status.out(input, sink);
             } catch (IOException e) {
                 String message = "Generic I/O error";
-                manageError(input, e, message);
+                manageException(input, e, message);
             } catch (RuntimeException e) {
-                LOG.log(Level.SEVERE, "Generic runtime error", e);
-                input.setCaughtError(true);
+                manageException(input, e, "Generic runtime error");
             }
         }
         return status;
     }
 
-    private void manageError(I input, IOException e, String message) {
+    protected <T extends Exception> void manageException(I input, T e, String message) throws T {
         LOG.log(Level.INFO, message, e);
-        if (input.isHttpConnected()) {
-            try {
-                sink.disconnect();
-            } catch (IOException e1) {
-                LOG.log(Level.INFO, "Generic runtime error", e);
-            }
-        } else {
-            input.setCaughtError(true);
-        }
+        input.setCaughtError(true);
     }
 
 }

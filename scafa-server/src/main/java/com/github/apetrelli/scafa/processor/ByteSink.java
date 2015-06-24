@@ -19,7 +19,7 @@ package com.github.apetrelli.scafa.processor;
 
 import java.io.IOException;
 
-public interface ByteSink<T> {
+public interface ByteSink<T extends Input> {
 
     void connect() throws IOException;
 

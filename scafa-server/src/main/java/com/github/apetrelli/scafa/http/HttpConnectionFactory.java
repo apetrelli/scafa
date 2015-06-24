@@ -34,5 +34,5 @@ public interface HttpConnectionFactory {
 
     void disconnectAll() throws IOException;
 
-    void dispose(HostPort target) throws IOException;
+    void dispose(HostPort target);
 }

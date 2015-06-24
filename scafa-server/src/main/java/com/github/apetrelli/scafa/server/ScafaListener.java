@@ -29,10 +29,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.processor.BufferProcessor;
+import com.github.apetrelli.scafa.processor.BufferProcessorFactory;
 import com.github.apetrelli.scafa.processor.ByteSink;
 import com.github.apetrelli.scafa.processor.ByteSinkFactory;
 import com.github.apetrelli.scafa.processor.Input;
-import com.github.apetrelli.scafa.processor.impl.DefaultBufferProcessor;
 import com.github.apetrelli.scafa.util.ObjectHolder;
 
 public class ScafaListener<I extends Input, S extends ByteSink<I>> {
@@ -40,14 +40,17 @@ public class ScafaListener<I extends Input, S extends ByteSink<I>> {
     private static final Logger LOG = Logger.getLogger(ScafaListener.class.getName());
 
     private ByteSinkFactory<I, S> factory;
+   
+    private BufferProcessorFactory<I, S> bufferProcessorFactory;
 
     private Status<I, S> initialStatus;
 
     private int portNumber;
 
-    public ScafaListener(ByteSinkFactory<I, S> factory,
+    public ScafaListener(ByteSinkFactory<I, S> factory, BufferProcessorFactory<I, S> bufferProcessorFactory,
             Status<I, S> initialStatus, int portNumber) {
         this.factory = factory;
+        this.bufferProcessorFactory = bufferProcessorFactory;
         this.initialStatus = initialStatus;
         this.portNumber = portNumber;
     }
@@ -65,17 +68,22 @@ public class ScafaListener<I extends Input, S extends ByteSink<I>> {
                     ObjectHolder<Status<I, S>> statusHolder = new ObjectHolder<>();
                     statusHolder.setObj(initialStatus);
                     I input = sink.createInput();
-                    BufferProcessor<I, S> processor = new DefaultBufferProcessor<>(sink);
+                    BufferProcessor<I, S> processor = bufferProcessorFactory.create(sink);
                     client.read(input.getBuffer(), input, new CompletionHandler<Integer, I>() {
                         @Override
                         public void completed(Integer result, I attachment) {
                             if (result >= 0) {
                                 ByteBuffer buffer = attachment.getBuffer();
                                 buffer.flip();
-                                statusHolder.setObj(processor.process(input, statusHolder.getObj()));
-                                if (client.isOpen()) {
-                                    buffer.clear();
-                                    client.read(buffer, attachment, this);
+                                try {
+                                    statusHolder.setObj(processor.process(input, statusHolder.getObj()));
+                                    if (client.isOpen()) {
+                                        buffer.clear();
+                                        client.read(buffer, attachment, this);
+                                    }
+                                } catch (IOException e) {
+                                    LOG.log(Level.INFO, "Error when processing buffer, disconnecting", e);
+                                    disconnect();
                                 }
                             } else {
                                 disconnect();

@@ -90,7 +90,12 @@ public class HttpUtils {
         try {
             return future.get();
         } catch (InterruptedException | ExecutionException e) {
-            throw new IOException("Future problem", e);
+            Throwable cause = e.getCause();
+            if (cause instanceof IOException) {
+                throw (IOException) cause;
+            } else {
+                throw new IOException("Future problem", e);
+            }
         }
     }
 

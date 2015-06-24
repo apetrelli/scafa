@@ -15,13 +15,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.apetrelli.scafa.processor;
+package com.github.apetrelli.scafa.http;
 
-import java.io.IOException;
+public class HttpProxyInput extends HttpInput {
 
-import com.github.apetrelli.scafa.server.Status;
+    private boolean httpConnected = false;
 
-public interface BufferProcessor<I extends Input, S extends ByteSink<I>> {
+    public boolean isHttpConnected() {
+        return httpConnected;
+    }
 
-    Status<I, S> process(I input, Status<I, S> status) throws IOException;
+    public void setHttpConnected(boolean httpConnected) {
+        this.httpConnected = httpConnected;
+    }
 }

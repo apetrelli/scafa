@@ -23,7 +23,6 @@ import java.nio.channels.AsynchronousCloseException;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.CompletionHandler;
-import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -88,19 +87,15 @@ public abstract class AbstractHttpConnection implements HttpConnection {
                 if (result >= 0) {
                     attachment.flip();
                     try {
-                        sourceChannel.write(attachment).get();
+                        HttpUtils.getFuture(sourceChannel.write(attachment));
                         attachment.clear();
                         channel.read(attachment, attachment, this);
-                    } catch (InterruptedException | ExecutionException e) {
-                        failed(e, attachment);
+                    } catch (IOException e) {
+                        LOG.log(Level.INFO, "Error when writing buffer, disconnecting", e);
+                        disconnect();
                     }
                 } else {
-                    try {
-                        factory.dispose(socketAddress);
-                        disconnect();
-                    } catch (IOException e) {
-                        failed(e, attachment);
-                    }
+                    disconnect();
                 }
             }
 
@@ -117,8 +112,14 @@ public abstract class AbstractHttpConnection implements HttpConnection {
             }
 
             private void disconnect() {
+                factory.dispose(socketAddress);
                 try {
-                    channel.close();
+                    if (sourceChannel.isOpen()) {
+                        sourceChannel.shutdownOutput();
+                    }
+                    if (channel.isOpen()) {
+                        channel.close();
+                    }
                 } catch (IOException e) {
                     LOG.log(Level.WARNING, "Error when closing channel", e);
                 }

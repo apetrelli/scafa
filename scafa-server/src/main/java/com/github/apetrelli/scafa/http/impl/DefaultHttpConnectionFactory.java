@@ -74,7 +74,7 @@ public class DefaultHttpConnectionFactory implements HttpConnectionFactory {
     }
 
     @Override
-    public void dispose(HostPort target) throws IOException {
+    public void dispose(HostPort target) {
         HttpConnection connection = connectionCache.get(target);
         if (connection != null) {
             connectionCache.remove(target);

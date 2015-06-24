@@ -23,8 +23,6 @@ public interface Input {
 
     void setCaughtError(boolean caughtError);
 
-    boolean isHttpConnected();
-
     ByteBuffer getBuffer();
 
     byte peekNextByte();
