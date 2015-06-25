@@ -44,7 +44,9 @@
     <fileSet>
       <directory>..</directory>
       <includes>
-        <include>LICENSE.txt</include>
+        <include>LICENSE*</include>
+        <include>NOTICE.txt</include>
+        <include>README.md</include>
       </includes>
       <outputDirectory>/</outputDirectory>
     </fileSet>

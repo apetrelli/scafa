@@ -41,10 +41,11 @@ public class ScafaLauncher {
 
     private static final Logger LOG = Logger.getLogger(ScafaLauncher.class.getName());
     private ScafaListener<HttpInput, HttpByteSink> proxy;
+    private File scafaDirectory;
     
     public void initialize() {
         File home = new File(System.getProperty("user.home"));
-        File scafaDirectory = new File(home, ".scafa");
+        scafaDirectory = new File(home, ".scafa");
         ensureConfigDirectoryPresent(scafaDirectory);
         try (InputStream stream = new FileInputStream(new File(scafaDirectory, "logging.properties"))) {
             LogManager.getLogManager().readConfiguration(stream);
@@ -52,6 +53,16 @@ public class ScafaLauncher {
             LOG.log(Level.SEVERE, "Cannot load logging configuration, exiting", e);
             System.exit(1);
         }
+    }
+    
+    public String[] getProfiles() {
+        File[] files = scafaDirectory.listFiles((File d, String n ) -> { return n.endsWith(".ini");});
+        String[] profiles = new String[files.length];
+        for (int i = 0; i < files.length; i++) {
+            String filename = files[i].getName();
+            profiles[i] = filename.substring(0, filename.lastIndexOf('.'));
+        }
+        return profiles;
     }
 
     public void launch(String profile) {

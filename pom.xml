@@ -50,6 +50,7 @@
     <module>scafa-server</module>
     <module>scafa-assembly</module>
     <module>scafa-systray</module>
+    <module>scafa-jxtrayicon</module>
   </modules>
   <build>
     <plugins>
@@ -81,6 +82,7 @@
             <exclude>LICENSE.txt</exclude>
             <exclude>src/test/resources/**</exclude>
             <exclude>src/main/resources/**</exclude>
+            <exclude>**/JXTrayIcon.*</exclude>
           </excludes>
           <properties>
             <owner>Antonio Petrelli</owner>
