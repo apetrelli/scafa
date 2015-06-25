@@ -51,6 +51,7 @@
     <module>scafa-assembly</module>
     <module>scafa-systray</module>
     <module>scafa-jxtrayicon</module>
+    <module>scafa-headless</module>
   </modules>
   <build>
     <plugins>

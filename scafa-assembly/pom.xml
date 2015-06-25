@@ -54,7 +54,12 @@
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>scafa-server</artifactId>
+      <artifactId>scafa-headless</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>scafa-systray</artifactId>
       <version>${project.version}</version>
     </dependency>
   </dependencies>

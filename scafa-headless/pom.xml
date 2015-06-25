@@ -24,20 +24,15 @@
     <artifactId>scafa</artifactId>
     <version>1.0.0-SNAPSHOT</version>
   </parent>
-  <artifactId>scafa-systray</artifactId>
-  <name>Scafa - SysTray management</name>
-  <description>Management of profiles of Scafa inside SysTray.</description>
+  <artifactId>scafa-headless</artifactId>
+  <name>Scafa - Headless server</name>
+  <description>A server without graphic interface.</description>
   <dependencies>
-    <dependency>
-      <groupId>com.github.apetrelli.scafa</groupId>
-      <artifactId>scafa-server</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-    	<groupId>com.github.apetrelli.scafa</groupId>
-    	<artifactId>scafa-jxtrayicon</artifactId>
-    	<version>1.0.0-SNAPSHOT</version>
-    </dependency>
+  	<dependency>
+  		<groupId>com.github.apetrelli.scafa</groupId>
+  		<artifactId>scafa-server</artifactId>
+  		<version>1.0.0-SNAPSHOT</version>
+  	</dependency>
   </dependencies>
   <build>
     <plugins>
@@ -50,7 +45,7 @@
             <manifest>
               <addClasspath>true</addClasspath>
               <classpathPrefix>lib/</classpathPrefix>
-              <mainClass>com.github.apetrelli.scafa.systray.ScafaSystrayMain</mainClass>
+              <mainClass>com.github.apetrelli.scafa.headless.ScafaMain</mainClass>
             </manifest>
           </archive>
         </configuration>

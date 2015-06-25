@@ -17,4 +17,4 @@
 @REM
 
 @ECHO OFF
-java -jar scafa-headless.jar %*
+java -jar scafa-systray.jar

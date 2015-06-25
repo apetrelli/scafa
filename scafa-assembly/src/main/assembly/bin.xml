@@ -56,13 +56,15 @@
       <outputDirectory>/</outputDirectory>
       <outputFileNameMapping>${artifact.artifactId}.${artifact.extension}</outputFileNameMapping>
       <includes>
-        <include>com.github.apetrelli.scafa:scafa-server</include>
+        <include>com.github.apetrelli.scafa:scafa-headless</include>
+        <include>com.github.apetrelli.scafa:scafa-systray</include>
       </includes>
     </dependencySet>
     <dependencySet>
       <outputDirectory>lib</outputDirectory>
       <excludes>
-        <exclude>com.github.apetrelli.scafa:scafa-server</exclude>
+        <exclude>com.github.apetrelli.scafa:scafa-headless</exclude>
+        <exclude>com.github.apetrelli.scafa:scafa-systray</exclude>
       </excludes>
     </dependencySet>
   </dependencySets>
