@@ -27,6 +27,7 @@ import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
 import com.github.apetrelli.scafa.config.Configuration;
@@ -52,6 +53,34 @@ public class ScafaLauncher {
         } catch (IOException e) {
             LOG.log(Level.SEVERE, "Cannot load logging configuration, exiting", e);
             System.exit(1);
+        }
+    }
+    
+    public String getLastUsedProfile() {
+        File file = new File(scafaDirectory, "lastused.txt");
+        if (file.exists()) {
+            try {
+                String profile = FileUtils.readFileToString(file);
+                File profileFile = new File(scafaDirectory, profile + ".ini");
+                if (profileFile.exists()) {
+                    return profile;
+                } else {
+                    LOG.severe("The file " + profile + ".ini does not exist, defaulting to direct");
+                }
+            } catch (IOException e) {
+                LOG.log(Level.SEVERE, "Cannot load current profile configuration", e);
+            }
+            return null;
+        }
+        return "direct";
+    }
+    
+    public void saveLastUsedProfile(String profile) {
+        File file = new File(scafaDirectory, "lastused.txt");
+        try {
+            FileUtils.write(file, profile);
+        } catch (IOException e) {
+            LOG.log(Level.SEVERE, "Cannot write current profile configuration", e);
         }
     }
     

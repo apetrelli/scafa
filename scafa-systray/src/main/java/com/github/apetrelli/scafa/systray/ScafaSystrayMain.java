@@ -74,16 +74,22 @@ public class ScafaSystrayMain {
         launcher.initialize();
         String[] profiles = launcher.getProfiles();
         List<JCheckBoxMenuItem> profileItems = new ArrayList<JCheckBoxMenuItem>(profiles.length);
+        String lastUsedProfile = launcher.getLastUsedProfile();
         for (int i = 0; i < profiles.length; i++) {
             String profile = profiles[i];
             JCheckBoxMenuItem item = new JCheckBoxMenuItem(profile);
             profileItems.add(item);
             profilesMenu.add(item);
+            if (lastUsedProfile.equals(profile)) {
+                item.setSelected(true);
+                launcher.launch(profile);
+            }
             item.addItemListener(t -> {
                 if (t.getStateChange() == ItemEvent.SELECTED) {
                     launcher.stop();
                     profileItems.stream().filter(u -> {return u != item;}).forEach(u -> u.setSelected(false));
                     launcher.launch(profile);
+                    launcher.saveLastUsedProfile(profile);
                 }
             });
         }
