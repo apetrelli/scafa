@@ -87,7 +87,9 @@ public class ScafaLauncher {
     }
     
     public void stop() {
-        proxy.stop();
+        if (proxy != null) {
+            proxy.stop();
+        }
     }
 
     private static void ensureConfigDirectoryPresent(File scafaDirectory) {
