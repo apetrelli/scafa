@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import jcifs.ntlmssp.NtlmFlags;
@@ -77,6 +78,10 @@ public class NtlmProxyHttpConnection extends AbstractHttpConnection {
         password = config.get("password");
         LOG.finest("Trying to connect to " + socketAddress.toString());
         HttpUtils.getFuture(channel.connect(new InetSocketAddress(socketAddress.getHost(), socketAddress.getPort())));
+        if (LOG.isLoggable(Level.INFO)) {
+            LOG.log(Level.INFO, "Connected thread {0} to port {1}", new Object[] { Thread.currentThread().getName(),
+                    channel.getLocalAddress().toString() });
+        }
         tentativeHandler = new TentativeHandler(sourceChannel);
         capturingHandler = new CapturingHandler();
     }
@@ -84,6 +89,10 @@ public class NtlmProxyHttpConnection extends AbstractHttpConnection {
     @Override
     public void sendHeader(String method, String url, String httpVersion, Map<String, List<String>> headers)
             throws IOException {
+        if (LOG.isLoggable(Level.INFO)) {
+            LOG.log(Level.INFO, "Connected thread {0} to port {1} and URL {2}", new Object[] { Thread.currentThread().getName(),
+                    channel.getLocalAddress().toString(), url });
+        }
         String requestLine = method + " " + url + " " + httpVersion;
         if (!authenticated) {
             authenticate(requestLine, headers);
@@ -95,6 +104,10 @@ public class NtlmProxyHttpConnection extends AbstractHttpConnection {
     @Override
     public void connect(String method, String host, int port, String httpVersion, Map<String, List<String>> headers)
             throws IOException {
+        if (LOG.isLoggable(Level.INFO)) {
+            LOG.log(Level.INFO, "Connected thread {0} to port {1} and host {2}:{3}", new Object[] { Thread.currentThread().getName(),
+                    channel.getLocalAddress().toString(), host, port });
+        }
         String requestLine = method + " " + host + ":" + port + " " + httpVersion;
         if (!authenticated) {
             authenticateOnConnect(headers, requestLine);

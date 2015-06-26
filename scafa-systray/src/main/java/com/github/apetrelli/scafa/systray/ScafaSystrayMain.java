@@ -98,6 +98,7 @@ public class ScafaSystrayMain {
         JMenuItem exit = new JMenuItem("Exit");
         exit.addActionListener(t -> {
             launcher.stop();
+            SystemTray.getSystemTray().remove(trayIcon);
             System.exit(0);
         });
         menu.add(exit);
