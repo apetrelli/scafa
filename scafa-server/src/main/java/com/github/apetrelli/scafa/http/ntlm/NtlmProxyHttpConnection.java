@@ -119,9 +119,9 @@ public class NtlmProxyHttpConnection extends AbstractHttpConnection {
     private void authenticateOnConnect(Map<String, List<String>> headers, String requestLine) throws IOException {
         Map<String, List<String>> modifiedHeaders = new LinkedHashMap<>(headers);
         modifiedHeaders.put("PROXY-CONNECTION", Arrays.asList("keep-alive"));
-        HttpByteSink sink = new DefaultHttpByteSink<HttpHandler>(capturingHandler);
+        HttpByteSink sink = new DefaultHttpByteSink<HttpHandler>(tentativeHandler);
         BufferProcessor<HttpInput, HttpByteSink> processor = new ClientBufferProcessor<>(sink);
-        ntlmAuthenticate(requestLine, modifiedHeaders, modifiedHeaders, sink, capturingHandler, processor);
+        ntlmAuthenticate(requestLine, modifiedHeaders, modifiedHeaders, sink, tentativeHandler, processor);
     }
 
     private void authenticate(String requestLine, Map<String, List<String>> headers) throws IOException {
@@ -172,6 +172,8 @@ public class NtlmProxyHttpConnection extends AbstractHttpConnection {
                         prepareChannel(factory, sourceChannel, socketAddress);
                     }
                 }
+            } else {
+                channel.close(); // this happens only in HTTP with unallowed connections.
             }
         }
     }
