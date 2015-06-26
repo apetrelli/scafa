@@ -24,6 +24,7 @@
   <id>bin</id>
   <formats>
     <format>zip</format>
+    <format>dir</format>
   </formats>
   <fileSets>
     <fileSet>
@@ -48,7 +49,7 @@
         <include>NOTICE.txt</include>
         <include>README.md</include>
       </includes>
-      <outputDirectory>/</outputDirectory>
+      <outputDirectory>docs</outputDirectory>
     </fileSet>
   </fileSets>
   <dependencySets>
