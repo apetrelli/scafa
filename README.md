@@ -9,7 +9,7 @@ with a configured upstream server.
 Scafa needs Java 8 installed.
 
 ## Installing
-Scafa can be with its Java-based installer (thanks to <a href="http://izpack.org/">IZPack</a>. See the <a href="https://github.com/apetrelli/scafa/releases">Releases</a> section and download "Scafa.Installer.zip", uncompress and launch the Jar file.
+Scafa can be with its Java-based installer (thanks to <a href="http://izpack.org/">IZPack</a>). See the <a href="https://github.com/apetrelli/scafa/releases">Releases</a> section and download "Scafa.Installer.zip", uncompress and launch the Jar file.
 
 ## Building
 Scafa can be built using <a href="http://maven.apache.org/">Maven</a>.
