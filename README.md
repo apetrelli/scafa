@@ -5,6 +5,12 @@ At the moment it supports only direct and NTLM proxies.
 It is similar to <a href="http://cntlm.sourceforge.net/">CNTLM</a> or <a href="http://www.squid-cache.org/">Squid</a>
 with a configured upstream server.
 
+## Prerequisites
+Scafa needs Java 8 installed.
+
+## Installing
+Scafa can be with its Java-based installer (thanks to <a href="http://izpack.org/">IZPack</a>. See the <a href="https://github.com/apetrelli/scafa/releases">Releases</a> section and download "Scafa.Installer.zip", uncompress and launch the Jar file.
+
 ## Building
 Scafa can be built using <a href="http://maven.apache.org/">Maven</a>.
 After cloning the repository launch the command:
