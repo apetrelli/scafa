@@ -22,7 +22,7 @@
   <parent>
     <groupId>com.github.apetrelli.scafa</groupId>
     <artifactId>scafa</artifactId>
-    <version>1.0.0-alpha-2</version>
+    <version>1.0.0-SNAPSHOT</version>
   </parent>
   <artifactId>scafa-headless</artifactId>
   <name>Scafa - Headless server</name>
@@ -31,7 +31,7 @@
   	<dependency>
   		<groupId>com.github.apetrelli.scafa</groupId>
   		<artifactId>scafa-server</artifactId>
-  		<version>1.0.0-alpha-2</version>
+  		<version>1.0.0-SNAPSHOT</version>
   	</dependency>
   </dependencies>
   <build>
