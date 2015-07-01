@@ -30,18 +30,20 @@ import java.util.logging.Logger;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
+import com.github.apetrelli.scafa.aio.impl.DefaultProcessorFactory;
 import com.github.apetrelli.scafa.config.Configuration;
-import com.github.apetrelli.scafa.http.HttpByteSink;
-import com.github.apetrelli.scafa.http.HttpInput;
 import com.github.apetrelli.scafa.http.HttpStatus;
-import com.github.apetrelli.scafa.http.impl.ProxyHttpByteSinkFactory;
+import com.github.apetrelli.scafa.http.ProxyHttpHandler;
+import com.github.apetrelli.scafa.http.impl.DefaultHttpConnectionFactoryFactory;
+import com.github.apetrelli.scafa.http.impl.ProxyHttpByteSinkByHandlerFactory;
+import com.github.apetrelli.scafa.http.impl.ProxyHttpHandlerFactory;
 import com.github.apetrelli.scafa.processor.impl.ProxyBufferProcessorFactory;
 import com.github.apetrelli.scafa.server.ScafaListener;
 
 public class ScafaLauncher {
 
     private static final Logger LOG = Logger.getLogger(ScafaLauncher.class.getName());
-    private ScafaListener<HttpInput, HttpByteSink> proxy;
+    private ScafaListener<ProxyHttpHandler> proxy;
     private File scafaDirectory;
     
     public void initialize() {
@@ -106,9 +108,11 @@ public class ScafaLauncher {
         }
         try {
             Configuration configuration = Configuration.create(profile);
-            proxy = new ScafaListener<>(new ProxyHttpByteSinkFactory(
-                    configuration), new ProxyBufferProcessorFactory<>(), HttpStatus.IDLE, configuration
-                    .getMainConfiguration().get("port", int.class));
+            Integer port = configuration.getMainConfiguration().get("port", int.class);
+            proxy = new ScafaListener<>(
+                    new DefaultProcessorFactory<>(new ProxyHttpByteSinkByHandlerFactory(), new ProxyBufferProcessorFactory<>(), HttpStatus.IDLE),
+                    new ProxyHttpHandlerFactory(new DefaultHttpConnectionFactoryFactory(configuration)),
+                    port);
             proxy.listen();
         } catch (IOException e) {
             LOG.log(Level.SEVERE, "Cannot start proxy", e);

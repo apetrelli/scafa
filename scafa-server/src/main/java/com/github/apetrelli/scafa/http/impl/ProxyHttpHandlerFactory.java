@@ -19,23 +19,21 @@ package com.github.apetrelli.scafa.http.impl;
 
 import java.nio.channels.AsynchronousSocketChannel;
 
-import com.github.apetrelli.scafa.config.Configuration;
-import com.github.apetrelli.scafa.http.HttpByteSink;
-import com.github.apetrelli.scafa.http.HttpInput;
-import com.github.apetrelli.scafa.processor.ByteSinkFactory;
+import com.github.apetrelli.scafa.aio.HandlerFactory;
+import com.github.apetrelli.scafa.http.HttpConnectionFactoryFactory;
+import com.github.apetrelli.scafa.http.ProxyHttpHandler;
 
-public class ProxyHttpByteSinkFactory implements ByteSinkFactory<HttpInput, HttpByteSink> {
+public class ProxyHttpHandlerFactory implements HandlerFactory<ProxyHttpHandler> {
 
-    private Configuration configuration;
+    private HttpConnectionFactoryFactory connectionFactoryFactory;
 
-    public ProxyHttpByteSinkFactory(Configuration configuration) {
-        this.configuration = configuration;
+    public ProxyHttpHandlerFactory(HttpConnectionFactoryFactory connectionFactoryFactory) {
+        this.connectionFactoryFactory = connectionFactoryFactory;
     }
 
     @Override
-    public HttpByteSink create(AsynchronousSocketChannel client) {
-        return new ProxyHttpByteSink(client, new DefaultProxyHttpHandler(
-                new DefaultHttpConnectionFactory(configuration), client));
+    public ProxyHttpHandler create(AsynchronousSocketChannel sourceChannel) {
+        return new DefaultProxyHttpHandler(connectionFactoryFactory.create(), sourceChannel);
     }
 
 }

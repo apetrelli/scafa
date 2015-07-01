@@ -17,9 +17,7 @@
  */
 package com.github.apetrelli.scafa.processor;
 
-import java.nio.channels.AsynchronousSocketChannel;
+public interface Processor<T> {
 
-public interface ByteSinkFactory<I extends Input, S extends ByteSink<I>> {
-
-    S create(AsynchronousSocketChannel client);
+    void process(T handler);
 }

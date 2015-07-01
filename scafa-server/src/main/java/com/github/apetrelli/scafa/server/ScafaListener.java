@@ -19,41 +19,31 @@ package com.github.apetrelli.scafa.server;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
-import java.nio.channels.AsynchronousCloseException;
 import java.nio.channels.AsynchronousServerSocketChannel;
 import java.nio.channels.AsynchronousSocketChannel;
-import java.nio.channels.ClosedChannelException;
 import java.nio.channels.CompletionHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.github.apetrelli.scafa.processor.BufferProcessor;
-import com.github.apetrelli.scafa.processor.BufferProcessorFactory;
-import com.github.apetrelli.scafa.processor.ByteSink;
-import com.github.apetrelli.scafa.processor.ByteSinkFactory;
-import com.github.apetrelli.scafa.processor.Input;
-import com.github.apetrelli.scafa.util.ObjectHolder;
+import com.github.apetrelli.scafa.aio.HandlerFactory;
+import com.github.apetrelli.scafa.aio.ProcessorFactory;
+import com.github.apetrelli.scafa.processor.Processor;
 
-public class ScafaListener<I extends Input, S extends ByteSink<I>> {
+public class ScafaListener<H> {
 
     private static final Logger LOG = Logger.getLogger(ScafaListener.class.getName());
-
-    private ByteSinkFactory<I, S> factory;
-   
-    private BufferProcessorFactory<I, S> bufferProcessorFactory;
-
-    private Status<I, S> initialStatus;
+    
+    private ProcessorFactory<H> processorFactory;
+    
+    private HandlerFactory<H> handlerFactory;
 
     private int portNumber;
 
     private AsynchronousServerSocketChannel server;
-
-    public ScafaListener(ByteSinkFactory<I, S> factory, BufferProcessorFactory<I, S> bufferProcessorFactory,
-            Status<I, S> initialStatus, int portNumber) {
-        this.factory = factory;
-        this.bufferProcessorFactory = bufferProcessorFactory;
-        this.initialStatus = initialStatus;
+    
+    public ScafaListener(ProcessorFactory<H> processorFactory, HandlerFactory<H> handlerFactory, int portNumber) {
+        this.processorFactory = processorFactory;
+        this.handlerFactory = handlerFactory;
         this.portNumber = portNumber;
     }
 
@@ -64,61 +54,9 @@ public class ScafaListener<I extends Input, S extends ByteSink<I>> {
             @Override
             public void completed(AsynchronousSocketChannel client,
                     Void attachment) {
-                S sink = factory.create(client);
-                try {
-                    sink.connect();
-                    ObjectHolder<Status<I, S>> statusHolder = new ObjectHolder<>();
-                    statusHolder.setObj(initialStatus);
-                    I input = sink.createInput();
-                    BufferProcessor<I, S> processor = bufferProcessorFactory.create(sink);
-                    client.read(input.getBuffer(), input, new CompletionHandler<Integer, I>() {
-                        @Override
-                        public void completed(Integer result, I attachment) {
-                            if (result >= 0) {
-                                ByteBuffer buffer = attachment.getBuffer();
-                                buffer.flip();
-                                try {
-                                    statusHolder.setObj(processor.process(input, statusHolder.getObj()));
-                                    if (client.isOpen()) {
-                                        buffer.clear();
-                                        client.read(buffer, attachment, this);
-                                    }
-                                } catch (IOException e) {
-                                    LOG.log(Level.INFO, "Error when processing buffer, disconnecting", e);
-                                    disconnect();
-                                }
-                            } else {
-                                disconnect();
-                            }
-                        }
-
-                        @Override
-                        public void failed(Throwable exc, I attachment) {
-                            if (exc instanceof AsynchronousCloseException || exc instanceof ClosedChannelException) {
-                                LOG.log(Level.INFO, "Channel closed", exc);
-                            } else if (exc instanceof IOException){
-                                LOG.log(Level.INFO, "I/O exception, closing", exc);
-                                disconnect();
-                            } else {
-                                LOG.log(Level.SEVERE, "Unrecognized exception, don't know what to do...", exc);
-                            }
-                        }
-
-                        private void disconnect() {
-                            try {
-                                sink.disconnect();
-                                if (client.isOpen()) {
-                                    client.close();
-                                }
-                            } catch (IOException e) {
-                                LOG.log(Level.SEVERE, "Error when disposing client", e);
-                            }
-                        }
-                    });
-                } catch (IOException e) {
-                    LOG.log(Level.INFO, "Error when establishing a connection", e);
-                }
-
+                Processor<H> processor = processorFactory.create(client);
+                H handler = handlerFactory.create(client);
+                processor.process(handler);
                 server.accept(null, this);
             }
 
