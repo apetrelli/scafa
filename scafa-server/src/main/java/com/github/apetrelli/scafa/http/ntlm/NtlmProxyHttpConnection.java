@@ -27,12 +27,6 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import jcifs.ntlmssp.NtlmFlags;
-import jcifs.ntlmssp.Type1Message;
-import jcifs.ntlmssp.Type2Message;
-import jcifs.ntlmssp.Type3Message;
-import jcifs.util.Base64;
-
 import org.ini4j.Profile.Section;
 
 import com.github.apetrelli.scafa.http.HttpByteSink;
@@ -47,6 +41,12 @@ import com.github.apetrelli.scafa.processor.BufferProcessor;
 import com.github.apetrelli.scafa.processor.impl.ClientBufferProcessor;
 import com.github.apetrelli.scafa.server.Status;
 import com.github.apetrelli.scafa.util.HttpUtils;
+
+import jcifs.ntlmssp.NtlmFlags;
+import jcifs.ntlmssp.Type1Message;
+import jcifs.ntlmssp.Type2Message;
+import jcifs.ntlmssp.Type3Message;
+import jcifs.util.Base64;
 
 public class NtlmProxyHttpConnection extends AbstractHttpConnection {
 
@@ -66,8 +66,6 @@ public class NtlmProxyHttpConnection extends AbstractHttpConnection {
 
     private TentativeHandler tentativeHandler;
 
-    private CapturingHandler capturingHandler;
-
     public NtlmProxyHttpConnection(HttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
             Section config) throws IOException {
         super(factory, sourceChannel);
@@ -79,24 +77,23 @@ public class NtlmProxyHttpConnection extends AbstractHttpConnection {
         LOG.finest("Trying to connect to " + socketAddress.toString());
         HttpUtils.getFuture(channel.connect(new InetSocketAddress(socketAddress.getHost(), socketAddress.getPort())));
         if (LOG.isLoggable(Level.INFO)) {
-            LOG.log(Level.INFO, "Connected thread {0} to port {1}", new Object[] { Thread.currentThread().getName(),
-                    channel.getLocalAddress().toString() });
+            LOG.log(Level.INFO, "Connected thread {0} to port {1}",
+                    new Object[] { Thread.currentThread().getName(), channel.getLocalAddress().toString() });
         }
         tentativeHandler = new TentativeHandler(sourceChannel);
-        capturingHandler = new CapturingHandler();
     }
 
     @Override
     public void sendHeader(String method, String url, String httpVersion, Map<String, List<String>> headers)
             throws IOException {
         if (LOG.isLoggable(Level.INFO)) {
-            LOG.log(Level.INFO, "Connected thread {0} to port {1} and URL {2}", new Object[] { Thread.currentThread().getName(),
-                    channel.getLocalAddress().toString(), url });
+            LOG.log(Level.INFO, "Connected thread {0} to port {1} and URL {2}",
+                    new Object[] { Thread.currentThread().getName(), channel.getLocalAddress().toString(), url });
         }
         String requestLine = method + " " + url + " " + httpVersion;
         if (!authenticated) {
             authenticate(requestLine, headers);
-        } else{
+        } else {
             HttpUtils.sendHeader(requestLine, headers, buffer, channel);
         }
     }
@@ -105,8 +102,8 @@ public class NtlmProxyHttpConnection extends AbstractHttpConnection {
     public void connect(String method, String host, int port, String httpVersion, Map<String, List<String>> headers)
             throws IOException {
         if (LOG.isLoggable(Level.INFO)) {
-            LOG.log(Level.INFO, "Connected thread {0} to port {1} and host {2}:{3}", new Object[] { Thread.currentThread().getName(),
-                    channel.getLocalAddress().toString(), host, port });
+            LOG.log(Level.INFO, "Connected thread {0} to port {1} and host {2}:{3}", new Object[] {
+                    Thread.currentThread().getName(), channel.getLocalAddress().toString(), host, port });
         }
         String requestLine = method + " " + host + ":" + port + " " + httpVersion;
         if (!authenticated) {
@@ -157,23 +154,33 @@ public class NtlmProxyHttpConnection extends AbstractHttpConnection {
         Type1Message message1 = new Type1Message(TYPE_1_FLAGS, null, null);
         modifiedHeaders.put("PROXY-AUTHORIZATION", Arrays.asList("NTLM " + Base64.encode(message1.toByteArray())));
         if (HttpUtils.sendHeader(requestLine, modifiedHeaders, buffer, channel) >= 0) {
-            if (readResponse(handler, sink, processor) >= 0 && handler.getResponseCode() == 407) {
-                List<String> authenticates = handler.getHeaders().get("PROXY-AUTHENTICATE");
-                if (authenticates != null && authenticates.size() == 1) {
-                    String authenticate = authenticates.get(0);
-                    if (authenticate.startsWith("NTLM ")) {
-                        String base64 = authenticate.substring(5);
-                        Type2Message message2 = new Type2Message(Base64.decode(base64));
-                        Type3Message message3 = new Type3Message(message2, password, domain, username,
-                                null, message2.getFlags());
-                        finalHeaders.put("PROXY-AUTHORIZATION", Arrays.asList("NTLM " + Base64.encode(message3.toByteArray())));
-                        HttpUtils.sendHeader(requestLine, finalHeaders, buffer, channel);
-                        authenticated = true;
-                        prepareChannel(factory, sourceChannel, socketAddress);
+            if (readResponse(handler, sink, processor) >= 0) {
+                switch (handler.getResponseCode()) {
+                case 407:
+                    List<String> authenticates = handler.getHeaders().get("PROXY-AUTHENTICATE");
+                    if (authenticates != null && authenticates.size() == 1) {
+                        String authenticate = authenticates.get(0);
+                        if (authenticate.startsWith("NTLM ")) {
+                            String base64 = authenticate.substring(5);
+                            Type2Message message2 = new Type2Message(Base64.decode(base64));
+                            Type3Message message3 = new Type3Message(message2, password, domain, username, null,
+                                    message2.getFlags());
+                            finalHeaders.put("PROXY-AUTHORIZATION",
+                                    Arrays.asList("NTLM " + Base64.encode(message3.toByteArray())));
+                            HttpUtils.sendHeader(requestLine, finalHeaders, buffer, channel);
+                            authenticated = true;
+                            prepareChannel(factory, sourceChannel, socketAddress);
+                        }
                     }
+                    break;
+                case 200:
+                    authenticated = true;
+                    prepareChannel(factory, sourceChannel, socketAddress);
+                    break;
+                default:
+                    channel.close(); // this happens only in HTTP with unallowed
+                                     // connections.
                 }
-            } else {
-                channel.close(); // this happens only in HTTP with unallowed connections.
             }
         }
     }
