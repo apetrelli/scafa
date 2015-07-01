@@ -19,7 +19,7 @@ package com.github.apetrelli.scafa.aio.impl;
 
 import java.nio.channels.AsynchronousSocketChannel;
 
-import com.github.apetrelli.scafa.aio.ByteSinkByHandlerFactory;
+import com.github.apetrelli.scafa.aio.ByteSinkFactory;
 import com.github.apetrelli.scafa.aio.ProcessorFactory;
 import com.github.apetrelli.scafa.processor.BufferProcessorFactory;
 import com.github.apetrelli.scafa.processor.ByteSink;
@@ -30,13 +30,13 @@ import com.github.apetrelli.scafa.server.Status;
 
 public class DefaultProcessorFactory<I extends Input, S extends ByteSink<I>, H> implements ProcessorFactory<H> {
 
-    private ByteSinkByHandlerFactory<I, S, H> factory;
+    private ByteSinkFactory<I, S, H> factory;
 
     private BufferProcessorFactory<I, S> bufferProcessorFactory;
 
     private Status<I, S> initialStatus;
 
-    public DefaultProcessorFactory(ByteSinkByHandlerFactory<I, S, H> factory,
+    public DefaultProcessorFactory(ByteSinkFactory<I, S, H> factory,
             BufferProcessorFactory<I, S> bufferProcessorFactory, Status<I, S> initialStatus) {
         this.factory = factory;
         this.bufferProcessorFactory = bufferProcessorFactory;

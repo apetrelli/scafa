@@ -15,43 +15,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.apetrelli.scafa.http.impl;
+package com.github.apetrelli.scafa.http.proxy.impl;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.http.HttpInput;
-import com.github.apetrelli.scafa.http.ProxyHttpHandler;
-import com.github.apetrelli.scafa.util.HttpUtils;
+import com.github.apetrelli.scafa.http.impl.DefaultHttpByteSink;
+import com.github.apetrelli.scafa.http.proxy.ProxyHttpHandler;
 
 public class ProxyHttpByteSink extends DefaultHttpByteSink<ProxyHttpHandler> {
 
-    private static final Logger LOG = Logger.getLogger(ProxyHttpByteSink.class.getName());
-
-    private static final String HTTP_502 = "HTTP/1.1 502 Bad gateway \r\n"
-            + "Connection: close\r\n"
-            + "Content-Length: %1$d\r\n\r\n";
-
     private AsynchronousSocketChannel sourceChannel;
-
-    private byte[] generic502Page;
 
     public ProxyHttpByteSink(AsynchronousSocketChannel sourceChannel, ProxyHttpHandler handler) {
         super(handler);
         this.sourceChannel = sourceChannel;
-        try {
-            generic502Page = loadResource("/errorpages/generic-502.html");
-        } catch (IOException e) {
-            throw new IllegalStateException("Error page not found", e);
-        }
     }
 
     @Override
@@ -65,7 +46,7 @@ public class ProxyHttpByteSink extends DefaultHttpByteSink<ProxyHttpHandler> {
 
     @Override
     protected void manageError() {
-        sendErrorPage(sourceChannel, HTTP_502, generic502Page);
+        ProxyResources.getInstance().sendGenericErrorPage(sourceChannel);
     }
 
     @Override
@@ -86,30 +67,5 @@ public class ProxyHttpByteSink extends DefaultHttpByteSink<ProxyHttpHandler> {
         } else {
             super.manageRequestheader(handler, input, method, url, httpVersion, headers);
         }
-    }
-
-    private void sendErrorPage(AsynchronousSocketChannel client, String header,
-            byte[] page) {
-        String realHeader = String.format(header, page.length);
-        try {
-            HttpUtils.getFuture(client.write(ByteBuffer.wrap(realHeader.getBytes(StandardCharsets.US_ASCII))));
-            HttpUtils.getFuture(client.write(ByteBuffer.wrap(page)));
-        } catch (IOException e) {
-            LOG.log(Level.SEVERE, "Error when sending error page", e);
-        }
-    }
-
-    private byte[] loadResource(String resourcePath) throws IOException {
-        byte[] retValue;
-        try (InputStream stream = getClass().getResourceAsStream(resourcePath);
-                ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-            byte[] buf = new byte[8192];
-            int amount;
-            while ((amount = stream.read(buf)) >= 0) {
-                os.write(buf, 0, amount);
-            }
-            retValue = os.toByteArray();
-        }
-        return retValue;
     }
 }

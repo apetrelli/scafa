@@ -15,17 +15,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.apetrelli.scafa.http;
+package com.github.apetrelli.scafa.http.proxy.impl;
 
-public class HttpProxyInput extends HttpInput {
+import com.github.apetrelli.scafa.config.Configuration;
+import com.github.apetrelli.scafa.http.proxy.HttpConnectionFactory;
+import com.github.apetrelli.scafa.http.proxy.HttpConnectionFactoryFactory;
 
-    private boolean httpConnected = false;
+public class DefaultHttpConnectionFactoryFactory implements HttpConnectionFactoryFactory {
 
-    public boolean isHttpConnected() {
-        return httpConnected;
+    private Configuration configuration;
+
+    public DefaultHttpConnectionFactoryFactory(Configuration configuration) {
+        this.configuration = configuration;
     }
 
-    public void setHttpConnected(boolean httpConnected) {
-        this.httpConnected = httpConnected;
+    @Override
+    public HttpConnectionFactory create() {
+        return new DefaultHttpConnectionFactory(configuration);
     }
+
 }

@@ -15,27 +15,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.apetrelli.scafa.http;
+package com.github.apetrelli.scafa.http.proxy.impl;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.List;
-import java.util.Map;
+import java.nio.channels.AsynchronousSocketChannel;
 
+import com.github.apetrelli.scafa.aio.ByteSinkFactory;
+import com.github.apetrelli.scafa.http.HttpByteSink;
+import com.github.apetrelli.scafa.http.HttpInput;
+import com.github.apetrelli.scafa.http.proxy.ProxyHttpHandler;
 
-public interface HttpConnection {
+public class ProxyHttpByteSinkFactory
+        implements ByteSinkFactory<HttpInput, HttpByteSink, ProxyHttpHandler> {
 
-    void sendHeader(String method, String url,
-            String httpVersion, Map<String, List<String>> headers)
-            throws IOException;
+    @Override
+    public HttpByteSink create(AsynchronousSocketChannel sourceChannel, ProxyHttpHandler handler) {
+        return new ProxyHttpByteSink(sourceChannel, handler);
+    }
 
-    void connect(String method, String host, int port, String httpVersion, Map<String, List<String>> headers) throws IOException;
-
-    void send(ByteBuffer buffer) throws IOException;
-
-    void end() throws IOException;
-
-    boolean isOpen();
-
-    void close() throws IOException;
 }

@@ -15,17 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.apetrelli.scafa.http;
+package com.github.apetrelli.scafa.http.proxy;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.List;
-import java.util.Map;
+public interface HttpConnectionFactoryFactory {
 
-public interface ProxyHttpHandler extends HttpHandler {
-
-    void onConnectMethod(String host, int port, String httpVersion, Map<String, List<String>> headers)
-            throws IOException;
-
-    void onDataToPassAlong(ByteBuffer buffer) throws IOException;
+    HttpConnectionFactory create();
 }

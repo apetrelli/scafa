@@ -30,13 +30,13 @@ import java.util.logging.Logger;
 import org.ini4j.Profile.Section;
 
 import com.github.apetrelli.scafa.http.HttpByteSink;
-import com.github.apetrelli.scafa.http.HttpConnectionFactory;
 import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpInput;
 import com.github.apetrelli.scafa.http.HttpStatus;
-import com.github.apetrelli.scafa.http.impl.AbstractHttpConnection;
 import com.github.apetrelli.scafa.http.impl.DefaultHttpByteSink;
 import com.github.apetrelli.scafa.http.impl.HostPort;
+import com.github.apetrelli.scafa.http.proxy.HttpConnectionFactory;
+import com.github.apetrelli.scafa.http.proxy.impl.AbstractHttpConnection;
 import com.github.apetrelli.scafa.processor.BufferProcessor;
 import com.github.apetrelli.scafa.processor.impl.ClientBufferProcessor;
 import com.github.apetrelli.scafa.server.Status;

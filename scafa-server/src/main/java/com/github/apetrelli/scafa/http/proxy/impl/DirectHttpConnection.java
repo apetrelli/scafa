@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.apetrelli.scafa.http.impl;
+package com.github.apetrelli.scafa.http.proxy.impl;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -26,7 +26,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
-import com.github.apetrelli.scafa.http.HttpConnectionFactory;
+import com.github.apetrelli.scafa.http.impl.HostPort;
+import com.github.apetrelli.scafa.http.proxy.HttpConnectionFactory;
 import com.github.apetrelli.scafa.util.HttpUtils;
 
 public class DirectHttpConnection extends AbstractHttpConnection {

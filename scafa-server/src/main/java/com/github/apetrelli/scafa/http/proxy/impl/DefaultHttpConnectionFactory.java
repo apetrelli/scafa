@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.apetrelli.scafa.http.impl;
+package com.github.apetrelli.scafa.http.proxy.impl;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -30,9 +30,10 @@ import java.util.logging.Logger;
 import org.ini4j.Profile.Section;
 
 import com.github.apetrelli.scafa.config.Configuration;
-import com.github.apetrelli.scafa.http.HttpConnection;
-import com.github.apetrelli.scafa.http.HttpConnectionFactory;
+import com.github.apetrelli.scafa.http.impl.HostPort;
 import com.github.apetrelli.scafa.http.ntlm.NtlmProxyHttpConnection;
+import com.github.apetrelli.scafa.http.proxy.HttpConnection;
+import com.github.apetrelli.scafa.http.proxy.HttpConnectionFactory;
 
 public class DefaultHttpConnectionFactory implements HttpConnectionFactory {
 

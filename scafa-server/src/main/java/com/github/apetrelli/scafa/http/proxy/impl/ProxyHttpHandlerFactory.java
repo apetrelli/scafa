@@ -15,14 +15,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.apetrelli.scafa.aio;
+package com.github.apetrelli.scafa.http.proxy.impl;
 
 import java.nio.channels.AsynchronousSocketChannel;
 
-import com.github.apetrelli.scafa.processor.ByteSink;
-import com.github.apetrelli.scafa.processor.Input;
+import com.github.apetrelli.scafa.aio.HandlerFactory;
+import com.github.apetrelli.scafa.http.proxy.HttpConnectionFactoryFactory;
+import com.github.apetrelli.scafa.http.proxy.ProxyHttpHandler;
 
-public interface ByteSinkByHandlerFactory<I extends Input, S extends ByteSink<I>, H> {
+public class ProxyHttpHandlerFactory implements HandlerFactory<ProxyHttpHandler> {
 
-    S create(AsynchronousSocketChannel sourceChannel, H handler);
+    private HttpConnectionFactoryFactory connectionFactoryFactory;
+
+    public ProxyHttpHandlerFactory(HttpConnectionFactoryFactory connectionFactoryFactory) {
+        this.connectionFactoryFactory = connectionFactoryFactory;
+    }
+
+    @Override
+    public ProxyHttpHandler create(AsynchronousSocketChannel sourceChannel) {
+        return new DefaultProxyHttpHandler(connectionFactoryFactory.create(), sourceChannel);
+    }
+
 }

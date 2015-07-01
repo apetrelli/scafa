@@ -15,23 +15,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.apetrelli.scafa.http.impl;
+package com.github.apetrelli.scafa.http.proxy;
 
-import com.github.apetrelli.scafa.config.Configuration;
-import com.github.apetrelli.scafa.http.HttpConnectionFactory;
-import com.github.apetrelli.scafa.http.HttpConnectionFactoryFactory;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.List;
+import java.util.Map;
 
-public class DefaultHttpConnectionFactoryFactory implements HttpConnectionFactoryFactory {
+import com.github.apetrelli.scafa.http.HttpHandler;
 
-    private Configuration configuration;
+public interface ProxyHttpHandler extends HttpHandler {
 
-    public DefaultHttpConnectionFactoryFactory(Configuration configuration) {
-        this.configuration = configuration;
-    }
+    void onConnectMethod(String host, int port, String httpVersion, Map<String, List<String>> headers)
+            throws IOException;
 
-    @Override
-    public HttpConnectionFactory create() {
-        return new DefaultHttpConnectionFactory(configuration);
-    }
-
+    void onDataToPassAlong(ByteBuffer buffer) throws IOException;
 }

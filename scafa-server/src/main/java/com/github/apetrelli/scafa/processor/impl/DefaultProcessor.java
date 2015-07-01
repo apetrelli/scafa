@@ -26,7 +26,7 @@ import java.nio.channels.CompletionHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.github.apetrelli.scafa.aio.ByteSinkByHandlerFactory;
+import com.github.apetrelli.scafa.aio.ByteSinkFactory;
 import com.github.apetrelli.scafa.processor.BufferProcessor;
 import com.github.apetrelli.scafa.processor.BufferProcessorFactory;
 import com.github.apetrelli.scafa.processor.ByteSink;
@@ -41,13 +41,13 @@ public class DefaultProcessor<I extends Input, S extends ByteSink<I>, H> impleme
 
     private AsynchronousSocketChannel client;
 
-    private ByteSinkByHandlerFactory<I, S, H> factory;
+    private ByteSinkFactory<I, S, H> factory;
 
     private BufferProcessorFactory<I, S> bufferProcessorFactory;
 
     private Status<I, S> initialStatus;
 
-    public DefaultProcessor(AsynchronousSocketChannel client, ByteSinkByHandlerFactory<I, S, H> factory,
+    public DefaultProcessor(AsynchronousSocketChannel client, ByteSinkFactory<I, S, H> factory,
             BufferProcessorFactory<I, S> bufferProcessorFactory, Status<I, S> initialStatus) {
         this.client = client;
         this.factory = factory;
