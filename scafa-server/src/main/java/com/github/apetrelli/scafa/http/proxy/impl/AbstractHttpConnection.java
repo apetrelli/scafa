@@ -45,8 +45,6 @@ public abstract class AbstractHttpConnection implements HttpConnection {
 
     protected AsynchronousSocketChannel channel, sourceChannel;
 
-    protected ByteBuffer buffer = ByteBuffer.allocate(16384);
-
     protected ByteBuffer readBuffer = ByteBuffer.allocate(16384);
 
     public AbstractHttpConnection(HttpConnectionFactory factory,

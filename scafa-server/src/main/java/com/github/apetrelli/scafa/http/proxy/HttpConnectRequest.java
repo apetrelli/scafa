@@ -18,21 +18,37 @@
 package com.github.apetrelli.scafa.http.proxy;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 import com.github.apetrelli.scafa.http.HttpRequest;
 
-public interface HttpConnection {
+public class HttpConnectRequest extends HttpRequest {
 
-    void sendHeader(HttpRequest request) throws IOException;
+    private String host;
 
-    void connect(HttpConnectRequest request) throws IOException;
+    private int port;
 
-    void send(ByteBuffer buffer) throws IOException;
+    public HttpConnectRequest(HttpRequest toCopy) throws IOException {
+        super(toCopy);
+        String url = toCopy.getResource();
+        String[] strings = url.split(":");
+        if (strings.length != 2) {
+            throw new IOException("Invalid host:port " + url);
+        }
+        host = strings[0];
+        try {
+            port = Integer.parseInt(strings[1]);
+        } catch (NumberFormatException e) {
+            throw new IOException("Invalid port in host:port " + url, e);
+        }
+        toCopy.getResource();
+    }
 
-    void end() throws IOException;
+    public String getHost() {
+        return host;
+    }
 
-    boolean isOpen();
+    public int getPort() {
+        return port;
+    }
 
-    void close() throws IOException;
 }

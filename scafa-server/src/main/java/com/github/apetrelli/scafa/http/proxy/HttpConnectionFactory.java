@@ -19,18 +19,15 @@ package com.github.apetrelli.scafa.http.proxy;
 
 import java.io.IOException;
 import java.nio.channels.AsynchronousSocketChannel;
-import java.util.List;
-import java.util.Map;
 
+import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.impl.HostPort;
 
 public interface HttpConnectionFactory {
 
-    HttpConnection create(AsynchronousSocketChannel sourceChannel, String method, String url,
-            Map<String, List<String>> headers, String httpVersion) throws IOException;
+    HttpConnection create(AsynchronousSocketChannel sourceChannel, HttpRequest request) throws IOException;
 
-    HttpConnection create(AsynchronousSocketChannel sourceChannel, String method, String host, int port,
-            Map<String, List<String>> headers, String httpVersion) throws IOException;
+    HttpConnection create(AsynchronousSocketChannel sourceChannel, HttpConnectRequest request) throws IOException;
 
     void disconnectAll() throws IOException;
 

@@ -19,8 +19,6 @@ package com.github.apetrelli.scafa.http;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.List;
-import java.util.Map;
 
 public interface HttpHandler {
 
@@ -28,11 +26,9 @@ public interface HttpHandler {
 
     void onStart() throws IOException;
 
-    void onResponseHeader(String httpVersion, int responseCode, String responseMessage,
-            Map<String, List<String>> headers) throws IOException;
+    void onResponseHeader(HttpResponse response) throws IOException;
 
-    void onRequestHeader(String method, String url, String httpVersion, Map<String, List<String>> headers)
-            throws IOException;
+    void onRequestHeader(HttpRequest request) throws IOException;
 
     void onBody(ByteBuffer buffer, long offset, long length) throws IOException;
 

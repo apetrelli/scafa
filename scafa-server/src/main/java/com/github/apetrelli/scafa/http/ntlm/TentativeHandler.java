@@ -20,9 +20,8 @@ package com.github.apetrelli.scafa.http.ntlm;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
-import java.util.List;
-import java.util.Map;
 
+import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.util.HttpUtils;
 
 public class TentativeHandler extends CapturingHandler {
@@ -31,13 +30,10 @@ public class TentativeHandler extends CapturingHandler {
 
     private boolean onlyCaptureMode = false;
 
-    private ByteBuffer buffer;
-
     private AsynchronousSocketChannel sourceChannel;
 
-    public TentativeHandler(AsynchronousSocketChannel sourceChannel, ByteBuffer buffer) {
+    public TentativeHandler(AsynchronousSocketChannel sourceChannel) {
         this.sourceChannel = sourceChannel;
-        this.buffer = buffer;
     }
 
     public void reset() {
@@ -55,14 +51,12 @@ public class TentativeHandler extends CapturingHandler {
     }
 
     @Override
-    public void onResponseHeader(String httpVersion, int responseCode, String responseMessage,
-            Map<String, List<String>> headers) throws IOException {
-        super.onResponseHeader(httpVersion, responseCode, responseMessage, headers);
-        if (onlyCaptureMode || responseCode == 407) {
+    public void onResponseHeader(HttpResponse response) throws IOException {
+        super.onResponseHeader(response);
+        if (onlyCaptureMode || response.getCode() == 407) {
             needsAuthorizing = true;
         } else {
-            HttpUtils.sendHeader(httpVersion + " " + responseCode + " " + responseMessage, headers, buffer,
-                    sourceChannel);
+            HttpUtils.sendHeader(response, sourceChannel);
         }
     }
 
@@ -80,7 +74,7 @@ public class TentativeHandler extends CapturingHandler {
         if (needsAuthorizing) {
             super.onChunkStart(totalOffset, chunkLength);
         } else {
-            HttpUtils.sendChunkSize(chunkLength, buffer, sourceChannel);
+            HttpUtils.sendChunkSize(chunkLength, sourceChannel);
         }
     }
 
@@ -100,7 +94,7 @@ public class TentativeHandler extends CapturingHandler {
         if (needsAuthorizing) {
             super.onChunkEnd();
         } else {
-            HttpUtils.sendNewline(buffer, sourceChannel);
+            HttpUtils.sendNewline(sourceChannel);
         }
     }
 
@@ -109,7 +103,7 @@ public class TentativeHandler extends CapturingHandler {
         if (needsAuthorizing) {
             super.onChunkedTransferEnd();
         } else {
-            HttpUtils.sendNewline(buffer, sourceChannel);
+            HttpUtils.sendNewline(sourceChannel);
         }
     }
 }

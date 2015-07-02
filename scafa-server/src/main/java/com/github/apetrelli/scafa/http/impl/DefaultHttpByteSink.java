@@ -19,17 +19,16 @@ package com.github.apetrelli.scafa.http.impl;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.github.apetrelli.scafa.http.HeaderHolder;
 import com.github.apetrelli.scafa.http.HttpBodyMode;
 import com.github.apetrelli.scafa.http.HttpByteSink;
 import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpInput;
+import com.github.apetrelli.scafa.http.HttpRequest;
+import com.github.apetrelli.scafa.http.HttpResponse;
 
 public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink {
 
@@ -40,13 +39,11 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
     
     private StringBuilder lineBuilder = new StringBuilder();
 
-    private String method, url, httpVersion, responseMessage;
-
-    private int responseCode = 0;
-
-    private boolean isRequest = true;
-
-    private Map<String, List<String>> headers = new LinkedHashMap<>();
+    private HttpRequest request;
+    
+    private HttpResponse response;
+    
+    private HeaderHolder holder;
 
     public DefaultHttpByteSink(H handler) {
         this.handler = handler;
@@ -68,26 +65,15 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
     @Override
     public void reset() {
         clearLineBuilder();
-        method = null;
-        url = null;
-        httpVersion = null;
-        headers.clear();
-        isRequest = true;
-        responseMessage = null;
-        responseCode = 0;
+        request = null;
+        response = null;
+        holder = null;
     }
 
     @Override
     public void start(HttpInput input) {
-        clearLineBuilder();
+        reset();
         lineBuilder.append((char) input.getBuffer().get());
-        method = null;
-        url = null;
-        httpVersion = null;
-        headers.clear();
-        isRequest = true;
-        responseMessage = null;
-        responseCode = 0;
     }
 
     @Override
@@ -102,12 +88,12 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
         String[] pieces = requestLine.split("\\s+");
         if (pieces.length >= 3) {
             if (pieces[0].startsWith("HTTP/")) {
-                isRequest = false;
-                httpVersion = pieces[0];
+                String httpVersion = pieces[0];
+                int responseCode;
                 try {
                     responseCode = Integer.parseInt(pieces[1]);
                 } catch (NumberFormatException e) {
-                    responseCode = -1;
+                    responseCode = 500;
                     LOG.log(Level.SEVERE, "The response code is not a number: " + pieces[1], e);
                 }
                 StringBuilder builder = new StringBuilder();
@@ -115,11 +101,12 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
                 for (int i = 3; i < pieces.length; i++) {
                     builder.append(" ").append(pieces[i]);
                 }
-                responseMessage = builder.toString();
+                String responseMessage = builder.toString();
+                response = new HttpResponse(httpVersion, responseCode, responseMessage);
+                holder = response;
             } else if (pieces.length == 3) {
-                method = pieces[0];
-                url = pieces[1];
-                httpVersion = pieces[2];
+                request = new HttpRequest(pieces[0], pieces[1], pieces[2]);
+                holder = request;
             } else {
                 input.setCaughtError(true);
                 LOG.severe("The request line is invalid: " + requestLine);
@@ -155,12 +142,7 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
         if (pos > 0) {
             String key = header.substring(0, pos).toUpperCase();
             String value = header.substring(pos + 2, header.length());
-            List<String> values = headers.get(key);
-            if (values == null) {
-                values = new ArrayList<>();
-                headers.put(key, values);
-            }
-            values.add(value);
+            holder.addHeader(key, value);
         } else {
             LOG.severe("The header is invalid: " + header);
         }
@@ -171,32 +153,21 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
     public void preEndHeader(HttpInput input) {
         appendToBuffer(input.getBuffer().get());
         input.setBodyMode(HttpBodyMode.EMPTY);
-        List<String> contentLengths = headers.get("CONTENT-LENGTH");
-        if (contentLengths != null) { // Check for body
-            if (contentLengths.size() == 1) {
-                String lengthString = contentLengths.iterator().next();
-                try {
-                    long length = Long.parseLong(lengthString.trim());
-                    if (length > 0L) {
-                        input.setBodyMode(HttpBodyMode.BODY);
-                        input.setBodySize(length);
-                    }
-                } catch (NumberFormatException e) {
-                    LOG.log(Level.SEVERE, "The provided length is not an integer: " + lengthString, e);
+        String lengthString = holder.getHeader("CONTENT-LENGTH");
+        if (lengthString != null) {
+            try {
+                long length = Long.parseLong(lengthString.trim());
+                if (length > 0L) {
+                    input.setBodyMode(HttpBodyMode.BODY);
+                    input.setBodySize(length);
                 }
-            } else {
-                LOG.severe("Multiple content lengths: " + contentLengths.toString());
+            } catch (NumberFormatException e) {
+                LOG.log(Level.SEVERE, "The provided length is not an integer: " + lengthString, e);
             }
         } else { // Check chunked transfer
-            List<String> encodings = headers.get("TRANSFER-ENCODING");
-            if (encodings != null) { // Check for body
-                if (encodings.size() == 1) {
-                    if (encodings.iterator().next().equals("chunked")) {
-                        input.setBodyMode(HttpBodyMode.CHUNKED);
-                    }
-                } else {
-                    LOG.log(Level.SEVERE, "Multiple transfer encodings: " + encodings.toString());
-                }
+            String encoding = holder.getHeader("TRANSFER-ENCODING");
+            if ("chunked".equals(encoding)) {
+                input.setBodyMode(HttpBodyMode.CHUNKED);
             }
         }
     }
@@ -205,10 +176,10 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
     public void endHeader(HttpInput input) throws IOException {
         appendToBuffer(input.getBuffer().get());
         clearLineBuilder();
-        if (isRequest) {
-            manageRequestheader(handler, input, method, url, httpVersion, headers);
-        } else {
-            manageResponseHeader(handler, input, httpVersion, responseCode, responseMessage, headers);
+        if (request != null) {
+            manageRequestHeader(handler, input, request);
+        } else if (response != null) {
+            handler.onResponseHeader(new HttpResponse(response));
         }
     }
 
@@ -329,14 +300,8 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
         handler.onDisconnect();
     }
 
-    protected void manageResponseHeader(H handler, HttpInput input, String httpVersion, int responseCode, String responseMessage,
-            Map<String, List<String>> headers) throws IOException {
-        handler.onResponseHeader(httpVersion, responseCode, responseMessage, new LinkedHashMap<>(headers));
-    }
-
-    protected void manageRequestheader(H handler, HttpInput input, String method, String url, String httpVersion,
-            Map<String, List<String>> headers) throws IOException {
-        handler.onRequestHeader(method, url, httpVersion, new LinkedHashMap<>(headers));
+    protected void manageRequestHeader(H handler, HttpInput input, HttpRequest request) throws IOException {
+        handler.onRequestHeader(new HttpRequest(request));
     }
 
     protected void manageError() {

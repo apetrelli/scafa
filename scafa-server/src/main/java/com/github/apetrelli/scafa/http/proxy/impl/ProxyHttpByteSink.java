@@ -19,11 +19,11 @@ package com.github.apetrelli.scafa.http.proxy.impl;
 
 import java.io.IOException;
 import java.nio.channels.AsynchronousSocketChannel;
-import java.util.List;
-import java.util.Map;
 
 import com.github.apetrelli.scafa.http.HttpInput;
+import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.impl.DefaultHttpByteSink;
+import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpHandler;
 
 public class ProxyHttpByteSink extends DefaultHttpByteSink<ProxyHttpHandler> {
@@ -50,22 +50,12 @@ public class ProxyHttpByteSink extends DefaultHttpByteSink<ProxyHttpHandler> {
     }
 
     @Override
-    protected void manageRequestheader(ProxyHttpHandler handler, HttpInput input, String method, String url,
-            String httpVersion, Map<String, List<String>> headers) throws IOException {
-        if ("CONNECT".equalsIgnoreCase(method)) {
-            String[] strings = url.split(":");
-            if (strings.length != 2) {
-                throw new IOException("Invalid host:port " + url);
-            }
-            try {
-                int port = Integer.parseInt(strings[1]);
-                handler.onConnectMethod(strings[0], port, httpVersion, headers);
-                input.setHttpConnected(true);
-            } catch (NumberFormatException e) {
-                throw new IOException("Invalid port in host:port " + url, e);
-            }
+    protected void manageRequestHeader(ProxyHttpHandler handler, HttpInput input, HttpRequest request) throws IOException {
+        if ("CONNECT".equalsIgnoreCase(request.getMethod())) {
+            handler.onConnectMethod(new HttpConnectRequest(request));
+            input.setHttpConnected(true);
         } else {
-            super.manageRequestheader(handler, input, method, url, httpVersion, headers);
+            super.manageRequestHeader(handler, input, request);
         }
     }
 }

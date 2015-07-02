@@ -20,13 +20,14 @@ package com.github.apetrelli.scafa.http.proxy.impl;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Map;
 
+import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.impl.HostPort;
+import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectionFactory;
 import com.github.apetrelli.scafa.util.HttpUtils;
 
@@ -41,18 +42,19 @@ public class DirectHttpConnection extends AbstractHttpConnection {
     }
 
     @Override
-    public void sendHeader(String method, String url,
-            String httpVersion, Map<String, List<String>> headers) throws IOException {
-        URL realurl = new URL(url);
-        String requestLine = method + " " + realurl.getFile() + " " + httpVersion;
-        HttpUtils.sendHeader(requestLine, headers, buffer, channel);
+    public void sendHeader(HttpRequest request) throws IOException {
+        URL realurl = new URL(request.getResource());
+        HttpRequest modifiedRequest = new HttpRequest(request);
+        modifiedRequest.setResource(realurl.getFile());
+        HttpUtils.sendHeader(modifiedRequest, channel);
     }
 
     @Override
-    public void connect(String method, String host, int port, String httpVersion, Map<String, List<String>> headers)
-            throws IOException {
+    public void connect(HttpConnectRequest request) throws IOException {
         Charset charset = StandardCharsets.US_ASCII;
         // Already connected, need only to send a 200.
+        String httpVersion = request.getHttpVersion();
+        ByteBuffer buffer = ByteBuffer.allocate(httpVersion.length() + 11);
         buffer.put(httpVersion.getBytes(charset)).put(SPACE).put("200".getBytes(charset)).put(SPACE)
                 .put("OK".getBytes(charset)).put(CR).put(LF).put(CR).put(LF);
         buffer.flip();

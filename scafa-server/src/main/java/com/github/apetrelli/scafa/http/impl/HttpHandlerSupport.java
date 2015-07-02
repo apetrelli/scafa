@@ -19,10 +19,10 @@ package com.github.apetrelli.scafa.http.impl;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.List;
-import java.util.Map;
 
 import com.github.apetrelli.scafa.http.HttpHandler;
+import com.github.apetrelli.scafa.http.HttpRequest;
+import com.github.apetrelli.scafa.http.HttpResponse;
 
 public class HttpHandlerSupport implements HttpHandler {
 
@@ -33,15 +33,13 @@ public class HttpHandlerSupport implements HttpHandler {
     @Override
     public void onStart() throws IOException {
     }
-
+    
     @Override
-    public void onResponseHeader(String httpVersion, int responseCode, String responseMessage,
-            Map<String, List<String>> headers) throws IOException {
+    public void onResponseHeader(HttpResponse response) throws IOException {
     }
-
+    
     @Override
-    public void onRequestHeader(String method, String url, String httpVersion, Map<String, List<String>> headers)
-            throws IOException {
+    public void onRequestHeader(HttpRequest request) throws IOException {
     }
 
     @Override

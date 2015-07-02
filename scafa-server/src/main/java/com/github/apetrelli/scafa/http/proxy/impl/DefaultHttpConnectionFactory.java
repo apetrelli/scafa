@@ -22,7 +22,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -30,8 +29,10 @@ import java.util.logging.Logger;
 import org.ini4j.Profile.Section;
 
 import com.github.apetrelli.scafa.config.Configuration;
+import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.impl.HostPort;
 import com.github.apetrelli.scafa.http.ntlm.NtlmProxyHttpConnection;
+import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
 import com.github.apetrelli.scafa.http.proxy.HttpConnection;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectionFactory;
 
@@ -56,16 +57,14 @@ public class DefaultHttpConnectionFactory implements HttpConnectionFactory {
     }
 
     @Override
-    public HttpConnection create(AsynchronousSocketChannel sourceChannel, String method, String url,
-            Map<String, List<String>> headers, String httpVersion) throws IOException {
-        HostPort hostPort = getHostToConnect(url, headers);
+    public HttpConnection create(AsynchronousSocketChannel sourceChannel, HttpRequest request) throws IOException {
+        HostPort hostPort = getHostToConnect(request);
         return create(sourceChannel, hostPort);
     }
 
     @Override
-    public HttpConnection create(AsynchronousSocketChannel sourceChannel, String method, String host, int port,
-            Map<String, List<String>> headers, String httpVersion) throws IOException {
-        return create(sourceChannel, new HostPort(host, port));
+    public HttpConnection create(AsynchronousSocketChannel sourceChannel, HttpConnectRequest request) throws IOException {
+        return create(sourceChannel, new HostPort(request.getHost(), request.getPort()));
     }
 
     @Override
@@ -101,43 +100,39 @@ public class DefaultHttpConnectionFactory implements HttpConnectionFactory {
         return connection;
     }
 
-    private HostPort getHostToConnect(String url, Map<String, List<String>> headers) throws IOException {
+    private HostPort getHostToConnect(HttpRequest request) throws IOException {
         HostPort retValue;
-        List<String> hosts = headers.get("HOST");
-        if (hosts != null) {
-            if (hosts.size() == 1) {
-                String hostString = hosts.iterator().next();
-                String[] hostStringSplit = hostString.split(":");
-                Integer port = null;
-                if (hostStringSplit.length == 1) {
-                    try {
-                        URL realUrl = new URL(url);
-                        port = protocol2port.get(realUrl.getProtocol());
-                    } catch (MalformedURLException e) {
-                        // Rare, only in HTTP 1.0
-                        LOG.log(Level.FINE, "Host header not present and connect executed!", e);
-                        hostStringSplit = url.split(":");
-                        if (hostStringSplit.length != 2) {
-                            throw new IOException("Malformed Host url: " + url);
-                        }
-                    }
-                } else if (hostStringSplit.length != 2) {
-                    throw new IOException("Malformed Host header: " + hostString);
-                }
-                if (port == null) {
-                    try {
-                        port = Integer.decode(hostStringSplit[1]);
-                    } catch (NumberFormatException e) {
-                        throw new IOException("Malformed port: " + hostStringSplit[1], e);
+        String hostString = request.getHeader("HOST");
+        String url = request.getResource();
+        if (hostString != null) {
+            String[] hostStringSplit = hostString.split(":");
+            Integer port = null;
+            if (hostStringSplit.length == 1) {
+                try {
+                    URL realUrl = new URL(url);
+                    port = protocol2port.get(realUrl.getProtocol());
+                } catch (MalformedURLException e) {
+                    // Rare, only in HTTP 1.0
+                    LOG.log(Level.FINE, "Host header not present and connect executed!", e);
+                    hostStringSplit = url.split(":");
+                    if (hostStringSplit.length != 2) {
+                        throw new IOException("Malformed Host url: " + url);
                     }
                 }
-                if (port == null || port < 0) {
-                    throw new IOException("Invalid port " + port + " for connection to " + url);
-                }
-                retValue = new HostPort(hostStringSplit[0], port);
-            } else {
-                throw new IOException("Multiple hosts defined: " + hosts.toString());
+            } else if (hostStringSplit.length != 2) {
+                throw new IOException("Malformed Host header: " + hostString);
             }
+            if (port == null) {
+                try {
+                    port = Integer.decode(hostStringSplit[1]);
+                } catch (NumberFormatException e) {
+                    throw new IOException("Malformed port: " + hostStringSplit[1], e);
+                }
+            }
+            if (port == null || port < 0) {
+                throw new IOException("Invalid port " + port + " for connection to " + url);
+            }
+            retValue = new HostPort(hostStringSplit[0], port);
         } else {
             URL realUrl = new URL(url);
             retValue = new HostPort(realUrl.getHost(), realUrl.getPort());

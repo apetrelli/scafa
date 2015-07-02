@@ -21,9 +21,10 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Map;
 
+import com.github.apetrelli.scafa.http.HttpRequest;
+import com.github.apetrelli.scafa.http.HttpResponse;
+import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
 import com.github.apetrelli.scafa.http.proxy.HttpConnection;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpHandler;
@@ -58,16 +59,14 @@ public class DefaultProxyHttpHandler implements ProxyHttpHandler {
     }
 
     @Override
-    public void onResponseHeader(String httpVersion, int responseCode, String responseMessage,
-            Map<String, List<String>> headers) throws IOException {
+    public void onResponseHeader(HttpResponse response) throws IOException {
         throw new UnsupportedOperationException("Not expected a response header");
     }
 
     @Override
-    public void onRequestHeader(String method, String url, String httpVersion, Map<String, List<String>> headers)
-            throws IOException {
-        connection = connectionFactory.create(sourceChannel, method, url, headers, httpVersion);
-        connection.sendHeader(method, url, httpVersion, headers);
+    public void onRequestHeader(HttpRequest request) throws IOException {
+        connection = connectionFactory.create(sourceChannel, request);
+        connection.sendHeader(request);
     }
 
     @Override
@@ -102,10 +101,10 @@ public class DefaultProxyHttpHandler implements ProxyHttpHandler {
     }
 
     @Override
-    public void onConnectMethod(String host, int port, String httpVersion, Map<String, List<String>> headers)
+    public void onConnectMethod(HttpConnectRequest request)
             throws IOException {
-        connection = connectionFactory.create(sourceChannel, "CONNECT", host, port, headers, httpVersion);
-        connection.connect("CONNECT", host, port, httpVersion, headers);
+        connection = connectionFactory.create(sourceChannel, request);
+        connection.connect(request);
     }
 
     @Override
