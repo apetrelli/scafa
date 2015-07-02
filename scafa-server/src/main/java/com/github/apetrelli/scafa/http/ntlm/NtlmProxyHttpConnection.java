@@ -80,7 +80,7 @@ public class NtlmProxyHttpConnection extends AbstractHttpConnection {
             LOG.log(Level.INFO, "Connected thread {0} to port {1}",
                     new Object[] { Thread.currentThread().getName(), channel.getLocalAddress().toString() });
         }
-        tentativeHandler = new TentativeHandler(sourceChannel);
+        tentativeHandler = new TentativeHandler(sourceChannel, buffer);
     }
 
     @Override

@@ -71,7 +71,7 @@ public class DefaultProcessor<I extends Input, S extends ByteSink<I>, H> impleme
                         ByteBuffer buffer = attachment.getBuffer();
                         buffer.flip();
                         try {
-                            statusHolder.setObj(processor.process(input, statusHolder.getObj()));
+                            statusHolder.setObj(processor.process(attachment, statusHolder.getObj()));
                             if (client.isOpen()) {
                                 buffer.clear();
                                 client.read(buffer, attachment, this);

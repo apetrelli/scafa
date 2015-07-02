@@ -42,8 +42,6 @@ public class DefaultProxyHttpHandler implements ProxyHttpHandler {
 
     private HttpConnection connection;
 
-    private ByteBuffer countBuffer = ByteBuffer.allocate(256);
-
     public DefaultProxyHttpHandler(HttpConnectionFactory connectionFactory, AsynchronousSocketChannel sourceChannel) {
         this.connectionFactory = connectionFactory;
         this.sourceChannel = sourceChannel;
@@ -79,11 +77,12 @@ public class DefaultProxyHttpHandler implements ProxyHttpHandler {
 
     @Override
     public void onChunkStart(long totalOffset, long chunkLength) throws IOException {
-        countBuffer.clear();
-        countBuffer.put(Long.toHexString(chunkLength).getBytes(StandardCharsets.US_ASCII)).put(CR).put(LF);
+        
+        String hexString = Long.toHexString(chunkLength);
+        ByteBuffer countBuffer = ByteBuffer.allocate(hexString.length() + 2);
+        countBuffer.put(hexString.getBytes(StandardCharsets.US_ASCII)).put(CR).put(LF);
         countBuffer.flip();
         connection.send(countBuffer);
-        countBuffer.clear();
     }
 
     @Override

@@ -19,7 +19,6 @@ package com.github.apetrelli.scafa.http.impl;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -38,14 +37,8 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
             .getLogger(DefaultHttpByteSink.class.getName());
 
     protected H handler;
-
-    private byte[] buffer = new byte[16384];
-
-    private byte[] chunkCountBuffer = new byte[256];
-
-    private int bufferCount = 0, offset = 0;
-
-    private int chunkCountBufferCount = 0;
+    
+    private StringBuilder lineBuilder = new StringBuilder();
 
     private String method, url, httpVersion, responseMessage;
 
@@ -74,7 +67,7 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
 
     @Override
     public void reset() {
-        bufferCount = 0;
+        clearLineBuilder();
         method = null;
         url = null;
         httpVersion = null;
@@ -86,8 +79,8 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
 
     @Override
     public void start(HttpInput input) {
-        buffer[0] = input.getBuffer().get();
-        bufferCount = 1;
+        clearLineBuilder();
+        lineBuilder.append((char) input.getBuffer().get());
         method = null;
         url = null;
         httpVersion = null;
@@ -105,8 +98,7 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
     @Override
     public void endRequestLine(HttpInput input) {
         byte currentByte = input.getBuffer().get();
-        String requestLine = new String(buffer, 0, bufferCount,
-                StandardCharsets.US_ASCII);
+        String requestLine = lineBuilder.toString();
         String[] pieces = requestLine.split("\\s+");
         if (pieces.length >= 3) {
             if (pieces[0].startsWith("HTTP/")) {
@@ -142,13 +134,13 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
     @Override
     public void beforeHeader(byte currentByte) {
         appendToBuffer(currentByte);
-        offset = bufferCount;
+        clearLineBuilder();
     }
 
     @Override
     public void beforeHeaderLine(byte currentByte) {
         appendToBuffer(currentByte);
-        offset = bufferCount;
+        clearLineBuilder();
     }
 
     @Override
@@ -158,7 +150,7 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
 
     @Override
     public void endHeaderLine(byte currentByte) {
-        String header = new String(buffer, offset, bufferCount - offset, StandardCharsets.US_ASCII);
+        String header = lineBuilder.toString();
         int pos = header.indexOf(": ");
         if (pos > 0) {
             String key = header.substring(0, pos).toUpperCase();
@@ -212,13 +204,7 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
     @Override
     public void endHeader(HttpInput input) throws IOException {
         appendToBuffer(input.getBuffer().get());
-        chunkCountBufferCount = 0;
-        if (LOG.isLoggable(Level.FINEST)) {
-            String request = new String(buffer, 0, bufferCount);
-            LOG.finest("-- Request sent to " + url + " --");
-            LOG.finest(request);
-            LOG.finest("-- End of request --");
-        }
+        clearLineBuilder();
         if (isRequest) {
             manageRequestheader(handler, input, method, url, httpVersion, headers);
         } else {
@@ -245,13 +231,12 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
 
     @Override
     public void beforeChunkCount(byte currentByte) throws IOException {
-        chunkCountBufferCount = 0;
+        clearLineBuilder();
     }
 
     @Override
     public void appendChunkCount(byte currentByte) throws IOException {
-        chunkCountBuffer[chunkCountBufferCount] = currentByte;
-        chunkCountBufferCount++;
+        lineBuilder.append((char) currentByte);
     }
 
     @Override
@@ -262,8 +247,8 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
     @Override
     public void endChunkCount(HttpInput input) throws IOException {
         input.getBuffer().get(); // Skipping LF.
-        if (chunkCountBufferCount > 0) {
-            String chunkCountHex = new String(chunkCountBuffer, 0, chunkCountBufferCount, StandardCharsets.US_ASCII);
+        if (lineBuilder.length() > 0) {
+            String chunkCountHex = lineBuilder.toString();
             try {
                 long chunkCount = Long.parseLong(chunkCountHex, 16);
                 LOG.log(Level.FINEST, "Preparing to read {0} bytes of a chunk", chunkCount);
@@ -359,7 +344,10 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
     }
 
     private void appendToBuffer(byte currentByte) {
-        buffer[bufferCount] = currentByte;
-        bufferCount++;
+        lineBuilder.append((char) currentByte);
+    }
+
+    private void clearLineBuilder() {
+        lineBuilder.delete(0, lineBuilder.length());
     }
 }

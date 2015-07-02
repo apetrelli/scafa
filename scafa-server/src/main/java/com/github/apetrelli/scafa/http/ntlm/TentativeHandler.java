@@ -31,12 +31,13 @@ public class TentativeHandler extends CapturingHandler {
 
     private boolean onlyCaptureMode = false;
 
-    private ByteBuffer buffer = ByteBuffer.allocate(16384);
+    private ByteBuffer buffer;
 
     private AsynchronousSocketChannel sourceChannel;
 
-    public TentativeHandler(AsynchronousSocketChannel sourceChannel) {
+    public TentativeHandler(AsynchronousSocketChannel sourceChannel, ByteBuffer buffer) {
         this.sourceChannel = sourceChannel;
+        this.buffer = buffer;
     }
 
     public void reset() {
