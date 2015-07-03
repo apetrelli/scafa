@@ -18,7 +18,7 @@
 package com.github.apetrelli.scafa.http.proxy.impl;
 
 import com.github.apetrelli.scafa.config.Configuration;
-import com.github.apetrelli.scafa.http.proxy.HttpConnectionFactory;
+import com.github.apetrelli.scafa.http.proxy.MappedHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectionFactoryFactory;
 
 public class DefaultHttpConnectionFactoryFactory implements HttpConnectionFactoryFactory {
@@ -30,8 +30,8 @@ public class DefaultHttpConnectionFactoryFactory implements HttpConnectionFactor
     }
 
     @Override
-    public HttpConnectionFactory create() {
-        return new DefaultHttpConnectionFactory(configuration);
+    public MappedHttpConnectionFactory create() {
+        return new DefaultMappedHttpConnectionFactory(configuration);
     }
 
 }

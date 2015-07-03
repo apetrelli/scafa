@@ -28,7 +28,7 @@ import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.http.impl.HostPort;
 import com.github.apetrelli.scafa.http.proxy.HttpConnection;
-import com.github.apetrelli.scafa.http.proxy.HttpConnectionFactory;
+import com.github.apetrelli.scafa.http.proxy.MappedHttpConnectionFactory;
 import com.github.apetrelli.scafa.util.HttpUtils;
 
 public abstract class AbstractHttpConnection implements HttpConnection {
@@ -41,16 +41,11 @@ public abstract class AbstractHttpConnection implements HttpConnection {
 
     protected static final byte SPACE = 32;
 
-    protected HttpConnectionFactory factory;
-
     protected AsynchronousSocketChannel channel, sourceChannel;
 
     protected ByteBuffer readBuffer = ByteBuffer.allocate(16384);
 
-    public AbstractHttpConnection(HttpConnectionFactory factory,
-            AsynchronousSocketChannel sourceChannel)
-            throws IOException {
-        this.factory = factory;
+    public AbstractHttpConnection(AsynchronousSocketChannel sourceChannel)            throws IOException {
         this.sourceChannel = sourceChannel;
         channel = AsynchronousSocketChannel.open();
     }
@@ -77,7 +72,7 @@ public abstract class AbstractHttpConnection implements HttpConnection {
         }
     }
 
-    protected void prepareChannel(HttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
+    protected void prepareChannel(MappedHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
             HostPort socketAddress) throws IOException {
         channel.read(readBuffer, readBuffer, new CompletionHandler<Integer, ByteBuffer>() {
 

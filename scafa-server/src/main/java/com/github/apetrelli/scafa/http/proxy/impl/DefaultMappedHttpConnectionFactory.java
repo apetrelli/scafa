@@ -26,21 +26,18 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.ini4j.Profile.Section;
-
 import com.github.apetrelli.scafa.config.Configuration;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.impl.HostPort;
-import com.github.apetrelli.scafa.http.ntlm.NtlmProxyHttpConnection;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
 import com.github.apetrelli.scafa.http.proxy.HttpConnection;
-import com.github.apetrelli.scafa.http.proxy.HttpConnectionFactory;
+import com.github.apetrelli.scafa.http.proxy.MappedHttpConnectionFactory;
 
-public class DefaultHttpConnectionFactory implements HttpConnectionFactory {
+public class DefaultMappedHttpConnectionFactory implements MappedHttpConnectionFactory {
 
     private static final Map<String, Integer> protocol2port = new HashMap<String, Integer>();
 
-    private static final Logger LOG = Logger.getLogger(DefaultHttpConnectionFactory.class.getName());
+    private static final Logger LOG = Logger.getLogger(DefaultMappedHttpConnectionFactory.class.getName());
 
     static {
         protocol2port.put("http", 80);
@@ -52,7 +49,7 @@ public class DefaultHttpConnectionFactory implements HttpConnectionFactory {
 
     private Configuration configuration;
 
-    public DefaultHttpConnectionFactory(Configuration configuration) {
+    public DefaultMappedHttpConnectionFactory(Configuration configuration) {
         this.configuration = configuration;
     }
 
@@ -84,17 +81,8 @@ public class DefaultHttpConnectionFactory implements HttpConnectionFactory {
     private HttpConnection create(AsynchronousSocketChannel sourceChannel, HostPort hostPort) throws IOException {
         HttpConnection connection = connectionCache.get(hostPort);
         if (connection == null || !connection.isOpen()) {
-            Section section = configuration.getConfigurationByHost(hostPort.getHost());
-            String type = section.get("type");
-            if (section != null && type != null) {
-                switch (type) {
-                case "ntlm":
-                    connection = new NtlmProxyHttpConnection(this, sourceChannel, section);
-                }
-            }
-            if (connection == null) {
-                connection = new DirectHttpConnection(this, sourceChannel, hostPort);
-            }
+            connection = configuration.getHttpConnectionFactoryByHost(hostPort.getHost()).create(this, sourceChannel,
+                    hostPort);
             connectionCache.put(hostPort, connection);
         }
         return connection;

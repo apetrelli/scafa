@@ -20,16 +20,10 @@ package com.github.apetrelli.scafa.http.proxy;
 import java.io.IOException;
 import java.nio.channels.AsynchronousSocketChannel;
 
-import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.impl.HostPort;
 
 public interface HttpConnectionFactory {
 
-    HttpConnection create(AsynchronousSocketChannel sourceChannel, HttpRequest request) throws IOException;
-
-    HttpConnection create(AsynchronousSocketChannel sourceChannel, HttpConnectRequest request) throws IOException;
-
-    void disconnectAll() throws IOException;
-
-    void dispose(HostPort target);
+    HttpConnection create(MappedHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
+            HostPort socketAddress) throws IOException;
 }

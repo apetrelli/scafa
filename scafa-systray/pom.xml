@@ -52,6 +52,9 @@
               <classpathPrefix>lib/</classpathPrefix>
               <mainClass>com.github.apetrelli.scafa.systray.ScafaSystrayMain</mainClass>
             </manifest>
+            <manifestEntries>
+            	<Class-Path>ext/</Class-Path>
+            </manifestEntries>
           </archive>
         </configuration>
       </plugin>

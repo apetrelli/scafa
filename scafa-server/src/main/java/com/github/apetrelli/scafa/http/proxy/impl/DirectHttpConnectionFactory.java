@@ -15,9 +15,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.apetrelli.scafa.http.proxy;
+package com.github.apetrelli.scafa.http.proxy.impl;
 
-public interface HttpConnectionFactoryFactory {
+import java.io.IOException;
+import java.nio.channels.AsynchronousSocketChannel;
 
-    MappedHttpConnectionFactory create();
+import com.github.apetrelli.scafa.http.impl.HostPort;
+import com.github.apetrelli.scafa.http.proxy.HttpConnection;
+import com.github.apetrelli.scafa.http.proxy.HttpConnectionFactory;
+import com.github.apetrelli.scafa.http.proxy.MappedHttpConnectionFactory;
+
+public class DirectHttpConnectionFactory implements HttpConnectionFactory {
+
+    @Override
+    public HttpConnection create(MappedHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
+            HostPort socketAddress) throws IOException {
+        return new DirectHttpConnection(factory, sourceChannel, socketAddress);
+    }
+
 }

@@ -17,7 +17,19 @@
  */
 package com.github.apetrelli.scafa.http.proxy;
 
-public interface HttpConnectionFactoryFactory {
+import java.io.IOException;
+import java.nio.channels.AsynchronousSocketChannel;
 
-    MappedHttpConnectionFactory create();
+import com.github.apetrelli.scafa.http.HttpRequest;
+import com.github.apetrelli.scafa.http.impl.HostPort;
+
+public interface MappedHttpConnectionFactory {
+
+    HttpConnection create(AsynchronousSocketChannel sourceChannel, HttpRequest request) throws IOException;
+
+    HttpConnection create(AsynchronousSocketChannel sourceChannel, HttpConnectRequest request) throws IOException;
+
+    void disconnectAll() throws IOException;
+
+    void dispose(HostPort target);
 }

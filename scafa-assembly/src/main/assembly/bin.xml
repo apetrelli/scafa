@@ -43,6 +43,10 @@
       </excludes>
     </fileSet>
     <fileSet>
+      <directory>src/etc/ext</directory>
+      <outputDirectory>ext</outputDirectory>
+    </fileSet>
+    <fileSet>
       <directory>..</directory>
       <includes>
         <include>LICENSE*</include>

@@ -26,7 +26,7 @@ import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
 import com.github.apetrelli.scafa.http.proxy.HttpConnection;
-import com.github.apetrelli.scafa.http.proxy.HttpConnectionFactory;
+import com.github.apetrelli.scafa.http.proxy.MappedHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpHandler;
 
 public class DefaultProxyHttpHandler implements ProxyHttpHandler {
@@ -37,13 +37,13 @@ public class DefaultProxyHttpHandler implements ProxyHttpHandler {
 
     private static final byte[] CRLF = new byte[] {CR, LF};
 
-    private HttpConnectionFactory connectionFactory;
+    private MappedHttpConnectionFactory connectionFactory;
 
     private AsynchronousSocketChannel sourceChannel;
 
     private HttpConnection connection;
 
-    public DefaultProxyHttpHandler(HttpConnectionFactory connectionFactory, AsynchronousSocketChannel sourceChannel) {
+    public DefaultProxyHttpHandler(MappedHttpConnectionFactory connectionFactory, AsynchronousSocketChannel sourceChannel) {
         this.connectionFactory = connectionFactory;
         this.sourceChannel = sourceChannel;
     }
@@ -76,7 +76,7 @@ public class DefaultProxyHttpHandler implements ProxyHttpHandler {
 
     @Override
     public void onChunkStart(long totalOffset, long chunkLength) throws IOException {
-        
+
         String hexString = Long.toHexString(chunkLength);
         ByteBuffer countBuffer = ByteBuffer.allocate(hexString.length() + 2);
         countBuffer.put(hexString.getBytes(StandardCharsets.US_ASCII)).put(CR).put(LF);

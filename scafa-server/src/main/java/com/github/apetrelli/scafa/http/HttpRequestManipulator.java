@@ -15,9 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.apetrelli.scafa.http.proxy;
+package com.github.apetrelli.scafa.http;
 
-public interface HttpConnectionFactoryFactory {
+public interface HttpRequestManipulator {
 
-    MappedHttpConnectionFactory create();
+    void manipulate(HttpRequest request);
 }

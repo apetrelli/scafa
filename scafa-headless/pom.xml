@@ -47,6 +47,9 @@
               <classpathPrefix>lib/</classpathPrefix>
               <mainClass>com.github.apetrelli.scafa.headless.ScafaMain</mainClass>
             </manifest>
+            <manifestEntries>
+            	<Class-Path>ext/</Class-Path>
+            </manifestEntries>
           </archive>
         </configuration>
       </plugin>

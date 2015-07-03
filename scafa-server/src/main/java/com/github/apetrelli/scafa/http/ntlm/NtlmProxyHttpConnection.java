@@ -23,17 +23,16 @@ import java.nio.channels.AsynchronousSocketChannel;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.ini4j.Profile.Section;
-
 import com.github.apetrelli.scafa.http.HttpByteSink;
 import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpInput;
 import com.github.apetrelli.scafa.http.HttpRequest;
+import com.github.apetrelli.scafa.http.HttpRequestManipulator;
 import com.github.apetrelli.scafa.http.HttpStatus;
 import com.github.apetrelli.scafa.http.impl.DefaultHttpByteSink;
 import com.github.apetrelli.scafa.http.impl.HostPort;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
-import com.github.apetrelli.scafa.http.proxy.HttpConnectionFactory;
+import com.github.apetrelli.scafa.http.proxy.MappedHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.impl.AbstractHttpConnection;
 import com.github.apetrelli.scafa.processor.BufferProcessor;
 import com.github.apetrelli.scafa.processor.impl.ClientBufferProcessor;
@@ -56,22 +55,26 @@ public class NtlmProxyHttpConnection extends AbstractHttpConnection {
 
     private boolean authenticated = false;
 
-    private HttpConnectionFactory factory;
+    private MappedHttpConnectionFactory factory;
 
     private HostPort socketAddress;
 
     private String domain, username, password;
 
+    private HttpRequestManipulator manipulator;
+
     private TentativeHandler tentativeHandler;
 
-    public NtlmProxyHttpConnection(HttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
-            Section config) throws IOException {
-        super(factory, sourceChannel);
+    public NtlmProxyHttpConnection(MappedHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
+            String host, int port, String domain, String username, String password, HttpRequestManipulator manipulator)
+                    throws IOException {
+        super(sourceChannel);
         this.factory = factory;
-        this.socketAddress = new HostPort(config.get("host"), config.get("port", Integer.class));
-        domain = config.get("domain");
-        username = config.get("username");
-        password = config.get("password");
+        this.socketAddress = new HostPort(host, port);
+        this.domain = domain;
+        this.username = username;
+        this.password = password;
+        this.manipulator = manipulator;
         LOG.finest("Trying to connect to " + socketAddress.toString());
         HttpUtils.getFuture(channel.connect(new InetSocketAddress(socketAddress.getHost(), socketAddress.getPort())));
         if (LOG.isLoggable(Level.INFO)) {
@@ -83,6 +86,9 @@ public class NtlmProxyHttpConnection extends AbstractHttpConnection {
 
     @Override
     public void sendHeader(HttpRequest request) throws IOException {
+        if (manipulator != null) {
+            manipulator.manipulate(request);
+        }
         if (LOG.isLoggable(Level.INFO)) {
             LOG.log(Level.INFO, "Connected thread {0} to port {1} and URL {2}",
                     new Object[] { Thread.currentThread().getName(), channel.getLocalAddress().toString(), request.getResource() });

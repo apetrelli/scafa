@@ -28,15 +28,15 @@ import java.nio.charset.StandardCharsets;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.impl.HostPort;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
-import com.github.apetrelli.scafa.http.proxy.HttpConnectionFactory;
+import com.github.apetrelli.scafa.http.proxy.MappedHttpConnectionFactory;
 import com.github.apetrelli.scafa.util.HttpUtils;
 
 public class DirectHttpConnection extends AbstractHttpConnection {
 
-    public DirectHttpConnection(HttpConnectionFactory factory,
+    public DirectHttpConnection(MappedHttpConnectionFactory factory,
             AsynchronousSocketChannel sourceChannel, HostPort socketAddress)
             throws IOException {
-        super(factory, sourceChannel);
+        super(sourceChannel);
         HttpUtils.getFuture(channel.connect(new InetSocketAddress(socketAddress.getHost(), socketAddress.getPort())));
         prepareChannel(factory, sourceChannel, socketAddress);
     }

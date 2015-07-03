@@ -117,6 +117,10 @@
 			<description>lib</description>
 			<fileset dir="lib" targetdir="${INSTALL_PATH}/lib" override="true" />
 		</pack>
+		<pack name="ext" required="yes" preselected="yes" hidden="false">
+			<description>ext</description>
+			<fileset dir="ext" targetdir="${INSTALL_PATH}/ext" override="false" />
+		</pack>
 		<pack name="scafa-headless.jar" required="yes" preselected="yes" hidden="false">
 			<description>scafa-headless.jar</description>
 			<file src="scafa-headless.jar" targetdir="$INSTALL_PATH/" override="true"/>
