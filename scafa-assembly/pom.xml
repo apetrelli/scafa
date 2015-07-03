@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>com.github.apetrelli.scafa</groupId>
 		<artifactId>scafa</artifactId>
-		<version>1.0.0-alpha-3</version>
+		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>scafa-assembly</artifactId>
 	<name>Scafa - Assembly project</name>
