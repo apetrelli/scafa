@@ -26,6 +26,7 @@ import java.nio.channels.CompletionHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.impl.HostPort;
 import com.github.apetrelli.scafa.http.proxy.HttpConnection;
 import com.github.apetrelli.scafa.http.proxy.MappedHttpConnectionFactory;
@@ -51,6 +52,12 @@ public abstract class AbstractHttpConnection implements HttpConnection {
     }
 
     @Override
+    public void sendHeader(HttpRequest request) throws IOException {
+        HttpRequest modifiedRequest = createForwardedRequest(request);
+        doSendHeader(modifiedRequest);
+    }
+
+    @Override
     public void send(ByteBuffer buffer) throws IOException {
         HttpUtils.getFuture(channel.write(buffer));
     }
@@ -72,6 +79,12 @@ public abstract class AbstractHttpConnection implements HttpConnection {
         }
     }
 
+    protected abstract HttpRequest createForwardedRequest(HttpRequest request) throws IOException;
+
+    protected void doSendHeader(HttpRequest request) throws IOException {
+        HttpUtils.sendHeader(request, channel);
+    }
+
     protected void prepareChannel(MappedHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
             HostPort socketAddress) throws IOException {
         channel.read(readBuffer, readBuffer, new CompletionHandler<Integer, ByteBuffer>() {
@@ -89,6 +102,13 @@ public abstract class AbstractHttpConnection implements HttpConnection {
                         disconnect();
                     }
                 } else {
+                    if (sourceChannel.isOpen()) {
+                        try {
+                            sourceChannel.shutdownOutput();
+                        } catch (IOException e) {
+                            LOG.log(Level.INFO, "Error when shutting down the source channel", e);
+                        }
+                    }
                     disconnect();
                 }
             }

@@ -41,12 +41,11 @@ public class DirectHttpConnection extends AbstractHttpConnection {
         prepareChannel(factory, sourceChannel, socketAddress);
     }
 
-    @Override
-    public void sendHeader(HttpRequest request) throws IOException {
+    protected HttpRequest createForwardedRequest(HttpRequest request) throws IOException {
         URL realurl = new URL(request.getResource());
         HttpRequest modifiedRequest = new HttpRequest(request);
         modifiedRequest.setResource(realurl.getFile());
-        HttpUtils.sendHeader(modifiedRequest, channel);
+        return modifiedRequest;
     }
 
     @Override

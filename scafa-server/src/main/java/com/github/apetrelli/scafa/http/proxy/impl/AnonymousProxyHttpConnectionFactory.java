@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.apetrelli.scafa.http.ntlm;
+package com.github.apetrelli.scafa.http.proxy.impl;
 
 import java.io.IOException;
 import java.nio.channels.AsynchronousSocketChannel;
@@ -30,24 +30,19 @@ import com.github.apetrelli.scafa.http.proxy.HttpConnection;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.MappedHttpConnectionFactory;
 
-public class NtlmProxyHttpConnectionFactory implements HttpConnectionFactory {
+public class AnonymousProxyHttpConnectionFactory implements HttpConnectionFactory {
 
-    private static final Logger LOG = Logger.getLogger(NtlmProxyHttpConnectionFactory.class.getName());
+    private static final Logger LOG = Logger.getLogger(AnonymousProxyHttpConnectionFactory.class.getName());
 
     private String host;
 
     private int port;
 
-    private String domain, username, password;
-
     private HttpRequestManipulator manipulator;
 
-    public NtlmProxyHttpConnectionFactory(Section section) {
+    public AnonymousProxyHttpConnectionFactory(Section section) {
         this.host = section.get("host");
         this.port = section.get("port", int.class);
-        this.domain = section.get("domain");
-        this.username = section.get("username");
-        this.password = section.get("password");
         String className = section.get("manipulator");
         if (className != null) {
             try {
@@ -62,8 +57,7 @@ public class NtlmProxyHttpConnectionFactory implements HttpConnectionFactory {
     @Override
     public HttpConnection create(MappedHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
             HostPort socketAddress) throws IOException {
-        return new NtlmProxyHttpConnection(sourceChannel, factory, socketAddress, host, port, domain, username,
-                password, manipulator);
+        return new AnonymousProxyHttpConnection(sourceChannel, factory, socketAddress, host, port, manipulator);
     }
 
 }

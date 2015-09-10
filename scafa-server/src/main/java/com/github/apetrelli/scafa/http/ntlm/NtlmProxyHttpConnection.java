@@ -18,10 +18,7 @@
 package com.github.apetrelli.scafa.http.ntlm;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.nio.channels.AsynchronousSocketChannel;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.http.HttpByteSink;
 import com.github.apetrelli.scafa.http.HttpHandler;
@@ -33,7 +30,7 @@ import com.github.apetrelli.scafa.http.impl.DefaultHttpByteSink;
 import com.github.apetrelli.scafa.http.impl.HostPort;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
 import com.github.apetrelli.scafa.http.proxy.MappedHttpConnectionFactory;
-import com.github.apetrelli.scafa.http.proxy.impl.AbstractHttpConnection;
+import com.github.apetrelli.scafa.http.proxy.impl.AbstractProxyHttpConnection;
 import com.github.apetrelli.scafa.processor.BufferProcessor;
 import com.github.apetrelli.scafa.processor.impl.ClientBufferProcessor;
 import com.github.apetrelli.scafa.server.Status;
@@ -45,54 +42,36 @@ import jcifs.ntlmssp.Type2Message;
 import jcifs.ntlmssp.Type3Message;
 import jcifs.util.Base64;
 
-public class NtlmProxyHttpConnection extends AbstractHttpConnection {
+public class NtlmProxyHttpConnection extends AbstractProxyHttpConnection {
 
     private static final int TYPE_1_FLAGS = NtlmFlags.NTLMSSP_NEGOTIATE_128 | NtlmFlags.NTLMSSP_NEGOTIATE_ALWAYS_SIGN
             | NtlmFlags.NTLMSSP_NEGOTIATE_LM_KEY | NtlmFlags.NTLMSSP_NEGOTIATE_TARGET_INFO
             | NtlmFlags.NTLMSSP_NEGOTIATE_OEM | NtlmFlags.NTLMSSP_NEGOTIATE_UNICODE;
 
-    private static final Logger LOG = Logger.getLogger(NtlmProxyHttpConnection.class.getName());
-
     private boolean authenticated = false;
 
     private MappedHttpConnectionFactory factory;
 
-    private HostPort socketAddress;
+    private HostPort calledAddress;
 
     private String domain, username, password;
 
-    private HttpRequestManipulator manipulator;
-
     private TentativeHandler tentativeHandler;
 
-    public NtlmProxyHttpConnection(MappedHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
-            String host, int port, String domain, String username, String password, HttpRequestManipulator manipulator)
-                    throws IOException {
-        super(sourceChannel);
+    public NtlmProxyHttpConnection(AsynchronousSocketChannel sourceChannel, MappedHttpConnectionFactory factory,
+            HostPort calledAddress, String host, int port, String domain, String username, String password,
+            HttpRequestManipulator manipulator) throws IOException {
+        super(sourceChannel, host, port, manipulator);
         this.factory = factory;
-        this.socketAddress = new HostPort(host, port);
+        this.calledAddress = calledAddress;
         this.domain = domain;
         this.username = username;
         this.password = password;
-        this.manipulator = manipulator;
-        LOG.finest("Trying to connect to " + socketAddress.toString());
-        HttpUtils.getFuture(channel.connect(new InetSocketAddress(socketAddress.getHost(), socketAddress.getPort())));
-        if (LOG.isLoggable(Level.INFO)) {
-            LOG.log(Level.INFO, "Connected thread {0} to port {1}",
-                    new Object[] { Thread.currentThread().getName(), channel.getLocalAddress().toString() });
-        }
         tentativeHandler = new TentativeHandler(sourceChannel);
     }
 
     @Override
-    public void sendHeader(HttpRequest request) throws IOException {
-        if (manipulator != null) {
-            manipulator.manipulate(request);
-        }
-        if (LOG.isLoggable(Level.INFO)) {
-            LOG.log(Level.INFO, "Connected thread {0} to port {1} and URL {2}",
-                    new Object[] { Thread.currentThread().getName(), channel.getLocalAddress().toString(), request.getResource() });
-        }
+    protected void doSendHeader(HttpRequest request) throws IOException {
         if (!authenticated) {
             authenticate(request);
         } else {
@@ -101,11 +80,7 @@ public class NtlmProxyHttpConnection extends AbstractHttpConnection {
     }
 
     @Override
-    public void connect(HttpConnectRequest request) throws IOException {
-        if (LOG.isLoggable(Level.INFO)) {
-            LOG.log(Level.INFO, "Connected thread {0} to port {1} and host {2}:{3}", new Object[] {
-                    Thread.currentThread().getName(), channel.getLocalAddress().toString(), request.getHost(), request.getPort()});
-        }
+    protected void doConnect(HttpConnectRequest request) throws IOException {
         if (!authenticated) {
             authenticateOnConnect(request);
         } else {
@@ -140,7 +115,7 @@ public class NtlmProxyHttpConnection extends AbstractHttpConnection {
                     }
                 } else {
                     authenticated = true;
-                    prepareChannel(factory, sourceChannel, socketAddress);
+                    prepareChannel(factory, sourceChannel, calledAddress);
                 }
             } else {
                 throw new IOException("Connection closed");
@@ -167,17 +142,17 @@ public class NtlmProxyHttpConnection extends AbstractHttpConnection {
                                     "NTLM " + Base64.encode(message3.toByteArray()));
                             HttpUtils.sendHeader(finalRequest, channel);
                             authenticated = true;
-                            prepareChannel(factory, sourceChannel, socketAddress);
+                            prepareChannel(factory, sourceChannel, calledAddress);
                         }
                     }
                     break;
                 case 200:
                     authenticated = true;
-                    prepareChannel(factory, sourceChannel, socketAddress);
+                    prepareChannel(factory, sourceChannel, calledAddress);
                     break;
                 default:
-                    channel.close(); // this happens only in HTTP with unallowed
-                                     // connections.
+                    // this happens only in HTTP with disallowed connections.
+                    channel.close();
                 }
             }
         }
