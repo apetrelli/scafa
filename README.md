@@ -1,5 +1,5 @@
 # Scafa
-Scafa is a universal non-caching roadwarrior repository.
+Scafa is a universal non-caching roadwarrior proxy.
 
 At the moment it supports only direct and NTLM proxies.
 It is similar to <a href="http://cntlm.sourceforge.net/">CNTLM</a> or <a href="http://www.squid-cache.org/">Squid</a>
