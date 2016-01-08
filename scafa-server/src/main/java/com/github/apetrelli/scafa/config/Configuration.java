@@ -72,7 +72,7 @@ public class Configuration {
         return ini.get("main");
     }
 
-    public Section getConfigurationByHost(String host) {
+    private Section getConfigurationByHost(String host) {
         boolean found = false;
         Iterator<String> keyIt = ini.keySet().iterator();
         Section section = null;

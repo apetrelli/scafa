@@ -40,7 +40,6 @@ public class HttpConnectRequest extends HttpRequest {
         } catch (NumberFormatException e) {
             throw new IOException("Invalid port in host:port " + url, e);
         }
-        toCopy.getResource();
     }
 
     public String getHost() {
