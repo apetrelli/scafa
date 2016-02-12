@@ -26,7 +26,10 @@ import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.ini4j.Profile.Section;
+
 import com.github.apetrelli.scafa.http.HeaderHolder;
+import com.github.apetrelli.scafa.http.HttpRequestManipulator;
 
 public class HttpUtils {
     
@@ -86,6 +89,20 @@ public class HttpUtils {
             LOG.finest("-- End of header --");
         }
         return flushBuffer(buffer, channelToSend);
+    }
+
+    public static HttpRequestManipulator createManipulator(Section section) {
+        String className = section.get("manipulator");
+        HttpRequestManipulator manipulator = null;
+        if (className != null) {
+            try {
+                Class<? extends HttpRequestManipulator> clazz = Class.forName(className).asSubclass(HttpRequestManipulator.class);
+                manipulator = clazz.newInstance();
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+                LOG.log(Level.SEVERE, "Cannot instantiate manipulator: " + className, e);
+            }
+        }
+        return manipulator;
     }
 
 }

@@ -29,24 +29,29 @@ import com.github.apetrelli.scafa.http.proxy.HttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.MappedHttpConnectionFactory;
 import com.github.apetrelli.scafa.util.HttpUtils;
 
-public class AnonymousProxyHttpConnectionFactory implements HttpConnectionFactory {
+public class BasicAuthProxyHttpConnectionFactory implements HttpConnectionFactory {
 
     private String host;
 
     private int port;
 
+    private String username, password;
+
     private HttpRequestManipulator manipulator;
 
-    public AnonymousProxyHttpConnectionFactory(Section section) {
+    public BasicAuthProxyHttpConnectionFactory(Section section) {
         this.host = section.get("host");
         this.port = section.get("port", int.class);
+        this.username = section.get("username");
+        this.password = section.get("password");
         manipulator = HttpUtils.createManipulator(section);
     }
 
     @Override
     public HttpConnection create(MappedHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
             HostPort socketAddress) throws IOException {
-        return new AnonymousProxyHttpConnection(sourceChannel, factory, socketAddress, host, port, manipulator);
+        return new BasicAuthProxyHttpConnection(sourceChannel, factory, socketAddress, host, port, manipulator,
+                username, password);
     }
 
 }

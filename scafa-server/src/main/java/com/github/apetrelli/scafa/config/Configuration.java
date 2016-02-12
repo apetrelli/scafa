@@ -34,6 +34,7 @@ import org.ini4j.Profile.Section;
 import com.github.apetrelli.scafa.http.ntlm.NtlmProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.impl.AnonymousProxyHttpConnectionFactory;
+import com.github.apetrelli.scafa.http.proxy.impl.BasicAuthProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.impl.DirectHttpConnectionFactory;
 
 public class Configuration {
@@ -62,6 +63,9 @@ public class Configuration {
                 break;
             case "anon":
                 sectionName2factory.put(t.getName(), new AnonymousProxyHttpConnectionFactory(t));
+                break;
+            case "basic":
+                sectionName2factory.put(t.getName(), new BasicAuthProxyHttpConnectionFactory(t));
                 break;
             default:
                 sectionName2factory.put(t.getName(), new DirectHttpConnectionFactory());            }

@@ -19,8 +19,6 @@ package com.github.apetrelli.scafa.http.ntlm;
 
 import java.io.IOException;
 import java.nio.channels.AsynchronousSocketChannel;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.ini4j.Profile.Section;
 
@@ -29,10 +27,9 @@ import com.github.apetrelli.scafa.http.impl.HostPort;
 import com.github.apetrelli.scafa.http.proxy.HttpConnection;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.MappedHttpConnectionFactory;
+import com.github.apetrelli.scafa.util.HttpUtils;
 
 public class NtlmProxyHttpConnectionFactory implements HttpConnectionFactory {
-
-    private static final Logger LOG = Logger.getLogger(NtlmProxyHttpConnectionFactory.class.getName());
 
     private String host;
 
@@ -48,15 +45,7 @@ public class NtlmProxyHttpConnectionFactory implements HttpConnectionFactory {
         this.domain = section.get("domain");
         this.username = section.get("username");
         this.password = section.get("password");
-        String className = section.get("manipulator");
-        if (className != null) {
-            try {
-                Class<? extends HttpRequestManipulator> clazz = Class.forName(className).asSubclass(HttpRequestManipulator.class);
-                manipulator = clazz.newInstance();
-            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-                LOG.log(Level.SEVERE, "Cannot instantiate manipulator: " + className, e);
-            }
-        }
+        manipulator = HttpUtils.createManipulator(section);
     }
 
     @Override
