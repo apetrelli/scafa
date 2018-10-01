@@ -15,6 +15,15 @@
   <artifactId>scafa-headless</artifactId>
   <name>Scafa - Headless server</name>
   <description>A server without graphic interface.</description>
+  <developers>
+    <developer>
+      <name>Antonio Petrelli</name>
+      <email>antonio.petrelli@gmail.com</email>
+      <roles>
+        <role>Developer</role>
+      </roles>
+    </developer>
+  </developers>
   <dependencies>
     <dependency>
       <groupId>com.github.apetrelli.scafa</groupId>
@@ -24,23 +33,23 @@
   </dependencies>
   <build>
     <plugins>
-    	<plugin>
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
         <version>3.1.1</version>
         <executions>
-        	<execution>
-        		<id>build-cp</id>
-        		<goals>
-        			<goal>build-classpath</goal>
-        		</goals>
-        		<configuration>
-        			<outputProperty>graalvmcp</outputProperty>
-        		</configuration>
-        	</execution>
+          <execution>
+            <id>build-cp</id>
+            <goals>
+              <goal>build-classpath</goal>
+            </goals>
+            <configuration>
+              <outputProperty>graalvmcp</outputProperty>
+            </configuration>
+          </execution>
         </executions>
 
-    	</plugin>
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
@@ -81,31 +90,32 @@
         </executions>
       </plugin>
       <plugin>
-       <groupId>org.codehaus.mojo</groupId>
+        <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
-		<version>1.6.0</version>
-		<executions>
-			<execution>
-				<id>native-image</id>
-				<goals>
-					<goal>exec</goal>
-				</goals>
-				<phase>pre-integration-test</phase>
-				<configuration>
-					<executable>${env.GRAALVM_HOME}/bin/native-image</executable>
-					<arguments>
-						<argument>--verbose</argument>
-						<argument>-cp</argument>
-						<argument>${graalvmcp}</argument>
-						<argument>-H:ReflectionConfigurationFiles=src/etc/graal.json</argument>
-						<argument>-H:EnableURLProtocols=http</argument>
-						<argument>--no-server</argument>
-						<argument>-jar</argument>
-						<argument>${project.build.directory}/${project.artifactId}-${project.version}-graalvm.jar</argument>
-					</arguments>
-				</configuration>
-			</execution>
-		</executions>
+        <version>1.6.0</version>
+        <executions>
+          <execution>
+            <id>native-image</id>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <phase>package</phase>
+            <configuration>
+              <executable>${env.GRAALVM_HOME}/bin/native-image</executable>
+              <arguments>
+                <argument>--verbose</argument>
+                <argument>-cp</argument>
+                <argument>${graalvmcp}</argument>
+                <argument>-H:ReflectionConfigurationFiles=src/etc/graal.json</argument>
+                <argument>-H:EnableURLProtocols=http</argument>
+                <argument>-H:Path=${project.build.directory}</argument>
+                <argument>--no-server</argument>
+                <argument>-jar</argument>
+                <argument>${project.build.directory}/${project.artifactId}-${project.version}-graalvm.jar</argument>
+              </arguments>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
