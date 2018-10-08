@@ -128,11 +128,11 @@
                 <argument>-H:ReflectionConfigurationFiles=src/etc/graal.json</argument>
                 <argument>-H:EnableURLProtocols=http</argument>
                 <argument>-H:Path=${project.build.directory}/deb/usr/bin</argument>
-                <argument>-H:Name=scafa-headless</argument>
                 <argument>--rerun-class-initialization-at-runtime=jcifs.ntlmssp.Type3Message</argument>
                 <argument>--no-server</argument>
                 <argument>-jar</argument>
                 <argument>${project.build.directory}/${project.artifactId}-${project.version}-graalvm.jar</argument>
+                <argument>-H:Name=scafa-headless</argument>
               </arguments>
             </configuration>
           </execution>
