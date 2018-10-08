@@ -90,6 +90,25 @@
         </executions>
       </plugin>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>1.8</version>
+        <executions>
+        	<execution>
+        		<id>create-deb</id>
+        		<goals>
+        			<goal>run</goal>
+        		</goals>
+        		<phase>package</phase>
+        		<configuration>
+        			<target>
+        				<mkdir dir="${project.build.directory}/deb/usr/bin" />
+        			</target>
+        		</configuration>
+        	</execution>
+        </executions>
+      </plugin>
+      <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
         <version>1.6.0</version>
@@ -108,7 +127,9 @@
                 <argument>${graalvmcp}</argument>
                 <argument>-H:ReflectionConfigurationFiles=src/etc/graal.json</argument>
                 <argument>-H:EnableURLProtocols=http</argument>
-                <argument>-H:Path=${project.build.directory}</argument>
+                <argument>-H:Path=${project.build.directory}/deb/usr/bin</argument>
+                <argument>-H:Name=scafa-headless</argument>
+                <argument>--rerun-class-initialization-at-runtime=jcifs.ntlmssp.Type3Message</argument>
                 <argument>--no-server</argument>
                 <argument>-jar</argument>
                 <argument>${project.build.directory}/${project.artifactId}-${project.version}-graalvm.jar</argument>
@@ -116,6 +137,26 @@
             </configuration>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <groupId>net.sf.debian-maven</groupId>
+        <artifactId>debian-maven-plugin</artifactId>
+        <version>1.0.6</version>
+        <executions>
+        	<execution>
+        		<id>deb</id>
+        		<phase>package</phase>
+        		<goals>
+        			<goal>package</goal>
+        		</goals>
+        	</execution>
+        </executions>
+        <configuration>
+        	<includeAttachedArtifacts>false</includeAttachedArtifacts>
+        	<excludeAllArtifacts>true</excludeAllArtifacts>
+        	<excludeAllDependencies>true</excludeAllDependencies>
+        	<packageArchitecture>amd64</packageArchitecture>
+        </configuration>
       </plugin>
     </plugins>
   </build>
