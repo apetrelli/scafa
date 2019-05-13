@@ -17,25 +17,25 @@
  */
 package com.github.apetrelli.scafa.systray;
 
-import java.awt.AWTException;
 import java.awt.SystemTray;
-import java.awt.event.ItemEvent;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.imageio.ImageIO;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.DeviceData;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Tray;
+import org.eclipse.swt.widgets.TrayItem;
 
 import com.github.apetrelli.scafa.ScafaLauncher;
-import com.github.apetrelli.scafa.jxtrayicon.JXTrayIcon;
 
 public class ScafaSystrayMain {
 
@@ -48,63 +48,81 @@ public class ScafaSystrayMain {
 
     private static void prepareTrayIcon() {
         if (SystemTray.isSupported()) {
-            BufferedImage image = null;
             try (InputStream is = ScafaSystrayMain.class.getResourceAsStream("/scafa.png")) {
-                image = ImageIO.read(is);
+                Shell shell = createIcon(is);
+                Display display = shell.getDisplay();
+        		while (!shell.isDisposed()) {
+        			if (!display.readAndDispatch())
+        				display.sleep();
+        		}
+        		display.dispose();
             } catch (IOException e) {
                 LOG.log(Level.SEVERE, "Cannot load systray image", e);
-                System.exit(1);
-            }
-            JXTrayIcon trayIcon = createIcon(image);
-            try {
-                SystemTray.getSystemTray().add(trayIcon);
-            } catch (AWTException e) {
-                LOG.log(Level.SEVERE, "Cannot add systray image", e);
                 System.exit(1);
             }
         }
     }
 
-    private static JXTrayIcon createIcon(BufferedImage image) {
-        JXTrayIcon trayIcon = new JXTrayIcon(image);
-        trayIcon.setToolTip("Scafa");
-        JPopupMenu menu = new JPopupMenu();
-        JMenu profilesMenu = new JMenu("Profiles");
-        ScafaLauncher launcher = new ScafaLauncher();
-        launcher.initialize();
-        String[] profiles = launcher.getProfiles();
-        List<JCheckBoxMenuItem> profileItems = new ArrayList<JCheckBoxMenuItem>(profiles.length);
-        String lastUsedProfile = launcher.getLastUsedProfile();
-        for (int i = 0; i < profiles.length; i++) {
-            String profile = profiles[i];
-            JCheckBoxMenuItem item = new JCheckBoxMenuItem(profile);
-            profileItems.add(item);
-            profilesMenu.add(item);
-            if (lastUsedProfile.equals(profile)) {
-                item.setSelected(true);
-                launcher.launch(profile);
-            }
-            item.addItemListener(t -> {
-                if (t.getStateChange() == ItemEvent.SELECTED) {
-                    launcher.stop();
-                    profileItems.stream().filter(u -> {return u != item;}).forEach(u -> u.setSelected(false));
-                    launcher.launch(profile);
-                    launcher.saveLastUsedProfile(profile);
-                }
-            });
-        }
-        menu.add(profilesMenu);
-        menu.addSeparator();
-        JMenuItem exit = new JMenuItem("Exit");
-        exit.addActionListener(t -> {
-            launcher.stop();
-            SystemTray.getSystemTray().remove(trayIcon);
-            System.exit(0);
-        });
-        menu.add(exit);
-        trayIcon.setJPopupMenu(menu);
-        menu.setInvoker(null);
-        return trayIcon;
+    private static Shell createIcon(InputStream img) {
+		Display.setAppName("Scafa");
+		DeviceData data = new DeviceData();
+		data.debug = true;
+		Display display = new Display(data);
+		Shell shell = new Shell(display);
+		Image image = new Image(display, img);
+		final Tray tray = display.getSystemTray();
+		if (tray == null) {
+			shell.dispose();
+		} else  {
+			TrayItem trayItem = new TrayItem(tray, SWT.NONE);
+			trayItem.setImage(image);
+			final Menu menu = new Menu(shell, SWT.POP_UP);
+			final MenuItem profilesItem = new MenuItem(menu, SWT.CASCADE);
+			profilesItem.setText("Profiles");
+			Menu profilesMenu = new Menu(shell, SWT.DROP_DOWN);
+			profilesItem.setMenu(profilesMenu);
+	        ScafaLauncher launcher = new ScafaLauncher();
+	        launcher.initialize();
+	        String[] profiles = launcher.getProfiles();
+	        String lastUsedProfile = launcher.getLastUsedProfile();
+	        for (int i = 0; i < profiles.length; i++) {
+	            String profile = profiles[i];
+	            MenuItem profileItem = new MenuItem(profilesMenu, SWT.RADIO);
+	            profileItem.setText(profile);
+	            if (lastUsedProfile.equals(profile)) {
+	            	profileItem.setSelection(true);
+	                launcher.launch(profile);
+	            }
+	            profileItem.addListener(SWT.Selection, new Listener() {
+
+					@Override
+					public void handleEvent(Event event) {
+	                    launcher.stop();
+	                    launcher.launch(profile);
+	                    launcher.saveLastUsedProfile(profile);
+					}
+				});
+	        }
+	        new MenuItem(menu, SWT.SEPARATOR);
+	        MenuItem exit = new MenuItem(menu, SWT.PUSH);
+	        exit.setText("Exit");
+	        exit.addListener(SWT.Selection, new Listener() {
+
+				@Override
+				public void handleEvent(Event event) {
+		            launcher.stop();
+		            shell.dispose();
+		            System.exit(0);
+				}
+			});
+			trayItem.addListener(SWT.MenuDetect, new Listener() {
+				public void handleEvent(Event event) {
+					menu.setVisible(true);
+				}
+			});
+			trayItem.setImage(image);
+		}
+        return shell;
     }
 
 }
