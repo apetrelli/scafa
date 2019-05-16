@@ -1,0 +1,49 @@
+[
+{
+  "name":"org.eclipse.swt.internal.image.GIFFileFormat",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.eclipse.swt.internal.image.JPEGFileFormat",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.eclipse.swt.internal.image.PNGFileFormat",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.eclipse.swt.internal.image.WinBMPFileFormat",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.eclipse.swt.internal.image.WinICOFileFormat",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.ini4j.spi.BeanTool",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.ini4j.spi.EscapeTool",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.ini4j.spi.IniBuilder",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.ini4j.spi.IniParser",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.eclipse.swt.widgets.Display"
+},
+{
+  "name":"sun.misc.Unsafe",
+  "fields":[{"name":"theUnsafe"}]
+},
+{
+  "name":"java.util.logging.FileHandler",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+}
+]

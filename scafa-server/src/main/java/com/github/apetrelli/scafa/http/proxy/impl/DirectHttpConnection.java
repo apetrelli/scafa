@@ -24,6 +24,8 @@ import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.impl.HostPort;
@@ -32,6 +34,8 @@ import com.github.apetrelli.scafa.http.proxy.MappedHttpConnectionFactory;
 import com.github.apetrelli.scafa.util.HttpUtils;
 
 public class DirectHttpConnection extends AbstractHttpConnection {
+
+	private static final Logger LOG = Logger.getLogger(DirectHttpConnection.class.getName());
 
     public DirectHttpConnection(MappedHttpConnectionFactory factory,
             AsynchronousSocketChannel sourceChannel, HostPort socketAddress)
@@ -45,6 +49,10 @@ public class DirectHttpConnection extends AbstractHttpConnection {
         URL realurl = new URL(request.getResource());
         HttpRequest modifiedRequest = new HttpRequest(request);
         modifiedRequest.setResource(realurl.getFile());
+        if (LOG.isLoggable(Level.INFO)) {
+            LOG.log(Level.INFO, "Direct connection: connected thread {0} to port {1} and URL {2}",
+                    new Object[] { Thread.currentThread().getName(), channel.getLocalAddress().toString(), request.getResource() });
+        }
         return modifiedRequest;
     }
 

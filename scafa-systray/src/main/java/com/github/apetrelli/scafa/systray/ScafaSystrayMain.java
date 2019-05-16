@@ -17,7 +17,6 @@
  */
 package com.github.apetrelli.scafa.systray;
 
-import java.awt.SystemTray;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.Level;
@@ -26,6 +25,7 @@ import java.util.logging.Logger;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.DeviceData;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.internal.Library;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
@@ -47,26 +47,26 @@ public class ScafaSystrayMain {
     }
 
     private static void prepareTrayIcon() {
-        if (SystemTray.isSupported()) {
-            try (InputStream is = ScafaSystrayMain.class.getResourceAsStream("/scafa.png")) {
-                Shell shell = createIcon(is);
-                Display display = shell.getDisplay();
-        		while (!shell.isDisposed()) {
-        			if (!display.readAndDispatch())
-        				display.sleep();
-        		}
-        		display.dispose();
-            } catch (IOException e) {
-                LOG.log(Level.SEVERE, "Cannot load systray image", e);
-                System.exit(1);
-            }
+		Library.loadLibrary("swt");
+		Library.loadLibrary("swt-pi3");
+		Library.loadLibrary("swt-cairo");
+        try (InputStream is = ScafaSystrayMain.class.getResourceAsStream("/scafa.png")) {
+            Shell shell = createIcon(is);
+            Display display = shell.getDisplay();
+    		while (!shell.isDisposed()) {
+    			if (!display.readAndDispatch())
+    				display.sleep();
+    		}
+    		display.dispose();
+        } catch (IOException e) {
+            LOG.log(Level.SEVERE, "Cannot load systray image", e);
+            System.exit(1);
         }
     }
 
     private static Shell createIcon(InputStream img) {
 		Display.setAppName("Scafa");
 		DeviceData data = new DeviceData();
-		data.debug = true;
 		Display display = new Display(data);
 		Shell shell = new Shell(display);
 		Image image = new Image(display, img);
@@ -104,6 +104,15 @@ public class ScafaSystrayMain {
 				});
 	        }
 	        new MenuItem(menu, SWT.SEPARATOR);
+	        MenuItem gc = new MenuItem(menu, SWT.PUSH);
+	        gc.setText("Garbage collect");
+	        gc.addListener(SWT.Selection, new Listener() {
+
+				@Override
+				public void handleEvent(Event event) {
+					System.gc();
+				}
+			});
 	        MenuItem exit = new MenuItem(menu, SWT.PUSH);
 	        exit.setText("Exit");
 	        exit.addListener(SWT.Selection, new Listener() {

@@ -1,0 +1,11 @@
+{
+  "resources":[
+    {"pattern":"org/eclipse/swt/internal/gtk/swt_functional_gtk_320.css"},
+    {"pattern":"org/eclipse/swt/internal/gtk/swt_theming_fixes_gtk_320.css"},
+    {"pattern":"config/direct.ini"},
+    {"pattern":"config/work.ini"},
+    {"pattern":"config/logging.properties"},
+    {"pattern":"errorpages/generic-502.html"},
+    {"pattern":"scafa.png"}
+  ]
+}
