@@ -81,8 +81,17 @@ public class DefaultMappedHttpConnectionFactory implements MappedHttpConnectionF
     private HttpConnection create(AsynchronousSocketChannel sourceChannel, HostPort hostPort) throws IOException {
         HttpConnection connection = connectionCache.get(hostPort);
         if (connection == null || !connection.isOpen()) {
-            connection = configuration.getHttpConnectionFactoryByHost(hostPort.getHost()).create(this, sourceChannel,
-                    hostPort);
+        	try {
+                if (LOG.isLoggable(Level.INFO)) {
+                    LOG.log(Level.INFO, "Connecting thread {0} to address {1}",
+                            new Object[] { Thread.currentThread().getName(), hostPort.toString() });
+                }
+	            connection = configuration.getHttpConnectionFactoryByHost(hostPort.getHost()).create(this, sourceChannel,
+	                    hostPort);
+        	} catch (IOException e) {
+        		LOG.log(Level.INFO, "Connection failed to " + hostPort.toString(), e);
+        		connection = new NullHttpConnection(sourceChannel);
+        	}
             connectionCache.put(hostPort, connection);
         }
         return connection;
