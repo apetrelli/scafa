@@ -19,6 +19,7 @@ package com.github.apetrelli.scafa.http.impl;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.CompletionHandler;
 
 import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpRequest;
@@ -33,13 +34,14 @@ public class HttpHandlerSupport implements HttpHandler {
     @Override
     public void onStart() throws IOException {
     }
-    
+
     @Override
     public void onResponseHeader(HttpResponse response) throws IOException {
     }
-    
+
     @Override
-    public void onRequestHeader(HttpRequest request) throws IOException {
+    public void onRequestHeader(HttpRequest request, CompletionHandler<Void, Void> handler) {
+    	handler.completed(null, null);
     }
 
     @Override

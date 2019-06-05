@@ -17,7 +17,6 @@
  */
 package com.github.apetrelli.scafa.http.ntlm;
 
-import java.io.IOException;
 import java.nio.channels.AsynchronousSocketChannel;
 
 import org.ini4j.Profile.Section;
@@ -50,8 +49,8 @@ public class NtlmProxyHttpConnectionFactory implements HttpConnectionFactory {
 
     @Override
     public HttpConnection create(MappedHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
-            HostPort socketAddress) throws IOException {
-        return new NtlmProxyHttpConnection(sourceChannel, factory, socketAddress, host, port, domain, username,
+            HostPort socketAddress) {
+        return new NtlmProxyHttpConnection(factory, sourceChannel, socketAddress, host, port, domain, username,
                 password, manipulator);
     }
 

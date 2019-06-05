@@ -19,6 +19,7 @@ package com.github.apetrelli.scafa.http;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.CompletionHandler;
 
 public interface HttpHandler {
 
@@ -28,7 +29,7 @@ public interface HttpHandler {
 
     void onResponseHeader(HttpResponse response) throws IOException;
 
-    void onRequestHeader(HttpRequest request) throws IOException;
+    void onRequestHeader(HttpRequest request, CompletionHandler<Void, Void> handler);
 
     void onBody(ByteBuffer buffer, long offset, long length) throws IOException;
 

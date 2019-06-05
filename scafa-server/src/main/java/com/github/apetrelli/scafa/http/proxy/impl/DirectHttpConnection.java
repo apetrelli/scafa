@@ -22,6 +22,7 @@ import java.net.InetSocketAddress;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
+import java.nio.channels.CompletionHandler;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
@@ -38,11 +39,31 @@ public class DirectHttpConnection extends AbstractHttpConnection {
 	private static final Logger LOG = Logger.getLogger(DirectHttpConnection.class.getName());
 
     public DirectHttpConnection(MappedHttpConnectionFactory factory,
-            AsynchronousSocketChannel sourceChannel, HostPort socketAddress)
-            throws IOException {
-        super(sourceChannel);
-        HttpUtils.getFuture(channel.connect(new InetSocketAddress(socketAddress.getHost(), socketAddress.getPort())));
-        prepareChannel(factory, sourceChannel, socketAddress);
+            AsynchronousSocketChannel sourceChannel, HostPort socketAddress) {
+        super(factory, sourceChannel, socketAddress);
+    }
+
+    @Override
+    protected void establishConnection(CompletionHandler<Void, Void> handler) {
+    	channel.connect(new InetSocketAddress(socketAddress.getHost(), socketAddress.getPort()), null, handler);
+    }
+
+    @Override
+    public void connect(HttpConnectRequest request, CompletionHandler<Void, Void> completionHandler) {
+        Charset charset = StandardCharsets.US_ASCII;
+        // Already connected, need only to send a 200.
+        String httpVersion = request.getHttpVersion();
+        ByteBuffer buffer = ByteBuffer.allocate(httpVersion.length() + 11);
+        buffer.put(httpVersion.getBytes(charset)).put(SPACE).put("200".getBytes(charset)).put(SPACE)
+                .put("OK".getBytes(charset)).put(CR).put(LF).put(CR).put(LF);
+        buffer.flip();
+        try {
+			HttpUtils.getFuture(sourceChannel.write(buffer));
+	        buffer.clear();
+	        completionHandler.completed(null, null);
+		} catch (IOException e) {
+			completionHandler.failed(e, null);
+		}
     }
 
     protected HttpRequest createForwardedRequest(HttpRequest request) throws IOException {
@@ -54,19 +75,6 @@ public class DirectHttpConnection extends AbstractHttpConnection {
                     new Object[] { Thread.currentThread().getName(), channel.getLocalAddress().toString(), request.getResource() });
         }
         return modifiedRequest;
-    }
-
-    @Override
-    public void connect(HttpConnectRequest request) throws IOException {
-        Charset charset = StandardCharsets.US_ASCII;
-        // Already connected, need only to send a 200.
-        String httpVersion = request.getHttpVersion();
-        ByteBuffer buffer = ByteBuffer.allocate(httpVersion.length() + 11);
-        buffer.put(httpVersion.getBytes(charset)).put(SPACE).put("200".getBytes(charset)).put(SPACE)
-                .put("OK".getBytes(charset)).put(CR).put(LF).put(CR).put(LF);
-        buffer.flip();
-        HttpUtils.getFuture(sourceChannel.write(buffer));
-        buffer.clear();
     }
 
 }

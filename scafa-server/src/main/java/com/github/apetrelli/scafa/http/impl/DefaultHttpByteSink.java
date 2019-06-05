@@ -19,6 +19,7 @@ package com.github.apetrelli.scafa.http.impl;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.CompletionHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -36,13 +37,13 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
             .getLogger(DefaultHttpByteSink.class.getName());
 
     protected H handler;
-    
+
     private StringBuilder lineBuilder = new StringBuilder();
 
     private HttpRequest request;
-    
+
     private HttpResponse response;
-    
+
     private HeaderHolder holder;
 
     public DefaultHttpByteSink(H handler) {
@@ -173,26 +174,40 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
     }
 
     @Override
-    public void endHeader(HttpInput input) throws IOException {
+    public void endHeader(HttpInput input, CompletionHandler<Void, Void> completionHandler) {
         appendToBuffer(input.getBuffer().get());
         clearLineBuilder();
         if (request != null) {
-            manageRequestHeader(handler, input, request);
+            manageRequestHeader(handler, input, request, completionHandler);
         } else if (response != null) {
-            handler.onResponseHeader(new HttpResponse(response));
+            try {
+				handler.onResponseHeader(new HttpResponse(response));
+			} catch (IOException e) {
+				completionHandler.failed(e, null);
+			}
         }
     }
 
     @Override
-    public void endHeaderAndRequest(HttpInput input) throws IOException {
-        try {
-            endHeader(input);
-            handler.onEnd();
-        } catch (IOException | RuntimeException e) {
-            input.setCaughtError(true);
-            manageError();
-            throw e;
-        }
+    public void endHeaderAndRequest(HttpInput input, CompletionHandler<Void, Void> completionHandler) {
+    	endHeader(input, new CompletionHandler<Void, Void>() {
+
+			@Override
+			public void completed(Void result, Void attachment) {
+				try {
+					handler.onEnd();
+					completionHandler.completed(result, attachment);
+				} catch (IOException e) {
+					completionHandler.failed(e, attachment);
+				}
+			}
+
+			@Override
+			public void failed(Throwable exc, Void attachment) {
+				completionHandler.failed(exc, attachment);
+			}
+		});
+
     }
 
     @Override
@@ -201,17 +216,17 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
     }
 
     @Override
-    public void beforeChunkCount(byte currentByte) throws IOException {
+    public void beforeChunkCount(byte currentByte) {
         clearLineBuilder();
     }
 
     @Override
-    public void appendChunkCount(byte currentByte) throws IOException {
+    public void appendChunkCount(byte currentByte) {
         lineBuilder.append((char) currentByte);
     }
 
     @Override
-    public void preEndChunkCount(byte currentByte) throws IOException {
+    public void preEndChunkCount(byte currentByte) {
         LOG.finest("Pre End chunk count");
     }
 
@@ -300,8 +315,8 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
         handler.onDisconnect();
     }
 
-    protected void manageRequestHeader(H handler, HttpInput input, HttpRequest request) throws IOException {
-        handler.onRequestHeader(new HttpRequest(request));
+    protected void manageRequestHeader(H handler, HttpInput input, HttpRequest request, CompletionHandler<Void, Void> completionHandler) {
+        handler.onRequestHeader(new HttpRequest(request), completionHandler);
     }
 
     protected void manageError() {

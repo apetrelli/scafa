@@ -17,8 +17,8 @@
  */
 package com.github.apetrelli.scafa.processor.impl;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.CompletionHandler;
 
 import com.github.apetrelli.scafa.processor.BufferProcessor;
 import com.github.apetrelli.scafa.processor.ByteSink;
@@ -34,22 +34,25 @@ public abstract class AbstractBufferProcessor<I extends Input, S extends ByteSin
     }
 
     @Override
-    public Status<I, S> process(I input, Status<I, S> status) throws IOException {
+    public void process(I input, Status<I, S> status, CompletionHandler<Status<I, S>, I> completionHandler) {
         ByteBuffer buffer = input.getBuffer();
-        while (buffer.position() < buffer.limit()) {
-            status = status.next(input);
-            try {
-                status.out(input, sink);
-            } catch (IOException e) {
-                String message = "Generic I/O error";
-                manageException(input, e, message);
-            } catch (RuntimeException e) {
-                manageException(input, e, "Generic runtime error");
-            }
-        }
-        return status;
-    }
+        if (buffer.position() < buffer.limit()) {
+        	Status<I, S> newStatus = status.next(input);
+        	newStatus.out(input, sink, new CompletionHandler<Void, Void>() {
 
-    protected abstract <T extends Exception> void manageException(I input, T e, String message) throws T;
+				@Override
+				public void completed(Void result, Void attachment) {
+					process(input, newStatus, completionHandler);
+				}
+
+				@Override
+				public void failed(Throwable exc, Void attachment) {
+					completionHandler.failed(exc, input);
+				}
+			});
+        } else {
+        	completionHandler.completed(status, input);
+        }
+    }
 
 }

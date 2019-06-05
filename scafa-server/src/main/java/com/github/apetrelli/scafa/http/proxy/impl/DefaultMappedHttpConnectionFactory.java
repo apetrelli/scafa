@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.channels.AsynchronousSocketChannel;
+import java.nio.channels.CompletionHandler;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -32,6 +33,7 @@ import com.github.apetrelli.scafa.http.impl.HostPort;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
 import com.github.apetrelli.scafa.http.proxy.HttpConnection;
 import com.github.apetrelli.scafa.http.proxy.MappedHttpConnectionFactory;
+import com.github.apetrelli.scafa.http.proxy.ResultHandler;
 
 public class DefaultMappedHttpConnectionFactory implements MappedHttpConnectionFactory {
 
@@ -54,14 +56,19 @@ public class DefaultMappedHttpConnectionFactory implements MappedHttpConnectionF
     }
 
     @Override
-    public HttpConnection create(AsynchronousSocketChannel sourceChannel, HttpRequest request) throws IOException {
-        HostPort hostPort = getHostToConnect(request);
-        return create(sourceChannel, hostPort);
+    public void create(AsynchronousSocketChannel sourceChannel, HttpRequest request, ResultHandler<HttpConnection> handler) {
+		try {
+			HostPort hostPort = getHostToConnect(request);
+	        create(sourceChannel, hostPort, handler);
+		} catch (IOException e) {
+			LOG.log(Level.SEVERE, "Problem with determining the host to connect to.", e);
+			handler.handle(new NullHttpConnection(sourceChannel));
+		}
     }
 
     @Override
-    public HttpConnection create(AsynchronousSocketChannel sourceChannel, HttpConnectRequest request) throws IOException {
-        return create(sourceChannel, new HostPort(request.getHost(), request.getPort()));
+    public void create(AsynchronousSocketChannel sourceChannel, HttpConnectRequest request, ResultHandler<HttpConnection> handler) {
+        create(sourceChannel, new HostPort(request.getHost(), request.getPort()), handler);
     }
 
     @Override
@@ -78,23 +85,34 @@ public class DefaultMappedHttpConnectionFactory implements MappedHttpConnectionF
         }
     }
 
-    private HttpConnection create(AsynchronousSocketChannel sourceChannel, HostPort hostPort) throws IOException {
+    private void create(AsynchronousSocketChannel sourceChannel, HostPort hostPort, ResultHandler<HttpConnection> handler) {
         HttpConnection connection = connectionCache.get(hostPort);
-        if (connection == null || !connection.isOpen()) {
-        	try {
-                if (LOG.isLoggable(Level.INFO)) {
-                    LOG.log(Level.INFO, "Connecting thread {0} to address {1}",
-                            new Object[] { Thread.currentThread().getName(), hostPort.toString() });
-                }
-	            connection = configuration.getHttpConnectionFactoryByHost(hostPort.getHost()).create(this, sourceChannel,
-	                    hostPort);
-        	} catch (IOException e) {
-        		LOG.log(Level.INFO, "Connection failed to " + hostPort.toString(), e);
-        		connection = new NullHttpConnection(sourceChannel);
-        	}
-            connectionCache.put(hostPort, connection);
+        if (connection == null) {
+            if (LOG.isLoggable(Level.INFO)) {
+                LOG.log(Level.INFO, "Connecting thread {0} to address {1}",
+                        new Object[] { Thread.currentThread().getName(), hostPort.toString() });
+            }
+            HttpConnection newConnection = configuration.getHttpConnectionFactoryByHost(hostPort.getHost()).create(this, sourceChannel,
+                    hostPort);
+            newConnection.ensureConnected(new CompletionHandler<Void, Void>() {
+
+				@Override
+				public void completed(Void result, Void attachment) {
+	                connectionCache.put(hostPort, newConnection);
+					handler.handle(newConnection);
+				}
+
+				@Override
+				public void failed(Throwable exc, Void attachment) {
+	        		LOG.log(Level.INFO, "Connection failed to " + hostPort.toString(), exc);
+	                NullHttpConnection nullConnection = new NullHttpConnection(sourceChannel);
+					connectionCache.put(hostPort, nullConnection);
+					handler.handle(nullConnection);
+				}
+			});
+        } else {
+        	handler.handle(connection);
         }
-        return connection;
     }
 
     private HostPort getHostToConnect(HttpRequest request) throws IOException {

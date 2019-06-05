@@ -19,12 +19,13 @@ package com.github.apetrelli.scafa.http.proxy;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.CompletionHandler;
 
 import com.github.apetrelli.scafa.http.HttpHandler;
 
 public interface ProxyHttpHandler extends HttpHandler {
 
-    void onConnectMethod(HttpConnectRequest connectRequest) throws IOException;
+    void onConnectMethod(HttpConnectRequest connectRequest, CompletionHandler<Void, Void> handler);
 
     void onDataToPassAlong(ByteBuffer buffer) throws IOException;
 }

@@ -17,7 +17,6 @@
  */
 package com.github.apetrelli.scafa.http.proxy.impl;
 
-import java.io.IOException;
 import java.nio.channels.AsynchronousSocketChannel;
 
 import org.ini4j.Profile.Section;
@@ -45,8 +44,8 @@ public class AnonymousProxyHttpConnectionFactory implements HttpConnectionFactor
 
     @Override
     public HttpConnection create(MappedHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
-            HostPort socketAddress) throws IOException {
-        return new AnonymousProxyHttpConnection(sourceChannel, factory, socketAddress, host, port, manipulator);
+            HostPort socketAddress) {
+        return new AnonymousProxyHttpConnection(factory, sourceChannel, socketAddress, host, port, manipulator);
     }
 
 }

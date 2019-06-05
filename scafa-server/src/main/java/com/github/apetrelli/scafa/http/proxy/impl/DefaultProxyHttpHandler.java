@@ -20,6 +20,7 @@ package com.github.apetrelli.scafa.http.proxy.impl;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
+import java.nio.channels.CompletionHandler;
 import java.nio.charset.StandardCharsets;
 
 import com.github.apetrelli.scafa.http.HttpRequest;
@@ -28,6 +29,7 @@ import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
 import com.github.apetrelli.scafa.http.proxy.HttpConnection;
 import com.github.apetrelli.scafa.http.proxy.MappedHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpHandler;
+import com.github.apetrelli.scafa.http.proxy.ResultHandler;
 
 public class DefaultProxyHttpHandler implements ProxyHttpHandler {
 
@@ -64,9 +66,15 @@ public class DefaultProxyHttpHandler implements ProxyHttpHandler {
     }
 
     @Override
-    public void onRequestHeader(HttpRequest request) throws IOException {
-        connection = connectionFactory.create(sourceChannel, request);
-        connection.sendHeader(request);
+    public void onRequestHeader(HttpRequest request, CompletionHandler<Void, Void> handler) {
+        connectionFactory.create(sourceChannel, request, new ResultHandler<HttpConnection>() {
+
+			@Override
+			public void handle(HttpConnection result) {
+				connection = result;
+				connection.sendHeader(request, handler);
+			}
+		});
     }
 
     @Override
@@ -101,10 +109,16 @@ public class DefaultProxyHttpHandler implements ProxyHttpHandler {
     }
 
     @Override
-    public void onConnectMethod(HttpConnectRequest request)
-            throws IOException {
-        connection = connectionFactory.create(sourceChannel, request);
-        connection.connect(request);
+    public void onConnectMethod(HttpConnectRequest connectRequest, CompletionHandler<Void, Void> handler) {
+    	connectionFactory.create(sourceChannel, connectRequest, new ResultHandler<HttpConnection>() {
+
+			@Override
+			public void handle(HttpConnection result) {
+				connection = result;
+				connection.connect(connectRequest, handler);
+			}
+		});
+
     }
 
     @Override

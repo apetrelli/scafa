@@ -19,20 +19,21 @@ package com.github.apetrelli.scafa.http.proxy;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.CompletionHandler;
 
 import com.github.apetrelli.scafa.http.HttpRequest;
 
 public interface HttpConnection {
 
-    void sendHeader(HttpRequest request) throws IOException;
+	void ensureConnected(CompletionHandler<Void, Void> handler);
 
-    void connect(HttpConnectRequest request) throws IOException;
+    void sendHeader(HttpRequest request, CompletionHandler<Void, Void> completionHandler);
+
+    void connect(HttpConnectRequest request, CompletionHandler<Void, Void> completionHandler);
 
     void send(ByteBuffer buffer) throws IOException;
 
     void end() throws IOException;
-
-    boolean isOpen();
 
     void close() throws IOException;
 }

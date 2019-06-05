@@ -17,7 +17,6 @@
  */
 package com.github.apetrelli.scafa.http.proxy.impl;
 
-import java.io.IOException;
 import java.nio.channels.AsynchronousSocketChannel;
 
 import com.github.apetrelli.scafa.http.impl.HostPort;
@@ -29,7 +28,7 @@ public class DirectHttpConnectionFactory implements HttpConnectionFactory {
 
     @Override
     public HttpConnection create(MappedHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
-            HostPort socketAddress) throws IOException {
+            HostPort socketAddress) {
         return new DirectHttpConnection(factory, sourceChannel, socketAddress);
     }
 

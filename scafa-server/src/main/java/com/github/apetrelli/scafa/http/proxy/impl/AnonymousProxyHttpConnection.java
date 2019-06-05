@@ -17,7 +17,6 @@
  */
 package com.github.apetrelli.scafa.http.proxy.impl;
 
-import java.io.IOException;
 import java.nio.channels.AsynchronousSocketChannel;
 
 import com.github.apetrelli.scafa.http.HttpRequestManipulator;
@@ -26,10 +25,9 @@ import com.github.apetrelli.scafa.http.proxy.MappedHttpConnectionFactory;
 
 public class AnonymousProxyHttpConnection extends AbstractProxyHttpConnection {
 
-    public AnonymousProxyHttpConnection(AsynchronousSocketChannel sourceChannel, MappedHttpConnectionFactory factory,
-            HostPort calledAddress, String host, int port, HttpRequestManipulator manipulator) throws IOException {
-        super(sourceChannel, host, port, manipulator);
-        prepareChannel(factory, sourceChannel, calledAddress);
+    public AnonymousProxyHttpConnection(MappedHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
+            HostPort calledAddress, String host, int port, HttpRequestManipulator manipulator) {
+        super(factory, sourceChannel, calledAddress, host, port, manipulator);
     }
 
 }

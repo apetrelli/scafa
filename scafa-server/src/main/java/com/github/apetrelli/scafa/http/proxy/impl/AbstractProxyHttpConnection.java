@@ -20,6 +20,7 @@ package com.github.apetrelli.scafa.http.proxy.impl;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.AsynchronousSocketChannel;
+import java.nio.channels.CompletionHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -27,6 +28,7 @@ import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpRequestManipulator;
 import com.github.apetrelli.scafa.http.impl.HostPort;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
+import com.github.apetrelli.scafa.http.proxy.MappedHttpConnectionFactory;
 import com.github.apetrelli.scafa.util.HttpUtils;
 
 public abstract class AbstractProxyHttpConnection extends AbstractHttpConnection {
@@ -35,30 +37,45 @@ public abstract class AbstractProxyHttpConnection extends AbstractHttpConnection
 
     protected HttpRequestManipulator manipulator;
 
-    public AbstractProxyHttpConnection(AsynchronousSocketChannel sourceChannel, String host, int port,
-            HttpRequestManipulator manipulator) throws IOException {
-        super(sourceChannel);
+    private String host;
+
+    private int port;
+
+	public AbstractProxyHttpConnection(MappedHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
+			HostPort socketAddress, String host, int port, HttpRequestManipulator manipulator) {
+        super(factory, sourceChannel, socketAddress);
+        this.host = host;
+        this.port = port;
         this.manipulator = manipulator;
+    }
+
+	@Override
+	protected void establishConnection(CompletionHandler<Void, Void> handler) {
         HostPort socketAddress = new HostPort(host, port);
         LOG.finest("Trying to connect to " + socketAddress.toString());
-        HttpUtils.getFuture(channel.connect(new InetSocketAddress(socketAddress.getHost(), socketAddress.getPort())));
-        if (LOG.isLoggable(Level.INFO)) {
-            LOG.log(Level.INFO, "Connected thread {0} to port {1}",
-                    new Object[] { Thread.currentThread().getName(), channel.getLocalAddress().toString() });
-        }
-    }
+        channel.connect(new InetSocketAddress(socketAddress.getHost(), socketAddress.getPort()), null, handler);
+	}
 
     @Override
-    public void connect(HttpConnectRequest request) throws IOException {
+    public void connect(HttpConnectRequest request, CompletionHandler<Void, Void> completionHandler) {
         if (LOG.isLoggable(Level.INFO)) {
-            LOG.log(Level.INFO, "Connected thread {0} to port {1} and host {2}:{3}", new Object[] {
-                    Thread.currentThread().getName(), channel.getLocalAddress().toString(), request.getHost(), request.getPort()});
+            try {
+				LOG.log(Level.INFO, "Connected thread {0} to port {1} and host {2}:{3}", new Object[] {
+				        Thread.currentThread().getName(), channel.getLocalAddress().toString(), request.getHost(), request.getPort()});
+			} catch (IOException e) {
+				LOG.log(Level.SEVERE, "Cannot understand local address", e);
+			}
         }
-        doConnect(request);
+        doConnect(request, completionHandler);
     }
 
-    protected void doConnect(HttpConnectRequest request) throws IOException {
-        HttpUtils.sendHeader(request, channel);
+    protected void doConnect(HttpConnectRequest request, CompletionHandler<Void, Void> completionHandler) {
+        try {
+			HttpUtils.sendHeader(request, channel);
+			completionHandler.completed(null, null);
+		} catch (IOException e) {
+			completionHandler.failed(e, null);
+		}
     }
 
     @Override

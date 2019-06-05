@@ -25,9 +25,9 @@ import com.github.apetrelli.scafa.http.impl.HostPort;
 
 public interface MappedHttpConnectionFactory {
 
-    HttpConnection create(AsynchronousSocketChannel sourceChannel, HttpRequest request) throws IOException;
+    void create(AsynchronousSocketChannel sourceChannel, HttpRequest request, ResultHandler<HttpConnection> handler);
 
-    HttpConnection create(AsynchronousSocketChannel sourceChannel, HttpConnectRequest request) throws IOException;
+    void create(AsynchronousSocketChannel sourceChannel, HttpConnectRequest request, ResultHandler<HttpConnection> handler);
 
     void disconnectAll() throws IOException;
 

@@ -20,6 +20,7 @@ package com.github.apetrelli.scafa.http.proxy.impl;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
+import java.nio.channels.CompletionHandler;
 
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
@@ -34,13 +35,18 @@ public class NullHttpConnection implements HttpConnection {
 	}
 
 	@Override
-	public void sendHeader(HttpRequest request) throws IOException {
-		// Does nothing
+	public void ensureConnected(CompletionHandler<Void, Void> handler) {
+		handler.completed(null, null);
 	}
 
 	@Override
-	public void connect(HttpConnectRequest request) throws IOException {
-		// Does nothing
+	public void sendHeader(HttpRequest request, CompletionHandler<Void, Void> completionHandler) {
+		completionHandler.completed(null, null);
+	}
+
+	@Override
+	public void connect(HttpConnectRequest request, CompletionHandler<Void, Void> completionHandler) {
+		completionHandler.completed(null, null);
 	}
 
 	@Override
@@ -51,11 +57,6 @@ public class NullHttpConnection implements HttpConnection {
 	@Override
 	public void end() throws IOException {
 		ProxyResources.getInstance().sendGenericErrorPage(sourceChannel);
-	}
-
-	@Override
-	public boolean isOpen() {
-		return true;
 	}
 
 	@Override

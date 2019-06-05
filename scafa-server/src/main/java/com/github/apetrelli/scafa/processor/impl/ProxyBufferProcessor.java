@@ -17,27 +17,13 @@
  */
 package com.github.apetrelli.scafa.processor.impl;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.github.apetrelli.scafa.http.HttpInput;
 import com.github.apetrelli.scafa.processor.ByteSink;
 
 public class ProxyBufferProcessor<S extends ByteSink<HttpInput>> extends AbstractBufferProcessor<HttpInput, S> {
 
-    private static final Logger LOG = Logger.getLogger(ProxyBufferProcessor.class.getName());
-
     public ProxyBufferProcessor(S sink) {
         super(sink);
-    }
-
-    protected <T extends Exception> void manageException(HttpInput input, T e, String message) throws T {
-        if (input.isHttpConnected()) {
-            throw e;
-        } else {
-            LOG.log(Level.INFO, message, e);
-            input.setCaughtError(true);
-        }
     }
 
 }

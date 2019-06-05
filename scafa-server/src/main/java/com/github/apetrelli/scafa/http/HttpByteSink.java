@@ -18,6 +18,7 @@
 package com.github.apetrelli.scafa.http;
 
 import java.io.IOException;
+import java.nio.channels.CompletionHandler;
 
 import com.github.apetrelli.scafa.processor.ByteSink;
 
@@ -37,17 +38,17 @@ public interface HttpByteSink extends ByteSink<HttpInput>{
 
     void preEndHeader(HttpInput input);
 
-    void endHeader(HttpInput input) throws IOException;
+    void endHeader(HttpInput input, CompletionHandler<Void, Void> completionHandler);
 
-    void endHeaderAndRequest(HttpInput input) throws IOException;
+    void endHeaderAndRequest(HttpInput input, CompletionHandler<Void, Void> completionHandler);
 
     void afterEndOfChunk(byte currentByte) throws IOException;
 
-    void beforeChunkCount(byte currentByte) throws IOException;
+    void beforeChunkCount(byte currentByte);
 
-    void appendChunkCount(byte currentByte) throws IOException;
+    void appendChunkCount(byte currentByte);
 
-    void preEndChunkCount(byte currentByte) throws IOException;
+    void preEndChunkCount(byte currentByte);
 
     void endChunkCount(HttpInput input) throws IOException;
 

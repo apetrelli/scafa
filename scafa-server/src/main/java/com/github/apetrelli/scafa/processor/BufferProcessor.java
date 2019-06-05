@@ -17,11 +17,11 @@
  */
 package com.github.apetrelli.scafa.processor;
 
-import java.io.IOException;
+import java.nio.channels.CompletionHandler;
 
 import com.github.apetrelli.scafa.server.Status;
 
 public interface BufferProcessor<I extends Input, S extends ByteSink<I>> {
 
-    Status<I, S> process(I input, Status<I, S> status) throws IOException;
+    void process(I input, Status<I, S> status, CompletionHandler<Status<I, S>, I> completionHandler);
 }

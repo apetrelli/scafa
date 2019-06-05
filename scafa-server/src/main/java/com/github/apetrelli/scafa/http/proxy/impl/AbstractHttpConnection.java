@@ -42,19 +42,66 @@ public abstract class AbstractHttpConnection implements HttpConnection {
 
     protected static final byte SPACE = 32;
 
+    protected MappedHttpConnectionFactory factory;
+
     protected AsynchronousSocketChannel channel, sourceChannel;
+
+    protected HostPort socketAddress;
 
     protected ByteBuffer readBuffer = ByteBuffer.allocate(16384);
 
-    public AbstractHttpConnection(AsynchronousSocketChannel sourceChannel)            throws IOException {
+	public AbstractHttpConnection(MappedHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
+			HostPort socketAddress) {
+        this.factory = factory;
         this.sourceChannel = sourceChannel;
-        channel = AsynchronousSocketChannel.open();
+        this.socketAddress = socketAddress;
     }
 
     @Override
-    public void sendHeader(HttpRequest request) throws IOException {
-        HttpRequest modifiedRequest = createForwardedRequest(request);
-        doSendHeader(modifiedRequest);
+    public void ensureConnected(CompletionHandler<Void, Void> handler) {
+
+        if (LOG.isLoggable(Level.INFO)) {
+            LOG.log(Level.INFO, "Connected thread {0} to address {1}",
+                    new Object[] { Thread.currentThread().getName(), socketAddress.toString() });
+        }
+        try {
+			channel = AsynchronousSocketChannel.open();
+		} catch (IOException e1) {
+			handler.failed(e1, null);
+		}
+    	establishConnection(new CompletionHandler<Void, Void>() {
+
+			@Override
+			public void completed(Void result, Void attachment) {
+		        if (LOG.isLoggable(Level.INFO)) {
+		            try {
+						LOG.log(Level.INFO, "Connected thread {0} to port {1}",
+						        new Object[] { Thread.currentThread().getName(), channel.getLocalAddress().toString() });
+					} catch (IOException e) {
+						LOG.log(Level.SEVERE, "Cannot obtain local address", e);
+					}
+		        }
+
+		    	prepareChannel(factory, sourceChannel, socketAddress);
+		    	handler.completed(result, attachment);
+			}
+
+			@Override
+			public void failed(Throwable exc, Void attachment) {
+				handler.failed(exc, attachment);
+			}
+		});
+    }
+
+    @Override
+    public void sendHeader(HttpRequest request, CompletionHandler<Void, Void> completionHandler) {
+        HttpRequest modifiedRequest;
+		try {
+			modifiedRequest = createForwardedRequest(request);
+	        doSendHeader(modifiedRequest, completionHandler);
+		} catch (IOException e) {
+			completionHandler.failed(e, null);
+		}
     }
 
     @Override
@@ -68,25 +115,27 @@ public abstract class AbstractHttpConnection implements HttpConnection {
     }
 
     @Override
-    public boolean isOpen() {
-        return channel.isOpen();
-    }
-
-    @Override
     public void close() throws IOException {
-        if (channel.isOpen()) {
+        if (channel != null && channel.isOpen()) {
             channel.shutdownInput();
         }
     }
 
+    protected abstract void establishConnection(CompletionHandler<Void, Void> handler);
+
     protected abstract HttpRequest createForwardedRequest(HttpRequest request) throws IOException;
 
-    protected void doSendHeader(HttpRequest request) throws IOException {
-        HttpUtils.sendHeader(request, channel);
+    protected void doSendHeader(HttpRequest request, CompletionHandler<Void, Void> completionHandler) {
+        try {
+			HttpUtils.sendHeader(request, channel);
+	        completionHandler.completed(null, null);
+		} catch (IOException e) {
+			completionHandler.failed(e, null);
+		}
     }
 
     protected void prepareChannel(MappedHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
-            HostPort socketAddress) throws IOException {
+            HostPort socketAddress) {
         channel.read(readBuffer, readBuffer, new CompletionHandler<Integer, ByteBuffer>() {
 
             @Override

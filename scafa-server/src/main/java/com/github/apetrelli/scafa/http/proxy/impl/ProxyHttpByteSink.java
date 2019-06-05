@@ -19,6 +19,7 @@ package com.github.apetrelli.scafa.http.proxy.impl;
 
 import java.io.IOException;
 import java.nio.channels.AsynchronousSocketChannel;
+import java.nio.channels.CompletionHandler;
 
 import com.github.apetrelli.scafa.http.HttpInput;
 import com.github.apetrelli.scafa.http.HttpRequest;
@@ -50,12 +51,19 @@ public class ProxyHttpByteSink extends DefaultHttpByteSink<ProxyHttpHandler> {
     }
 
     @Override
-    protected void manageRequestHeader(ProxyHttpHandler handler, HttpInput input, HttpRequest request) throws IOException {
+    protected void manageRequestHeader(ProxyHttpHandler handler, HttpInput input, HttpRequest request,
+    		CompletionHandler<Void, Void> completionHandler) {
         if ("CONNECT".equalsIgnoreCase(request.getMethod())) {
-            handler.onConnectMethod(new HttpConnectRequest(request));
-            input.setHttpConnected(true);
+            HttpConnectRequest connectRequest;
+			try {
+				connectRequest = new HttpConnectRequest(request);
+				handler.onConnectMethod(connectRequest, completionHandler);
+	            input.setHttpConnected(true);
+			} catch (IOException e) {
+				completionHandler.failed(e, null);
+			}
         } else {
-            super.manageRequestHeader(handler, input, request);
+            super.manageRequestHeader(handler, input, request, completionHandler);
         }
     }
 }

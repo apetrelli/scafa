@@ -17,7 +17,7 @@
  */
 package com.github.apetrelli.scafa.server;
 
-import java.io.IOException;
+import java.nio.channels.CompletionHandler;
 
 import com.github.apetrelli.scafa.processor.ByteSink;
 import com.github.apetrelli.scafa.processor.Input;
@@ -26,6 +26,6 @@ public interface Status<I extends Input, S extends ByteSink<I>> {
 
     Status<I, S> next(I input);
 
-    void out(I input, S sink) throws IOException;
+    void out(I input, S sink, CompletionHandler<Void, Void> completionHandler);
 
 }
