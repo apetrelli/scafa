@@ -23,15 +23,15 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.github.apetrelli.scafa.util.HttpUtils;
 
 public class ProxyResources {
 
     private static final Logger LOG = Logger.getLogger(ProxyResources.class.getName());
-    
+
     private static final ProxyResources INSTANCE = new ProxyResources();
 
     private static final String HTTP_502 = "HTTP/1.1 502 Bad gateway \r\n"
@@ -39,7 +39,7 @@ public class ProxyResources {
             + "Content-Length: %1$d\r\n\r\n";
 
     private byte[] generic502Page;
-    
+
     private ProxyResources() {
         try {
             generic502Page = loadResource("/errorpages/generic-502.html");
@@ -47,11 +47,11 @@ public class ProxyResources {
             throw new IllegalStateException("Error page not found", e);
         }
     }
-    
+
     public static ProxyResources getInstance() {
         return INSTANCE;
     }
-    
+
     public void sendGenericErrorPage(AsynchronousSocketChannel client) {
         sendErrorPage(client, HTTP_502, generic502Page);
     }
@@ -74,10 +74,23 @@ public class ProxyResources {
             byte[] page) {
         String realHeader = String.format(header, page.length);
         try {
-            HttpUtils.getFuture(client.write(ByteBuffer.wrap(realHeader.getBytes(StandardCharsets.US_ASCII))));
-            HttpUtils.getFuture(client.write(ByteBuffer.wrap(page)));
+            getFuture(client.write(ByteBuffer.wrap(realHeader.getBytes(StandardCharsets.US_ASCII))));
+            getFuture(client.write(ByteBuffer.wrap(page)));
         } catch (IOException e) {
             LOG.log(Level.SEVERE, "Error when sending error page", e);
+        }
+    }
+
+    public static <T> T getFuture(Future<T> future) throws IOException {
+        try {
+            return future.get();
+        } catch (InterruptedException | ExecutionException e) {
+            Throwable cause = e.getCause();
+            if (cause instanceof IOException) {
+                throw (IOException) cause;
+            } else {
+                throw new IOException("Future problem", e);
+            }
         }
     }
 }

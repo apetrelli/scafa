@@ -25,9 +25,4 @@ public class ClientBufferProcessor<I extends Input, S extends ByteSink<I>> exten
     public ClientBufferProcessor(S sink) {
         super(sink);
     }
-
-    protected <T extends Exception> void manageException(I input, T e, String message) throws T {
-        throw e;
-    }
-
 }

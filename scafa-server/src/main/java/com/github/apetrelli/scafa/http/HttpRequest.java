@@ -35,7 +35,7 @@ public class HttpRequest extends HeaderHolder {
         this.httpVersion = httpVersion;
         byteSize = method.length() + 1 + resource.length() + 1 + httpVersion.length() + 4;
     }
-    
+
     public HttpRequest(HttpRequest toCopy) {
         method = toCopy.method;
         resource = toCopy.resource;
@@ -88,5 +88,5 @@ public class HttpRequest extends HeaderHolder {
         loadInBuffer(buffer);
         return buffer;
     }
-    
+
 }

@@ -57,13 +57,13 @@ public class DefaultMappedHttpConnectionFactory implements MappedHttpConnectionF
 
     @Override
     public void create(AsynchronousSocketChannel sourceChannel, HttpRequest request, ResultHandler<HttpConnection> handler) {
-		try {
-			HostPort hostPort = getHostToConnect(request);
-	        create(sourceChannel, hostPort, handler);
-		} catch (IOException e) {
-			LOG.log(Level.SEVERE, "Problem with determining the host to connect to.", e);
-			handler.handle(new NullHttpConnection(sourceChannel));
-		}
+        try {
+            HostPort hostPort = getHostToConnect(request);
+            create(sourceChannel, hostPort, handler);
+        } catch (IOException e) {
+            LOG.log(Level.SEVERE, "Problem with determining the host to connect to.", e);
+            handler.handle(new NullHttpConnection(sourceChannel));
+        }
     }
 
     @Override
@@ -96,22 +96,22 @@ public class DefaultMappedHttpConnectionFactory implements MappedHttpConnectionF
                     hostPort);
             newConnection.ensureConnected(new CompletionHandler<Void, Void>() {
 
-				@Override
-				public void completed(Void result, Void attachment) {
-	                connectionCache.put(hostPort, newConnection);
-					handler.handle(newConnection);
-				}
+                @Override
+                public void completed(Void result, Void attachment) {
+                    connectionCache.put(hostPort, newConnection);
+                    handler.handle(newConnection);
+                }
 
-				@Override
-				public void failed(Throwable exc, Void attachment) {
-	        		LOG.log(Level.INFO, "Connection failed to " + hostPort.toString(), exc);
-	                NullHttpConnection nullConnection = new NullHttpConnection(sourceChannel);
-					connectionCache.put(hostPort, nullConnection);
-					handler.handle(nullConnection);
-				}
-			});
+                @Override
+                public void failed(Throwable exc, Void attachment) {
+                    LOG.log(Level.INFO, "Connection failed to " + hostPort.toString(), exc);
+                    NullHttpConnection nullConnection = new NullHttpConnection(sourceChannel);
+                    connectionCache.put(hostPort, nullConnection);
+                    handler.handle(nullConnection);
+                }
+            });
         } else {
-        	handler.handle(connection);
+            handler.handle(connection);
         }
     }
 

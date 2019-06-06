@@ -89,7 +89,7 @@ public abstract class HeaderHolder {
     }
 
     public abstract ByteBuffer toHeapByteBuffer();
-    
+
     protected void loadInBuffer(ByteBuffer buffer) {
         Charset charset = StandardCharsets.US_ASCII;
         headers.entrySet().stream().forEach(t -> {

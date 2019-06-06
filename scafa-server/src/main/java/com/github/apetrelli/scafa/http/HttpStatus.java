@@ -17,7 +17,6 @@
  */
 package com.github.apetrelli.scafa.http;
 
-import java.io.IOException;
 import java.nio.channels.CompletionHandler;
 
 import com.github.apetrelli.scafa.server.Status;
@@ -61,8 +60,7 @@ public enum HttpStatus implements Status<HttpInput, HttpByteSink> {
 
         @Override
         public void out(HttpInput input, HttpByteSink sink, CompletionHandler<Void, Void> completionHandler) {
-            sink.endRequestLine(input);
-            completionHandler.completed(null, null);
+            sink.endRequestLine(input, completionHandler);
         }
 
     },
@@ -196,12 +194,7 @@ public enum HttpStatus implements Status<HttpInput, HttpByteSink> {
 
         @Override
         public void out(HttpInput input, HttpByteSink sink, CompletionHandler<Void, Void> completionHandler) {
-            try {
-				sink.send(input);
-	            completionHandler.completed(null, null);
-			} catch (IOException e) {
-				completionHandler.failed(e, null);
-			}
+            sink.send(input, completionHandler);
         }
 
     },
@@ -269,12 +262,7 @@ public enum HttpStatus implements Status<HttpInput, HttpByteSink> {
 
         @Override
         public void out(HttpInput input, HttpByteSink sink, CompletionHandler<Void, Void> completionHandler) {
-            try {
-                sink.endChunkCount(input);
-	            completionHandler.completed(null, null);
-			} catch (IOException e) {
-				completionHandler.failed(e, null);
-			}
+            sink.endChunkCount(input, completionHandler);
         }
 
     },
@@ -287,12 +275,7 @@ public enum HttpStatus implements Status<HttpInput, HttpByteSink> {
 
         @Override
         public void out(HttpInput input, HttpByteSink sink, CompletionHandler<Void, Void> completionHandler) {
-            try {
-                sink.sendChunkData(input);
-	            completionHandler.completed(null, null);
-			} catch (IOException e) {
-				completionHandler.failed(e, null);
-			}
+            sink.sendChunkData(input, completionHandler);
         }
 
     },
@@ -305,12 +288,7 @@ public enum HttpStatus implements Status<HttpInput, HttpByteSink> {
 
         @Override
         public void out(HttpInput input, HttpByteSink sink, CompletionHandler<Void, Void> completionHandler) {
-            try {
-                sink.afterEndOfChunk(input.getBuffer().get());
-	            completionHandler.completed(null, null);
-			} catch (IOException e) {
-				completionHandler.failed(e, null);
-			}
+            sink.afterEndOfChunk(input.getBuffer().get(), completionHandler);
         }
 
     },
@@ -337,12 +315,7 @@ public enum HttpStatus implements Status<HttpInput, HttpByteSink> {
 
         @Override
         public void out(HttpInput input, HttpByteSink sink, CompletionHandler<Void, Void> completionHandler) {
-            try {
-                sink.send(input);
-	            completionHandler.completed(null, null);
-			} catch (IOException e) {
-				completionHandler.failed(e, null);
-			}
+            sink.send(input, completionHandler);
         }
 
     };

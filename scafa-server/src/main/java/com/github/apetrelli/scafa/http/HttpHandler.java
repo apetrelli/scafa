@@ -27,22 +27,21 @@ public interface HttpHandler {
 
     void onStart() throws IOException;
 
-    void onResponseHeader(HttpResponse response) throws IOException;
+    void onResponseHeader(HttpResponse response, CompletionHandler<Void, Void> handler);
 
     void onRequestHeader(HttpRequest request, CompletionHandler<Void, Void> handler);
 
-    void onBody(ByteBuffer buffer, long offset, long length) throws IOException;
+    void onBody(ByteBuffer buffer, long offset, long length, CompletionHandler<Void, Void> handler);
 
-    void onChunkStart(long totalOffset, long chunkLength) throws IOException;
+    void onChunkStart(long totalOffset, long chunkLength, CompletionHandler<Void, Void> handler);
 
-    void onChunk(byte[] buffer, int position, int length, long totalOffset, long chunkOffset, long chunkLength)
-            throws IOException;
+    void onChunk(byte[] buffer, int position, int length, long totalOffset, long chunkOffset, long chunkLength, CompletionHandler<Void, Void> handler);
 
-    void onChunkEnd() throws IOException;
+    void onChunkEnd(CompletionHandler<Void, Void> handler);
 
-    void onChunkedTransferEnd() throws IOException;
+    void onChunkedTransferEnd(CompletionHandler<Void, Void> handler);
 
-    void onEnd() throws IOException;
+    void onEnd();
 
     void onDisconnect() throws IOException;
 }

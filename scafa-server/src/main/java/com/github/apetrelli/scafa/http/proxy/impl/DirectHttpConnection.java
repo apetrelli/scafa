@@ -32,11 +32,10 @@ import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.impl.HostPort;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
 import com.github.apetrelli.scafa.http.proxy.MappedHttpConnectionFactory;
-import com.github.apetrelli.scafa.util.HttpUtils;
 
 public class DirectHttpConnection extends AbstractHttpConnection {
 
-	private static final Logger LOG = Logger.getLogger(DirectHttpConnection.class.getName());
+    private static final Logger LOG = Logger.getLogger(DirectHttpConnection.class.getName());
 
     public DirectHttpConnection(MappedHttpConnectionFactory factory,
             AsynchronousSocketChannel sourceChannel, HostPort socketAddress) {
@@ -45,7 +44,7 @@ public class DirectHttpConnection extends AbstractHttpConnection {
 
     @Override
     protected void establishConnection(CompletionHandler<Void, Void> handler) {
-    	channel.connect(new InetSocketAddress(socketAddress.getHost(), socketAddress.getPort()), null, handler);
+        channel.connect(new InetSocketAddress(socketAddress.getHost(), socketAddress.getPort()), null, handler);
     }
 
     @Override
@@ -57,13 +56,19 @@ public class DirectHttpConnection extends AbstractHttpConnection {
         buffer.put(httpVersion.getBytes(charset)).put(SPACE).put("200".getBytes(charset)).put(SPACE)
                 .put("OK".getBytes(charset)).put(CR).put(LF).put(CR).put(LF);
         buffer.flip();
-        try {
-			HttpUtils.getFuture(sourceChannel.write(buffer));
-	        buffer.clear();
-	        completionHandler.completed(null, null);
-		} catch (IOException e) {
-			completionHandler.failed(e, null);
-		}
+        sourceChannel.write(buffer, null, new CompletionHandler<Integer, Void>() {
+
+            @Override
+            public void completed(Integer result, Void attachment) {
+                buffer.clear();
+                completionHandler.completed(null, attachment);
+            }
+
+            @Override
+            public void failed(Throwable exc, Void attachment) {
+                completionHandler.failed(exc, attachment);
+            }
+        });
     }
 
     protected HttpRequest createForwardedRequest(HttpRequest request) throws IOException {

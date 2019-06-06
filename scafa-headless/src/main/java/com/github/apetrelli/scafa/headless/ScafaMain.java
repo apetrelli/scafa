@@ -34,7 +34,7 @@ public class ScafaMain {
         ScafaLauncher launcher = new ScafaLauncher();
         launcher.initialize();
         launcher.launch(profile);
-        
+
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {

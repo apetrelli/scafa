@@ -34,6 +34,26 @@ import com.github.apetrelli.scafa.util.HttpUtils;
 
 public abstract class AbstractHttpConnection implements HttpConnection {
 
+    private class WriteCompletionHandler implements CompletionHandler<Integer, ByteBuffer> {
+
+        private CompletionHandler<Integer, ByteBuffer> readHandler;
+
+        private WriteCompletionHandler(CompletionHandler<Integer, ByteBuffer> readHandler) {
+            this.readHandler = readHandler;
+        }
+
+        @Override
+        public void completed(Integer result, ByteBuffer attachment) {
+            attachment.clear();
+            channel.read(attachment, attachment, readHandler);
+        }
+
+        @Override
+        public void failed(Throwable exc, ByteBuffer attachment) {
+            readHandler.failed(exc, attachment);
+        }
+    }
+
     private static final Logger LOG = Logger.getLogger(AbstractHttpConnection.class.getName());
 
     protected static final byte CR = 13;
@@ -50,8 +70,8 @@ public abstract class AbstractHttpConnection implements HttpConnection {
 
     protected ByteBuffer readBuffer = ByteBuffer.allocate(16384);
 
-	public AbstractHttpConnection(MappedHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
-			HostPort socketAddress) {
+    public AbstractHttpConnection(MappedHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
+            HostPort socketAddress) {
         this.factory = factory;
         this.sourceChannel = sourceChannel;
         this.socketAddress = socketAddress;
@@ -65,52 +85,63 @@ public abstract class AbstractHttpConnection implements HttpConnection {
                     new Object[] { Thread.currentThread().getName(), socketAddress.toString() });
         }
         try {
-			channel = AsynchronousSocketChannel.open();
-		} catch (IOException e1) {
-			handler.failed(e1, null);
-		}
-    	establishConnection(new CompletionHandler<Void, Void>() {
+            channel = AsynchronousSocketChannel.open();
+        } catch (IOException e1) {
+            handler.failed(e1, null);
+        }
+        establishConnection(new CompletionHandler<Void, Void>() {
 
-			@Override
-			public void completed(Void result, Void attachment) {
-		        if (LOG.isLoggable(Level.INFO)) {
-		            try {
-						LOG.log(Level.INFO, "Connected thread {0} to port {1}",
-						        new Object[] { Thread.currentThread().getName(), channel.getLocalAddress().toString() });
-					} catch (IOException e) {
-						LOG.log(Level.SEVERE, "Cannot obtain local address", e);
-					}
-		        }
+            @Override
+            public void completed(Void result, Void attachment) {
+                if (LOG.isLoggable(Level.INFO)) {
+                    try {
+                        LOG.log(Level.INFO, "Connected thread {0} to port {1}",
+                                new Object[] { Thread.currentThread().getName(), channel.getLocalAddress().toString() });
+                    } catch (IOException e) {
+                        LOG.log(Level.SEVERE, "Cannot obtain local address", e);
+                    }
+                }
 
-		    	prepareChannel(factory, sourceChannel, socketAddress);
-		    	handler.completed(result, attachment);
-			}
+                prepareChannel(factory, sourceChannel, socketAddress);
+                handler.completed(result, attachment);
+            }
 
-			@Override
-			public void failed(Throwable exc, Void attachment) {
-				handler.failed(exc, attachment);
-			}
-		});
+            @Override
+            public void failed(Throwable exc, Void attachment) {
+                handler.failed(exc, attachment);
+            }
+        });
     }
 
     @Override
     public void sendHeader(HttpRequest request, CompletionHandler<Void, Void> completionHandler) {
         HttpRequest modifiedRequest;
-		try {
-			modifiedRequest = createForwardedRequest(request);
-	        doSendHeader(modifiedRequest, completionHandler);
-		} catch (IOException e) {
-			completionHandler.failed(e, null);
-		}
+        try {
+            modifiedRequest = createForwardedRequest(request);
+            doSendHeader(modifiedRequest, completionHandler);
+        } catch (IOException e) {
+            completionHandler.failed(e, null);
+        }
     }
 
     @Override
-    public void send(ByteBuffer buffer) throws IOException {
-        HttpUtils.getFuture(channel.write(buffer));
+    public void send(ByteBuffer buffer, CompletionHandler<Void, Void> completionHandler) {
+        channel.write(buffer, null, new CompletionHandler<Integer, Void>() {
+
+            @Override
+            public void completed(Integer result, Void attachment) {
+                completionHandler.completed(null, attachment);
+            }
+
+            @Override
+            public void failed(Throwable exc, Void attachment) {
+                completionHandler.failed(exc, attachment);
+            }
+        });
     }
 
     @Override
-    public void end() throws IOException {
+    public void end() {
         // Does nothing.
     }
 
@@ -126,12 +157,7 @@ public abstract class AbstractHttpConnection implements HttpConnection {
     protected abstract HttpRequest createForwardedRequest(HttpRequest request) throws IOException;
 
     protected void doSendHeader(HttpRequest request, CompletionHandler<Void, Void> completionHandler) {
-        try {
-			HttpUtils.sendHeader(request, channel);
-	        completionHandler.completed(null, null);
-		} catch (IOException e) {
-			completionHandler.failed(e, null);
-		}
+        HttpUtils.sendHeader(request, channel, completionHandler);
     }
 
     protected void prepareChannel(MappedHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
@@ -142,14 +168,7 @@ public abstract class AbstractHttpConnection implements HttpConnection {
             public void completed(Integer result, ByteBuffer attachment) {
                 if (result >= 0) {
                     attachment.flip();
-                    try {
-                        HttpUtils.getFuture(sourceChannel.write(attachment));
-                        attachment.clear();
-                        channel.read(attachment, attachment, this);
-                    } catch (IOException e) {
-                        LOG.log(Level.INFO, "Error when writing buffer, disconnecting", e);
-                        disconnect();
-                    }
+                    sourceChannel.write(attachment, attachment, new WriteCompletionHandler(this));
                 } else {
                     if (sourceChannel.isOpen()) {
                         try {

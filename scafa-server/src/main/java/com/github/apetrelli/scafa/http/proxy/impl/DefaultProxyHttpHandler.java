@@ -61,73 +61,72 @@ public class DefaultProxyHttpHandler implements ProxyHttpHandler {
     }
 
     @Override
-    public void onResponseHeader(HttpResponse response) throws IOException {
-        throw new UnsupportedOperationException("Not expected a response header");
+    public void onResponseHeader(HttpResponse response, CompletionHandler<Void, Void> handler) {
+        handler.failed(new UnsupportedOperationException("Not expected a response header"), null);
     }
 
     @Override
     public void onRequestHeader(HttpRequest request, CompletionHandler<Void, Void> handler) {
         connectionFactory.create(sourceChannel, request, new ResultHandler<HttpConnection>() {
 
-			@Override
-			public void handle(HttpConnection result) {
-				connection = result;
-				connection.sendHeader(request, handler);
-			}
-		});
+            @Override
+            public void handle(HttpConnection result) {
+                connection = result;
+                connection.sendHeader(request, handler);
+            }
+        });
     }
 
     @Override
-    public void onBody(ByteBuffer buffer, long offset, long length) throws IOException {
-        connection.send(buffer);
+    public void onBody(ByteBuffer buffer, long offset, long length, CompletionHandler<Void, Void> handler) {
+        connection.send(buffer, handler);
     }
 
     @Override
-    public void onChunkStart(long totalOffset, long chunkLength) throws IOException {
-
+    public void onChunkStart(long totalOffset, long chunkLength, CompletionHandler<Void, Void> handler) {
         String hexString = Long.toHexString(chunkLength);
         ByteBuffer countBuffer = ByteBuffer.allocate(hexString.length() + 2);
         countBuffer.put(hexString.getBytes(StandardCharsets.US_ASCII)).put(CR).put(LF);
         countBuffer.flip();
-        connection.send(countBuffer);
+        connection.send(countBuffer, handler);
     }
 
     @Override
-    public void onChunk(byte[] buffer, int position, int length, long totalOffset, long chunkOffset, long chunkLength)
-            throws IOException {
-        connection.send(ByteBuffer.wrap(buffer, position, length));
+    public void onChunk(byte[] buffer, int position, int length, long totalOffset, long chunkOffset, long chunkLength,
+            CompletionHandler<Void, Void> handler) {
+        connection.send(ByteBuffer.wrap(buffer, position, length), handler);
     }
 
     @Override
-    public void onChunkEnd() {
-        // Does nothing.
+    public void onChunkEnd(CompletionHandler<Void, Void> handler) {
+        handler.completed(null, null);
     }
 
     @Override
-    public void onChunkedTransferEnd() throws IOException {
-        connection.send(ByteBuffer.wrap(CRLF));
+    public void onChunkedTransferEnd(CompletionHandler<Void, Void> handler) {
+        connection.send(ByteBuffer.wrap(CRLF), handler);
     }
 
     @Override
     public void onConnectMethod(HttpConnectRequest connectRequest, CompletionHandler<Void, Void> handler) {
-    	connectionFactory.create(sourceChannel, connectRequest, new ResultHandler<HttpConnection>() {
+        connectionFactory.create(sourceChannel, connectRequest, new ResultHandler<HttpConnection>() {
 
-			@Override
-			public void handle(HttpConnection result) {
-				connection = result;
-				connection.connect(connectRequest, handler);
-			}
-		});
+            @Override
+            public void handle(HttpConnection result) {
+                connection = result;
+                connection.connect(connectRequest, handler);
+            }
+        });
 
     }
 
     @Override
-    public void onDataToPassAlong(ByteBuffer buffer) throws IOException {
-        connection.send(buffer);
+    public void onDataToPassAlong(ByteBuffer buffer, CompletionHandler<Void, Void> handler) {
+        connection.send(buffer, handler);
     }
 
     @Override
-    public void onEnd() throws IOException {
+    public void onEnd() {
         connection.end();
     }
 

@@ -83,7 +83,7 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
     }
 
     @Override
-    public void endRequestLine(HttpInput input) {
+    public void endRequestLine(HttpInput input, CompletionHandler<Void, Void> completionHandler) {
         byte currentByte = input.getBuffer().get();
         String requestLine = lineBuilder.toString();
         String[] pieces = requestLine.split("\\s+");
@@ -105,18 +105,19 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
                 String responseMessage = builder.toString();
                 response = new HttpResponse(httpVersion, responseCode, responseMessage);
                 holder = response;
+                appendToBuffer(currentByte);
+                completionHandler.completed(null, null);
             } else if (pieces.length == 3) {
                 request = new HttpRequest(pieces[0], pieces[1], pieces[2]);
                 holder = request;
+                appendToBuffer(currentByte);
+                completionHandler.completed(null, null);
             } else {
-                input.setCaughtError(true);
-                LOG.severe("The request line is invalid: " + requestLine);
+                completionHandler.failed(new IOException("The request or response line is invalid: " + requestLine), null);
             }
         } else {
-            input.setCaughtError(true);
-            LOG.severe("The request or response line is invalid: " + requestLine);
+            completionHandler.failed(new IOException("The request or response line is invalid: " + requestLine), null);
         }
-        appendToBuffer(currentByte);
     }
 
     @Override
@@ -180,39 +181,33 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
         if (request != null) {
             manageRequestHeader(handler, input, request, completionHandler);
         } else if (response != null) {
-            try {
-				handler.onResponseHeader(new HttpResponse(response));
-			} catch (IOException e) {
-				completionHandler.failed(e, null);
-			}
+            handler.onResponseHeader(new HttpResponse(response), completionHandler);
+        } else {
+            completionHandler.completed(null, null);
         }
     }
 
     @Override
     public void endHeaderAndRequest(HttpInput input, CompletionHandler<Void, Void> completionHandler) {
-    	endHeader(input, new CompletionHandler<Void, Void>() {
+        endHeader(input, new CompletionHandler<Void, Void>() {
 
-			@Override
-			public void completed(Void result, Void attachment) {
-				try {
-					handler.onEnd();
-					completionHandler.completed(result, attachment);
-				} catch (IOException e) {
-					completionHandler.failed(e, attachment);
-				}
-			}
+            @Override
+            public void completed(Void result, Void attachment) {
+                handler.onEnd();
+                completionHandler.completed(result, attachment);
+            }
 
-			@Override
-			public void failed(Throwable exc, Void attachment) {
-				completionHandler.failed(exc, attachment);
-			}
-		});
+            @Override
+            public void failed(Throwable exc, Void attachment) {
+                completionHandler.failed(exc, attachment);
+            }
+        });
 
     }
 
     @Override
-    public void afterEndOfChunk(byte currentByte) throws IOException {
-        handler.onChunkEnd();
+    public void afterEndOfChunk(byte currentByte, CompletionHandler<Void, Void> completionHandler) {
+        handler.onChunkEnd(completionHandler);
     }
 
     @Override
@@ -231,7 +226,7 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
     }
 
     @Override
-    public void endChunkCount(HttpInput input) throws IOException {
+    public void endChunkCount(HttpInput input, CompletionHandler<Void, Void> completionHandler) {
         input.getBuffer().get(); // Skipping LF.
         if (lineBuilder.length() > 0) {
             String chunkCountHex = lineBuilder.toString();
@@ -239,44 +234,77 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
                 long chunkCount = Long.parseLong(chunkCountHex, 16);
                 LOG.log(Level.FINEST, "Preparing to read {0} bytes of a chunk", chunkCount);
                 input.setChunkLength(chunkCount);
-                if (!input.isCaughtError()) {
-                    handler.onChunkStart(input.getTotalChunkedTransferLength(), chunkCount);
-                }
-                if (chunkCount == 0L) {
-                    if (!input.isCaughtError()) {
-                        handler.onChunkEnd();
-                        handler.onChunkedTransferEnd();
-                        handler.onEnd();
-                    } else {
-                        manageError();
+                handler.onChunkStart(input.getTotalChunkedTransferLength(), chunkCount, new CompletionHandler<Void, Void>() {
+
+                    @Override
+                    public void completed(Void result, Void attachment) {
+                        if (chunkCount == 0L) {
+                            handler.onChunkEnd(new CompletionHandler<Void, Void>() {
+
+                                @Override
+                                public void completed(Void result, Void attachment) {
+                                    handler.onChunkedTransferEnd(new CompletionHandler<Void, Void>() {
+
+                                        @Override
+                                        public void completed(Void result, Void attachment) {
+                                            handler.onEnd();
+                                            completionHandler.completed(result, attachment);
+                                        }
+
+                                        @Override
+                                        public void failed(Throwable exc, Void attachment) {
+                                            completionHandler.failed(exc, attachment);
+                                        }
+                                    });
+                                }
+
+                                @Override
+                                public void failed(Throwable exc, Void attachment) {
+                                    completionHandler.failed(exc, attachment);
+                                }
+                            });
+                        } else {
+                            completionHandler.completed(result, attachment);
+                        }
                     }
-                }
+
+                    @Override
+                    public void failed(Throwable exc, Void attachment) {
+                        completionHandler.failed(exc, attachment);
+                    }
+                });
             } catch (NumberFormatException e) {
-                LOG.log(Level.SEVERE, "Chunk count invalid for an hex value: " + chunkCountHex, e);
+                completionHandler.failed(e, null);
             }
         } else {
-            LOG.severe("Chunk count empty, invalid");
+            completionHandler.failed(new IOException("Chunk count zero, invalid"), null);
         }
     }
 
     @Override
-    public void send(HttpInput input) throws IOException {
+    public void send(HttpInput input, CompletionHandler<Void, Void> completionHandler) {
         ByteBuffer buffer = input.getBuffer();
         int oldLimit = buffer.limit();
         int size = oldLimit - buffer.position();
         int sizeToSend = (int) Math.min(size, input.getCountdown());
         buffer.limit(buffer.position() + sizeToSend);
-        if (!input.isCaughtError()) {
-            handler.onBody(buffer, input.getBodyOffset(), input.getBodySize());
-        }
-        input.reduceBody(sizeToSend);
-        buffer.limit(oldLimit);
-        if (!input.isHttpConnected() && input.getCountdown() <= 0L) {
-            handler.onEnd();
-            if (input.isCaughtError()) {
-                manageError();
+        handler.onBody(buffer, input.getBodyOffset(), input.getBodySize(), new CompletionHandler<Void, Void>() {
+
+            @Override
+            public void completed(Void result, Void attachment) {
+                input.reduceBody(sizeToSend);
+                buffer.limit(oldLimit);
+                if (!input.isHttpConnected() && input.getCountdown() <= 0L) {
+                    handler.onEnd();
+                }
+                completionHandler.completed(result, attachment);
             }
-        }
+
+            @Override
+            public void failed(Throwable exc, Void attachment) {
+                completionHandler.failed(exc, attachment);
+            }
+        });
     }
 
     @Override
@@ -290,24 +318,36 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
     }
 
     @Override
-    public void sendChunkData(HttpInput input) throws IOException {
-        if (!input.isCaughtError()) {
-            ByteBuffer buffer = input.getBuffer();
-            int bufferSize = buffer.limit() - buffer.position();
-            long maxsize = input.getCountdown();
-            if (bufferSize > maxsize) {
-                bufferSize = (int) maxsize;
-            }
-            handler.onChunk(buffer.array(), buffer.position(), new Long(bufferSize).intValue(),
-                    input.getTotalChunkedTransferLength() - input.getChunkLength(), input.getChunkOffset(),
-                    input.getChunkLength());
-            buffer.position(buffer.position() + bufferSize);
-            if (LOG.isLoggable(Level.FINEST)) {
-                LOG.log(Level.FINEST, "Handling chunk from {0} to {1}",
-                        new Object[] { input.getChunkOffset(), input.getChunkOffset() + bufferSize });
-            }
-            input.reduceChunk(bufferSize);
+    public void sendChunkData(HttpInput input, CompletionHandler<Void, Void> completionHandler) {
+        ByteBuffer buffer = input.getBuffer();
+        int remainingBufferSize = buffer.limit() - buffer.position();
+        long maxsize = input.getCountdown();
+        int bufferSize;
+        if (remainingBufferSize > maxsize) {
+            bufferSize = (int) maxsize;
+        } else {
+            bufferSize = remainingBufferSize;
         }
+        handler.onChunk(buffer.array(), buffer.position(), bufferSize,
+                input.getTotalChunkedTransferLength() - input.getChunkLength(), input.getChunkOffset(),
+                input.getChunkLength(), new CompletionHandler<Void, Void>() {
+
+                    @Override
+                    public void completed(Void result, Void attachment) {
+                        buffer.position(buffer.position() + bufferSize);
+                        if (LOG.isLoggable(Level.FINEST)) {
+                            LOG.log(Level.FINEST, "Handling chunk from {0} to {1}",
+                                    new Object[] { input.getChunkOffset(), input.getChunkOffset() + bufferSize });
+                        }
+                        input.reduceChunk(bufferSize);
+                        completionHandler.completed(result, attachment);
+                    }
+
+                    @Override
+                    public void failed(Throwable exc, Void attachment) {
+                        completionHandler.failed(exc, attachment);
+                    }
+                });
     }
 
     @Override
@@ -317,10 +357,6 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
 
     protected void manageRequestHeader(H handler, HttpInput input, HttpRequest request, CompletionHandler<Void, Void> completionHandler) {
         handler.onRequestHeader(new HttpRequest(request), completionHandler);
-    }
-
-    protected void manageError() {
-        // Does nothing.
     }
 
     private void appendToBuffer(byte currentByte) {

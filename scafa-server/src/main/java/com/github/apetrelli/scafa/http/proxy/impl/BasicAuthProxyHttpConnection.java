@@ -25,12 +25,12 @@ public class BasicAuthProxyHttpConnection extends AbstractProxyHttpConnection {
     @Override
     protected void doConnect(HttpConnectRequest request, CompletionHandler<Void, Void> completionHandler) {
         request.addHeader("PROXY-AUTHORIZATION", authString);
-    	super.doConnect(request, completionHandler);
+        super.doConnect(request, completionHandler);
     }
 
     @Override
     protected void doSendHeader(HttpRequest request, CompletionHandler<Void, Void> completionHandler) {
         request.addHeader("PROXY-AUTHORIZATION", authString);
-    	super.doSendHeader(request, completionHandler);
+        super.doSendHeader(request, completionHandler);
     }
 }

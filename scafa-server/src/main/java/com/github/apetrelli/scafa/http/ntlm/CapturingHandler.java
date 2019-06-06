@@ -17,24 +17,25 @@
  */
 package com.github.apetrelli.scafa.http.ntlm;
 
-import java.io.IOException;
+import java.nio.channels.CompletionHandler;
 
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.impl.HttpHandlerSupport;
 
 public class CapturingHandler extends HttpHandlerSupport {
 
+    protected HttpResponse response;
+
     private boolean finished = false;
-    
-    private HttpResponse response;
 
     @Override
-    public void onResponseHeader(HttpResponse response) throws IOException {
+    public void onResponseHeader(HttpResponse response, CompletionHandler<Void, Void> handler) {
         this.response = response;
+        handler.completed(null, null);
     }
 
     @Override
-    public void onEnd() throws IOException {
+    public void onEnd() {
         finished = true;
     }
 
@@ -46,7 +47,7 @@ public class CapturingHandler extends HttpHandlerSupport {
         finished = false;
         response = null;
     }
-    
+
     public HttpResponse getResponse() {
         return response;
     }

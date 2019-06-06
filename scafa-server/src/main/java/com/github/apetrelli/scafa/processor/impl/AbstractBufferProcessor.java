@@ -37,21 +37,21 @@ public abstract class AbstractBufferProcessor<I extends Input, S extends ByteSin
     public void process(I input, Status<I, S> status, CompletionHandler<Status<I, S>, I> completionHandler) {
         ByteBuffer buffer = input.getBuffer();
         if (buffer.position() < buffer.limit()) {
-        	Status<I, S> newStatus = status.next(input);
-        	newStatus.out(input, sink, new CompletionHandler<Void, Void>() {
+            Status<I, S> newStatus = status.next(input);
+            newStatus.out(input, sink, new CompletionHandler<Void, Void>() {
 
-				@Override
-				public void completed(Void result, Void attachment) {
-					process(input, newStatus, completionHandler);
-				}
+                @Override
+                public void completed(Void result, Void attachment) {
+                    process(input, newStatus, completionHandler);
+                }
 
-				@Override
-				public void failed(Throwable exc, Void attachment) {
-					completionHandler.failed(exc, input);
-				}
-			});
+                @Override
+                public void failed(Throwable exc, Void attachment) {
+                    completionHandler.failed(exc, input);
+                }
+            });
         } else {
-        	completionHandler.completed(status, input);
+            completionHandler.completed(status, input);
         }
     }
 

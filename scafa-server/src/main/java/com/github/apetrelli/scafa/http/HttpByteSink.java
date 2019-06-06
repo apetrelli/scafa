@@ -17,7 +17,6 @@
  */
 package com.github.apetrelli.scafa.http;
 
-import java.io.IOException;
 import java.nio.channels.CompletionHandler;
 
 import com.github.apetrelli.scafa.processor.ByteSink;
@@ -26,7 +25,7 @@ public interface HttpByteSink extends ByteSink<HttpInput>{
 
     void appendRequestLine(byte currentByte);
 
-    void endRequestLine(HttpInput input);
+    void endRequestLine(HttpInput input, CompletionHandler<Void, Void> completionHandler);
 
     void beforeHeader(byte currentByte);
 
@@ -42,7 +41,7 @@ public interface HttpByteSink extends ByteSink<HttpInput>{
 
     void endHeaderAndRequest(HttpInput input, CompletionHandler<Void, Void> completionHandler);
 
-    void afterEndOfChunk(byte currentByte) throws IOException;
+    void afterEndOfChunk(byte currentByte, CompletionHandler<Void, Void> completionHandler);
 
     void beforeChunkCount(byte currentByte);
 
@@ -50,7 +49,7 @@ public interface HttpByteSink extends ByteSink<HttpInput>{
 
     void preEndChunkCount(byte currentByte);
 
-    void endChunkCount(HttpInput input) throws IOException;
+    void endChunkCount(HttpInput input, CompletionHandler<Void, Void> completionHandler);
 
     void chunkedTransferLastCr(byte currentByte);
 

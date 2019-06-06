@@ -29,39 +29,31 @@ import com.github.apetrelli.scafa.http.proxy.ProxyHttpHandler;
 
 public class ProxyHttpByteSink extends DefaultHttpByteSink<ProxyHttpHandler> {
 
-    private AsynchronousSocketChannel sourceChannel;
-
     public ProxyHttpByteSink(AsynchronousSocketChannel sourceChannel, ProxyHttpHandler handler) {
         super(handler);
-        this.sourceChannel = sourceChannel;
     }
 
     @Override
-    public void send(HttpInput input) throws IOException {
+    public void send(HttpInput input, CompletionHandler<Void, Void> completionHandler) {
         if (input.isHttpConnected()) {
-            handler.onDataToPassAlong(input.getBuffer());
+            handler.onDataToPassAlong(input.getBuffer(), completionHandler);
         } else {
-            super.send(input);
+            super.send(input, completionHandler);
         }
     }
 
     @Override
-    protected void manageError() {
-        ProxyResources.getInstance().sendGenericErrorPage(sourceChannel);
-    }
-
-    @Override
     protected void manageRequestHeader(ProxyHttpHandler handler, HttpInput input, HttpRequest request,
-    		CompletionHandler<Void, Void> completionHandler) {
+            CompletionHandler<Void, Void> completionHandler) {
         if ("CONNECT".equalsIgnoreCase(request.getMethod())) {
             HttpConnectRequest connectRequest;
-			try {
-				connectRequest = new HttpConnectRequest(request);
-				handler.onConnectMethod(connectRequest, completionHandler);
-	            input.setHttpConnected(true);
-			} catch (IOException e) {
-				completionHandler.failed(e, null);
-			}
+            try {
+                connectRequest = new HttpConnectRequest(request);
+                handler.onConnectMethod(connectRequest, completionHandler);
+                input.setHttpConnected(true);
+            } catch (IOException e) {
+                completionHandler.failed(e, null);
+            }
         } else {
             super.manageRequestHeader(handler, input, request, completionHandler);
         }

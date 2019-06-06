@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<!-- This is the shortcut specification for windows. Its considered default 
-	so on Systems that are not shortcut compatible the information is taken from 
-	here. -->
+<!-- This is the shortcut specification for windows. Its considered default
+  so on Systems that are not shortcut compatible the information is taken from
+  here. -->
 <shortcuts>
-	<programGroup defaultName="Scafa" location="applications" />
-	<shortcut name="Scafa Controller" target="$INSTALL_PATH\scafa-systray.bat"
-		commandLine="" workingDirectory="$INSTALL_PATH" description="Scafa Controller"
-		initialState="noShow" programGroup="yes" desktop="yes" applications="yes"
-		startMenu="yes" startup="yes" />
+  <programGroup defaultName="Scafa" location="applications" />
+  <shortcut name="Scafa Controller" target="$INSTALL_PATH\scafa-systray.bat"
+    commandLine="" workingDirectory="$INSTALL_PATH" description="Scafa Controller"
+    initialState="noShow" programGroup="yes" desktop="yes" applications="yes"
+    startMenu="yes" startup="yes" />
 </shortcuts>

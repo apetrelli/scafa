@@ -17,9 +17,9 @@
  */
 package com.github.apetrelli.scafa.http.ntlm;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
+import java.nio.channels.CompletionHandler;
 
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.util.HttpUtils;
@@ -51,59 +51,82 @@ public class TentativeHandler extends CapturingHandler {
     }
 
     @Override
-    public void onResponseHeader(HttpResponse response) throws IOException {
-        super.onResponseHeader(response);
+    public void onResponseHeader(HttpResponse response, CompletionHandler<Void, Void> completionHandler) {
+        this.response = response;
         if (onlyCaptureMode || response.getCode() == 407) {
             needsAuthorizing = true;
+            completionHandler.completed(null, null);
         } else {
-            HttpUtils.sendHeader(response, sourceChannel);
+            HttpUtils.sendHeader(response, sourceChannel, completionHandler);
         }
     }
 
     @Override
-    public void onBody(ByteBuffer buffer, long offset, long length) throws IOException {
+    public void onBody(ByteBuffer buffer, long offset, long length, CompletionHandler<Void, Void> handler) {
         if (needsAuthorizing) {
-            super.onBody(buffer, offset, length);
+            super.onBody(buffer, offset, length, handler);
         } else {
-            HttpUtils.getFuture(sourceChannel.write(buffer));
+            sourceChannel.write(buffer, null, new CompletionHandler<Integer, Void>() {
+
+                @Override
+                public void completed(Integer result, Void attachment) {
+                    handler.completed(null, attachment);
+                }
+
+                @Override
+                public void failed(Throwable exc, Void attachment) {
+                    handler.failed(exc, attachment);
+                }
+            });
         }
     }
 
     @Override
-    public void onChunkStart(long totalOffset, long chunkLength) throws IOException {
+    public void onChunkStart(long totalOffset, long chunkLength, CompletionHandler<Void, Void> handler) {
         if (needsAuthorizing) {
-            super.onChunkStart(totalOffset, chunkLength);
+            super.onChunkStart(totalOffset, chunkLength, handler);
         } else {
-            HttpUtils.sendChunkSize(chunkLength, sourceChannel);
+            HttpUtils.sendChunkSize(chunkLength, sourceChannel, handler);
         }
     }
 
     @Override
-    public void onChunk(byte[] buffer, int position, int length, long totalOffset, long chunkOffset, long chunkLength)
-            throws IOException {
+    public void onChunk(byte[] buffer, int position, int length, long totalOffset, long chunkOffset, long chunkLength,
+            CompletionHandler<Void, Void> handler) {
         if (needsAuthorizing) {
-            super.onChunk(buffer, position, length, totalOffset, chunkOffset, chunkLength);
+            super.onChunk(buffer, position, length, totalOffset, chunkOffset, chunkLength, handler);
         } else {
             ByteBuffer readBuffer = ByteBuffer.wrap(buffer, position, length);
-            sourceChannel.write(readBuffer);
+            sourceChannel.write(readBuffer, null, new CompletionHandler<Integer, Void>() {
+
+                @Override
+                public void completed(Integer result, Void attachment) {
+                    handler.completed(null, attachment);
+                }
+
+                @Override
+                public void failed(Throwable exc, Void attachment) {
+                    handler.failed(exc, attachment);
+                }
+            });
         }
     }
 
     @Override
-    public void onChunkEnd() throws IOException {
+    public void onChunkEnd(CompletionHandler<Void, Void> handler) {
         if (needsAuthorizing) {
-            super.onChunkEnd();
+            super.onChunkEnd(handler);
         } else {
-            HttpUtils.sendNewline(sourceChannel);
+            HttpUtils.sendNewline(sourceChannel, handler);
         }
     }
 
     @Override
-    public void onChunkedTransferEnd() throws IOException {
+    public void onChunkedTransferEnd(CompletionHandler<Void, Void> handler) {
         if (needsAuthorizing) {
-            super.onChunkedTransferEnd();
+            super.onChunkedTransferEnd(handler);
         } else {
-            HttpUtils.sendNewline(sourceChannel);
+            HttpUtils.sendNewline(sourceChannel, handler);
         }
     }
 }

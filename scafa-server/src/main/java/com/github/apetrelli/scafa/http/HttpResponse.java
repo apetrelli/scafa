@@ -23,9 +23,9 @@ import java.nio.charset.StandardCharsets;
 
 public class HttpResponse extends HeaderHolder {
     private String httpVersion;
-    
+
     private int code;
-    
+
     private String message;
 
     public HttpResponse(String httpVersion, int code, String message) {
@@ -34,7 +34,7 @@ public class HttpResponse extends HeaderHolder {
         this.message = message;
         byteSize = httpVersion.length() + 1 + 3 + 1 + message.length() + 4;
     }
-    
+
     public HttpResponse(HttpResponse toCopy) {
         httpVersion = toCopy.httpVersion;
         code = toCopy.code;
@@ -53,19 +53,19 @@ public class HttpResponse extends HeaderHolder {
         this.httpVersion = httpVersion;
         byteSize += this.httpVersion.length();
     }
-    
+
     public int getCode() {
         return code;
     }
-    
+
     public void setCode(int code) {
         this.code = code;
     }
-    
+
     public String getMessage() {
         return message;
     }
-    
+
     public void setMessage(String message) {
         if (this.message != null) {
             byteSize -= this.message.length();
@@ -83,5 +83,5 @@ public class HttpResponse extends HeaderHolder {
         loadInBuffer(buffer);
         return buffer;
     }
-    
+
 }

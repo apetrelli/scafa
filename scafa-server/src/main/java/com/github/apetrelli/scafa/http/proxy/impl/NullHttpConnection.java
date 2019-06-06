@@ -28,40 +28,41 @@ import com.github.apetrelli.scafa.http.proxy.HttpConnection;
 
 public class NullHttpConnection implements HttpConnection {
 
-	private AsynchronousSocketChannel sourceChannel;
+    private AsynchronousSocketChannel sourceChannel;
 
-	public NullHttpConnection(AsynchronousSocketChannel sourceChannel) {
-		this.sourceChannel = sourceChannel;
-	}
+    public NullHttpConnection(AsynchronousSocketChannel sourceChannel) {
+        this.sourceChannel = sourceChannel;
+    }
 
-	@Override
-	public void ensureConnected(CompletionHandler<Void, Void> handler) {
-		handler.completed(null, null);
-	}
+    @Override
+    public void ensureConnected(CompletionHandler<Void, Void> handler) {
+        handler.completed(null, null);
+    }
 
-	@Override
-	public void sendHeader(HttpRequest request, CompletionHandler<Void, Void> completionHandler) {
-		completionHandler.completed(null, null);
-	}
+    @Override
+    public void sendHeader(HttpRequest request, CompletionHandler<Void, Void> completionHandler) {
+        completionHandler.completed(null, null);
+    }
 
-	@Override
-	public void connect(HttpConnectRequest request, CompletionHandler<Void, Void> completionHandler) {
-		completionHandler.completed(null, null);
-	}
+    @Override
+    public void connect(HttpConnectRequest request, CompletionHandler<Void, Void> completionHandler) {
+        completionHandler.completed(null, null);
+    }
 
-	@Override
-	public void send(ByteBuffer buffer) throws IOException {
-		buffer.clear();
-	}
+    @Override
+    public void send(ByteBuffer buffer, CompletionHandler<Void, Void> completionHandler) {
+        buffer.clear();
+        completionHandler.completed(null, null);
+    }
 
-	@Override
-	public void end() throws IOException {
-		ProxyResources.getInstance().sendGenericErrorPage(sourceChannel);
-	}
+    @Override
+    public void end() {
+        ProxyResources.getInstance().sendGenericErrorPage(sourceChannel);
+    }
 
-	@Override
-	public void close() throws IOException {
-		// Does nothing
-	}
+    @Override
+    public void close() throws IOException {
+        // Does nothing
+    }
 
 }

@@ -76,12 +76,7 @@ public class NtlmProxyHttpConnection extends AbstractProxyHttpConnection {
         if (!authenticated) {
             authenticate(request, completionHandler);
         } else {
-            try {
-				HttpUtils.sendHeader(request, channel);
-				completionHandler.completed(null, null);
-			} catch (IOException e) {
-				completionHandler.failed(e, null);
-			}
+            HttpUtils.sendHeader(request, channel, completionHandler);
         }
     }
 
@@ -90,12 +85,7 @@ public class NtlmProxyHttpConnection extends AbstractProxyHttpConnection {
         if (!authenticated) {
             authenticateOnConnect(request, completionHandler);
         } else {
-            try {
-				HttpUtils.sendHeader(request, channel);
-				completionHandler.completed(null, null);
-			} catch (IOException e) {
-				completionHandler.failed(e, null);
-			}
+            HttpUtils.sendHeader(request, channel, completionHandler);
         }
     }
 
@@ -115,134 +105,167 @@ public class NtlmProxyHttpConnection extends AbstractProxyHttpConnection {
         if (length != null) {
             modifiedRequest.setHeader("CONTENT-LENGTH", "0");
         }
-        try {
-			if (HttpUtils.sendHeader(modifiedRequest, channel) >= 0) {
-			    HttpByteSink sink = new DefaultHttpByteSink<HttpHandler>(tentativeHandler);
-			    BufferProcessor<HttpInput, HttpByteSink> processor = new ClientBufferProcessor<>(sink);
-			    readResponse(tentativeHandler, sink, processor, new CompletionHandler<Integer, Void>() {
+        HttpUtils.sendHeader(modifiedRequest, channel, new CompletionHandler<Void, Void>() {
 
-					@Override
-					public void completed(Integer result, Void attachment) {
-						if (result >= 0) {
-			                if (tentativeHandler.isNeedsAuthorizing()) {
-			                    tentativeHandler.setOnlyCaptureMode(true);
-			                    if (tentativeHandler.getResponse().getHeaders("PROXY-AUTHENTICATE").contains("NTLM")) {
-			                        ntlmAuthenticate(modifiedRequest, finalRequest, sink, tentativeHandler, processor, completionHandler);
-			                    }
-			                } else {
-			                    authenticated = true;
-			                    prepareChannel(factory, sourceChannel, calledAddress);
-			                    completionHandler.completed(null, null);
-			                }
-						} else {
-							completionHandler.failed(new IOException("Connection closed"), null);
-						}
-					}
+            @Override
+            public void completed(Void result, Void attachment) {
+                HttpByteSink sink = new DefaultHttpByteSink<HttpHandler>(tentativeHandler);
+                BufferProcessor<HttpInput, HttpByteSink> processor = new ClientBufferProcessor<>(sink);
+                readResponse(tentativeHandler, sink, processor, new CompletionHandler<Integer, Void>() {
 
-					@Override
-					public void failed(Throwable exc, Void attachment) {
-						completionHandler.failed(exc, attachment);
-					}
-				});
-			}
-		} catch (IOException e) {
-			completionHandler.failed(e, null);
-		}
+                    @Override
+                    public void completed(Integer result, Void attachment) {
+                        if (result >= 0) {
+                            if (tentativeHandler.isNeedsAuthorizing()) {
+                                tentativeHandler.setOnlyCaptureMode(true);
+                                if (tentativeHandler.getResponse().getHeaders("PROXY-AUTHENTICATE").contains("NTLM")) {
+                                    ntlmAuthenticate(modifiedRequest, finalRequest, sink, tentativeHandler, processor, completionHandler);
+                                }
+                            } else {
+                                authenticated = true;
+                                prepareChannel(factory, sourceChannel, calledAddress);
+                                completionHandler.completed(null, null);
+                            }
+                        } else {
+                            completionHandler.failed(new IOException("Connection closed"), null);
+                        }
+                    }
+
+                    @Override
+                    public void failed(Throwable exc, Void attachment) {
+                        completionHandler.failed(exc, attachment);
+                    }
+                });
+            }
+
+            @Override
+            public void failed(Throwable exc, Void attachment) {
+                completionHandler.failed(exc, attachment);
+            }
+        });
     }
 
     private void ntlmAuthenticate(HttpRequest modifiedRequest, HttpRequest finalRequest, HttpByteSink sink, CapturingHandler handler,
             BufferProcessor<HttpInput, HttpByteSink> processor, CompletionHandler<Void, Void> completionHandler) {
         Type1Message message1 = new Type1Message(TYPE_1_FLAGS, null, null);
         modifiedRequest.setHeader("PROXY-AUTHORIZATION", "NTLM " + Base64.encode(message1.toByteArray()));
-        try {
-			if (HttpUtils.sendHeader(modifiedRequest, channel) >= 0) {
-				readResponse(handler, sink, processor, new CompletionHandler<Integer, Void>() {
+        HttpUtils.sendHeader(modifiedRequest, channel, new CompletionHandler<Void, Void>() {
 
-					@Override
-					public void completed(Integer result, Void attachment) {
-						if (result >= 0) {
-							try {
-				                switch (handler.getResponse().getCode()) {
-				                case 407:
-				                    String authenticate = handler.getResponse().getHeader("PROXY-AUTHENTICATE");
-				                    if (authenticate != null) {
-				                        if (authenticate.startsWith("NTLM ")) {
-				                            String base64 = authenticate.substring(5);
-				                            Type2Message message2 = new Type2Message(Base64.decode(base64));
-				                            Type3Message message3 = new Type3Message(message2, password, domain, username, null,
-				                                    message2.getFlags());
-				                            finalRequest.setHeader("PROXY-AUTHORIZATION",
-				                                    "NTLM " + Base64.encode(message3.toByteArray()));
-				                            HttpUtils.sendHeader(finalRequest, channel);
-				                            authenticated = true;
-				                            prepareChannel(factory, sourceChannel, calledAddress);
-				                        }
-				                    }
-				                    break;
-				                case 200:
-				                    authenticated = true;
-				                    prepareChannel(factory, sourceChannel, calledAddress);
-				                    break;
-				                default:
-				                    // this happens only in HTTP with disallowed connections.
-				                    channel.close();
-				                }
-				                completionHandler.completed(null, null);
-							} catch (IOException e) {
-								completionHandler.failed(e, null);
-							}
-						} else {
-							completionHandler.failed(new IOException("Connection closed"), null);
-						}
-					}
+            @Override
+            public void completed(Void result, Void attachment) {
+                readResponse(handler, sink, processor, new CompletionHandler<Integer, Void>() {
 
-					@Override
-					public void failed(Throwable exc, Void attachment) {
-						completionHandler.failed(exc, attachment);
-					}
-				});
-			}
-		} catch (IOException e) {
-			completionHandler.failed(e, null);
-		}
+                    @Override
+                    public void completed(Integer result, Void attachment) {
+                        if (result >= 0) {
+                            try {
+                                switch (handler.getResponse().getCode()) {
+                                case 407:
+                                    String authenticate = handler.getResponse().getHeader("PROXY-AUTHENTICATE");
+                                    if (authenticate != null) {
+                                        if (authenticate.startsWith("NTLM ")) {
+                                            String base64 = authenticate.substring(5);
+                                            Type2Message message2 = new Type2Message(Base64.decode(base64));
+                                            Type3Message message3 = new Type3Message(message2, password, domain, username, null,
+                                                    message2.getFlags());
+                                            finalRequest.setHeader("PROXY-AUTHORIZATION",
+                                                    "NTLM " + Base64.encode(message3.toByteArray()));
+                                            HttpUtils.sendHeader(finalRequest, channel, new CompletionHandler<Void, Void>() {
+
+                                                @Override
+                                                public void completed(Void result, Void attachment) {
+                                                    authenticated = true;
+                                                    prepareChannel(factory, sourceChannel, calledAddress);
+                                                    completionHandler.completed(null, null);
+                                                }
+
+                                                @Override
+                                                public void failed(Throwable exc, Void attachment) {
+                                                    completionHandler.failed(exc, attachment);
+                                                }
+                                            });
+                                        } else {
+                                            completionHandler.completed(null, null);
+                                        }
+                                    } else {
+                                        completionHandler.completed(null, null);
+                                    }
+                                    break;
+                                case 200:
+                                    authenticated = true;
+                                    prepareChannel(factory, sourceChannel, calledAddress);
+                                    completionHandler.completed(null, null);
+                                    break;
+                                default:
+                                    // this happens only in HTTP with disallowed connections.
+                                    channel.close();
+                                    completionHandler.completed(null, null);
+                                }
+                            } catch (IOException e) {
+                                completionHandler.failed(e, null);
+                            }
+                        } else {
+                            completionHandler.failed(new IOException("Connection closed"), null);
+                        }
+                    }
+
+                    @Override
+                    public void failed(Throwable exc, Void attachment) {
+                        completionHandler.failed(exc, attachment);
+                    }
+                });
+            }
+
+            @Override
+            public void failed(Throwable exc, Void attachment) {
+                completionHandler.failed(exc, attachment);
+            }
+        });
     }
 
-	private void readResponse(CapturingHandler handler, HttpByteSink sink,
-			BufferProcessor<HttpInput, HttpByteSink> processor, CompletionHandler<Integer, Void> completionHandler) {
+    private void readResponse(CapturingHandler handler, HttpByteSink sink,
+            BufferProcessor<HttpInput, HttpByteSink> processor, CompletionHandler<Integer, Void> completionHandler) {
         handler.reset();
         sink.reset();
         HttpInput input = sink.createInput();
         input.setBuffer(readBuffer);
         Status<HttpInput, HttpByteSink> status = HttpStatus.IDLE;
         Integer retValue = 0;
-    	readResponse(handler, processor, completionHandler, input, status, retValue);
+        readResponse(handler, processor, completionHandler, input, status, retValue);
     }
 
-	private void readResponse(CapturingHandler handler, BufferProcessor<HttpInput, HttpByteSink> processor,
-			CompletionHandler<Integer, Void> completionHandler, HttpInput input, Status<HttpInput, HttpByteSink> status,
-			Integer byteRead) {
-		if (!handler.isFinished()) {
+    private void readResponse(CapturingHandler handler, BufferProcessor<HttpInput, HttpByteSink> processor,
+            CompletionHandler<Integer, Void> completionHandler, HttpInput input, Status<HttpInput, HttpByteSink> status,
+            Integer byteRead) {
+        if (!handler.isFinished()) {
             readBuffer.clear();
-            try {
-				Integer newByteRead = byteRead + HttpUtils.getFuture(channel.read(readBuffer));
-	            readBuffer.flip();
-	            processor.process(input, status, new CompletionHandler<Status<HttpInput,HttpByteSink>, HttpInput>() {
+            channel.read(readBuffer, byteRead, new CompletionHandler<Integer, Integer>() {
 
-					@Override
-					public void completed(Status<HttpInput, HttpByteSink> result, HttpInput attachment) {
-						readResponse(handler, processor, completionHandler, input, status, newByteRead);
-					}
+                @Override
+                public void completed(Integer result, Integer attachment) {
+                    Integer newByteRead = result + attachment;
+                    readBuffer.flip();
+                    processor.process(input, status, new CompletionHandler<Status<HttpInput,HttpByteSink>, HttpInput>() {
 
-					@Override
-					public void failed(Throwable exc, HttpInput attachment) {
-						completionHandler.failed(exc, null);
-					}
-				});
-			} catch (IOException e) {
-				completionHandler.failed(e, null);
-			}
-    	} else {
-    		completionHandler.completed(byteRead, null);
-    	}
-	}
+                        @Override
+                        public void completed(Status<HttpInput, HttpByteSink> result, HttpInput attachment) {
+                            readResponse(handler, processor, completionHandler, input, status, newByteRead);
+                        }
+
+                        @Override
+                        public void failed(Throwable exc, HttpInput attachment) {
+                            completionHandler.failed(exc, null);
+                        }
+                    });
+                }
+
+                @Override
+                public void failed(Throwable exc, Integer attachment) {
+                    completionHandler.failed(exc, null);
+                }
+            });
+        } else {
+            completionHandler.completed(byteRead, null);
+        }
+    }
 }

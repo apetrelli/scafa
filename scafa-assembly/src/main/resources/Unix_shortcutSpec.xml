@@ -1,11 +1,11 @@
 <shortcuts>
-	<skipIfNotSupported />
-	<programGroup defaultName="Scafa" location="applications" />
+  <skipIfNotSupported />
+  <programGroup defaultName="Scafa" location="applications" />
 
-	<shortcut name="Scafa Controller" target="$INSTALL_PATH/scafa-systray.sh"
-		workingDirectory="$INSTALL_PATH" description="Scafa Controller"
-		initialState="normal" programGroup="yes" desktop="yes" applications="no"
-		startMenu="no" startup="no" type="Application" encoding="UTF-8"
-		terminal="false" KdeSubstUID="false">
-	</shortcut>
+  <shortcut name="Scafa Controller" target="$INSTALL_PATH/scafa-systray.sh"
+    workingDirectory="$INSTALL_PATH" description="Scafa Controller"
+    initialState="normal" programGroup="yes" desktop="yes" applications="no"
+    startMenu="no" startup="no" type="Application" encoding="UTF-8"
+    terminal="false" KdeSubstUID="false">
+  </shortcut>
 </shortcuts>

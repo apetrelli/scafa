@@ -36,38 +36,44 @@ public class HttpHandlerSupport implements HttpHandler {
     }
 
     @Override
-    public void onResponseHeader(HttpResponse response) throws IOException {
+    public void onResponseHeader(HttpResponse response, CompletionHandler<Void, Void> handler) {
+        handler.completed(null, null);
     }
 
     @Override
     public void onRequestHeader(HttpRequest request, CompletionHandler<Void, Void> handler) {
-    	handler.completed(null, null);
+        handler.completed(null, null);
     }
 
     @Override
-    public void onBody(ByteBuffer buffer, long offset, long length) throws IOException {
+    public void onBody(ByteBuffer buffer, long offset, long length, CompletionHandler<Void, Void> handler) {
         buffer.position(buffer.limit());
+        handler.completed(null, null);
     }
 
     @Override
-    public void onChunkStart(long totalOffset, long chunkLength) throws IOException {
+    public void onChunkStart(long totalOffset, long chunkLength, CompletionHandler<Void, Void> handler) {
+        handler.completed(null, null);
     }
 
     @Override
-    public void onChunk(byte[] buffer, int position, int length, long totalOffset, long chunkOffset, long chunkLength)
-            throws IOException {
+    public void onChunk(byte[] buffer, int position, int length, long totalOffset, long chunkOffset, long chunkLength,
+            CompletionHandler<Void, Void> handler) {
+        handler.completed(null, null);
     }
 
     @Override
-    public void onChunkEnd() throws IOException {
+    public void onChunkEnd(CompletionHandler<Void, Void> handler) {
+        handler.completed(null, null);
     }
 
     @Override
-    public void onChunkedTransferEnd() throws IOException {
+    public void onChunkedTransferEnd(CompletionHandler<Void, Void> handler) {
+        handler.completed(null, null);
     }
 
     @Override
-    public void onEnd() throws IOException {
+    public void onEnd() {
     }
 
     @Override

@@ -21,8 +21,6 @@ import java.nio.ByteBuffer;
 
 public interface Input {
 
-    void setCaughtError(boolean caughtError);
-
     ByteBuffer getBuffer();
 
     byte peekNextByte();

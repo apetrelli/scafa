@@ -17,12 +17,10 @@
  */
 package com.github.apetrelli.scafa.util;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
+import java.nio.channels.CompletionHandler;
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -32,7 +30,7 @@ import com.github.apetrelli.scafa.http.HeaderHolder;
 import com.github.apetrelli.scafa.http.HttpRequestManipulator;
 
 public class HttpUtils {
-    
+
     private static final Logger LOG = Logger.getLogger(HttpUtils.class.getName());
 
     private static final byte CR = 13;
@@ -42,53 +40,46 @@ public class HttpUtils {
     private HttpUtils() {
     }
 
-    public static Integer sendHeader(HeaderHolder holder, AsynchronousSocketChannel channelToSend) throws IOException {
-        return sendBuffer(holder.toHeapByteBuffer(), channelToSend);
-    }
-
-    public static Integer flushBuffer(ByteBuffer buffer, AsynchronousSocketChannel channelToSend) throws IOException {
-        buffer.flip();
-        Integer result = getFuture(channelToSend.write(buffer));
-        buffer.clear();
-        return result;
-    }
-
-    public static Integer sendChunkSize(long size, AsynchronousSocketChannel channelToSend)
-            throws IOException {
-        String sizeString = Long.toString(size, 16);
-        ByteBuffer buffer = ByteBuffer.allocate(sizeString.length() + 2);
-        buffer.put(sizeString.getBytes(StandardCharsets.US_ASCII)).put(CR).put(LF);
-        return flushBuffer(buffer, channelToSend);
-    }
-
-    public static Integer sendNewline(AsynchronousSocketChannel channelToSend)
-            throws IOException {
-        ByteBuffer buffer = ByteBuffer.allocate(2);
-        buffer.put(CR).put(LF);
-        return flushBuffer(buffer, channelToSend);
-    }
-
-    public static <T> T getFuture(Future<T> future) throws IOException {
-        try {
-            return future.get();
-        } catch (InterruptedException | ExecutionException e) {
-            Throwable cause = e.getCause();
-            if (cause instanceof IOException) {
-                throw (IOException) cause;
-            } else {
-                throw new IOException("Future problem", e);
-            }
-        }
-    }
-
-    private static Integer sendBuffer(ByteBuffer buffer, AsynchronousSocketChannel channelToSend) throws IOException {
+    public static void sendHeader(HeaderHolder holder, AsynchronousSocketChannel channelToSend, CompletionHandler<Void, Void> completionHandler) {
+        ByteBuffer buffer = holder.toHeapByteBuffer();
         if (LOG.isLoggable(Level.FINEST)) {
             String request = new String(buffer.array(), 0, buffer.limit());
             LOG.finest("-- Raw request/response header");
             LOG.finest(request);
             LOG.finest("-- End of header --");
         }
-        return flushBuffer(buffer, channelToSend);
+        flushBuffer(buffer, channelToSend, completionHandler);
+    }
+
+    public static void flushBuffer(ByteBuffer buffer, AsynchronousSocketChannel channelToSend, CompletionHandler<Void, Void> completionHandler) {
+        buffer.flip();
+        channelToSend.write(buffer, null, new CompletionHandler<Integer, Void>() {
+
+            @Override
+            public void completed(Integer result, Void attachment) {
+                buffer.clear();
+                completionHandler.completed(null, attachment);
+            }
+
+            @Override
+            public void failed(Throwable exc, Void attachment) {
+                buffer.clear();
+                completionHandler.failed(exc, attachment);
+            }
+        });
+    }
+
+    public static void sendChunkSize(long size, AsynchronousSocketChannel channelToSend, CompletionHandler<Void, Void> completionHandler) {
+        String sizeString = Long.toString(size, 16);
+        ByteBuffer buffer = ByteBuffer.allocate(sizeString.length() + 2);
+        buffer.put(sizeString.getBytes(StandardCharsets.US_ASCII)).put(CR).put(LF);
+        flushBuffer(buffer, channelToSend, completionHandler);
+    }
+
+    public static void sendNewline(AsynchronousSocketChannel channelToSend, CompletionHandler<Void, Void> completionHandler) {
+        ByteBuffer buffer = ByteBuffer.allocate(2);
+        buffer.put(CR).put(LF);
+        flushBuffer(buffer, channelToSend, completionHandler);
     }
 
     public static HttpRequestManipulator createManipulator(Section section) {

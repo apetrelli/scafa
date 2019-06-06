@@ -17,7 +17,6 @@
  */
 package com.github.apetrelli.scafa.http.proxy;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.CompletionHandler;
 
@@ -27,5 +26,5 @@ public interface ProxyHttpHandler extends HttpHandler {
 
     void onConnectMethod(HttpConnectRequest connectRequest, CompletionHandler<Void, Void> handler);
 
-    void onDataToPassAlong(ByteBuffer buffer) throws IOException;
+    void onDataToPassAlong(ByteBuffer buffer, CompletionHandler<Void, Void> handler);
 }

@@ -39,8 +39,6 @@ public class HttpInput implements Input {
 
     private long chunkLength;
 
-    private boolean caughtError = false;
-
     private boolean httpConnected = false;
 
     public HttpInput() {
@@ -121,14 +119,6 @@ public class HttpInput implements Input {
         chunkOffset += toSubtract;
     }
 
-    public boolean isCaughtError() {
-        return caughtError;
-    }
-
-    public void setCaughtError(boolean caughtError) {
-        this.caughtError = caughtError;
-    }
-
     public boolean isHttpConnected() {
         return httpConnected;
     }
@@ -145,6 +135,5 @@ public class HttpInput implements Input {
         totalChunkedTransferLength = 0L;
         chunkOffset = 0L;
         chunkLength = 0L;
-        caughtError = false;
     }
 }

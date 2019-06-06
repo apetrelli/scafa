@@ -41,41 +41,36 @@ public abstract class AbstractProxyHttpConnection extends AbstractHttpConnection
 
     private int port;
 
-	public AbstractProxyHttpConnection(MappedHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
-			HostPort socketAddress, String host, int port, HttpRequestManipulator manipulator) {
+    public AbstractProxyHttpConnection(MappedHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
+            HostPort socketAddress, String host, int port, HttpRequestManipulator manipulator) {
         super(factory, sourceChannel, socketAddress);
         this.host = host;
         this.port = port;
         this.manipulator = manipulator;
     }
 
-	@Override
-	protected void establishConnection(CompletionHandler<Void, Void> handler) {
+    @Override
+    protected void establishConnection(CompletionHandler<Void, Void> handler) {
         HostPort socketAddress = new HostPort(host, port);
         LOG.finest("Trying to connect to " + socketAddress.toString());
         channel.connect(new InetSocketAddress(socketAddress.getHost(), socketAddress.getPort()), null, handler);
-	}
+    }
 
     @Override
     public void connect(HttpConnectRequest request, CompletionHandler<Void, Void> completionHandler) {
         if (LOG.isLoggable(Level.INFO)) {
             try {
-				LOG.log(Level.INFO, "Connected thread {0} to port {1} and host {2}:{3}", new Object[] {
-				        Thread.currentThread().getName(), channel.getLocalAddress().toString(), request.getHost(), request.getPort()});
-			} catch (IOException e) {
-				LOG.log(Level.SEVERE, "Cannot understand local address", e);
-			}
+                LOG.log(Level.INFO, "Connected thread {0} to port {1} and host {2}:{3}", new Object[] {
+                        Thread.currentThread().getName(), channel.getLocalAddress().toString(), request.getHost(), request.getPort()});
+            } catch (IOException e) {
+                LOG.log(Level.SEVERE, "Cannot understand local address", e);
+            }
         }
         doConnect(request, completionHandler);
     }
 
     protected void doConnect(HttpConnectRequest request, CompletionHandler<Void, Void> completionHandler) {
-        try {
-			HttpUtils.sendHeader(request, channel);
-			completionHandler.completed(null, null);
-		} catch (IOException e) {
-			completionHandler.failed(e, null);
-		}
+        HttpUtils.sendHeader(request, channel, completionHandler);
     }
 
     @Override

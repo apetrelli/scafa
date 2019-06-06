@@ -45,7 +45,7 @@ public class ScafaLauncher {
     private static final Logger LOG = Logger.getLogger(ScafaLauncher.class.getName());
     private ScafaListener<ProxyHttpHandler> proxy;
     private File scafaDirectory;
-    
+
     public void initialize() {
         File home = new File(System.getProperty("user.home"));
         scafaDirectory = new File(home, ".scafa");
@@ -57,7 +57,7 @@ public class ScafaLauncher {
             System.exit(1);
         }
     }
-    
+
     public String getLastUsedProfile() {
         File file = new File(scafaDirectory, "lastused.txt");
         if (file.exists()) {
@@ -76,7 +76,7 @@ public class ScafaLauncher {
         }
         return "direct";
     }
-    
+
     public void saveLastUsedProfile(String profile) {
         File file = new File(scafaDirectory, "lastused.txt");
         try {
@@ -85,7 +85,7 @@ public class ScafaLauncher {
             LOG.log(Level.SEVERE, "Cannot write current profile configuration", e);
         }
     }
-    
+
     public String[] getProfiles() {
         File[] files = scafaDirectory.listFiles((File d, String n ) -> { return n.endsWith(".ini");});
         String[] profiles = new String[files.length];
@@ -118,7 +118,7 @@ public class ScafaLauncher {
             LOG.log(Level.SEVERE, "Cannot start proxy", e);
         }
     }
-    
+
     public void stop() {
         if (proxy != null) {
             proxy.stop();

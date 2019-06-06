@@ -32,15 +32,15 @@ import com.github.apetrelli.scafa.processor.Processor;
 public class ScafaListener<H> {
 
     private static final Logger LOG = Logger.getLogger(ScafaListener.class.getName());
-    
+
     private ProcessorFactory<H> processorFactory;
-    
+
     private HandlerFactory<H> handlerFactory;
 
     private int portNumber;
 
     private AsynchronousServerSocketChannel server;
-    
+
     public ScafaListener(ProcessorFactory<H> processorFactory, HandlerFactory<H> handlerFactory, int portNumber) {
         this.processorFactory = processorFactory;
         this.handlerFactory = handlerFactory;
@@ -67,13 +67,13 @@ public class ScafaListener<H> {
         });
 
     }
-    
+
     public void stop() {
         if (server != null) {
             try {
                 server.close();
             } catch (IOException e) {
-                LOG.log(Level.WARNING, "Error when closing server channel", e); 
+                LOG.log(Level.WARNING, "Error when closing server channel", e);
             }
         }
     }

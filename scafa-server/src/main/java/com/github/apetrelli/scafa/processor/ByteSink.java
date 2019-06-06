@@ -18,6 +18,7 @@
 package com.github.apetrelli.scafa.processor;
 
 import java.io.IOException;
+import java.nio.channels.CompletionHandler;
 
 public interface ByteSink<T extends Input> {
 
@@ -29,9 +30,9 @@ public interface ByteSink<T extends Input> {
 
     void start(T input);
 
-    void send(T input) throws IOException;
+    void send(T input, CompletionHandler<Void, Void> handler);
 
-    void sendChunkData(T input) throws IOException;
+    void sendChunkData(T input, CompletionHandler<Void, Void> handler);
 
     void disconnect() throws IOException;
 }
