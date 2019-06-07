@@ -23,6 +23,8 @@ import java.nio.channels.CompletionHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.github.apetrelli.scafa.aio.DelegateCompletionHandler;
+import com.github.apetrelli.scafa.aio.DelegateFailureCompletionHandler;
 import com.github.apetrelli.scafa.http.HeaderHolder;
 import com.github.apetrelli.scafa.http.HttpBodyMode;
 import com.github.apetrelli.scafa.http.HttpByteSink;
@@ -189,17 +191,12 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
 
     @Override
     public void endHeaderAndRequest(HttpInput input, CompletionHandler<Void, Void> completionHandler) {
-        endHeader(input, new CompletionHandler<Void, Void>() {
+        endHeader(input, new DelegateFailureCompletionHandler<Void, Void>(completionHandler) {
 
             @Override
             public void completed(Void result, Void attachment) {
                 handler.onEnd();
                 completionHandler.completed(result, attachment);
-            }
-
-            @Override
-            public void failed(Throwable exc, Void attachment) {
-                completionHandler.failed(exc, attachment);
             }
         });
 
@@ -234,43 +231,28 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
                 long chunkCount = Long.parseLong(chunkCountHex, 16);
                 LOG.log(Level.FINEST, "Preparing to read {0} bytes of a chunk", chunkCount);
                 input.setChunkLength(chunkCount);
-                handler.onChunkStart(input.getTotalChunkedTransferLength(), chunkCount, new CompletionHandler<Void, Void>() {
+                handler.onChunkStart(input.getTotalChunkedTransferLength(), chunkCount, new DelegateFailureCompletionHandler<Void, Void>(completionHandler) {
 
                     @Override
                     public void completed(Void result, Void attachment) {
                         if (chunkCount == 0L) {
-                            handler.onChunkEnd(new CompletionHandler<Void, Void>() {
+                            handler.onChunkEnd(new DelegateFailureCompletionHandler<Void, Void>(completionHandler) {
 
                                 @Override
                                 public void completed(Void result, Void attachment) {
-                                    handler.onChunkedTransferEnd(new CompletionHandler<Void, Void>() {
+                                    handler.onChunkedTransferEnd(new DelegateFailureCompletionHandler<Void, Void>(completionHandler) {
 
                                         @Override
                                         public void completed(Void result, Void attachment) {
                                             handler.onEnd();
                                             completionHandler.completed(result, attachment);
                                         }
-
-                                        @Override
-                                        public void failed(Throwable exc, Void attachment) {
-                                            completionHandler.failed(exc, attachment);
-                                        }
                                     });
-                                }
-
-                                @Override
-                                public void failed(Throwable exc, Void attachment) {
-                                    completionHandler.failed(exc, attachment);
                                 }
                             });
                         } else {
                             completionHandler.completed(result, attachment);
                         }
-                    }
-
-                    @Override
-                    public void failed(Throwable exc, Void attachment) {
-                        completionHandler.failed(exc, attachment);
                     }
                 });
             } catch (NumberFormatException e) {
@@ -288,7 +270,7 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
         int size = oldLimit - buffer.position();
         int sizeToSend = (int) Math.min(size, input.getCountdown());
         buffer.limit(buffer.position() + sizeToSend);
-        handler.onBody(buffer, input.getBodyOffset(), input.getBodySize(), new CompletionHandler<Void, Void>() {
+        handler.onBody(buffer, input.getBodyOffset(), input.getBodySize(), new DelegateFailureCompletionHandler<Void, Void>(completionHandler) {
 
             @Override
             public void completed(Void result, Void attachment) {
@@ -298,11 +280,6 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
                     handler.onEnd();
                 }
                 completionHandler.completed(result, attachment);
-            }
-
-            @Override
-            public void failed(Throwable exc, Void attachment) {
-                completionHandler.failed(exc, attachment);
             }
         });
     }
@@ -330,7 +307,7 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
         }
         handler.onChunk(buffer.array(), buffer.position(), bufferSize,
                 input.getTotalChunkedTransferLength() - input.getChunkLength(), input.getChunkOffset(),
-                input.getChunkLength(), new CompletionHandler<Void, Void>() {
+                input.getChunkLength(), new DelegateFailureCompletionHandler<Void, Void>(completionHandler) {
 
                     @Override
                     public void completed(Void result, Void attachment) {
@@ -341,11 +318,6 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
                         }
                         input.reduceChunk(bufferSize);
                         completionHandler.completed(result, attachment);
-                    }
-
-                    @Override
-                    public void failed(Throwable exc, Void attachment) {
-                        completionHandler.failed(exc, attachment);
                     }
                 });
     }

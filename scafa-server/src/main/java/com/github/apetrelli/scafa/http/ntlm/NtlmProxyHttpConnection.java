@@ -21,6 +21,8 @@ import java.io.IOException;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 
+import com.github.apetrelli.scafa.aio.DelegateCompletionHandler;
+import com.github.apetrelli.scafa.aio.DelegateFailureCompletionHandler;
 import com.github.apetrelli.scafa.http.HttpByteSink;
 import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpInput;
@@ -105,13 +107,13 @@ public class NtlmProxyHttpConnection extends AbstractProxyHttpConnection {
         if (length != null) {
             modifiedRequest.setHeader("CONTENT-LENGTH", "0");
         }
-        HttpUtils.sendHeader(modifiedRequest, channel, new CompletionHandler<Void, Void>() {
+        HttpUtils.sendHeader(modifiedRequest, channel, new DelegateFailureCompletionHandler<Void, Void>(completionHandler) {
 
             @Override
             public void completed(Void result, Void attachment) {
                 HttpByteSink sink = new DefaultHttpByteSink<HttpHandler>(tentativeHandler);
                 BufferProcessor<HttpInput, HttpByteSink> processor = new ClientBufferProcessor<>(sink);
-                readResponse(tentativeHandler, sink, processor, new CompletionHandler<Integer, Void>() {
+                readResponse(tentativeHandler, sink, processor, new DelegateFailureCompletionHandler<Integer, Void>(completionHandler) {
 
                     @Override
                     public void completed(Integer result, Void attachment) {
@@ -130,17 +132,7 @@ public class NtlmProxyHttpConnection extends AbstractProxyHttpConnection {
                             completionHandler.failed(new IOException("Connection closed"), null);
                         }
                     }
-
-                    @Override
-                    public void failed(Throwable exc, Void attachment) {
-                        completionHandler.failed(exc, attachment);
-                    }
                 });
-            }
-
-            @Override
-            public void failed(Throwable exc, Void attachment) {
-                completionHandler.failed(exc, attachment);
             }
         });
     }
@@ -149,11 +141,11 @@ public class NtlmProxyHttpConnection extends AbstractProxyHttpConnection {
             BufferProcessor<HttpInput, HttpByteSink> processor, CompletionHandler<Void, Void> completionHandler) {
         Type1Message message1 = new Type1Message(TYPE_1_FLAGS, null, null);
         modifiedRequest.setHeader("PROXY-AUTHORIZATION", "NTLM " + Base64.encode(message1.toByteArray()));
-        HttpUtils.sendHeader(modifiedRequest, channel, new CompletionHandler<Void, Void>() {
+        HttpUtils.sendHeader(modifiedRequest, channel, new DelegateFailureCompletionHandler<Void, Void>(completionHandler) {
 
             @Override
             public void completed(Void result, Void attachment) {
-                readResponse(handler, sink, processor, new CompletionHandler<Integer, Void>() {
+                readResponse(handler, sink, processor, new DelegateFailureCompletionHandler<Integer, Void>(completionHandler) {
 
                     @Override
                     public void completed(Integer result, Void attachment) {
@@ -170,18 +162,13 @@ public class NtlmProxyHttpConnection extends AbstractProxyHttpConnection {
                                                     message2.getFlags());
                                             finalRequest.setHeader("PROXY-AUTHORIZATION",
                                                     "NTLM " + Base64.encode(message3.toByteArray()));
-                                            HttpUtils.sendHeader(finalRequest, channel, new CompletionHandler<Void, Void>() {
+                                            HttpUtils.sendHeader(finalRequest, channel, new DelegateFailureCompletionHandler<Void, Void>(completionHandler) {
 
                                                 @Override
                                                 public void completed(Void result, Void attachment) {
                                                     authenticated = true;
                                                     prepareChannel(factory, sourceChannel, calledAddress);
                                                     completionHandler.completed(null, null);
-                                                }
-
-                                                @Override
-                                                public void failed(Throwable exc, Void attachment) {
-                                                    completionHandler.failed(exc, attachment);
                                                 }
                                             });
                                         } else {
@@ -208,17 +195,7 @@ public class NtlmProxyHttpConnection extends AbstractProxyHttpConnection {
                             completionHandler.failed(new IOException("Connection closed"), null);
                         }
                     }
-
-                    @Override
-                    public void failed(Throwable exc, Void attachment) {
-                        completionHandler.failed(exc, attachment);
-                    }
                 });
-            }
-
-            @Override
-            public void failed(Throwable exc, Void attachment) {
-                completionHandler.failed(exc, attachment);
             }
         });
     }
@@ -239,29 +216,19 @@ public class NtlmProxyHttpConnection extends AbstractProxyHttpConnection {
             Integer byteRead) {
         if (!handler.isFinished()) {
             readBuffer.clear();
-            channel.read(readBuffer, byteRead, new CompletionHandler<Integer, Integer>() {
+            channel.read(readBuffer, byteRead, new DelegateFailureCompletionHandler<Integer, Integer>(completionHandler) {
 
                 @Override
                 public void completed(Integer result, Integer attachment) {
                     Integer newByteRead = result + attachment;
                     readBuffer.flip();
-                    processor.process(input, status, new CompletionHandler<Status<HttpInput,HttpByteSink>, HttpInput>() {
+                    processor.process(input, status, new DelegateFailureCompletionHandler<Status<HttpInput,HttpByteSink>, HttpInput>(completionHandler) {
 
                         @Override
                         public void completed(Status<HttpInput, HttpByteSink> result, HttpInput attachment) {
                             readResponse(handler, processor, completionHandler, input, status, newByteRead);
                         }
-
-                        @Override
-                        public void failed(Throwable exc, HttpInput attachment) {
-                            completionHandler.failed(exc, null);
-                        }
                     });
-                }
-
-                @Override
-                public void failed(Throwable exc, Integer attachment) {
-                    completionHandler.failed(exc, null);
                 }
             });
         } else {

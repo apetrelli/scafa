@@ -28,6 +28,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.github.apetrelli.scafa.aio.DelegateFailureCompletionHandler;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.impl.HostPort;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
@@ -56,17 +57,12 @@ public class DirectHttpConnection extends AbstractHttpConnection {
         buffer.put(httpVersion.getBytes(charset)).put(SPACE).put("200".getBytes(charset)).put(SPACE)
                 .put("OK".getBytes(charset)).put(CR).put(LF).put(CR).put(LF);
         buffer.flip();
-        sourceChannel.write(buffer, null, new CompletionHandler<Integer, Void>() {
+        sourceChannel.write(buffer, null, new DelegateFailureCompletionHandler<Integer, Void>(completionHandler) {
 
             @Override
             public void completed(Integer result, Void attachment) {
                 buffer.clear();
                 completionHandler.completed(null, attachment);
-            }
-
-            @Override
-            public void failed(Throwable exc, Void attachment) {
-                completionHandler.failed(exc, attachment);
             }
         });
     }

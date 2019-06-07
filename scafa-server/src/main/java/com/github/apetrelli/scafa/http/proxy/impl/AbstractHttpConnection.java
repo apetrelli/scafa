@@ -26,6 +26,8 @@ import java.nio.channels.CompletionHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.github.apetrelli.scafa.aio.DelegateCompletionHandler;
+import com.github.apetrelli.scafa.aio.DelegateFailureCompletionHandler;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.impl.HostPort;
 import com.github.apetrelli.scafa.http.proxy.HttpConnection;
@@ -89,7 +91,7 @@ public abstract class AbstractHttpConnection implements HttpConnection {
         } catch (IOException e1) {
             handler.failed(e1, null);
         }
-        establishConnection(new CompletionHandler<Void, Void>() {
+        establishConnection(new DelegateFailureCompletionHandler<Void, Void>(handler) {
 
             @Override
             public void completed(Void result, Void attachment) {
@@ -104,11 +106,6 @@ public abstract class AbstractHttpConnection implements HttpConnection {
 
                 prepareChannel(factory, sourceChannel, socketAddress);
                 handler.completed(result, attachment);
-            }
-
-            @Override
-            public void failed(Throwable exc, Void attachment) {
-                handler.failed(exc, attachment);
             }
         });
     }
@@ -126,18 +123,7 @@ public abstract class AbstractHttpConnection implements HttpConnection {
 
     @Override
     public void send(ByteBuffer buffer, CompletionHandler<Void, Void> completionHandler) {
-        channel.write(buffer, null, new CompletionHandler<Integer, Void>() {
-
-            @Override
-            public void completed(Integer result, Void attachment) {
-                completionHandler.completed(null, attachment);
-            }
-
-            @Override
-            public void failed(Throwable exc, Void attachment) {
-                completionHandler.failed(exc, attachment);
-            }
-        });
+        channel.write(buffer, null, new DelegateCompletionHandler<Integer, Void>(completionHandler));
     }
 
     @Override

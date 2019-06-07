@@ -20,6 +20,7 @@ package com.github.apetrelli.scafa.processor.impl;
 import java.nio.ByteBuffer;
 import java.nio.channels.CompletionHandler;
 
+import com.github.apetrelli.scafa.aio.DelegateFailureCompletionHandler;
 import com.github.apetrelli.scafa.processor.BufferProcessor;
 import com.github.apetrelli.scafa.processor.ByteSink;
 import com.github.apetrelli.scafa.processor.Input;
@@ -38,16 +39,11 @@ public abstract class AbstractBufferProcessor<I extends Input, S extends ByteSin
         ByteBuffer buffer = input.getBuffer();
         if (buffer.position() < buffer.limit()) {
             Status<I, S> newStatus = status.next(input);
-            newStatus.out(input, sink, new CompletionHandler<Void, Void>() {
+            newStatus.out(input, sink, new DelegateFailureCompletionHandler<Void, Void>(completionHandler) {
 
                 @Override
                 public void completed(Void result, Void attachment) {
                     process(input, newStatus, completionHandler);
-                }
-
-                @Override
-                public void failed(Throwable exc, Void attachment) {
-                    completionHandler.failed(exc, input);
                 }
             });
         } else {

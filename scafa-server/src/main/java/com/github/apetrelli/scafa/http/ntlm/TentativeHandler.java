@@ -21,6 +21,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 
+import com.github.apetrelli.scafa.aio.DelegateCompletionHandler;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.util.HttpUtils;
 
@@ -66,18 +67,7 @@ public class TentativeHandler extends CapturingHandler {
         if (needsAuthorizing) {
             super.onBody(buffer, offset, length, handler);
         } else {
-            sourceChannel.write(buffer, null, new CompletionHandler<Integer, Void>() {
-
-                @Override
-                public void completed(Integer result, Void attachment) {
-                    handler.completed(null, attachment);
-                }
-
-                @Override
-                public void failed(Throwable exc, Void attachment) {
-                    handler.failed(exc, attachment);
-                }
-            });
+            sourceChannel.write(buffer, null, new DelegateCompletionHandler<Integer, Void>(handler));
         }
     }
 
@@ -97,18 +87,7 @@ public class TentativeHandler extends CapturingHandler {
             super.onChunk(buffer, position, length, totalOffset, chunkOffset, chunkLength, handler);
         } else {
             ByteBuffer readBuffer = ByteBuffer.wrap(buffer, position, length);
-            sourceChannel.write(readBuffer, null, new CompletionHandler<Integer, Void>() {
-
-                @Override
-                public void completed(Integer result, Void attachment) {
-                    handler.completed(null, attachment);
-                }
-
-                @Override
-                public void failed(Throwable exc, Void attachment) {
-                    handler.failed(exc, attachment);
-                }
-            });
+            sourceChannel.write(readBuffer, null, new DelegateCompletionHandler<Integer, Void>(handler));
         }
     }
 
