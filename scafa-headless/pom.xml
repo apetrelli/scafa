@@ -55,65 +55,6 @@
           </archive>
         </configuration>
       </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <version>1.8</version>
-        <executions>
-          <execution>
-            <id>create-deb</id>
-            <goals>
-              <goal>run</goal>
-            </goals>
-            <phase>package</phase>
-            <configuration>
-              <target>
-                <mkdir dir="${project.build.directory}/deb/usr/bin" />
-              </target>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>com.oracle.substratevm</groupId>
-        <artifactId>native-image-maven-plugin</artifactId>
-        <version>1.0.0-rc16</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>native-image</goal>
-            </goals>
-            <phase>package</phase>
-            <configuration>
-              <buildArgs>
-                --verbose
-                --no-server
-                -H:EnableURLProtocols=http
-              </buildArgs>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>net.sf.debian-maven</groupId>
-        <artifactId>debian-maven-plugin</artifactId>
-        <version>1.0.6</version>
-        <executions>
-          <execution>
-            <id>deb</id>
-            <phase>package</phase>
-            <goals>
-              <goal>package</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <includeAttachedArtifacts>false</includeAttachedArtifacts>
-          <excludeAllArtifacts>true</excludeAllArtifacts>
-          <excludeAllDependencies>true</excludeAllDependencies>
-          <packageArchitecture>amd64</packageArchitecture>
-        </configuration>
-      </plugin>
     </plugins>
   </build>
 </project>
