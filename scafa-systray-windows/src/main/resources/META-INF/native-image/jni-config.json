@@ -1,0 +1,117 @@
+[
+{
+  "name":"org.eclipse.swt.graphics.Device",
+  "methods":[
+    {"name":"XErrorProc","parameterTypes":["long","long"] },
+    {"name":"XIOErrorProc","parameterTypes":["long"] },
+    {"name":"logProc","parameterTypes":["long","long","long","long"] }
+  ]
+},
+{
+  "name":"org.eclipse.swt.internal.gtk.GTypeInfo",
+  "fields":[
+    {"name":"base_finalize"},
+    {"name":"base_init"},
+    {"name":"class_data"},
+    {"name":"class_finalize"},
+    {"name":"class_init"},
+    {"name":"class_size"},
+    {"name":"instance_init"},
+    {"name":"instance_size"},
+    {"name":"n_preallocs"},
+    {"name":"value_table"}
+  ]
+},
+{
+  "name":"org.eclipse.swt.internal.gtk.GdkEvent",
+  "fields":[{"name":"type"}]
+},
+{
+  "name":"org.eclipse.swt.internal.gtk.GdkKeymapKey",
+  "fields":[
+    {"name":"group"},
+    {"name":"keycode"},
+    {"name":"level"}
+  ]
+},
+{
+  "name":"org.eclipse.swt.internal.gtk.GdkRGBA",
+  "fields":[
+    {"name":"alpha"},
+    {"name":"blue"},
+    {"name":"green"},
+    {"name":"red"}
+  ]
+},
+{
+  "name":"org.eclipse.swt.internal.gtk.GdkRectangle",
+  "fields":[
+    {"name":"height"},
+    {"name":"width"},
+    {"name":"x"},
+    {"name":"y"}
+  ]
+},
+{
+  "name":"org.eclipse.swt.internal.gtk.GtkAllocation",
+  "fields":[
+    {"name":"height"},
+    {"name":"width"},
+    {"name":"x"},
+    {"name":"y"}
+  ]
+},
+{
+  "name":"org.eclipse.swt.internal.gtk.GtkRequisition",
+  "fields":[
+    {"name":"height"},
+    {"name":"width"}
+  ]
+},
+{
+  "name":"org.eclipse.swt.internal.gtk.PangoAttribute",
+  "fields":[
+    {"name":"end_index"},
+    {"name":"klass"},
+    {"name":"start_index"}
+  ]
+},
+{
+  "name":"org.eclipse.swt.widgets.Control",
+  "methods":[
+    {"name":"gestureBeginProc","parameterTypes":["long","long","long"] },
+    {"name":"gestureEndProc","parameterTypes":["long","long","long"] },
+    {"name":"magnifyProc","parameterTypes":["long","double","long"] },
+    {"name":"rotateProc","parameterTypes":["long","double","double","long"] },
+    {"name":"swipeProc","parameterTypes":["long","double","double","long"] }
+  ]
+},
+{
+  "name":"org.eclipse.swt.widgets.Display",
+  "methods":[
+    {"name":"allChildrenProc","parameterTypes":["long","long"] },
+    {"name":"caretProc","parameterTypes":["long"] },
+    {"name":"cellDataProc","parameterTypes":["long","long","long","long","long"] },
+    {"name":"checkIfEventProc","parameterTypes":["long","long","long"] },
+    {"name":"emissionProc","parameterTypes":["long","long","long","long"] },
+    {"name":"eventProc","parameterTypes":["long","long"] },
+    {"name":"idleProc","parameterTypes":["long"] },
+    {"name":"keysChangedProc","parameterTypes":["long","long"] },
+    {"name":"mouseHoverProc","parameterTypes":["long"] },
+    {"name":"rendererClassInitProc","parameterTypes":["long","long"] },
+    {"name":"rendererGetPreferredWidthProc","parameterTypes":["long","long","long","long"] },
+    {"name":"rendererRenderProc","parameterTypes":["long","long","long","long","long","long"] },
+    {"name":"setDirectionProc","parameterTypes":["long","long"] },
+    {"name":"shellMapProc","parameterTypes":["long","long","long"] },
+    {"name":"signalProc","parameterTypes":["long","long","long"] },
+    {"name":"sizeAllocateProc","parameterTypes":["long","long","long"] },
+    {"name":"sizeRequestProc","parameterTypes":["long","long","long"] },
+    {"name":"timerProc","parameterTypes":["long"] },
+    {"name":"windowProc","parameterTypes":["long","long"] },
+    {"name":"windowProc","parameterTypes":["long","long","long"] },
+    {"name":"windowProc","parameterTypes":["long","long","long","long"] },
+    {"name":"windowProc","parameterTypes":["long","long","long","long","long"] },
+    {"name":"windowTimerProc","parameterTypes":["long"] }
+  ]
+}
+]

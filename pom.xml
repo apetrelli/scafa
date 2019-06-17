@@ -52,6 +52,7 @@
     <module>scafa-systray</module>
     <module>scafa-headless</module>
     <module>scafa-systray-linux</module>
+    <module>scafa-systray-windows</module>
   </modules>
   <build>
     <plugins>
