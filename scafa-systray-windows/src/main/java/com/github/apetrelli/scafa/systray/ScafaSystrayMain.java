@@ -23,8 +23,6 @@ public class ScafaSystrayMain {
 
     public static void main(String[] args) {
         Library.loadLibrary("swt");
-        Library.loadLibrary("swt-pi3");
-        Library.loadLibrary("swt-cairo");
     	ScafaSystrayLauncher launcher = new ScafaSystrayLauncher();
     	launcher.launch();
     }
