@@ -92,9 +92,9 @@ public class DefaultProxyHttpHandler implements ProxyHttpHandler {
     }
 
     @Override
-    public void onChunk(byte[] buffer, int position, int length, long totalOffset, long chunkOffset, long chunkLength,
+    public void onChunk(ByteBuffer buffer, long totalOffset, long chunkOffset, long chunkLength,
             CompletionHandler<Void, Void> handler) {
-        connection.send(ByteBuffer.wrap(buffer, position, length), handler);
+        connection.send(buffer, handler);
     }
 
     @Override

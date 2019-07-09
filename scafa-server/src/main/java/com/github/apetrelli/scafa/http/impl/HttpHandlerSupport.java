@@ -57,8 +57,8 @@ public class HttpHandlerSupport implements HttpHandler {
     }
 
     @Override
-    public void onChunk(byte[] buffer, int position, int length, long totalOffset, long chunkOffset, long chunkLength,
-            CompletionHandler<Void, Void> handler) {
+	public void onChunk(ByteBuffer buffer, long totalOffset, long chunkOffset, long chunkLength,
+			CompletionHandler<Void, Void> handler) {
         handler.completed(null, null);
     }
 

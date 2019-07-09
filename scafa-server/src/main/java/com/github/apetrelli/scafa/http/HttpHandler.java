@@ -35,7 +35,7 @@ public interface HttpHandler {
 
     void onChunkStart(long totalOffset, long chunkLength, CompletionHandler<Void, Void> handler);
 
-    void onChunk(byte[] buffer, int position, int length, long totalOffset, long chunkOffset, long chunkLength, CompletionHandler<Void, Void> handler);
+    void onChunk(ByteBuffer buffer, long totalOffset, long chunkOffset, long chunkLength, CompletionHandler<Void, Void> handler);
 
     void onChunkEnd(CompletionHandler<Void, Void> handler);
 

@@ -81,13 +81,12 @@ public class TentativeHandler extends CapturingHandler {
     }
 
     @Override
-    public void onChunk(byte[] buffer, int position, int length, long totalOffset, long chunkOffset, long chunkLength,
+    public void onChunk(ByteBuffer buffer, long totalOffset, long chunkOffset, long chunkLength,
             CompletionHandler<Void, Void> handler) {
         if (needsAuthorizing) {
-            super.onChunk(buffer, position, length, totalOffset, chunkOffset, chunkLength, handler);
+            super.onChunk(buffer, totalOffset, chunkOffset, chunkLength, handler);
         } else {
-            ByteBuffer readBuffer = ByteBuffer.wrap(buffer, position, length);
-            sourceChannel.write(readBuffer, null, new DelegateCompletionHandler<Integer, Void>(handler));
+            sourceChannel.write(buffer, null, new DelegateCompletionHandler<Integer, Void>(handler));
         }
     }
 

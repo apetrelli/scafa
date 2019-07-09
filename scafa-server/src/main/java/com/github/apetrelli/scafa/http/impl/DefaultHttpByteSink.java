@@ -23,7 +23,6 @@ import java.nio.channels.CompletionHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.github.apetrelli.scafa.aio.DelegateCompletionHandler;
 import com.github.apetrelli.scafa.aio.DelegateFailureCompletionHandler;
 import com.github.apetrelli.scafa.http.HeaderHolder;
 import com.github.apetrelli.scafa.http.HttpBodyMode;
@@ -297,26 +296,22 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
     @Override
     public void sendChunkData(HttpInput input, CompletionHandler<Void, Void> completionHandler) {
         ByteBuffer buffer = input.getBuffer();
-        int remainingBufferSize = buffer.limit() - buffer.position();
-        long maxsize = input.getCountdown();
-        int bufferSize;
-        if (remainingBufferSize > maxsize) {
-            bufferSize = (int) maxsize;
-        } else {
-            bufferSize = remainingBufferSize;
-        }
-        handler.onChunk(buffer.array(), buffer.position(), bufferSize,
+        int oldLimit = buffer.limit();
+        int size = oldLimit - buffer.position();
+        int sizeToSend = (int) Math.min(size, input.getCountdown());
+        buffer.limit(buffer.position() + sizeToSend);
+        handler.onChunk(buffer,
                 input.getTotalChunkedTransferLength() - input.getChunkLength(), input.getChunkOffset(),
                 input.getChunkLength(), new DelegateFailureCompletionHandler<Void, Void>(completionHandler) {
 
                     @Override
                     public void completed(Void result, Void attachment) {
-                        buffer.position(buffer.position() + bufferSize);
+                        input.reduceChunk(sizeToSend);
+                        buffer.limit(oldLimit);
                         if (LOG.isLoggable(Level.FINEST)) {
                             LOG.log(Level.FINEST, "Handling chunk from {0} to {1}",
-                                    new Object[] { input.getChunkOffset(), input.getChunkOffset() + bufferSize });
+                                    new Object[] { input.getChunkOffset(), input.getChunkOffset() + sizeToSend });
                         }
-                        input.reduceChunk(bufferSize);
                         completionHandler.completed(result, attachment);
                     }
                 });
