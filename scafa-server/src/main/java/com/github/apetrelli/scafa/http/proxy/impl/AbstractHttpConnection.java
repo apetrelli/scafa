@@ -18,6 +18,7 @@
 package com.github.apetrelli.scafa.http.proxy.impl;
 
 import java.io.IOException;
+import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
@@ -79,12 +80,15 @@ public abstract class AbstractHttpConnection implements HttpConnection {
 
     private String interfaceName;
 
+    private boolean forceIpV4;
+
     public AbstractHttpConnection(MappedHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
-            HostPort socketAddress, String interfaceName) {
+            HostPort socketAddress, String interfaceName, boolean forceIpV4) {
         this.factory = factory;
         this.sourceChannel = sourceChannel;
         this.socketAddress = socketAddress;
         this.interfaceName = interfaceName;
+        this.forceIpV4 = forceIpV4;
     }
 
     @Override
@@ -204,11 +208,24 @@ public abstract class AbstractHttpConnection implements HttpConnection {
     private void bindChannel() throws IOException {
         if (interfaceName != null) {
             NetworkInterface intf = NetworkInterface.getByName(interfaceName);
+            if (!intf.isUp()) {
+                throw new SocketException("The interface " + interfaceName + " is not connected");
+            }
             Enumeration<InetAddress> addresses = intf.getInetAddresses();
             if (!addresses.hasMoreElements()) {
-                throw new SocketException("The interface " + interfaceName + " is disconnected");
+                throw new SocketException("The interface " + interfaceName + " has no addresses");
             }
-            channel.bind(new InetSocketAddress(addresses.nextElement(), 0));
+            InetAddress address = null;
+            while (addresses.hasMoreElements() && address == null) {
+                InetAddress currentAddress = addresses.nextElement();
+                if (!forceIpV4 || currentAddress instanceof Inet4Address) {
+                    address = currentAddress;
+                }
+            }
+            if (address == null) {
+                throw new SocketException("Not able to find a feasible address for interface " + interfaceName);
+            }
+            channel.bind(new InetSocketAddress(address, 0));
         }
     }
 }

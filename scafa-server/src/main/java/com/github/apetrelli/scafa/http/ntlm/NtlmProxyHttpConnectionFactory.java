@@ -38,9 +38,12 @@ public class NtlmProxyHttpConnectionFactory implements HttpConnectionFactory {
 
     private String interfaceName;
 
+    private boolean forceIpV4;
+
     public NtlmProxyHttpConnectionFactory(Section section) {
         this.proxySocketAddress = HttpUtils.createProxySocketAddress(section);
         this.interfaceName = section.get("interface");
+        this.forceIpV4 = section.get("forceIPV4", boolean.class, false);
         this.domain = section.get("domain");
         this.username = section.get("username");
         this.password = section.get("password");
@@ -50,7 +53,7 @@ public class NtlmProxyHttpConnectionFactory implements HttpConnectionFactory {
     @Override
     public HttpConnection create(MappedHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
             HostPort socketAddress) {
-        return new NtlmProxyHttpConnection(factory, sourceChannel, socketAddress, interfaceName, proxySocketAddress,
+        return new NtlmProxyHttpConnection(factory, sourceChannel, socketAddress, interfaceName, forceIpV4, proxySocketAddress,
                 domain, username, password, manipulator);
     }
 

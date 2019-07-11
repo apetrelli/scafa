@@ -40,8 +40,8 @@ public abstract class AbstractProxyHttpConnection extends AbstractHttpConnection
     private HostPort proxySocketAddress;
 
     public AbstractProxyHttpConnection(MappedHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
-            HostPort socketAddress, String interfaceName, HostPort proxySocketAddress, HttpRequestManipulator manipulator) {
-        super(factory, sourceChannel, socketAddress, interfaceName);
+            HostPort socketAddress, String interfaceName, boolean forceIpV4, HostPort proxySocketAddress, HttpRequestManipulator manipulator) {
+        super(factory, sourceChannel, socketAddress, interfaceName, forceIpV4);
         this.proxySocketAddress = proxySocketAddress;
         this.manipulator = manipulator;
     }

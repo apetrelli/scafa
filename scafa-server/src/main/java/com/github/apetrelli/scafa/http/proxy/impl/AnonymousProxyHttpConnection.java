@@ -26,8 +26,8 @@ import com.github.apetrelli.scafa.http.proxy.MappedHttpConnectionFactory;
 public class AnonymousProxyHttpConnection extends AbstractProxyHttpConnection {
 
     public AnonymousProxyHttpConnection(MappedHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
-            HostPort calledAddress, String interfaceName, HostPort proxySocketAddress, HttpRequestManipulator manipulator) {
-        super(factory, sourceChannel, calledAddress, interfaceName, proxySocketAddress, manipulator);
+            HostPort calledAddress, String interfaceName, boolean forceIpV4, HostPort proxySocketAddress, HttpRequestManipulator manipulator) {
+        super(factory, sourceChannel, calledAddress, interfaceName, forceIpV4, proxySocketAddress, manipulator);
     }
 
 }

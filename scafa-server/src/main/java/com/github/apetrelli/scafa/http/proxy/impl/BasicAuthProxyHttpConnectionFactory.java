@@ -34,6 +34,8 @@ public class BasicAuthProxyHttpConnectionFactory implements HttpConnectionFactor
 
     private String interfaceName;
 
+    private boolean forceIpV4;
+
     private String username, password;
 
     private HttpRequestManipulator manipulator;
@@ -41,6 +43,7 @@ public class BasicAuthProxyHttpConnectionFactory implements HttpConnectionFactor
     public BasicAuthProxyHttpConnectionFactory(Section section) {
         this.proxySocketAddress = HttpUtils.createProxySocketAddress(section);
         this.interfaceName = section.get("interface");
+        this.forceIpV4 = section.get("forceIPV4", boolean.class, false);
         this.username = section.get("username");
         this.password = section.get("password");
         manipulator = HttpUtils.createManipulator(section);
@@ -50,7 +53,7 @@ public class BasicAuthProxyHttpConnectionFactory implements HttpConnectionFactor
     public HttpConnection create(MappedHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
             HostPort socketAddress) {
         return new BasicAuthProxyHttpConnection(factory, sourceChannel, socketAddress, interfaceName,
-                proxySocketAddress, manipulator, username, password);
+                forceIpV4, proxySocketAddress, manipulator, username, password);
     }
 
 }

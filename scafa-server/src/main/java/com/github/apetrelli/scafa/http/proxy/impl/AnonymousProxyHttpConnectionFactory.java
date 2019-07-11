@@ -36,9 +36,12 @@ public class AnonymousProxyHttpConnectionFactory implements HttpConnectionFactor
 
     private String interfaceName;
 
+    private boolean forceIpV4;
+
     public AnonymousProxyHttpConnectionFactory(Section section) {
         this.proxySocketAddress = HttpUtils.createProxySocketAddress(section);
         this.interfaceName = section.get("interface");
+        this.forceIpV4 = section.get("forceIPV4", boolean.class, false);
         manipulator = HttpUtils.createManipulator(section);
     }
 
@@ -46,7 +49,7 @@ public class AnonymousProxyHttpConnectionFactory implements HttpConnectionFactor
     public HttpConnection create(MappedHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
             HostPort socketAddress) {
         return new AnonymousProxyHttpConnection(factory, sourceChannel, socketAddress, interfaceName,
-                proxySocketAddress, manipulator);
+                forceIpV4, proxySocketAddress, manipulator);
     }
 
 }

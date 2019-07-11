@@ -39,8 +39,8 @@ public class DirectHttpConnection extends AbstractHttpConnection {
     private static final Logger LOG = Logger.getLogger(DirectHttpConnection.class.getName());
 
     public DirectHttpConnection(MappedHttpConnectionFactory factory,
-            AsynchronousSocketChannel sourceChannel, HostPort socketAddress, String interfaceName) {
-        super(factory, sourceChannel, socketAddress, interfaceName);
+            AsynchronousSocketChannel sourceChannel, HostPort socketAddress, String interfaceName, boolean forceIpV4) {
+        super(factory, sourceChannel, socketAddress, interfaceName, forceIpV4);
     }
 
     @Override

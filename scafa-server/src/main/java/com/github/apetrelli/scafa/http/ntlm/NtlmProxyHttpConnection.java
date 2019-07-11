@@ -61,9 +61,9 @@ public class NtlmProxyHttpConnection extends AbstractProxyHttpConnection {
     private TentativeHandler tentativeHandler;
 
     public NtlmProxyHttpConnection(MappedHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
-            HostPort calledAddress, String interfaceName, HostPort proxySocketAddress, String domain, String username, String password,
+            HostPort calledAddress, String interfaceName, boolean forceIpV4, HostPort proxySocketAddress, String domain, String username, String password,
             HttpRequestManipulator manipulator) {
-        super(factory, sourceChannel, calledAddress, interfaceName, proxySocketAddress, manipulator);
+        super(factory, sourceChannel, calledAddress, interfaceName, forceIpV4, proxySocketAddress, manipulator);
         this.factory = factory;
         this.calledAddress = calledAddress;
         this.domain = domain;

@@ -30,17 +30,20 @@ public class DirectHttpConnectionFactory implements HttpConnectionFactory {
 
     private String interfaceName;
 
+    private boolean forceIpV4;
+
     public DirectHttpConnectionFactory() {
     }
 
     public DirectHttpConnectionFactory(Section section) {
         this.interfaceName = section.get("interface");
+        this.forceIpV4 = section.get("forceIPV4", boolean.class, false);
     }
 
     @Override
     public HttpConnection create(MappedHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
             HostPort socketAddress) {
-        return new DirectHttpConnection(factory, sourceChannel, socketAddress, interfaceName);
+        return new DirectHttpConnection(factory, sourceChannel, socketAddress, interfaceName, forceIpV4);
     }
 
 }
