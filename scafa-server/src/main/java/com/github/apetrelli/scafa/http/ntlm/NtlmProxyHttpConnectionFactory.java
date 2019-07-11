@@ -30,17 +30,17 @@ import com.github.apetrelli.scafa.util.HttpUtils;
 
 public class NtlmProxyHttpConnectionFactory implements HttpConnectionFactory {
 
-    private String host;
-
-    private int port;
-
     private String domain, username, password;
 
     private HttpRequestManipulator manipulator;
 
+    private HostPort proxySocketAddress;
+
+    private String interfaceName;
+
     public NtlmProxyHttpConnectionFactory(Section section) {
-        this.host = section.get("host");
-        this.port = section.get("port", int.class);
+        this.proxySocketAddress = HttpUtils.createProxySocketAddress(section);
+        this.interfaceName = section.get("interface");
         this.domain = section.get("domain");
         this.username = section.get("username");
         this.password = section.get("password");
@@ -50,8 +50,8 @@ public class NtlmProxyHttpConnectionFactory implements HttpConnectionFactory {
     @Override
     public HttpConnection create(MappedHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
             HostPort socketAddress) {
-        return new NtlmProxyHttpConnection(factory, sourceChannel, socketAddress, host, port, domain, username,
-                password, manipulator);
+        return new NtlmProxyHttpConnection(factory, sourceChannel, socketAddress, interfaceName, proxySocketAddress,
+                domain, username, password, manipulator);
     }
 
 }

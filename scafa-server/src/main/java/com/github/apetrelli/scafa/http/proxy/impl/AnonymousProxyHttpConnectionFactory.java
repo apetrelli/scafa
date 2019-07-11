@@ -30,22 +30,23 @@ import com.github.apetrelli.scafa.util.HttpUtils;
 
 public class AnonymousProxyHttpConnectionFactory implements HttpConnectionFactory {
 
-    private String host;
-
-    private int port;
-
     private HttpRequestManipulator manipulator;
 
+    private HostPort proxySocketAddress;
+
+    private String interfaceName;
+
     public AnonymousProxyHttpConnectionFactory(Section section) {
-        this.host = section.get("host");
-        this.port = section.get("port", int.class);
+        this.proxySocketAddress = HttpUtils.createProxySocketAddress(section);
+        this.interfaceName = section.get("interface");
         manipulator = HttpUtils.createManipulator(section);
     }
 
     @Override
     public HttpConnection create(MappedHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
             HostPort socketAddress) {
-        return new AnonymousProxyHttpConnection(factory, sourceChannel, socketAddress, host, port, manipulator);
+        return new AnonymousProxyHttpConnection(factory, sourceChannel, socketAddress, interfaceName,
+                proxySocketAddress, manipulator);
     }
 
 }

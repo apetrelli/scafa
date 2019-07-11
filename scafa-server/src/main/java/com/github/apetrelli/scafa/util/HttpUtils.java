@@ -28,6 +28,7 @@ import org.ini4j.Profile.Section;
 
 import com.github.apetrelli.scafa.http.HeaderHolder;
 import com.github.apetrelli.scafa.http.HttpRequestManipulator;
+import com.github.apetrelli.scafa.http.impl.HostPort;
 
 public class HttpUtils {
 
@@ -82,6 +83,13 @@ public class HttpUtils {
         flushBuffer(buffer, channelToSend, completionHandler);
     }
 
+    public static HostPort createProxySocketAddress(Section section) {
+        String host = section.get("host");
+        int port = section.get("port", int.class);
+        HostPort proxySocketAddress = new HostPort(host, port);
+        return proxySocketAddress;
+    }
+
     public static HttpRequestManipulator createManipulator(Section section) {
         String className = section.get("manipulator");
         HttpRequestManipulator manipulator = null;
@@ -95,5 +103,4 @@ public class HttpUtils {
         }
         return manipulator;
     }
-
 }

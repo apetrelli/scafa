@@ -37,23 +37,19 @@ public abstract class AbstractProxyHttpConnection extends AbstractHttpConnection
 
     protected HttpRequestManipulator manipulator;
 
-    private String host;
-
-    private int port;
+    private HostPort proxySocketAddress;
 
     public AbstractProxyHttpConnection(MappedHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
-            HostPort socketAddress, String host, int port, HttpRequestManipulator manipulator) {
-        super(factory, sourceChannel, socketAddress);
-        this.host = host;
-        this.port = port;
+            HostPort socketAddress, String interfaceName, HostPort proxySocketAddress, HttpRequestManipulator manipulator) {
+        super(factory, sourceChannel, socketAddress, interfaceName);
+        this.proxySocketAddress = proxySocketAddress;
         this.manipulator = manipulator;
     }
 
     @Override
     protected void establishConnection(CompletionHandler<Void, Void> handler) {
-        HostPort socketAddress = new HostPort(host, port);
         LOG.finest("Trying to connect to " + socketAddress.toString());
-        channel.connect(new InetSocketAddress(socketAddress.getHost(), socketAddress.getPort()), null, handler);
+        channel.connect(new InetSocketAddress(proxySocketAddress.getHost(), proxySocketAddress.getPort()), null, handler);
     }
 
     @Override

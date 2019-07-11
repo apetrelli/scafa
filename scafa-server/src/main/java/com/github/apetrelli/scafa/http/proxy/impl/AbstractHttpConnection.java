@@ -18,11 +18,16 @@
 package com.github.apetrelli.scafa.http.proxy.impl;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousCloseException;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.CompletionHandler;
+import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -72,11 +77,14 @@ public abstract class AbstractHttpConnection implements HttpConnection {
 
     protected ByteBuffer readBuffer = ByteBuffer.allocate(16384);
 
+    private String interfaceName;
+
     public AbstractHttpConnection(MappedHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
-            HostPort socketAddress) {
+            HostPort socketAddress, String interfaceName) {
         this.factory = factory;
         this.sourceChannel = sourceChannel;
         this.socketAddress = socketAddress;
+        this.interfaceName = interfaceName;
     }
 
     @Override
@@ -88,6 +96,7 @@ public abstract class AbstractHttpConnection implements HttpConnection {
         }
         try {
             channel = AsynchronousSocketChannel.open();
+            bindChannel();
         } catch (IOException e1) {
             handler.failed(e1, null);
         }
@@ -190,5 +199,16 @@ public abstract class AbstractHttpConnection implements HttpConnection {
                 }
             }
         });
+    }
+
+    private void bindChannel() throws IOException {
+        if (interfaceName != null) {
+            NetworkInterface intf = NetworkInterface.getByName(interfaceName);
+            Enumeration<InetAddress> addresses = intf.getInetAddresses();
+            if (!addresses.hasMoreElements()) {
+                throw new SocketException("The interface " + interfaceName + " is disconnected");
+            }
+            channel.bind(new InetSocketAddress(addresses.nextElement(), 0));
+        }
     }
 }

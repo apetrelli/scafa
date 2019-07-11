@@ -68,7 +68,7 @@ public class Configuration {
                 sectionName2factory.put(t.getName(), new BasicAuthProxyHttpConnectionFactory(t));
                 break;
             default:
-                sectionName2factory.put(t.getName(), new DirectHttpConnectionFactory());            }
+                sectionName2factory.put(t.getName(), new DirectHttpConnectionFactory(t));            }
         });
     }
 

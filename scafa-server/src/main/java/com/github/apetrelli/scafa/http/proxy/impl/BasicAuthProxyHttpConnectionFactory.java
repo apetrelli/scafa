@@ -30,17 +30,17 @@ import com.github.apetrelli.scafa.util.HttpUtils;
 
 public class BasicAuthProxyHttpConnectionFactory implements HttpConnectionFactory {
 
-    private String host;
+    private HostPort proxySocketAddress;
 
-    private int port;
+    private String interfaceName;
 
     private String username, password;
 
     private HttpRequestManipulator manipulator;
 
     public BasicAuthProxyHttpConnectionFactory(Section section) {
-        this.host = section.get("host");
-        this.port = section.get("port", int.class);
+        this.proxySocketAddress = HttpUtils.createProxySocketAddress(section);
+        this.interfaceName = section.get("interface");
         this.username = section.get("username");
         this.password = section.get("password");
         manipulator = HttpUtils.createManipulator(section);
@@ -49,8 +49,8 @@ public class BasicAuthProxyHttpConnectionFactory implements HttpConnectionFactor
     @Override
     public HttpConnection create(MappedHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
             HostPort socketAddress) {
-        return new BasicAuthProxyHttpConnection(factory, sourceChannel, socketAddress, host, port, manipulator,
-                username, password);
+        return new BasicAuthProxyHttpConnection(factory, sourceChannel, socketAddress, interfaceName,
+                proxySocketAddress, manipulator, username, password);
     }
 
 }
