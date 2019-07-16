@@ -26,8 +26,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.75785828"
-     inkscape:cx="45.252438"
-     inkscape:cy="423.16444"
+     inkscape:cx="8.3062163"
+     inkscape:cy="370.38412"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -63,7 +63,9 @@
        sodipodi:start="0"
        sodipodi:end="3.1226035"
        sodipodi:open="true"
-       d="M 518.56662,580.63806 A 129.97153,81.149734 0 0 1 389.8291,661.78414 129.97153,81.149734 0 0 1 258.647,582.17893" />
+       d="M 518.56662,580.63806 A 129.97153,81.149734 0 0 1 389.8291,661.78414 129.97153,81.149734 0 0 1 258.647,582.17893"
+       inkscape:export-xdpi="8.3100004"
+       inkscape:export-ydpi="8.3100004" />
     <rect
        style="fill:#502d16;fill-opacity:1;stroke:#5d5d5d;stroke-opacity:1"
        id="rect4222"
@@ -71,12 +73,16 @@
        height="160.97997"
        x="382.65729"
        y="429.55444"
-       ry="6.5975394" />
+       ry="6.5975394"
+       inkscape:export-xdpi="8.3100004"
+       inkscape:export-ydpi="8.3100004" />
     <path
        style="fill:#ffffff;fill-opacity:1;stroke:#5d5d5d;stroke-width:4.68750001;stroke-opacity:1;opacity:0.98;stroke-miterlimit:4;stroke-dasharray:none"
        d="m 402.36678,432.1012 c 66.21888,44.42907 106.70055,57.35655 109.69215,119.00967 l -109.69215,0 z"
        id="rect4224"
        inkscape:connector-curvature="0"
-       sodipodi:nodetypes="cccc" />
+       sodipodi:nodetypes="cccc"
+       inkscape:export-xdpi="8.3100004"
+       inkscape:export-ydpi="8.3100004" />
   </g>
 </svg>
