@@ -69,15 +69,57 @@
                 </goals>
                 <phase>package</phase>
                 <configuration>
+                	<skip>true</skip>
                   <buildArgs>
                     --verbose
                     --no-server
                     -H:EnableURLProtocols=http
                     --initialize-at-build-time=org.eclipse.swt.internal.C,org.eclipse.swt.internal.Lock,org.eclipse.swt.internal.Library,org.eclipse.swt.internal.gtk.GTK,org.eclipse.swt.internal.gtk.GDK,org.eclipse.swt.widgets.Display,org.eclipse.swt.internal.Converter,org.eclipse.swt.internal.DPIUtil
                   </buildArgs>
+                  <imageName>scafa</imageName>
                 </configuration>
               </execution>
             </executions>
+          </plugin>
+          <plugin>
+          	<artifactId>maven-antrun-plugin</artifactId>
+          	<version>1.8</version>
+          	<executions>
+          		<execution>
+          			<id>copy-binary</id>
+          			<goals>
+          				<goal>run</goal>
+          			</goals>
+          			<phase>package</phase>
+          			<configuration>
+           				<target>
+       						<copy file="${project.build.directory}/scafa" toDir="${project.build.directory}/deb/usr/bin" verbose="true" />
+          				</target>
+          			</configuration>
+          		</execution>
+          	</executions>
+          </plugin>
+          <plugin>
+	         <groupId>io.solit.maven</groupId>
+             <artifactId>deb-maven-plugin</artifactId>
+             <version>1.0-RC2</version>
+             <executions>
+             	<execution>
+             		<id>make-deb</id>
+             		<goals>
+             			<goal>package</goal>
+             		</goals>
+             		<phase>package</phase>
+             		<configuration>
+             			<stageDir>${project.build.directory}/deb</stageDir>
+             			<autoPermissions>true</autoPermissions>
+             			<architecture>amd64</architecture>
+             			<packageAttributes>
+             				<depends>libcairo2</depends>
+             			</packageAttributes>
+             		</configuration>
+             	</execution>
+             </executions>
           </plugin>
         </plugins>
       </build>

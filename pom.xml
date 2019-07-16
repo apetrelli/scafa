@@ -40,6 +40,12 @@
       <url>http://www.gnu.org/licenses/gpl-3.0.txt</url>
     </license>
   </licenses>
+  <developers>
+  	<developer>
+  		<name>Antonio Petrelli</name>
+  		<email>antonio dot petrelli at gmail dot com</email>
+  	</developer>
+  </developers>
   <scm>
     <url>scm:git:https://github.com/apetrelli/scafa</url>
     <connection>scm:git:git://github.com/apetrelli/scafa.git</connection>
