@@ -94,6 +94,9 @@
           			<configuration>
            				<target>
        						<copy file="${project.build.directory}/scafa" toDir="${project.build.directory}/deb/usr/bin" verbose="true" />
+       						<copy toDir="${project.build.directory}/deb" verbose="true">
+       							<fileset dir="${project.basedir}/src/main/deb" />
+       						</copy>
           				</target>
           			</configuration>
           		</execution>

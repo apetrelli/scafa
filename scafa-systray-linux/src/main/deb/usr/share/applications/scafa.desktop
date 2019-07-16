@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Scafa
+Comment=Scafa: a universal non-caching proxy for the road warrior
+Exec=/usr/bin/scafa
+Terminal=false
+Type=Application
+StartupWMClass=scafa
+MimeType=application/sip;
+Categories=Network;
