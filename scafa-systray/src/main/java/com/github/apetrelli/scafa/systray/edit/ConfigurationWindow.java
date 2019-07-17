@@ -20,6 +20,9 @@ import org.ini4j.Ini;
 import org.ini4j.Profile.Section;
 
 import com.github.apetrelli.scafa.config.Configuration;
+import org.eclipse.wb.swt.SWTResourceManager;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 
 public class ConfigurationWindow {
 
@@ -36,6 +39,10 @@ public class ConfigurationWindow {
 	private Text proxyPassword;
 
 	private static final Logger LOG = Logger.getLogger(ConfigurationWindow.class.getName());
+
+	private List proxyList;
+
+	private List proxyExclusions;
 
 	/**
 	 * Open the window.
@@ -72,6 +79,11 @@ public class ConfigurationWindow {
 		if (mainSection != null) {
 			serverPortNumber.setText(mainSection.get("port"));
 		}
+		for (Section section : ini.values()) {
+			if (!"main".equals(section.getName())) {
+				proxyList.add(section.getName());
+			}
+		}
 	}
 
 
@@ -81,6 +93,7 @@ public class ConfigurationWindow {
 	 */
 	private void createContents() {
 		shell = new Shell();
+		shell.setImage(SWTResourceManager.getImage(ConfigurationWindow.class, "/scafa.png"));
 		shell.setText("Configuration");
 		shell.setSize(728, 609);
 		shell.setLayout(new FormLayout());
@@ -141,7 +154,28 @@ public class ConfigurationWindow {
 		scrolledComposite.setExpandHorizontal(true);
 		scrolledComposite.setExpandVertical(true);
 
-		List proxyList = new List(scrolledComposite, SWT.BORDER);
+		proxyList = new List(scrolledComposite, SWT.BORDER);
+		proxyList.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if (proxyList.getSelectionCount() == 1) {
+					String profile = proxyList.getSelection()[0];
+					Section section = ini.get(profile);
+					proxyName.setText(section.getName());
+					proxyHost.setText(emptyIfNull(section.get("host")));
+					proxyPort.setText(emptyIfNull(section.get("port")));
+					proxyDomain.setText(emptyIfNull(section.get("domain")));
+					proxyUsername.setText(emptyIfNull(section.get("username")));
+					proxyPassword.setText(emptyIfNull(section.get("password")));
+					java.util.List<String> exclusions = section.getAll("exclude");
+					if (exclusions != null) {
+						proxyExclusions.setItems(exclusions.toArray(new String[exclusions.size()]));
+					} else {
+						proxyExclusions.setItems();
+					}
+				}
+			}
+		});
 		scrolledComposite.setContent(proxyList);
 		scrolledComposite.setMinSize(proxyList.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 
@@ -253,6 +287,7 @@ public class ConfigurationWindow {
 		lblNewLabel_9.setText("Exclusions");
 
 		ScrolledComposite scrolledComposite_1 = new ScrolledComposite(shell, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+		scrolledComposite_1.setAlwaysShowScrollBars(true);
 		FormData fd_scrolledComposite_1 = new FormData();
 		fd_scrolledComposite_1.bottom = new FormAttachment(scrolledComposite, 0, SWT.BOTTOM);
 		fd_scrolledComposite_1.top = new FormAttachment(lblNewLabel_9, 6);
@@ -262,9 +297,9 @@ public class ConfigurationWindow {
 		scrolledComposite_1.setExpandHorizontal(true);
 		scrolledComposite_1.setExpandVertical(true);
 
-		List exclusions = new List(scrolledComposite_1, SWT.BORDER);
-		scrolledComposite_1.setContent(exclusions);
-		scrolledComposite_1.setMinSize(exclusions.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+		proxyExclusions = new List(scrolledComposite_1, SWT.BORDER);
+		scrolledComposite_1.setContent(proxyExclusions);
+		scrolledComposite_1.setMinSize(proxyExclusions.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 
 		Button btnNewButton_2 = new Button(shell, SWT.NONE);
 		FormData fd_btnNewButton_2 = new FormData();
@@ -280,5 +315,9 @@ public class ConfigurationWindow {
 		btnNewButton_3.setLayoutData(fd_btnNewButton_3);
 		btnNewButton_3.setText("Apply");
 
+	}
+
+	private static String emptyIfNull(String string) {
+		return string == null ? "" : string;
 	}
 }
