@@ -44,12 +44,17 @@ public class Configuration {
 
     private HttpConnectionFactory directHttpConnectionFactory = new DirectHttpConnectionFactory();
 
+    public static Ini loadIni(String profile) throws IOException, InvalidFileFormatException {
+        Ini ini = new Ini();
+        ini.load(new File(System.getProperty("user.home") + "/.scafa/" + profile + ".ini"));
+        return ini;
+    }
+
     public static Configuration create(String profile) throws InvalidFileFormatException, IOException {
         if (profile == null) {
             profile = "direct";
         }
-        Ini ini = new Ini();
-        ini.load(new File(System.getProperty("user.home") + "/.scafa/" + profile + ".ini"));
+        Ini ini = loadIni(profile);
         return new Configuration(ini);
     }
 
