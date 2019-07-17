@@ -98,7 +98,7 @@ public class ScafaSystrayLauncher {
                     System.exit(0);
                 }
             });
-            trayItem.addListener(SWT.MenuDetect, new Listener() {
+            trayItem.addListener(SWT.Selection, new Listener() {
                 public void handleEvent(Event event) {
                     menu.setVisible(true);
                 }
