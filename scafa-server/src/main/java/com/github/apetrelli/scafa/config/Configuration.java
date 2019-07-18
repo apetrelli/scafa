@@ -50,6 +50,10 @@ public class Configuration {
         return ini;
     }
 
+    public static void saveIni(Ini ini, String profile) throws IOException {
+        ini.store(new File(System.getProperty("user.home") + "/.scafa/" + profile + ".ini"));
+    }
+
     public static Configuration create(String profile) throws InvalidFileFormatException, IOException {
         if (profile == null) {
             profile = "direct";

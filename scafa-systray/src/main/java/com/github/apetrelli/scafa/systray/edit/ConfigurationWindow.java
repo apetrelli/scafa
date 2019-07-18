@@ -41,6 +41,7 @@ public class ConfigurationWindow {
 	}
 
 	private Ini ini;
+	private String profile;
 
 	protected Object result;
 	protected Shell shell;
@@ -72,11 +73,13 @@ public class ConfigurationWindow {
 	}
 
 	public void open(String profile) {
+		this.profile = profile;
 		Display display = Display.getDefault();
 		createContents();
 		if (profile != null) {
 			setConfiguration(profile);
 		}
+		shell.setText("Configuration for " + profile + " profile");
 		shell.open();
 		shell.layout();
 		while (!shell.isDisposed()) {
@@ -90,13 +93,17 @@ public class ConfigurationWindow {
 		try {
 			this.ini = Configuration.loadIni(profile);
 		} catch (IOException e) {
-			LOG.log(Level.SEVERE, "Cannot load file for profile " + profile);
+			LOG.log(Level.WARNING, "Cannot load file for profile " + profile);
 			this.ini = new Ini();
 		}
 		serverPortNumber.setText("");
 		Section mainSection = ini.get("main");
-		if (mainSection != null) {
-			serverPortNumber.setText(mainSection.get("port"));
+		if (mainSection == null) {
+			mainSection = ini.add("main");
+		}
+		String serverPort = mainSection.get("port");
+		if (serverPort != null) {
+			serverPortNumber.setText(serverPort);
 		}
 		for (Section section : ini.values()) {
 			if (!"main".equals(section.getName())) {
@@ -162,6 +169,23 @@ public class ConfigurationWindow {
 		cancelButton.setText("Cancel");
 
 		Button btnNewButton_1 = new Button(shell, SWT.NONE);
+		btnNewButton_1.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				applyProxyData();
+				Section mainSection = ini.get("main");
+				if (mainSection == null) {
+					mainSection = ini.add("main");
+				}
+				mainSection.put("port", serverPortNumber.getText());
+				try {
+					Configuration.saveIni(ini, profile);
+				} catch (IOException e1) {
+					LOG.log(Level.SEVERE, "Cannot save ini file", e1);
+				}
+				shell.close();
+			}
+		});
 		FormData fd_btnNewButton_1 = new FormData();
 		fd_btnNewButton_1.width = 100;
 		fd_btnNewButton_1.bottom = new FormAttachment(100, -10);
@@ -311,24 +335,7 @@ public class ConfigurationWindow {
 		btnNewButton_3.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				if (proxyList.getSelectionCount() == 1) {
-					Section section = ini.get(proxyList.getSelection()[0]);
-					int proxyTypeIndex = proxyType.getSelectionIndex();
-					if (proxyTypeIndex >= 0) {
-						section.put("type", PROXY_TYPES[proxyTypeIndex]);
-					} else {
-						section.remove("type");
-					}
-					update(section, proxyHost, "host");
-					update(section, proxyPort, "port");
-					update(section, proxyDomain, "domain");
-					update(section, proxyUsername, "username");
-					update(section, proxyPassword, "password");
-					section.remove("exclude");
-					for (String exclusion : proxyExclusions.getItems()) {
-						section.add("exclude", exclusion);
-					}
-				}
+				applyProxyData();
 			}
 		});
 		FormData fd_btnNewButton_3 = new FormData();
@@ -383,6 +390,7 @@ public class ConfigurationWindow {
 
 		proxyName = new Label(shell, SWT.NONE);
 		FormData fd_proxyName = new FormData();
+		fd_proxyName.width = 200;
 		fd_proxyName.bottom = new FormAttachment(lblNewLabel_2, 0, SWT.BOTTOM);
 		fd_proxyName.left = new FormAttachment(lblNewLabel_2, 6);
 		proxyName.setLayoutData(fd_proxyName);
@@ -439,6 +447,27 @@ public class ConfigurationWindow {
 				proxyExclusions.setItems(exclusions.toArray(new String[exclusions.size()]));
 			} else {
 				proxyExclusions.setItems();
+			}
+		}
+	}
+
+	private void applyProxyData() {
+		if (proxyList.getSelectionCount() == 1) {
+			Section section = ini.get(proxyList.getSelection()[0]);
+			int proxyTypeIndex = proxyType.getSelectionIndex();
+			if (proxyTypeIndex >= 0) {
+				section.put("type", PROXY_TYPES[proxyTypeIndex]);
+			} else {
+				section.remove("type");
+			}
+			update(section, proxyHost, "host");
+			update(section, proxyPort, "port");
+			update(section, proxyDomain, "domain");
+			update(section, proxyUsername, "username");
+			update(section, proxyPassword, "password");
+			section.remove("exclude");
+			for (String exclusion : proxyExclusions.getItems()) {
+				section.add("exclude", exclusion);
 			}
 		}
 	}

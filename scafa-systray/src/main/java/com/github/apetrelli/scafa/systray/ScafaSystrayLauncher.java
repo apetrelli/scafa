@@ -25,13 +25,26 @@ import com.github.apetrelli.scafa.systray.edit.PromptWindow;
 public class ScafaSystrayLauncher {
 
     private static final Logger LOG = Logger.getLogger(ScafaSystrayLauncher.class.getName());
+	private ScafaLauncher launcher;
+	private Menu selectionMenu;
+	private Menu editMenu;
+	private Shell shell;
 
     public void launch() {
         try (InputStream is = ScafaSystrayLauncher.class.getResourceAsStream("/scafa.png")) {
             Display.setAppName("Scafa");
 			DeviceData data = new DeviceData();
 			Display display = new Display(data);
-			Shell shell = createIcon(is, display);
+			launcher = new ScafaLauncher();
+			launcher.initialize();
+			shell = new Shell(display);
+            selectionMenu = createSelectionMenu(shell, launcher);
+            editMenu = createEditMenu(shell, launcher);
+			createIcon(launcher, shell, is, display);
+			String lastUsedProfile = launcher.getLastUsedProfile();
+			if (lastUsedProfile != null) {
+				launcher.launch(lastUsedProfile);
+			}
             while (!shell.isDisposed()) {
                 if (!display.readAndDispatch())
                     display.sleep();
@@ -44,22 +57,24 @@ public class ScafaSystrayLauncher {
         }
     }
 
-	private Shell createIcon(InputStream img, Display display) {
-		Shell shell = new Shell(display);
-        Image image = new Image(display, img);
+    public void reload() {
+    	selectionMenu.dispose();
+    	editMenu.dispose();
+        selectionMenu = createSelectionMenu(shell, launcher);
+        editMenu = createEditMenu(shell, launcher);
+    }
+
+	private void createIcon(ScafaLauncher launcher, Shell shell, InputStream img, Display display) {
+		Image image = new Image(display, img);
         final Tray tray = display.getSystemTray();
         if (tray == null) {
             shell.dispose();
         } else  {
             TrayItem trayItem = new TrayItem(tray, SWT.NONE);
             trayItem.setImage(image);
-            ScafaLauncher launcher = new ScafaLauncher();
-            launcher.initialize();
-            final Menu menu = createSelectionMenu(shell, launcher);
-            final Menu editMenu = createEditMenu(new Shell(display), launcher);
             trayItem.addListener(SWT.Selection, new Listener() {
                 public void handleEvent(Event event) {
-                    menu.setVisible(true);
+                    selectionMenu.setVisible(true);
                 }
             });
             trayItem.addListener(SWT.MenuDetect, new Listener() {
@@ -69,7 +84,6 @@ public class ScafaSystrayLauncher {
             });
             trayItem.setImage(image);
         }
-        return shell;
 	}
 
 	private Menu createSelectionMenu(Shell shell, ScafaLauncher launcher) {
@@ -86,7 +100,6 @@ public class ScafaSystrayLauncher {
 		    profileItem.setText(profile);
 		    if (lastUsedProfile.equals(profile)) {
 		        profileItem.setSelection(true);
-		        launcher.launch(profile);
 		    }
 		    profileItem.addListener(SWT.Selection, new Listener() {
 
@@ -138,6 +151,7 @@ public class ScafaSystrayLauncher {
 		        @Override
 		        public void handleEvent(Event event) {
 		        	configurationDialog.open(profile);
+		        	reload();
 		        }
 		    });
 		}
@@ -147,6 +161,7 @@ public class ScafaSystrayLauncher {
 			PromptWindow prompt = new PromptWindow();
 			prompt.open("Create new profile", "Profile name", t -> {
 				configurationDialog.open(t);
+	        	reload();
 			});
 		});
 		return menu;
