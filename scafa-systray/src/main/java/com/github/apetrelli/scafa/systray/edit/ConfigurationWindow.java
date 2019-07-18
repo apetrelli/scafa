@@ -45,7 +45,6 @@ public class ConfigurationWindow {
 	protected Object result;
 	protected Shell shell;
 	private Text serverPortNumber;
-	private Text proxyName;
 	private Text proxyHost;
 	private Text proxyPort;
 	private Text proxyDomain;
@@ -58,6 +57,11 @@ public class ConfigurationWindow {
 
 	private Combo proxyType;
 	private Text proxyExclusionToAdd;
+	private Label proxyName;
+
+	private static String emptyIfNull(String string) {
+		return string == null ? "" : string;
+	}
 
 	/**
 	 * Open the window.
@@ -175,28 +179,7 @@ public class ConfigurationWindow {
 		proxyList.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				if (proxyList.getSelectionCount() == 1) {
-					String profile = proxyList.getSelection()[0];
-					Section section = ini.get(profile);
-					proxyName.setText(section.getName());
-					Integer position = PROXY_TYPE_TO_POSITION.get(section.get("type"));
-					if (position != null) {
-						proxyType.select(position);
-					} else {
-						proxyType.clearSelection();
-					}
-					proxyHost.setText(emptyIfNull(section.get("host")));
-					proxyPort.setText(emptyIfNull(section.get("port")));
-					proxyDomain.setText(emptyIfNull(section.get("domain")));
-					proxyUsername.setText(emptyIfNull(section.get("username")));
-					proxyPassword.setText(emptyIfNull(section.get("password")));
-					java.util.List<String> exclusions = section.getAll("exclude");
-					if (exclusions != null) {
-						proxyExclusions.setItems(exclusions.toArray(new String[exclusions.size()]));
-					} else {
-						proxyExclusions.setItems();
-					}
-				}
+				updateProxySelection();
 			}
 		});
 
@@ -207,22 +190,14 @@ public class ConfigurationWindow {
 		lblNewLabel_2.setLayoutData(fd_lblNewLabel_2);
 		lblNewLabel_2.setText("Name");
 
-		proxyName = new Text(shell, SWT.BORDER);
-		FormData fd_proxyName = new FormData();
-		fd_proxyName.top = new FormAttachment(label, 31);
-		fd_proxyName.right = new FormAttachment(100, -10);
-		fd_proxyName.left = new FormAttachment(lblNewLabel_2, 6);
-		proxyName.setLayoutData(fd_proxyName);
-
 		Label lblNewLabel_3 = new Label(shell, SWT.NONE);
 		FormData fd_lblNewLabel_3 = new FormData();
+		fd_lblNewLabel_3.top = new FormAttachment(lblNewLabel_2, 13);
 		fd_lblNewLabel_3.left = new FormAttachment(proxyList, 6);
-		fd_lblNewLabel_3.top = new FormAttachment(proxyName, 6);
 		lblNewLabel_3.setLayoutData(fd_lblNewLabel_3);
 		lblNewLabel_3.setText("Type");
 
 		proxyType = new Combo(shell, SWT.READ_ONLY);
-		fd_proxyName.bottom = new FormAttachment(proxyType, -6);
 		proxyType.setItems(new String[] {"Direct", "Proxy with anonymous connection", "Proxy with Basic authentication", "Proxy with NTLM authentication"});
 		FormData fd_proxyType = new FormData();
 		fd_proxyType.left = new FormAttachment(lblNewLabel_3, 16);
@@ -314,6 +289,18 @@ public class ConfigurationWindow {
 		proxyExclusions.setLayoutData(fd_proxyExclusions);
 
 		Button btnNewButton_2 = new Button(shell, SWT.NONE);
+		btnNewButton_2.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				PromptWindow dialog = new PromptWindow();
+				dialog.open("Add proxy", "Proxy", t -> {
+					proxyList.add(t);
+					ini.add(t);
+					proxyList.select(proxyList.getItemCount() - 1);
+					updateProxySelection();
+				});
+			}
+		});
 		FormData fd_btnNewButton_2 = new FormData();
 		fd_btnNewButton_2.top = new FormAttachment(proxyList, 6);
 		fd_btnNewButton_2.left = new FormAttachment(0, 10);
@@ -321,6 +308,29 @@ public class ConfigurationWindow {
 		btnNewButton_2.setText("Add Proxy");
 
 		Button btnNewButton_3 = new Button(shell, SWT.NONE);
+		btnNewButton_3.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if (proxyList.getSelectionCount() == 1) {
+					Section section = ini.get(proxyList.getSelection()[0]);
+					int proxyTypeIndex = proxyType.getSelectionIndex();
+					if (proxyTypeIndex >= 0) {
+						section.put("type", PROXY_TYPES[proxyTypeIndex]);
+					} else {
+						section.remove("type");
+					}
+					update(section, proxyHost, "host");
+					update(section, proxyPort, "port");
+					update(section, proxyDomain, "domain");
+					update(section, proxyUsername, "username");
+					update(section, proxyPassword, "password");
+					section.remove("exclude");
+					for (String exclusion : proxyExclusions.getItems()) {
+						section.add("exclude", exclusion);
+					}
+				}
+			}
+		});
 		FormData fd_btnNewButton_3 = new FormData();
 		fd_btnNewButton_3.top = new FormAttachment(proxyExclusions, 6);
 		fd_btnNewButton_3.left = new FormAttachment(lblNewLabel_2, 0, SWT.LEFT);
@@ -328,6 +338,15 @@ public class ConfigurationWindow {
 		btnNewButton_3.setText("Apply");
 
 		Button btnNewButton_4 = new Button(shell, SWT.NONE);
+		btnNewButton_4.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				String exclusion = proxyExclusionToAdd.getText();
+				if (!exclusion.trim().isEmpty()) {
+					proxyExclusions.add(exclusion);
+				}
+			}
+		});
 		FormData fd_btnNewButton_4 = new FormData();
 		fd_btnNewButton_4.bottom = new FormAttachment(proxyExclusions, -6);
 		fd_btnNewButton_4.left = new FormAttachment(btnNewButton_1, 0, SWT.LEFT);
@@ -336,6 +355,16 @@ public class ConfigurationWindow {
 		btnNewButton_4.setText("Add");
 
 		Button btnNewButton_5 = new Button(shell, SWT.NONE);
+		btnNewButton_5.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				int index = proxyExclusions.getSelectionIndex();
+				if (index >= 0) {
+					proxyExclusions.deselectAll();
+					proxyExclusions.remove(index);
+				}
+			}
+		});
 		fd_proxyExclusions.right = new FormAttachment(btnNewButton_5, -6);
 		fd_proxyExclusions.top = new FormAttachment(btnNewButton_5, 0, SWT.TOP);
 		FormData fd_btnNewButton_5 = new FormData();
@@ -352,9 +381,65 @@ public class ConfigurationWindow {
 		fd_proxyExclusionToAdd.left = new FormAttachment(proxyList, 6);
 		proxyExclusionToAdd.setLayoutData(fd_proxyExclusionToAdd);
 
+		proxyName = new Label(shell, SWT.NONE);
+		FormData fd_proxyName = new FormData();
+		fd_proxyName.bottom = new FormAttachment(lblNewLabel_2, 0, SWT.BOTTOM);
+		fd_proxyName.left = new FormAttachment(lblNewLabel_2, 6);
+		proxyName.setLayoutData(fd_proxyName);
+		proxyName.setText("");
+
+		Button btnNewButton = new Button(shell, SWT.NONE);
+		btnNewButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if (proxyList.getSelectionCount() == 1) {
+					int position = proxyList.getSelectionIndex();
+					String proxy = proxyList.getItem(position);
+					ini.remove(proxy);
+					proxyList.remove(position);
+					updateProxySelection();
+				}
+			}
+		});
+		FormData fd_btnNewButton = new FormData();
+		fd_btnNewButton.left = new FormAttachment(btnNewButton_2, 0, SWT.LEFT);
+		fd_btnNewButton.top = new FormAttachment(btnNewButton_2, 5);
+		btnNewButton.setLayoutData(fd_btnNewButton);
+		btnNewButton.setText("Delete proxy");
+
 	}
 
-	private static String emptyIfNull(String string) {
-		return string == null ? "" : string;
+	private void update(Section section, Text component, String property) {
+		String text = component.getText();
+		if (!text.trim().isEmpty()) {
+			section.put(property, text);
+		} else {
+			section.remove(property);
+		}
+	}
+
+	private void updateProxySelection() {
+		if (proxyList.getSelectionCount() == 1) {
+			String profile = proxyList.getSelection()[0];
+			Section section = ini.get(profile);
+			proxyName.setText(section.getName());
+			Integer position = PROXY_TYPE_TO_POSITION.get(section.get("type"));
+			if (position != null) {
+				proxyType.select(position);
+			} else {
+				proxyType.clearSelection();
+			}
+			proxyHost.setText(emptyIfNull(section.get("host")));
+			proxyPort.setText(emptyIfNull(section.get("port")));
+			proxyDomain.setText(emptyIfNull(section.get("domain")));
+			proxyUsername.setText(emptyIfNull(section.get("username")));
+			proxyPassword.setText(emptyIfNull(section.get("password")));
+			java.util.List<String> exclusions = section.getAll("exclude");
+			if (exclusions != null) {
+				proxyExclusions.setItems(exclusions.toArray(new String[exclusions.size()]));
+			} else {
+				proxyExclusions.setItems();
+			}
+		}
 	}
 }

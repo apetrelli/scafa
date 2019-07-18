@@ -55,6 +55,7 @@ public class PromptWindow {
 
 		label = new Label(shell, SWT.NONE);
 		FormData fd_label = new FormData();
+		fd_label.width = 100;
 		fd_label.top = new FormAttachment(0, 10);
 		fd_label.left = new FormAttachment(0, 10);
 		label.setLayoutData(fd_label);
@@ -62,9 +63,9 @@ public class PromptWindow {
 
 		text = new Text(shell, SWT.BORDER);
 		FormData fd_text = new FormData();
+		fd_text.left = new FormAttachment(label, 6);
 		fd_text.right = new FormAttachment(95);
 		fd_text.top = new FormAttachment(0, 10);
-		fd_text.left = new FormAttachment(label, 6);
 		text.setLayoutData(fd_text);
 
 		btnNewButton = new Button(shell, SWT.NONE);
