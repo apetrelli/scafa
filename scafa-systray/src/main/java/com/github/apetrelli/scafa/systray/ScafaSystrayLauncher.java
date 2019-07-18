@@ -16,9 +16,11 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Tray;
 import org.eclipse.swt.widgets.TrayItem;
+import org.eclipse.wb.swt.SWTResourceManager;
 
 import com.github.apetrelli.scafa.ScafaLauncher;
 import com.github.apetrelli.scafa.systray.edit.ConfigurationWindow;
+import com.github.apetrelli.scafa.systray.edit.PromptWindow;
 
 public class ScafaSystrayLauncher {
 
@@ -34,6 +36,7 @@ public class ScafaSystrayLauncher {
                 if (!display.readAndDispatch())
                     display.sleep();
             }
+            SWTResourceManager.dispose();
             display.dispose();
         } catch (IOException e) {
             LOG.log(Level.SEVERE, "Cannot load systray image", e);
@@ -138,6 +141,14 @@ public class ScafaSystrayLauncher {
 		        }
 		    });
 		}
+		MenuItem createProfileItem = new MenuItem(menu, SWT.PUSH);
+		createProfileItem.setText("Create new profile");
+		createProfileItem.addListener(SWT.Selection, e -> {
+			PromptWindow prompt = new PromptWindow();
+			prompt.open("Create new profile", "Profile name", t -> {
+				configurationDialog.open(t);
+			});
+		});
 		return menu;
 	}
 
