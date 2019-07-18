@@ -46,12 +46,16 @@ public class Configuration {
 
     public static Ini loadIni(String profile) throws IOException, InvalidFileFormatException {
         Ini ini = new Ini();
-        ini.load(new File(System.getProperty("user.home") + "/.scafa/" + profile + ".ini"));
+        ini.load(getFile(profile));
         return ini;
     }
 
     public static void saveIni(Ini ini, String profile) throws IOException {
-        ini.store(new File(System.getProperty("user.home") + "/.scafa/" + profile + ".ini"));
+        ini.store(getFile(profile));
+    }
+
+    public static void delete(String profile) {
+        getFile(profile).delete();
     }
 
     public static Configuration create(String profile) throws InvalidFileFormatException, IOException {
@@ -60,6 +64,10 @@ public class Configuration {
         }
         Ini ini = loadIni(profile);
         return new Configuration(ini);
+    }
+
+    private static File getFile(String profile) {
+        return new File(System.getProperty("user.home") + "/.scafa/" + profile + ".ini");
     }
 
     private Configuration(Ini ini) {

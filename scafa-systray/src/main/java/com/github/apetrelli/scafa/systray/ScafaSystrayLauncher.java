@@ -19,6 +19,7 @@ import org.eclipse.swt.widgets.TrayItem;
 import org.eclipse.wb.swt.SWTResourceManager;
 
 import com.github.apetrelli.scafa.ScafaLauncher;
+import com.github.apetrelli.scafa.config.Configuration;
 import com.github.apetrelli.scafa.systray.edit.ConfigurationWindow;
 import com.github.apetrelli.scafa.systray.edit.PromptWindow;
 
@@ -136,12 +137,21 @@ public class ScafaSystrayLauncher {
 	}
 	private Menu createEditMenu(Shell shell, ScafaLauncher launcher) {
 		final Menu menu = new Menu(shell, SWT.POP_UP);
+		ConfigurationWindow configurationDialog = new ConfigurationWindow();
+		MenuItem createProfileItem = new MenuItem(menu, SWT.PUSH);
+		createProfileItem.setText("Create new profile");
+		createProfileItem.addListener(SWT.Selection, e -> {
+			PromptWindow prompt = new PromptWindow();
+			prompt.open("Create new profile", "Profile name", t -> {
+				configurationDialog.open(t);
+	        	reload();
+			});
+		});
 		final MenuItem profilesItem = new MenuItem(menu, SWT.CASCADE);
 		profilesItem.setText("Edit profiles");
 		Menu profilesMenu = new Menu(shell, SWT.DROP_DOWN);
 		profilesItem.setMenu(profilesMenu);
 		String[] profiles = launcher.getProfiles();
-		ConfigurationWindow configurationDialog = new ConfigurationWindow();
 		for (int i = 0; i < profiles.length; i++) {
 		    String profile = profiles[i];
 		    MenuItem profileItem = new MenuItem(profilesMenu, SWT.PUSH);
@@ -155,15 +165,23 @@ public class ScafaSystrayLauncher {
 		        }
 		    });
 		}
-		MenuItem createProfileItem = new MenuItem(menu, SWT.PUSH);
-		createProfileItem.setText("Create new profile");
-		createProfileItem.addListener(SWT.Selection, e -> {
-			PromptWindow prompt = new PromptWindow();
-			prompt.open("Create new profile", "Profile name", t -> {
-				configurationDialog.open(t);
-	        	reload();
-			});
-		});
+		final MenuItem deleteProfilesItem = new MenuItem(menu, SWT.CASCADE);
+		deleteProfilesItem.setText("Delete profiles");
+		Menu deleteProfilesMenu = new Menu(shell, SWT.DROP_DOWN);
+		deleteProfilesItem.setMenu(deleteProfilesMenu);
+		for (int i = 0; i < profiles.length; i++) {
+		    String profile = profiles[i];
+		    MenuItem profileItem = new MenuItem(deleteProfilesMenu, SWT.PUSH);
+		    profileItem.setText(profile);
+		    profileItem.addListener(SWT.Selection, new Listener() {
+
+		        @Override
+		        public void handleEvent(Event event) {
+		        	Configuration.delete(profile);
+		        	reload();
+		        }
+		    });
+		}
 		return menu;
 	}
 
