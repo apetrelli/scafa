@@ -20,6 +20,9 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
+  "name":"org.eclipse.swt.widgets.Display"
+},
+{
   "name":"org.ini4j.spi.BeanTool",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
@@ -33,6 +36,10 @@
 },
 {
   "name":"org.ini4j.spi.IniParser",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.ini4j.spi.IniFormatter",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {

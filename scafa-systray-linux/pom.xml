@@ -69,7 +69,6 @@
                 </goals>
                 <phase>package</phase>
                 <configuration>
-                	<skip>true</skip>
                   <buildArgs>
                     --verbose
                     --no-server
