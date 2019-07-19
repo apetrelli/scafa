@@ -85,7 +85,6 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
 
     @Override
     public void endRequestLine(HttpInput input, CompletionHandler<Void, Void> completionHandler) {
-        byte currentByte = input.getBuffer().get();
         String requestLine = lineBuilder.toString();
         String[] pieces = requestLine.split("\\s+");
         if (pieces.length >= 3) {
@@ -106,12 +105,10 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
                 String responseMessage = builder.toString();
                 response = new HttpResponse(httpVersion, responseCode, responseMessage);
                 holder = response;
-                appendToBuffer(currentByte);
                 completionHandler.completed(null, null);
             } else if (pieces.length == 3) {
                 request = new HttpRequest(pieces[0], pieces[1], pieces[2]);
                 holder = request;
-                appendToBuffer(currentByte);
                 completionHandler.completed(null, null);
             } else {
                 completionHandler.failed(new IOException("The request or response line is invalid: " + requestLine), null);
@@ -149,7 +146,6 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
         } else {
             LOG.severe("The header is invalid: " + header);
         }
-        appendToBuffer(currentByte);
     }
 
     @Override

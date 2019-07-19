@@ -17,6 +17,7 @@
  */
 package com.github.apetrelli.scafa.http;
 
+import java.nio.ByteBuffer;
 import java.nio.channels.CompletionHandler;
 
 import com.github.apetrelli.scafa.server.Status;
@@ -41,13 +42,33 @@ public enum HttpStatus implements Status<HttpInput, HttpByteSink> {
 
         @Override
         public HttpStatus next(HttpInput input) {
-            return input.peekNextByte() == CR ? REQUEST_LINE_CR : REQUEST_LINE;
+            HttpStatus newStatus;
+            switch (input.peekNextByte()) {
+            case CR:
+                newStatus = REQUEST_LINE_CR;
+                break;
+            case LF:
+                newStatus = REQUEST_LINE_LF;
+                break;
+            default:
+                newStatus = REQUEST_LINE;
+            }
+            return newStatus;
         }
 
         @Override
         public void out(HttpInput input, HttpByteSink sink, CompletionHandler<Void, Void> completionHandler) {
-            sink.appendRequestLine(input.getBuffer().get());
-            completionHandler.completed(null, null);
+            ByteBuffer buffer = input.getBuffer();
+            byte currentByte;
+            do {
+                currentByte = buffer.get();
+                sink.appendRequestLine(currentByte);
+            } while (buffer.hasRemaining() && currentByte != CR);
+            if (currentByte == CR) {
+                sink.endRequestLine(input, completionHandler);
+            } else {
+                completionHandler.completed(null, null);
+            }
         }
 
     },
@@ -82,12 +103,31 @@ public enum HttpStatus implements Status<HttpInput, HttpByteSink> {
 
         @Override
         public HttpStatus next(HttpInput input) {
-            return input.peekNextByte() == CR ? POSSIBLE_HEADER_CR : HEADER;
+            HttpStatus newStatus;
+            switch (input.peekNextByte()) {
+            case CR:
+                newStatus = POSSIBLE_HEADER_CR;
+                break;
+            case LF:
+                newStatus = POSSIBLE_HEADER_LF;
+                break;
+            default:
+                newStatus = HEADER;
+            }
+            return newStatus;
         }
 
         @Override
         public void out(HttpInput input, HttpByteSink sink, CompletionHandler<Void, Void> completionHandler) {
-            sink.appendHeader(input.getBuffer().get());
+            ByteBuffer buffer = input.getBuffer();
+            byte currentByte;
+            do {
+                currentByte = buffer.get();
+                sink.appendHeader(currentByte);
+            } while (buffer.hasRemaining() && currentByte != CR);
+            if (currentByte == CR) {
+                sink.preEndHeader(input);
+            }
             completionHandler.completed(null, null);
         }
 
@@ -320,5 +360,7 @@ public enum HttpStatus implements Status<HttpInput, HttpByteSink> {
 
     };
 
-    private static final byte CR = 13; // LF is implicit.
+    private static final byte CR = 13;
+
+    private static final byte LF = 10;
 }
