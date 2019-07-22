@@ -15,14 +15,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.apetrelli.scafa.aio;
+package com.github.apetrelli.scafa.proto.processor;
 
-import java.nio.channels.AsynchronousSocketChannel;
+import java.nio.channels.CompletionHandler;
 
-import com.github.apetrelli.scafa.processor.ByteSink;
-import com.github.apetrelli.scafa.processor.Input;
+public interface Status<I extends Input, S extends ByteSink<I>> {
 
-public interface ByteSinkFactory<I extends Input, S extends ByteSink<I>, H> {
+    Status<I, S> next(I input);
 
-    S create(AsynchronousSocketChannel sourceChannel, H handler);
+    void out(I input, S sink, CompletionHandler<Void, Void> completionHandler);
+
 }

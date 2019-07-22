@@ -19,9 +19,9 @@ package com.github.apetrelli.scafa.http.proxy.impl;
 
 import java.nio.channels.AsynchronousSocketChannel;
 
-import com.github.apetrelli.scafa.aio.HandlerFactory;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectionFactoryFactory;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpHandler;
+import com.github.apetrelli.scafa.proto.aio.HandlerFactory;
 
 public class ProxyHttpHandlerFactory implements HandlerFactory<ProxyHttpHandler> {
 

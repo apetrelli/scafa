@@ -21,8 +21,8 @@ import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 
-import com.github.apetrelli.scafa.aio.DelegateCompletionHandler;
 import com.github.apetrelli.scafa.http.HttpResponse;
+import com.github.apetrelli.scafa.proto.aio.DelegateCompletionHandler;
 import com.github.apetrelli.scafa.util.HttpUtils;
 
 public class TentativeHandler extends CapturingHandler {

@@ -19,7 +19,7 @@ package com.github.apetrelli.scafa.http;
 
 import java.nio.channels.CompletionHandler;
 
-import com.github.apetrelli.scafa.processor.ByteSink;
+import com.github.apetrelli.scafa.proto.processor.ByteSink;
 
 public interface HttpByteSink extends ByteSink<HttpInput>{
 

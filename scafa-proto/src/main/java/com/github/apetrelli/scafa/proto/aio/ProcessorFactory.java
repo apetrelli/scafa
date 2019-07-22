@@ -15,9 +15,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.apetrelli.scafa.processor;
+package com.github.apetrelli.scafa.proto.aio;
 
-public interface Processor<T> {
+import java.nio.channels.AsynchronousSocketChannel;
 
-    void process(T handler);
+import com.github.apetrelli.scafa.proto.processor.Processor;
+
+public interface ProcessorFactory<H> {
+
+    Processor<H> create(AsynchronousSocketChannel client);
 }

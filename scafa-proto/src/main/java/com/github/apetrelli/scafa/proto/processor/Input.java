@@ -15,18 +15,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.apetrelli.scafa.processor.impl;
+package com.github.apetrelli.scafa.proto.processor;
 
-import com.github.apetrelli.scafa.http.HttpInput;
-import com.github.apetrelli.scafa.processor.BufferProcessor;
-import com.github.apetrelli.scafa.processor.BufferProcessorFactory;
-import com.github.apetrelli.scafa.processor.ByteSink;
+import java.nio.ByteBuffer;
 
-public class ProxyBufferProcessorFactory<S extends ByteSink<HttpInput>> implements
-        BufferProcessorFactory<HttpInput, S> {
+public interface Input {
 
-    @Override
-    public BufferProcessor<HttpInput, S> create(S sink) {
-        return new ProxyBufferProcessor<>(sink);
-    }
+    ByteBuffer getBuffer();
+
+    byte peekNextByte();
 }

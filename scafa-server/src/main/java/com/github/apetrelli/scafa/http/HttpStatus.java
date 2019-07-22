@@ -20,7 +20,7 @@ package com.github.apetrelli.scafa.http;
 import java.nio.ByteBuffer;
 import java.nio.channels.CompletionHandler;
 
-import com.github.apetrelli.scafa.server.Status;
+import com.github.apetrelli.scafa.proto.processor.Status;
 
 
 public enum HttpStatus implements Status<HttpInput, HttpByteSink> {

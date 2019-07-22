@@ -15,16 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.apetrelli.scafa.util;
+package com.github.apetrelli.scafa.proto.processor;
 
-public class ObjectHolder<T> {
-    private T obj;
+public interface Processor<T> {
 
-    public void setObj(T obj) {
-        this.obj = obj;
-    }
-
-    public T getObj() {
-        return obj;
-    }
+    void process(T handler);
 }

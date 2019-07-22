@@ -23,7 +23,6 @@ import java.nio.channels.CompletionHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.github.apetrelli.scafa.aio.DelegateFailureCompletionHandler;
 import com.github.apetrelli.scafa.http.HeaderHolder;
 import com.github.apetrelli.scafa.http.HttpBodyMode;
 import com.github.apetrelli.scafa.http.HttpByteSink;
@@ -31,6 +30,7 @@ import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpInput;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
+import com.github.apetrelli.scafa.proto.aio.DelegateFailureCompletionHandler;
 
 public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink {
 

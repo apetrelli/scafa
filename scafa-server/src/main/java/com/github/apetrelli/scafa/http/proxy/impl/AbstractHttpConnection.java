@@ -32,12 +32,12 @@ import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.github.apetrelli.scafa.aio.DelegateCompletionHandler;
-import com.github.apetrelli.scafa.aio.DelegateFailureCompletionHandler;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.impl.HostPort;
 import com.github.apetrelli.scafa.http.proxy.HttpConnection;
 import com.github.apetrelli.scafa.http.proxy.MappedHttpConnectionFactory;
+import com.github.apetrelli.scafa.proto.aio.DelegateCompletionHandler;
+import com.github.apetrelli.scafa.proto.aio.DelegateFailureCompletionHandler;
 import com.github.apetrelli.scafa.util.HttpUtils;
 
 public abstract class AbstractHttpConnection implements HttpConnection {

@@ -15,11 +15,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.apetrelli.scafa.aio;
+package com.github.apetrelli.scafa.proto.processor;
 
-import java.nio.channels.AsynchronousSocketChannel;
+import java.io.IOException;
+import java.nio.channels.CompletionHandler;
 
-public interface HandlerFactory<H> {
+public interface ByteSink<T extends Input> {
 
-    H create(AsynchronousSocketChannel sourceChannel);
+    void connect() throws IOException;
+
+    T createInput();
+
+    void reset();
+
+    void start(T input);
+
+    void send(T input, CompletionHandler<Void, Void> handler);
+
+    void sendChunkData(T input, CompletionHandler<Void, Void> handler);
+
+    void disconnect() throws IOException;
 }

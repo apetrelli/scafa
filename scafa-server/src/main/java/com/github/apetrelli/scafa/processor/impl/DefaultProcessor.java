@@ -26,14 +26,14 @@ import java.nio.channels.CompletionHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.github.apetrelli.scafa.aio.ByteSinkFactory;
-import com.github.apetrelli.scafa.processor.BufferProcessor;
-import com.github.apetrelli.scafa.processor.BufferProcessorFactory;
-import com.github.apetrelli.scafa.processor.ByteSink;
-import com.github.apetrelli.scafa.processor.Input;
-import com.github.apetrelli.scafa.processor.Processor;
-import com.github.apetrelli.scafa.server.Status;
-import com.github.apetrelli.scafa.util.ObjectHolder;
+import com.github.apetrelli.scafa.proto.aio.ByteSinkFactory;
+import com.github.apetrelli.scafa.proto.processor.BufferProcessor;
+import com.github.apetrelli.scafa.proto.processor.BufferProcessorFactory;
+import com.github.apetrelli.scafa.proto.processor.ByteSink;
+import com.github.apetrelli.scafa.proto.processor.Input;
+import com.github.apetrelli.scafa.proto.processor.Processor;
+import com.github.apetrelli.scafa.proto.processor.Status;
+import com.github.apetrelli.scafa.proto.util.ObjectHolder;
 
 public class DefaultProcessor<I extends Input, S extends ByteSink<I>, H> implements Processor<H> {
 

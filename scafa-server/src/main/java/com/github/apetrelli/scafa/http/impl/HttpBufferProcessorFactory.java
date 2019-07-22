@@ -15,9 +15,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.apetrelli.scafa.processor;
+package com.github.apetrelli.scafa.http.impl;
 
-public interface BufferProcessorFactory<I extends Input, S extends ByteSink<I>> {
+import com.github.apetrelli.scafa.http.HttpInput;
+import com.github.apetrelli.scafa.proto.processor.BufferProcessor;
+import com.github.apetrelli.scafa.proto.processor.BufferProcessorFactory;
+import com.github.apetrelli.scafa.proto.processor.ByteSink;
 
-    BufferProcessor<I, S> create(S sink);
+public class HttpBufferProcessorFactory<S extends ByteSink<HttpInput>> implements
+        BufferProcessorFactory<HttpInput, S> {
+
+    @Override
+    public BufferProcessor<HttpInput, S> create(S sink) {
+        return new HttpBufferProcessor<>(sink);
+    }
 }

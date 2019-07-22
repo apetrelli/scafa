@@ -1,4 +1,4 @@
-package com.github.apetrelli.scafa.aio;
+package com.github.apetrelli.scafa.proto.aio;
 
 import java.nio.channels.CompletionHandler;
 

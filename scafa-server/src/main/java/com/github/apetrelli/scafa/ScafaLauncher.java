@@ -33,11 +33,11 @@ import org.apache.commons.io.IOUtils;
 import com.github.apetrelli.scafa.aio.impl.DefaultProcessorFactory;
 import com.github.apetrelli.scafa.config.Configuration;
 import com.github.apetrelli.scafa.http.HttpStatus;
+import com.github.apetrelli.scafa.http.impl.HttpBufferProcessorFactory;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpHandler;
 import com.github.apetrelli.scafa.http.proxy.impl.DefaultHttpConnectionFactoryFactory;
 import com.github.apetrelli.scafa.http.proxy.impl.ProxyHttpByteSinkFactory;
 import com.github.apetrelli.scafa.http.proxy.impl.ProxyHttpHandlerFactory;
-import com.github.apetrelli.scafa.processor.impl.ProxyBufferProcessorFactory;
 import com.github.apetrelli.scafa.server.ScafaListener;
 
 public class ScafaLauncher {
@@ -110,7 +110,7 @@ public class ScafaLauncher {
             Configuration configuration = Configuration.create(profile);
             Integer port = configuration.getMainConfiguration().get("port", int.class);
             proxy = new ScafaListener<>(
-                    new DefaultProcessorFactory<>(new ProxyHttpByteSinkFactory(), new ProxyBufferProcessorFactory<>(), HttpStatus.IDLE),
+                    new DefaultProcessorFactory<>(new ProxyHttpByteSinkFactory(), new HttpBufferProcessorFactory<>(), HttpStatus.IDLE),
                     new ProxyHttpHandlerFactory(new DefaultHttpConnectionFactoryFactory(configuration)),
                     port);
             proxy.listen();

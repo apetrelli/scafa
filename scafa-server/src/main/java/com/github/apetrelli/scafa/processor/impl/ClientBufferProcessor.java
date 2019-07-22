@@ -17,8 +17,8 @@
  */
 package com.github.apetrelli.scafa.processor.impl;
 
-import com.github.apetrelli.scafa.processor.ByteSink;
-import com.github.apetrelli.scafa.processor.Input;
+import com.github.apetrelli.scafa.proto.processor.ByteSink;
+import com.github.apetrelli.scafa.proto.processor.Input;
 
 public class ClientBufferProcessor<I extends Input, S extends ByteSink<I>> extends AbstractBufferProcessor<I, S> {
 

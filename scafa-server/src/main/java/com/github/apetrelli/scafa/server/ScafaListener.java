@@ -25,9 +25,9 @@ import java.nio.channels.CompletionHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.github.apetrelli.scafa.aio.HandlerFactory;
-import com.github.apetrelli.scafa.aio.ProcessorFactory;
-import com.github.apetrelli.scafa.processor.Processor;
+import com.github.apetrelli.scafa.proto.aio.HandlerFactory;
+import com.github.apetrelli.scafa.proto.aio.ProcessorFactory;
+import com.github.apetrelli.scafa.proto.processor.Processor;
 
 public class ScafaListener<H> {
 

@@ -20,11 +20,11 @@ package com.github.apetrelli.scafa.processor.impl;
 import java.nio.ByteBuffer;
 import java.nio.channels.CompletionHandler;
 
-import com.github.apetrelli.scafa.aio.DelegateFailureCompletionHandler;
-import com.github.apetrelli.scafa.processor.BufferProcessor;
-import com.github.apetrelli.scafa.processor.ByteSink;
-import com.github.apetrelli.scafa.processor.Input;
-import com.github.apetrelli.scafa.server.Status;
+import com.github.apetrelli.scafa.proto.aio.DelegateFailureCompletionHandler;
+import com.github.apetrelli.scafa.proto.processor.BufferProcessor;
+import com.github.apetrelli.scafa.proto.processor.ByteSink;
+import com.github.apetrelli.scafa.proto.processor.Input;
+import com.github.apetrelli.scafa.proto.processor.Status;
 
 public abstract class AbstractBufferProcessor<I extends Input, S extends ByteSink<I>> implements BufferProcessor<I, S> {
 

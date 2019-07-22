@@ -19,7 +19,7 @@ package com.github.apetrelli.scafa.http;
 
 import java.nio.ByteBuffer;
 
-import com.github.apetrelli.scafa.processor.Input;
+import com.github.apetrelli.scafa.proto.processor.Input;
 
 
 public class HttpInput implements Input {
