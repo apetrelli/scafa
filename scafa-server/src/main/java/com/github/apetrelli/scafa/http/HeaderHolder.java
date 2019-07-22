@@ -36,28 +36,24 @@ public abstract class HeaderHolder {
 
     private static final byte COLON = 58;
 
-    private static final byte A_UPPER = 65;
-
-    private static final byte Z_UPPER = 90;
-
-    private static final byte A_LOWER = 97;
-
-    private static final byte Z_LOWER = 122;
-
-    private static final byte CAPITALIZE_CONST = A_LOWER - A_UPPER;
+    private Map<String, String> capitalized2normalHeader = new LinkedHashMap<String, String>();
 
     private Map<String, List<String>> headers = new LinkedHashMap<>();
 
     protected int byteSize;
 
     public void addHeader(String header, String value) {
-        List<String> values = headers.get(header);
+        String capitalizedHeader = header.toUpperCase();
+        if (!capitalized2normalHeader.containsKey(capitalizedHeader)) {
+            capitalized2normalHeader.put(capitalizedHeader, header);
+        }
+        List<String> values = headers.get(capitalizedHeader);
         if (values == null) {
             values = new ArrayList<>();
-            headers.put(header, values);
+            headers.put(capitalizedHeader, values);
         }
         values.add(value);
-        byteSize += header.length() + 2 + value.length() + 2;
+        byteSize += capitalizedHeader.length() + 2 + value.length() + 2;
     }
 
     public void setHeader(String header, String value) {
@@ -66,7 +62,9 @@ public abstract class HeaderHolder {
     }
 
     public void removeHeader(String header) {
-        List<String> values = headers.remove(header);
+        String capitalizedHeader = header.toUpperCase();
+        capitalized2normalHeader.remove(capitalizedHeader);
+        List<String> values = headers.remove(capitalizedHeader);
         if (values != null) {
             values.stream().forEach(t -> {
                 byteSize -= header.length() + 2 + t.length() + 2;
@@ -75,7 +73,7 @@ public abstract class HeaderHolder {
     }
 
     public String getHeader(String header) {
-        List<String> values = headers.get(header);
+        List<String> values = headers.get(header.toUpperCase());
         String retValue = null;
         if (values != null && !values.isEmpty()) {
             retValue = values.get(0);
@@ -84,7 +82,7 @@ public abstract class HeaderHolder {
     }
 
     public List<String> getHeaders(String header) {
-        List<String> values = headers.get(header);
+        List<String> values = headers.get(header.toUpperCase());
         return values != null ? Collections.unmodifiableList(values) : Collections.emptyList();
     }
 
@@ -94,9 +92,9 @@ public abstract class HeaderHolder {
         Charset charset = StandardCharsets.US_ASCII;
         headers.entrySet().stream().forEach(t -> {
             String key = t.getKey();
-            byte[] convertedKey = putCapitalized(key);
+            byte[] originalKey = capitalized2normalHeader.get(key).getBytes(StandardCharsets.US_ASCII);
             t.getValue().forEach(u -> {
-                buffer.put(convertedKey).put(COLON).put(SPACE).put(u.getBytes(charset)).put(CR).put(LF);
+                buffer.put(originalKey).put(COLON).put(SPACE).put(u.getBytes(charset)).put(CR).put(LF);
             });
         });
         buffer.put(CR).put(LF);
@@ -104,31 +102,7 @@ public abstract class HeaderHolder {
 
     protected void copyBase(HeaderHolder toCopy) {
         headers.putAll(toCopy.headers);
+        capitalized2normalHeader.putAll(toCopy.capitalized2normalHeader);
         byteSize = toCopy.byteSize;
-    }
-
-    private static byte[] putCapitalized(String string) {
-        byte[] array = string.getBytes(StandardCharsets.US_ASCII);
-        byte[] converted = new byte[array.length];
-        boolean capitalize = true;
-        for (int i = 0; i < array.length; i++) {
-            byte currentByte = array[i];
-            if (capitalize) {
-                if (currentByte >= A_LOWER && currentByte <= Z_LOWER) {
-                    currentByte -= CAPITALIZE_CONST;
-                    capitalize = false;
-                } else if (currentByte >= A_UPPER && currentByte <= Z_UPPER) {
-                    capitalize = false;
-                }
-            } else {
-                if (currentByte >= A_UPPER && currentByte <= Z_UPPER) {
-                    currentByte += CAPITALIZE_CONST;
-                } else if (currentByte < A_LOWER || currentByte > Z_LOWER) {
-                    capitalize = true;
-                }
-            }
-            converted[i] = currentByte;
-        }
-        return converted;
     }
 }

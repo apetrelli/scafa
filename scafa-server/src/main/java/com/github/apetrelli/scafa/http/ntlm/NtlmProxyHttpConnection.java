@@ -92,7 +92,7 @@ public class NtlmProxyHttpConnection extends AbstractProxyHttpConnection {
 
     private void authenticateOnConnect(HttpRequest request, CompletionHandler<Void, Void> completionHandler) {
         HttpRequest modifiedRequest = new HttpRequest(request);
-        modifiedRequest.setHeader("PROXY-CONNECTION", "keep-alive");
+        modifiedRequest.setHeader("Proxy-Connection", "keep-alive");
         HttpByteSink sink = new DefaultHttpByteSink<HttpHandler>(tentativeHandler);
         BufferProcessor<HttpInput, HttpByteSink> processor = new ClientBufferProcessor<>(sink);
         ntlmAuthenticate(modifiedRequest, modifiedRequest, sink, tentativeHandler, processor, completionHandler);
@@ -100,11 +100,11 @@ public class NtlmProxyHttpConnection extends AbstractProxyHttpConnection {
 
     private void authenticate(HttpRequest request, CompletionHandler<Void, Void> completionHandler) {
         HttpRequest finalRequest = new HttpRequest(request);
-        finalRequest.setHeader("PROXY-CONNECTION", "keep-alive");
+        finalRequest.setHeader("Proxy-Connection", "keep-alive");
         HttpRequest modifiedRequest = new HttpRequest(finalRequest);
         String length = request.getHeader("CONTENT-LENGTH");
         if (length != null) {
-            modifiedRequest.setHeader("CONTENT-LENGTH", "0");
+            modifiedRequest.setHeader("Content-Length", "0");
         }
         HttpUtils.sendHeader(modifiedRequest, channel, new DelegateFailureCompletionHandler<Void, Void>(completionHandler) {
 
@@ -159,7 +159,7 @@ public class NtlmProxyHttpConnection extends AbstractProxyHttpConnection {
                                             Type2Message message2 = new Type2Message(Base64.decode(base64));
                                             Type3Message message3 = new Type3Message(message2, password, domain, username, null,
                                                     message2.getFlags());
-                                            finalRequest.setHeader("PROXY-AUTHORIZATION",
+                                            finalRequest.setHeader("Proxy-Authorization",
                                                     "NTLM " + Base64.encode(message3.toByteArray()));
                                             HttpUtils.sendHeader(finalRequest, channel, new DelegateFailureCompletionHandler<Void, Void>(completionHandler) {
 

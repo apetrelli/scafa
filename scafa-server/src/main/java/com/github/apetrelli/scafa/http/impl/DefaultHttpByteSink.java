@@ -140,7 +140,7 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
         String header = lineBuilder.toString();
         int pos = header.indexOf(": ");
         if (pos > 0) {
-            String key = header.substring(0, pos).toUpperCase();
+            String key = header.substring(0, pos);
             String value = header.substring(pos + 2, header.length());
             holder.addHeader(key, value);
         } else {
