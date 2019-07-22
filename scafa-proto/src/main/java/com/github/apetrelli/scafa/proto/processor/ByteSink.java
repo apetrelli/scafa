@@ -32,7 +32,5 @@ public interface ByteSink<T extends Input> {
 
     void send(T input, CompletionHandler<Void, Void> handler);
 
-    void sendChunkData(T input, CompletionHandler<Void, Void> handler);
-
     void disconnect() throws IOException;
 }

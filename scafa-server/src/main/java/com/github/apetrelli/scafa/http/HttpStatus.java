@@ -60,12 +60,13 @@ public enum HttpStatus implements Status<HttpInput, HttpByteSink> {
         public void out(HttpInput input, HttpByteSink sink, CompletionHandler<Void, Void> completionHandler) {
             ByteBuffer buffer = input.getBuffer();
             byte currentByte;
-            do {
-                currentByte = buffer.get();
+            currentByte = buffer.get();
+            while (buffer.hasRemaining() && currentByte != CR) {
                 sink.appendRequestLine(currentByte);
-            } while (buffer.hasRemaining() && currentByte != CR);
+                currentByte = buffer.get();
+            }
             if (currentByte == CR) {
-                sink.endRequestLine(input, completionHandler);
+                sink.endRequestLine(completionHandler);
             } else {
                 completionHandler.completed(null, null);
             }
@@ -81,7 +82,7 @@ public enum HttpStatus implements Status<HttpInput, HttpByteSink> {
 
         @Override
         public void out(HttpInput input, HttpByteSink sink, CompletionHandler<Void, Void> completionHandler) {
-            sink.endRequestLine(input, completionHandler);
+            sink.endRequestLine(completionHandler);
         }
 
     },
@@ -121,10 +122,11 @@ public enum HttpStatus implements Status<HttpInput, HttpByteSink> {
         public void out(HttpInput input, HttpByteSink sink, CompletionHandler<Void, Void> completionHandler) {
             ByteBuffer buffer = input.getBuffer();
             byte currentByte;
-            do {
-                currentByte = buffer.get();
+            currentByte = buffer.get();
+            while (buffer.hasRemaining() && currentByte != CR) {
                 sink.appendHeader(currentByte);
-            } while (buffer.hasRemaining() && currentByte != CR);
+                currentByte = buffer.get();
+            }
             if (currentByte == CR) {
                 sink.preEndHeader(input);
             }
@@ -141,6 +143,7 @@ public enum HttpStatus implements Status<HttpInput, HttpByteSink> {
 
         @Override
         public void out(HttpInput input, HttpByteSink sink, CompletionHandler<Void, Void> completionHandler) {
+            input.getBuffer().get(); // discard CR.
             sink.preEndHeader(input);
             completionHandler.completed(null, null);
         }
@@ -155,6 +158,7 @@ public enum HttpStatus implements Status<HttpInput, HttpByteSink> {
 
         @Override
         public void out(HttpInput input, HttpByteSink sink, CompletionHandler<Void, Void> completionHandler) {
+            input.getBuffer().get(); // discard LF.
             sink.endHeaderAndRequest(input, completionHandler);
         }
 
@@ -179,6 +183,7 @@ public enum HttpStatus implements Status<HttpInput, HttpByteSink> {
 
         @Override
         public void out(HttpInput input, HttpByteSink sink, CompletionHandler<Void, Void> completionHandler) {
+            input.getBuffer().get(); // discard LF.
             sink.endHeader(input, completionHandler);
         }
 
@@ -187,12 +192,32 @@ public enum HttpStatus implements Status<HttpInput, HttpByteSink> {
 
         @Override
         public HttpStatus next(HttpInput input) {
-            return input.peekNextByte() == CR ? HEADER_CR : HEADER;
+            HttpStatus newStatus;
+            switch (input.peekNextByte()) {
+            case CR:
+                newStatus = HEADER_CR;
+                break;
+            case LF:
+                newStatus = HEADER_LF;
+                break;
+            default:
+                newStatus = HEADER;
+            }
+            return newStatus;
         }
 
         @Override
         public void out(HttpInput input, HttpByteSink sink, CompletionHandler<Void, Void> completionHandler) {
-            sink.appendHeader(input.getBuffer().get());
+            ByteBuffer buffer = input.getBuffer();
+            byte currentByte;
+            currentByte = buffer.get();
+            while (buffer.hasRemaining() && currentByte != CR) {
+                sink.appendHeader(currentByte);
+                currentByte = buffer.get();
+            }
+            if (currentByte == CR) {
+                sink.endHeaderLine();
+            }
             completionHandler.completed(null, null);
         }
 
@@ -206,7 +231,8 @@ public enum HttpStatus implements Status<HttpInput, HttpByteSink> {
 
         @Override
         public void out(HttpInput input, HttpByteSink sink, CompletionHandler<Void, Void> completionHandler) {
-            sink.endHeaderLine(input.getBuffer().get());
+            input.getBuffer().get(); // discard CR
+            sink.endHeaderLine();
             completionHandler.completed(null, null);
         }
 
@@ -270,12 +296,32 @@ public enum HttpStatus implements Status<HttpInput, HttpByteSink> {
 
         @Override
         public HttpStatus next(HttpInput input) {
-            return input.peekNextByte() == CR ? CHUNK_COUNT_CR : CHUNK_COUNT;
+            HttpStatus newStatus;
+            switch (input.peekNextByte()) {
+            case CR:
+                newStatus = CHUNK_COUNT_CR;
+                break;
+            case LF:
+                newStatus = CHUNK_COUNT_LF;
+                break;
+            default:
+                newStatus = CHUNK_COUNT;
+            }
+            return newStatus;
         }
 
         @Override
         public void out(HttpInput input, HttpByteSink sink, CompletionHandler<Void, Void> completionHandler) {
-            sink.appendChunkCount(input.getBuffer().get());
+            ByteBuffer buffer = input.getBuffer();
+            byte currentByte;
+            currentByte = buffer.get();
+            while (buffer.hasRemaining() && currentByte != CR) {
+                sink.appendChunkCount(input.getBuffer().get());
+                currentByte = buffer.get();
+            }
+            if (currentByte == CR) {
+                sink.preEndChunkCount(currentByte);
+            }
             completionHandler.completed(null, null);
         }
     },

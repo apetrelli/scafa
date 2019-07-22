@@ -84,7 +84,7 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
     }
 
     @Override
-    public void endRequestLine(HttpInput input, CompletionHandler<Void, Void> completionHandler) {
+    public void endRequestLine(CompletionHandler<Void, Void> completionHandler) {
         String requestLine = lineBuilder.toString();
         String[] pieces = requestLine.split("\\s+");
         if (pieces.length >= 3) {
@@ -136,7 +136,7 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
     }
 
     @Override
-    public void endHeaderLine(byte currentByte) {
+    public void endHeaderLine() {
         String header = lineBuilder.toString();
         int pos = header.indexOf(": ");
         if (pos > 0) {
@@ -150,7 +150,6 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
 
     @Override
     public void preEndHeader(HttpInput input) {
-        appendToBuffer(input.getBuffer().get());
         input.setBodyMode(HttpBodyMode.EMPTY);
         String lengthString = holder.getHeader("CONTENT-LENGTH");
         if (lengthString != null) {
@@ -173,7 +172,6 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
 
     @Override
     public void endHeader(HttpInput input, CompletionHandler<Void, Void> completionHandler) {
-        appendToBuffer(input.getBuffer().get());
         clearLineBuilder();
         if (request != null) {
             manageRequestHeader(handler, input, request, completionHandler);

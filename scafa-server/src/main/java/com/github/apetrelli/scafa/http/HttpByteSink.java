@@ -25,7 +25,7 @@ public interface HttpByteSink extends ByteSink<HttpInput>{
 
     void appendRequestLine(byte currentByte);
 
-    void endRequestLine(HttpInput input, CompletionHandler<Void, Void> completionHandler);
+    void endRequestLine(CompletionHandler<Void, Void> completionHandler);
 
     void beforeHeader(byte currentByte);
 
@@ -33,13 +33,15 @@ public interface HttpByteSink extends ByteSink<HttpInput>{
 
     void appendHeader(byte currentByte);
 
-    void endHeaderLine(byte currentByte);
+    void endHeaderLine();
 
     void preEndHeader(HttpInput input);
 
     void endHeader(HttpInput input, CompletionHandler<Void, Void> completionHandler);
 
     void endHeaderAndRequest(HttpInput input, CompletionHandler<Void, Void> completionHandler);
+
+    void sendChunkData(HttpInput input, CompletionHandler<Void, Void> handler);
 
     void afterEndOfChunk(byte currentByte, CompletionHandler<Void, Void> completionHandler);
 
