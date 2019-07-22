@@ -320,7 +320,7 @@ public enum HttpStatus implements Status<HttpInput, HttpByteSink> {
                 currentByte = buffer.get();
             }
             if (currentByte == CR) {
-                sink.preEndChunkCount(currentByte);
+                sink.preEndChunkCount();
             }
             completionHandler.completed(null, null);
         }
@@ -334,7 +334,8 @@ public enum HttpStatus implements Status<HttpInput, HttpByteSink> {
 
         @Override
         public void out(HttpInput input, HttpByteSink sink, CompletionHandler<Void, Void> completionHandler) {
-            sink.preEndChunkCount(input.getBuffer().get());
+            input.getBuffer().get(); // discard CR.
+            sink.preEndChunkCount();
             completionHandler.completed(null, null);
         }
 
@@ -348,6 +349,7 @@ public enum HttpStatus implements Status<HttpInput, HttpByteSink> {
 
         @Override
         public void out(HttpInput input, HttpByteSink sink, CompletionHandler<Void, Void> completionHandler) {
+            input.getBuffer().get(); // discard LF.
             sink.endChunkCount(input, completionHandler);
         }
 

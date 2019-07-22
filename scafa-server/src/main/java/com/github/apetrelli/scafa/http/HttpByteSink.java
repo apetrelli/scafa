@@ -49,7 +49,7 @@ public interface HttpByteSink extends ByteSink<HttpInput>{
 
     void appendChunkCount(byte currentByte);
 
-    void preEndChunkCount(byte currentByte);
+    void preEndChunkCount();
 
     void endChunkCount(HttpInput input, CompletionHandler<Void, Void> completionHandler);
 

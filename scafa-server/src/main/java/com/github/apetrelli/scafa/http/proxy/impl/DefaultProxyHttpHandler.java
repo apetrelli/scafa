@@ -99,7 +99,7 @@ public class DefaultProxyHttpHandler implements ProxyHttpHandler {
 
     @Override
     public void onChunkEnd(CompletionHandler<Void, Void> handler) {
-        handler.completed(null, null);
+        connection.send(ByteBuffer.wrap(CRLF), handler);
     }
 
     @Override

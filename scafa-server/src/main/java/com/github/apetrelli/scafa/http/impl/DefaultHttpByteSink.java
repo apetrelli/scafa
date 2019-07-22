@@ -211,13 +211,12 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
     }
 
     @Override
-    public void preEndChunkCount(byte currentByte) {
+    public void preEndChunkCount() {
         LOG.finest("Pre End chunk count");
     }
 
     @Override
     public void endChunkCount(HttpInput input, CompletionHandler<Void, Void> completionHandler) {
-        input.getBuffer().get(); // Skipping LF.
         if (lineBuilder.length() > 0) {
             String chunkCountHex = lineBuilder.toString();
             try {
