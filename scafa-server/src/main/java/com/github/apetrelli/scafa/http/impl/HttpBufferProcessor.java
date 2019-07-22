@@ -18,8 +18,8 @@
 package com.github.apetrelli.scafa.http.impl;
 
 import com.github.apetrelli.scafa.http.HttpInput;
-import com.github.apetrelli.scafa.processor.impl.AbstractBufferProcessor;
 import com.github.apetrelli.scafa.proto.processor.ByteSink;
+import com.github.apetrelli.scafa.proto.processor.impl.AbstractBufferProcessor;
 
 public class HttpBufferProcessor<S extends ByteSink<HttpInput>> extends AbstractBufferProcessor<HttpInput, S> {
 

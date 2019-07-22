@@ -15,11 +15,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.apetrelli.scafa.aio.impl;
+package com.github.apetrelli.scafa.proto.aio.impl;
 
 import java.nio.channels.AsynchronousSocketChannel;
 
-import com.github.apetrelli.scafa.processor.impl.DefaultProcessor;
 import com.github.apetrelli.scafa.proto.aio.ByteSinkFactory;
 import com.github.apetrelli.scafa.proto.aio.ProcessorFactory;
 import com.github.apetrelli.scafa.proto.processor.BufferProcessorFactory;
@@ -27,6 +26,7 @@ import com.github.apetrelli.scafa.proto.processor.ByteSink;
 import com.github.apetrelli.scafa.proto.processor.Input;
 import com.github.apetrelli.scafa.proto.processor.Processor;
 import com.github.apetrelli.scafa.proto.processor.Status;
+import com.github.apetrelli.scafa.proto.processor.impl.DefaultProcessor;
 
 public class DefaultProcessorFactory<I extends Input, S extends ByteSink<I>, H> implements ProcessorFactory<H> {
 
