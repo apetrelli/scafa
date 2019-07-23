@@ -29,9 +29,10 @@ import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
 import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
 import com.github.apetrelli.scafa.http.proxy.MappedHttpConnectionFactory;
+import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.util.HttpUtils;
 
-public abstract class AbstractUpstreamProxyHttpConnection extends AbstractHttpConnection {
+public abstract class AbstractUpstreamProxyHttpConnection extends AbstractHttpConnection implements ProxyHttpConnection {
 
     private static final Logger LOG = Logger.getLogger(AnonymousProxyHttpConnection.class.getName());
 

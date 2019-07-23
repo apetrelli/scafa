@@ -43,7 +43,7 @@ public class DirectHttpConnectionFactory implements HttpConnectionFactory {
     @Override
     public ProxyHttpConnection create(MappedHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
             HostPort socketAddress) {
-        return new DirectHttpConnection(factory, sourceChannel, socketAddress, interfaceName, forceIpV4);
+        return new DirectProxyHttpConnection(factory, sourceChannel, socketAddress, interfaceName, forceIpV4);
     }
 
 }

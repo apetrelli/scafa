@@ -32,13 +32,14 @@ import com.github.apetrelli.scafa.http.HostPort;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
 import com.github.apetrelli.scafa.http.proxy.MappedHttpConnectionFactory;
+import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.proto.aio.DelegateFailureCompletionHandler;
 
-public class DirectHttpConnection extends AbstractHttpConnection {
+public class DirectProxyHttpConnection extends AbstractHttpConnection implements ProxyHttpConnection {
 
-    private static final Logger LOG = Logger.getLogger(DirectHttpConnection.class.getName());
+    private static final Logger LOG = Logger.getLogger(DirectProxyHttpConnection.class.getName());
 
-    public DirectHttpConnection(MappedHttpConnectionFactory factory,
+    public DirectProxyHttpConnection(MappedHttpConnectionFactory factory,
             AsynchronousSocketChannel sourceChannel, HostPort socketAddress, String interfaceName, boolean forceIpV4) {
         super(factory, sourceChannel, socketAddress, interfaceName, forceIpV4);
     }

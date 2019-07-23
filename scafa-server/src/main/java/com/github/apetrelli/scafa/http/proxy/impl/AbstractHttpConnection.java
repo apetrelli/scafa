@@ -34,12 +34,12 @@ import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.http.HostPort;
 import com.github.apetrelli.scafa.http.HttpRequest;
-import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
+import com.github.apetrelli.scafa.http.proxy.HttpConnection;
 import com.github.apetrelli.scafa.http.proxy.MappedHttpConnectionFactory;
 import com.github.apetrelli.scafa.proto.aio.DelegateFailureCompletionHandler;
 import com.github.apetrelli.scafa.util.HttpUtils;
 
-public abstract class AbstractHttpConnection implements ProxyHttpConnection {
+public abstract class AbstractHttpConnection implements HttpConnection {
 
     private class WriteCompletionHandler implements CompletionHandler<Integer, ByteBuffer> {
 
