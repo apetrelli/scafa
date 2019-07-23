@@ -60,6 +60,7 @@
     <module>scafa-systray-linux</module>
     <module>scafa-systray-windows</module>
     <module>scafa-proto</module>
+    <module>scafa-http</module>
   </modules>
   <build>
     <plugins>
