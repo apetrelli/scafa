@@ -21,12 +21,12 @@ import java.nio.channels.AsynchronousSocketChannel;
 
 import org.ini4j.Profile.Section;
 
+import com.github.apetrelli.scafa.config.Configuration;
 import com.github.apetrelli.scafa.http.HttpRequestManipulator;
 import com.github.apetrelli.scafa.http.impl.HostPort;
 import com.github.apetrelli.scafa.http.proxy.HttpConnection;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.MappedHttpConnectionFactory;
-import com.github.apetrelli.scafa.util.HttpUtils;
 
 public class AnonymousProxyHttpConnectionFactory implements HttpConnectionFactory {
 
@@ -39,10 +39,10 @@ public class AnonymousProxyHttpConnectionFactory implements HttpConnectionFactor
     private boolean forceIpV4;
 
     public AnonymousProxyHttpConnectionFactory(Section section) {
-        this.proxySocketAddress = HttpUtils.createProxySocketAddress(section);
+        this.proxySocketAddress = Configuration.createProxySocketAddress(section);
         this.interfaceName = section.get("interface");
         this.forceIpV4 = section.get("forceIPV4", boolean.class, false);
-        manipulator = HttpUtils.createManipulator(section);
+        manipulator = Configuration.createManipulator(section);
     }
 
     @Override

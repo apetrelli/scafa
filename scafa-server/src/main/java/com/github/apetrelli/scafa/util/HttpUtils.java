@@ -24,11 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.ini4j.Profile.Section;
-
 import com.github.apetrelli.scafa.http.HeaderHolder;
-import com.github.apetrelli.scafa.http.HttpRequestManipulator;
-import com.github.apetrelli.scafa.http.impl.HostPort;
 
 public class HttpUtils {
 
@@ -74,15 +70,10 @@ public class HttpUtils {
             LOG.finest(request);
             LOG.finest("-- End of header --");
         }
-        flushBuffer(buffer, channelToSend, completionHandler);
+        flipAndFlushBuffer(buffer, channelToSend, completionHandler);
     }
 
     public static void flushBuffer(ByteBuffer buffer, AsynchronousSocketChannel channelToSend, CompletionHandler<Void, Void> completionHandler) {
-        buffer.flip();
-        flushBufferWithoutFlipping(buffer, channelToSend, completionHandler);
-    }
-
-    public static void flushBufferWithoutFlipping(ByteBuffer buffer, AsynchronousSocketChannel channelToSend, CompletionHandler<Void, Void> completionHandler) {
         channelToSend.write(buffer, buffer, new BufferFlusherCompletionHandler(channelToSend, completionHandler));
     }
 
@@ -90,33 +81,17 @@ public class HttpUtils {
         String sizeString = Long.toString(size, 16);
         ByteBuffer buffer = ByteBuffer.allocate(sizeString.length() + 2);
         buffer.put(sizeString.getBytes(StandardCharsets.US_ASCII)).put(CR).put(LF);
-        flushBuffer(buffer, channelToSend, completionHandler);
+        flipAndFlushBuffer(buffer, channelToSend, completionHandler);
     }
 
     public static void sendNewline(AsynchronousSocketChannel channelToSend, CompletionHandler<Void, Void> completionHandler) {
         ByteBuffer buffer = ByteBuffer.allocate(2);
         buffer.put(CR).put(LF);
+        flipAndFlushBuffer(buffer, channelToSend, completionHandler);
+    }
+
+    private static void flipAndFlushBuffer(ByteBuffer buffer, AsynchronousSocketChannel channelToSend, CompletionHandler<Void, Void> completionHandler) {
+        buffer.flip();
         flushBuffer(buffer, channelToSend, completionHandler);
-    }
-
-    public static HostPort createProxySocketAddress(Section section) {
-        String host = section.get("host");
-        int port = section.get("port", int.class);
-        HostPort proxySocketAddress = new HostPort(host, port);
-        return proxySocketAddress;
-    }
-
-    public static HttpRequestManipulator createManipulator(Section section) {
-        String className = section.get("manipulator");
-        HttpRequestManipulator manipulator = null;
-        if (className != null) {
-            try {
-                Class<? extends HttpRequestManipulator> clazz = Class.forName(className).asSubclass(HttpRequestManipulator.class);
-                manipulator = clazz.newInstance();
-            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-                LOG.log(Level.SEVERE, "Cannot instantiate manipulator: " + className, e);
-            }
-        }
-        return manipulator;
     }
 }

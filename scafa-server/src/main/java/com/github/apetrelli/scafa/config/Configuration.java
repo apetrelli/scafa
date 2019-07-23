@@ -23,6 +23,8 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -31,6 +33,8 @@ import org.ini4j.Ini;
 import org.ini4j.InvalidFileFormatException;
 import org.ini4j.Profile.Section;
 
+import com.github.apetrelli.scafa.http.HttpRequestManipulator;
+import com.github.apetrelli.scafa.http.impl.HostPort;
 import com.github.apetrelli.scafa.http.ntlm.NtlmProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.impl.AnonymousProxyHttpConnectionFactory;
@@ -38,6 +42,9 @@ import com.github.apetrelli.scafa.http.proxy.impl.BasicAuthProxyHttpConnectionFa
 import com.github.apetrelli.scafa.http.proxy.impl.DirectHttpConnectionFactory;
 
 public class Configuration {
+
+    private static final Logger LOG = Logger.getLogger(Configuration.class.getName());
+
     private Ini ini;
 
     private Map<String, HttpConnectionFactory> sectionName2factory;
@@ -141,5 +148,26 @@ public class Configuration {
         }
         m.appendTail(b);
         return b.toString();
+    }
+
+    public static HttpRequestManipulator createManipulator(Section section) {
+        String className = section.get("manipulator");
+        HttpRequestManipulator manipulator = null;
+        if (className != null) {
+            try {
+                Class<? extends HttpRequestManipulator> clazz = Class.forName(className).asSubclass(HttpRequestManipulator.class);
+                manipulator = clazz.newInstance();
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+                LOG.log(Level.SEVERE, "Cannot instantiate manipulator: " + className, e);
+            }
+        }
+        return manipulator;
+    }
+
+    public static HostPort createProxySocketAddress(Section section) {
+        String host = section.get("host");
+        int port = section.get("port", int.class);
+        HostPort proxySocketAddress = new HostPort(host, port);
+        return proxySocketAddress;
     }
 }

@@ -135,7 +135,7 @@ public abstract class AbstractHttpConnection implements HttpConnection {
 
     @Override
     public void send(ByteBuffer buffer, CompletionHandler<Void, Void> completionHandler) {
-        HttpUtils.flushBufferWithoutFlipping(buffer, channel, completionHandler);
+        HttpUtils.flushBuffer(buffer, channel, completionHandler);
     }
 
     @Override
