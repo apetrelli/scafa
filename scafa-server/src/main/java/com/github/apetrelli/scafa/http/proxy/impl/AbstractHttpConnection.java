@@ -136,7 +136,17 @@ public abstract class AbstractHttpConnection implements HttpConnection {
 
     @Override
     public void send(ByteBuffer buffer, CompletionHandler<Void, Void> completionHandler) {
-        channel.write(buffer, null, new DelegateCompletionHandler<Integer, Void>(completionHandler));
+        DelegateCompletionHandler<Integer, Void> currentHandler = new  DelegateCompletionHandler<Integer, Void>(completionHandler) {
+            @Override
+            public void completed(Integer result, Void attachment) {
+                if (buffer.hasRemaining()) {
+                    channel.write(buffer, null, this);
+                } else {
+                    super.completed(result, attachment);
+                }
+            }
+        };
+        channel.write(buffer, null, currentHandler);
     }
 
     @Override
