@@ -23,6 +23,6 @@ import com.github.apetrelli.scafa.http.HostPort;
 
 public interface HttpConnectionFactory {
 
-    HttpConnection create(MappedHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
+    ProxyHttpConnection create(MappedHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
             HostPort socketAddress);
 }

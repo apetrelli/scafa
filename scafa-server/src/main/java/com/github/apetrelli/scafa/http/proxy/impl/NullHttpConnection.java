@@ -24,9 +24,9 @@ import java.nio.channels.CompletionHandler;
 
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
-import com.github.apetrelli.scafa.http.proxy.HttpConnection;
+import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 
-public class NullHttpConnection implements HttpConnection {
+public class NullHttpConnection implements ProxyHttpConnection {
 
     private AsynchronousSocketChannel sourceChannel;
 

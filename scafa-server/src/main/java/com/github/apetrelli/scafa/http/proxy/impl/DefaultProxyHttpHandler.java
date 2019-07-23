@@ -26,7 +26,7 @@ import java.nio.charset.StandardCharsets;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
-import com.github.apetrelli.scafa.http.proxy.HttpConnection;
+import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.http.proxy.MappedHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpHandler;
 import com.github.apetrelli.scafa.http.proxy.ResultHandler;
@@ -43,7 +43,7 @@ public class DefaultProxyHttpHandler implements ProxyHttpHandler {
 
     private AsynchronousSocketChannel sourceChannel;
 
-    private HttpConnection connection;
+    private ProxyHttpConnection connection;
 
     public DefaultProxyHttpHandler(MappedHttpConnectionFactory connectionFactory, AsynchronousSocketChannel sourceChannel) {
         this.connectionFactory = connectionFactory;
@@ -67,10 +67,10 @@ public class DefaultProxyHttpHandler implements ProxyHttpHandler {
 
     @Override
     public void onRequestHeader(HttpRequest request, CompletionHandler<Void, Void> handler) {
-        connectionFactory.create(sourceChannel, request, new ResultHandler<HttpConnection>() {
+        connectionFactory.create(sourceChannel, request, new ResultHandler<ProxyHttpConnection>() {
 
             @Override
-            public void handle(HttpConnection result) {
+            public void handle(ProxyHttpConnection result) {
                 connection = result;
                 connection.sendHeader(request, handler);
             }
@@ -109,10 +109,10 @@ public class DefaultProxyHttpHandler implements ProxyHttpHandler {
 
     @Override
     public void onConnectMethod(HttpConnectRequest connectRequest, CompletionHandler<Void, Void> handler) {
-        connectionFactory.create(sourceChannel, connectRequest, new ResultHandler<HttpConnection>() {
+        connectionFactory.create(sourceChannel, connectRequest, new ResultHandler<ProxyHttpConnection>() {
 
             @Override
-            public void handle(HttpConnection result) {
+            public void handle(ProxyHttpConnection result) {
                 connection = result;
                 connection.connect(connectRequest, handler);
             }

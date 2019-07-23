@@ -25,9 +25,9 @@ import com.github.apetrelli.scafa.http.HttpRequest;
 
 public interface MappedHttpConnectionFactory {
 
-    void create(AsynchronousSocketChannel sourceChannel, HttpRequest request, ResultHandler<HttpConnection> handler);
+    void create(AsynchronousSocketChannel sourceChannel, HttpRequest request, ResultHandler<ProxyHttpConnection> handler);
 
-    void create(AsynchronousSocketChannel sourceChannel, HttpConnectRequest request, ResultHandler<HttpConnection> handler);
+    void create(AsynchronousSocketChannel sourceChannel, HttpConnectRequest request, ResultHandler<ProxyHttpConnection> handler);
 
     void disconnectAll() throws IOException;
 

@@ -31,7 +31,7 @@ import com.github.apetrelli.scafa.config.Configuration;
 import com.github.apetrelli.scafa.http.HostPort;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
-import com.github.apetrelli.scafa.http.proxy.HttpConnection;
+import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.http.proxy.MappedHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.ResultHandler;
 
@@ -47,7 +47,7 @@ public class DefaultMappedHttpConnectionFactory implements MappedHttpConnectionF
         protocol2port.put("ftp", 80); // This works only with a proxy.
     }
 
-    private Map<HostPort, HttpConnection> connectionCache = new HashMap<>();
+    private Map<HostPort, ProxyHttpConnection> connectionCache = new HashMap<>();
 
     private Configuration configuration;
 
@@ -56,7 +56,7 @@ public class DefaultMappedHttpConnectionFactory implements MappedHttpConnectionF
     }
 
     @Override
-    public void create(AsynchronousSocketChannel sourceChannel, HttpRequest request, ResultHandler<HttpConnection> handler) {
+    public void create(AsynchronousSocketChannel sourceChannel, HttpRequest request, ResultHandler<ProxyHttpConnection> handler) {
         try {
             HostPort hostPort = getHostToConnect(request);
             create(sourceChannel, hostPort, handler);
@@ -67,7 +67,7 @@ public class DefaultMappedHttpConnectionFactory implements MappedHttpConnectionF
     }
 
     @Override
-    public void create(AsynchronousSocketChannel sourceChannel, HttpConnectRequest request, ResultHandler<HttpConnection> handler) {
+    public void create(AsynchronousSocketChannel sourceChannel, HttpConnectRequest request, ResultHandler<ProxyHttpConnection> handler) {
         create(sourceChannel, new HostPort(request.getHost(), request.getPort()), handler);
     }
 
@@ -79,20 +79,20 @@ public class DefaultMappedHttpConnectionFactory implements MappedHttpConnectionF
 
     @Override
     public void dispose(HostPort target) {
-        HttpConnection connection = connectionCache.get(target);
+        ProxyHttpConnection connection = connectionCache.get(target);
         if (connection != null) {
             connectionCache.remove(target);
         }
     }
 
-    private void create(AsynchronousSocketChannel sourceChannel, HostPort hostPort, ResultHandler<HttpConnection> handler) {
-        HttpConnection connection = connectionCache.get(hostPort);
+    private void create(AsynchronousSocketChannel sourceChannel, HostPort hostPort, ResultHandler<ProxyHttpConnection> handler) {
+        ProxyHttpConnection connection = connectionCache.get(hostPort);
         if (connection == null) {
             if (LOG.isLoggable(Level.INFO)) {
                 LOG.log(Level.INFO, "Connecting thread {0} to address {1}",
                         new Object[] { Thread.currentThread().getName(), hostPort.toString() });
             }
-            HttpConnection newConnection = configuration.getHttpConnectionFactoryByHost(hostPort.getHost()).create(this, sourceChannel,
+            ProxyHttpConnection newConnection = configuration.getHttpConnectionFactoryByHost(hostPort.getHost()).create(this, sourceChannel,
                     hostPort);
             newConnection.ensureConnected(new CompletionHandler<Void, Void>() {
 
@@ -155,7 +155,7 @@ public class DefaultMappedHttpConnectionFactory implements MappedHttpConnectionF
         return retValue;
     }
 
-    private void closeQuietly(HttpConnection connection) {
+    private void closeQuietly(ProxyHttpConnection connection) {
         try {
             connection.close();
         } catch (IOException e) {

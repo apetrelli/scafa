@@ -23,7 +23,7 @@ import org.ini4j.Profile.Section;
 
 import com.github.apetrelli.scafa.config.Configuration;
 import com.github.apetrelli.scafa.http.HostPort;
-import com.github.apetrelli.scafa.http.proxy.HttpConnection;
+import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
 import com.github.apetrelli.scafa.http.proxy.MappedHttpConnectionFactory;
@@ -46,7 +46,7 @@ public class AnonymousProxyHttpConnectionFactory implements HttpConnectionFactor
     }
 
     @Override
-    public HttpConnection create(MappedHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
+    public ProxyHttpConnection create(MappedHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
             HostPort socketAddress) {
         return new AnonymousProxyHttpConnection(factory, sourceChannel, socketAddress, interfaceName,
                 forceIpV4, proxySocketAddress, manipulator);

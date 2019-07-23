@@ -23,7 +23,7 @@ import java.nio.channels.CompletionHandler;
 
 import com.github.apetrelli.scafa.http.HttpRequest;
 
-public interface HttpConnection {
+public interface ProxyHttpConnection {
 
     void ensureConnected(CompletionHandler<Void, Void> handler);
 
