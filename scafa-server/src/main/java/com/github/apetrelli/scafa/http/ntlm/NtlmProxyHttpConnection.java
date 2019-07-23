@@ -28,6 +28,7 @@ import com.github.apetrelli.scafa.http.HttpInput;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpStatus;
 import com.github.apetrelli.scafa.http.impl.DefaultHttpByteSink;
+import com.github.apetrelli.scafa.http.impl.HttpInputProcessor;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
 import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
 import com.github.apetrelli.scafa.http.proxy.MappedHttpConnectionFactory;
@@ -35,7 +36,6 @@ import com.github.apetrelli.scafa.http.proxy.impl.AbstractUpstreamProxyHttpConne
 import com.github.apetrelli.scafa.proto.aio.DelegateFailureCompletionHandler;
 import com.github.apetrelli.scafa.proto.processor.InputProcessor;
 import com.github.apetrelli.scafa.proto.processor.Status;
-import com.github.apetrelli.scafa.proto.processor.impl.ClientInputProcessor;
 import com.github.apetrelli.scafa.util.HttpUtils;
 
 import jcifs.ntlmssp.NtlmFlags;
@@ -94,7 +94,7 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
         HttpRequest modifiedRequest = new HttpRequest(request);
         modifiedRequest.setHeader("Proxy-Connection", "keep-alive");
         HttpByteSink sink = new DefaultHttpByteSink<HttpHandler>(tentativeHandler);
-        InputProcessor<HttpInput, HttpByteSink> processor = new ClientInputProcessor<>(sink);
+        InputProcessor<HttpInput, HttpByteSink> processor = new HttpInputProcessor<>(sink);
         ntlmAuthenticate(modifiedRequest, modifiedRequest, sink, tentativeHandler, processor, completionHandler);
     }
 
@@ -111,7 +111,7 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
             @Override
             public void completed(Void result, Void attachment) {
                 HttpByteSink sink = new DefaultHttpByteSink<HttpHandler>(tentativeHandler);
-                InputProcessor<HttpInput, HttpByteSink> processor = new ClientInputProcessor<>(sink);
+                InputProcessor<HttpInput, HttpByteSink> processor = new HttpInputProcessor<>(sink);
                 readResponse(tentativeHandler, sink, processor, new DelegateFailureCompletionHandler<Integer, Void>(completionHandler) {
 
                     @Override

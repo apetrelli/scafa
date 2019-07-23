@@ -32,20 +32,20 @@ public class DefaultProcessorFactory<I extends Input, S extends ByteSink<I>, H> 
 
     private ByteSinkFactory<I, S, H> factory;
 
-    private InputProcessorFactory<I, S> bufferProcessorFactory;
+    private InputProcessorFactory<I, S> inputProcessorFactory;
 
     private Status<I, S> initialStatus;
 
     public DefaultProcessorFactory(ByteSinkFactory<I, S, H> factory,
-            InputProcessorFactory<I, S> bufferProcessorFactory, Status<I, S> initialStatus) {
+            InputProcessorFactory<I, S> inputProcessorFactory, Status<I, S> initialStatus) {
         this.factory = factory;
-        this.bufferProcessorFactory = bufferProcessorFactory;
+        this.inputProcessorFactory = inputProcessorFactory;
         this.initialStatus = initialStatus;
     }
 
     @Override
     public Processor<H> create(AsynchronousSocketChannel client) {
-        return new DefaultProcessor<>(client, factory, bufferProcessorFactory, initialStatus);
+        return new DefaultProcessor<>(client, factory, inputProcessorFactory, initialStatus);
     }
 
 }

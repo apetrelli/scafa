@@ -117,15 +117,15 @@ public class DefaultProcessor<I extends Input, S extends ByteSink<I>, H> impleme
 
     private ByteSinkFactory<I, S, H> factory;
 
-    private InputProcessorFactory<I, S> bufferProcessorFactory;
+    private InputProcessorFactory<I, S> inputProcessorFactory;
 
     private Status<I, S> initialStatus;
 
     public DefaultProcessor(AsynchronousSocketChannel client, ByteSinkFactory<I, S, H> factory,
-            InputProcessorFactory<I, S> bufferProcessorFactory, Status<I, S> initialStatus) {
+            InputProcessorFactory<I, S> inputProcessorFactory, Status<I, S> initialStatus) {
         this.client = client;
         this.factory = factory;
-        this.bufferProcessorFactory = bufferProcessorFactory;
+        this.inputProcessorFactory = inputProcessorFactory;
         this.initialStatus = initialStatus;
     }
 
@@ -137,7 +137,7 @@ public class DefaultProcessor<I extends Input, S extends ByteSink<I>, H> impleme
             ObjectHolder<Status<I, S>> statusHolder = new ObjectHolder<>();
             statusHolder.setObj(initialStatus);
             I input = sink.createInput();
-            InputProcessor<I, S> processor = bufferProcessorFactory.create(sink);
+            InputProcessor<I, S> processor = inputProcessorFactory.create(sink);
             CompletionHandler<Integer, I> clientCompletionHandler = new ClientReadCompletionHandler(statusHolder, sink, processor);
             client.read(input.getBuffer(), input, clientCompletionHandler);
         } catch (IOException e) {
