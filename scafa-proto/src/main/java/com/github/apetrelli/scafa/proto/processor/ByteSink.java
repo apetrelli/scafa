@@ -30,7 +30,7 @@ public interface ByteSink<T extends Input> {
 
     void start(T input);
 
-    void send(T input, CompletionHandler<Void, Void> handler);
+    void data(T input, CompletionHandler<Void, Void> handler);
 
     void disconnect() throws IOException;
 }

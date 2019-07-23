@@ -256,7 +256,7 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
     }
 
     @Override
-    public void send(HttpInput input, CompletionHandler<Void, Void> completionHandler) {
+    public void data(HttpInput input, CompletionHandler<Void, Void> completionHandler) {
         ByteBuffer buffer = input.getBuffer();
         int oldLimit = buffer.limit();
         int size = oldLimit - buffer.position();
@@ -287,7 +287,7 @@ public class DefaultHttpByteSink<H extends HttpHandler> implements HttpByteSink 
     }
 
     @Override
-    public void sendChunkData(HttpInput input, CompletionHandler<Void, Void> completionHandler) {
+    public void chunkData(HttpInput input, CompletionHandler<Void, Void> completionHandler) {
         ByteBuffer buffer = input.getBuffer();
         int oldLimit = buffer.limit();
         int size = oldLimit - buffer.position();

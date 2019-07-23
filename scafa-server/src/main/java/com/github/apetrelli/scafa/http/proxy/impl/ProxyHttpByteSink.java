@@ -34,11 +34,11 @@ public class ProxyHttpByteSink extends DefaultHttpByteSink<ProxyHttpHandler> {
     }
 
     @Override
-    public void send(HttpInput input, CompletionHandler<Void, Void> completionHandler) {
+    public void data(HttpInput input, CompletionHandler<Void, Void> completionHandler) {
         if (input.isHttpConnected()) {
             handler.onDataToPassAlong(input.getBuffer(), completionHandler);
         } else {
-            super.send(input, completionHandler);
+            super.data(input, completionHandler);
         }
     }
 

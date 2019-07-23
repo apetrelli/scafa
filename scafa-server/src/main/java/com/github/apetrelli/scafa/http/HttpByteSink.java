@@ -41,7 +41,7 @@ public interface HttpByteSink extends ByteSink<HttpInput>{
 
     void endHeaderAndRequest(HttpInput input, CompletionHandler<Void, Void> completionHandler);
 
-    void sendChunkData(HttpInput input, CompletionHandler<Void, Void> handler);
+    void chunkData(HttpInput input, CompletionHandler<Void, Void> handler);
 
     void afterEndOfChunk(byte currentByte, CompletionHandler<Void, Void> completionHandler);
 

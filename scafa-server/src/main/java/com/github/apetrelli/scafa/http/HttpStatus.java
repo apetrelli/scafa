@@ -260,7 +260,7 @@ public enum HttpStatus implements Status<HttpInput, HttpByteSink> {
 
         @Override
         public void out(HttpInput input, HttpByteSink sink, CompletionHandler<Void, Void> completionHandler) {
-            sink.send(input, completionHandler);
+            sink.data(input, completionHandler);
         }
 
     },
@@ -363,7 +363,7 @@ public enum HttpStatus implements Status<HttpInput, HttpByteSink> {
 
         @Override
         public void out(HttpInput input, HttpByteSink sink, CompletionHandler<Void, Void> completionHandler) {
-            sink.sendChunkData(input, completionHandler);
+            sink.chunkData(input, completionHandler);
         }
 
     },
@@ -403,7 +403,7 @@ public enum HttpStatus implements Status<HttpInput, HttpByteSink> {
 
         @Override
         public void out(HttpInput input, HttpByteSink sink, CompletionHandler<Void, Void> completionHandler) {
-            sink.send(input, completionHandler);
+            sink.data(input, completionHandler);
         }
 
     };
