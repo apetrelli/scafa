@@ -58,7 +58,7 @@
     </dependency>
     <dependency>
     	<groupId>com.github.apetrelli.scafa</groupId>
-    	<artifactId>scafa-proto</artifactId>
+    	<artifactId>scafa-http</artifactId>
     	<version>1.0.0-SNAPSHOT</version>
     </dependency>
   </dependencies>

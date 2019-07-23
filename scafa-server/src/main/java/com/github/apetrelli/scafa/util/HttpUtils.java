@@ -32,6 +32,31 @@ import com.github.apetrelli.scafa.http.impl.HostPort;
 
 public class HttpUtils {
 
+    private static class BufferFlusherCompletionHandler implements CompletionHandler<Integer, ByteBuffer> {
+        private final CompletionHandler<Void, Void> completionHandler;
+
+        private AsynchronousSocketChannel channel;
+
+        private BufferFlusherCompletionHandler(AsynchronousSocketChannel channel, CompletionHandler<Void, Void> completionHandler) {
+            this.channel = channel;
+            this.completionHandler = completionHandler;
+        }
+
+        @Override
+        public void completed(Integer result, ByteBuffer attachment) {
+            if (attachment.hasRemaining()) {
+                channel.write(attachment, attachment, this);
+            } else {
+                completionHandler.completed(null, null);
+            }
+        }
+
+        @Override
+        public void failed(Throwable exc, ByteBuffer attachment) {
+            completionHandler.failed(exc, null);
+        }
+    }
+
     private static final Logger LOG = Logger.getLogger(HttpUtils.class.getName());
 
     private static final byte CR = 13;
@@ -54,20 +79,11 @@ public class HttpUtils {
 
     public static void flushBuffer(ByteBuffer buffer, AsynchronousSocketChannel channelToSend, CompletionHandler<Void, Void> completionHandler) {
         buffer.flip();
-        channelToSend.write(buffer, null, new CompletionHandler<Integer, Void>() {
+        flushBufferWithoutFlipping(buffer, channelToSend, completionHandler);
+    }
 
-            @Override
-            public void completed(Integer result, Void attachment) {
-                buffer.clear();
-                completionHandler.completed(null, attachment);
-            }
-
-            @Override
-            public void failed(Throwable exc, Void attachment) {
-                buffer.clear();
-                completionHandler.failed(exc, attachment);
-            }
-        });
+    public static void flushBufferWithoutFlipping(ByteBuffer buffer, AsynchronousSocketChannel channelToSend, CompletionHandler<Void, Void> completionHandler) {
+        channelToSend.write(buffer, buffer, new BufferFlusherCompletionHandler(channelToSend, completionHandler));
     }
 
     public static void sendChunkSize(long size, AsynchronousSocketChannel channelToSend, CompletionHandler<Void, Void> completionHandler) {
