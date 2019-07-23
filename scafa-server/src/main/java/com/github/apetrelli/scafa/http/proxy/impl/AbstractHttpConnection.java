@@ -36,7 +36,6 @@ import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.impl.HostPort;
 import com.github.apetrelli.scafa.http.proxy.HttpConnection;
 import com.github.apetrelli.scafa.http.proxy.MappedHttpConnectionFactory;
-import com.github.apetrelli.scafa.proto.aio.DelegateCompletionHandler;
 import com.github.apetrelli.scafa.proto.aio.DelegateFailureCompletionHandler;
 import com.github.apetrelli.scafa.util.HttpUtils;
 
@@ -136,17 +135,23 @@ public abstract class AbstractHttpConnection implements HttpConnection {
 
     @Override
     public void send(ByteBuffer buffer, CompletionHandler<Void, Void> completionHandler) {
-        DelegateCompletionHandler<Integer, Void> currentHandler = new  DelegateCompletionHandler<Integer, Void>(completionHandler) {
+        CompletionHandler<Integer, ByteBuffer> currentHandler = new CompletionHandler<Integer, ByteBuffer>() {
+
             @Override
-            public void completed(Integer result, Void attachment) {
-                if (buffer.hasRemaining()) {
-                    channel.write(buffer, null, this);
+            public void completed(Integer result, ByteBuffer attachment) {
+                if (attachment.hasRemaining()) {
+                    channel.write(attachment, attachment, this);
                 } else {
-                    super.completed(result, attachment);
+                    completionHandler.completed(null, null);
                 }
             }
+
+            @Override
+            public void failed(Throwable exc, ByteBuffer attachment) {
+                completionHandler.failed(exc, null);
+            }
         };
-        channel.write(buffer, null, currentHandler);
+        channel.write(buffer, buffer, currentHandler);
     }
 
     @Override
