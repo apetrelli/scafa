@@ -19,8 +19,8 @@ package com.github.apetrelli.scafa.http.proxy.impl;
 
 import java.nio.channels.AsynchronousSocketChannel;
 
-import com.github.apetrelli.scafa.http.HttpRequestManipulator;
-import com.github.apetrelli.scafa.http.impl.HostPort;
+import com.github.apetrelli.scafa.http.HostPort;
+import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
 import com.github.apetrelli.scafa.http.proxy.MappedHttpConnectionFactory;
 
 public class AnonymousProxyHttpConnection extends AbstractProxyHttpConnection {

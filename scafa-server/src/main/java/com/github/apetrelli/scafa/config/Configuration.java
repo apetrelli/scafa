@@ -33,10 +33,10 @@ import org.ini4j.Ini;
 import org.ini4j.InvalidFileFormatException;
 import org.ini4j.Profile.Section;
 
-import com.github.apetrelli.scafa.http.HttpRequestManipulator;
-import com.github.apetrelli.scafa.http.impl.HostPort;
+import com.github.apetrelli.scafa.http.HostPort;
 import com.github.apetrelli.scafa.http.ntlm.NtlmProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectionFactory;
+import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
 import com.github.apetrelli.scafa.http.proxy.impl.AnonymousProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.impl.BasicAuthProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.impl.DirectHttpConnectionFactory;

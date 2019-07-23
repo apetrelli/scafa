@@ -20,8 +20,8 @@ package com.github.apetrelli.scafa.http.proxy;
 import java.io.IOException;
 import java.nio.channels.AsynchronousSocketChannel;
 
+import com.github.apetrelli.scafa.http.HostPort;
 import com.github.apetrelli.scafa.http.HttpRequest;
-import com.github.apetrelli.scafa.http.impl.HostPort;
 
 public interface MappedHttpConnectionFactory {
 

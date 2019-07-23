@@ -21,7 +21,7 @@ import java.nio.channels.AsynchronousSocketChannel;
 
 import org.ini4j.Profile.Section;
 
-import com.github.apetrelli.scafa.http.impl.HostPort;
+import com.github.apetrelli.scafa.http.HostPort;
 import com.github.apetrelli.scafa.http.proxy.HttpConnection;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.MappedHttpConnectionFactory;
