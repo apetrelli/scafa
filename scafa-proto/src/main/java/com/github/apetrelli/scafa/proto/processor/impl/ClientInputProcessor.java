@@ -15,16 +15,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.apetrelli.scafa.http.impl;
+package com.github.apetrelli.scafa.proto.processor.impl;
 
-import com.github.apetrelli.scafa.http.HttpInput;
 import com.github.apetrelli.scafa.proto.processor.ByteSink;
-import com.github.apetrelli.scafa.proto.processor.impl.AbstractBufferProcessor;
+import com.github.apetrelli.scafa.proto.processor.Input;
 
-public class HttpBufferProcessor<S extends ByteSink<HttpInput>> extends AbstractBufferProcessor<HttpInput, S> {
+public class ClientInputProcessor<I extends Input, S extends ByteSink<I>> extends AbstractInputProcessor<I, S> {
 
-    public HttpBufferProcessor(S sink) {
+    public ClientInputProcessor(S sink) {
         super(sink);
     }
-
 }

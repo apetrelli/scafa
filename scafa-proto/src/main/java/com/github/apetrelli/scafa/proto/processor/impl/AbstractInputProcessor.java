@@ -21,16 +21,16 @@ import java.nio.ByteBuffer;
 import java.nio.channels.CompletionHandler;
 
 import com.github.apetrelli.scafa.proto.aio.DelegateFailureCompletionHandler;
-import com.github.apetrelli.scafa.proto.processor.BufferProcessor;
+import com.github.apetrelli.scafa.proto.processor.InputProcessor;
 import com.github.apetrelli.scafa.proto.processor.ByteSink;
 import com.github.apetrelli.scafa.proto.processor.Input;
 import com.github.apetrelli.scafa.proto.processor.Status;
 
-public abstract class AbstractBufferProcessor<I extends Input, S extends ByteSink<I>> implements BufferProcessor<I, S> {
+public abstract class AbstractInputProcessor<I extends Input, S extends ByteSink<I>> implements InputProcessor<I, S> {
 
     private S sink;
 
-    public AbstractBufferProcessor(S sink) {
+    public AbstractInputProcessor(S sink) {
         this.sink = sink;
     }
 

@@ -27,8 +27,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.proto.aio.ByteSinkFactory;
-import com.github.apetrelli.scafa.proto.processor.BufferProcessor;
-import com.github.apetrelli.scafa.proto.processor.BufferProcessorFactory;
+import com.github.apetrelli.scafa.proto.processor.InputProcessor;
+import com.github.apetrelli.scafa.proto.processor.InputProcessorFactory;
 import com.github.apetrelli.scafa.proto.processor.ByteSink;
 import com.github.apetrelli.scafa.proto.processor.Input;
 import com.github.apetrelli.scafa.proto.processor.Processor;
@@ -40,10 +40,10 @@ public class DefaultProcessor<I extends Input, S extends ByteSink<I>, H> impleme
     private class ClientReadCompletionHandler implements CompletionHandler<Integer, I> {
         private final ObjectHolder<Status<I, S>> statusHolder;
         private final S sink;
-        private final BufferProcessor<I, S> processor;
+        private final InputProcessor<I, S> processor;
 
         private ClientReadCompletionHandler(ObjectHolder<Status<I, S>> statusHolder, S sink,
-                BufferProcessor<I, S> processor) {
+                InputProcessor<I, S> processor) {
             this.statusHolder = statusHolder;
             this.sink = sink;
             this.processor = processor;
@@ -117,12 +117,12 @@ public class DefaultProcessor<I extends Input, S extends ByteSink<I>, H> impleme
 
     private ByteSinkFactory<I, S, H> factory;
 
-    private BufferProcessorFactory<I, S> bufferProcessorFactory;
+    private InputProcessorFactory<I, S> bufferProcessorFactory;
 
     private Status<I, S> initialStatus;
 
     public DefaultProcessor(AsynchronousSocketChannel client, ByteSinkFactory<I, S, H> factory,
-            BufferProcessorFactory<I, S> bufferProcessorFactory, Status<I, S> initialStatus) {
+            InputProcessorFactory<I, S> bufferProcessorFactory, Status<I, S> initialStatus) {
         this.client = client;
         this.factory = factory;
         this.bufferProcessorFactory = bufferProcessorFactory;
@@ -137,7 +137,7 @@ public class DefaultProcessor<I extends Input, S extends ByteSink<I>, H> impleme
             ObjectHolder<Status<I, S>> statusHolder = new ObjectHolder<>();
             statusHolder.setObj(initialStatus);
             I input = sink.createInput();
-            BufferProcessor<I, S> processor = bufferProcessorFactory.create(sink);
+            InputProcessor<I, S> processor = bufferProcessorFactory.create(sink);
             CompletionHandler<Integer, I> clientCompletionHandler = new ClientReadCompletionHandler(statusHolder, sink, processor);
             client.read(input.getBuffer(), input, clientCompletionHandler);
         } catch (IOException e) {

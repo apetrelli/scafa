@@ -15,11 +15,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.apetrelli.scafa.proto.processor;
+package com.github.apetrelli.scafa.http.impl;
 
-import java.nio.channels.CompletionHandler;
+import com.github.apetrelli.scafa.http.HttpInput;
+import com.github.apetrelli.scafa.proto.processor.ByteSink;
+import com.github.apetrelli.scafa.proto.processor.impl.AbstractInputProcessor;
 
-public interface BufferProcessor<I extends Input, S extends ByteSink<I>> {
+public class HttpInputProcessor<S extends ByteSink<HttpInput>> extends AbstractInputProcessor<HttpInput, S> {
 
-    void process(I input, Status<I, S> status, CompletionHandler<Status<I, S>, I> completionHandler);
+    public HttpInputProcessor(S sink) {
+        super(sink);
+    }
+
 }

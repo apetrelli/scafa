@@ -15,14 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.apetrelli.scafa.proto.processor.impl;
+package com.github.apetrelli.scafa.proto.processor;
 
-import com.github.apetrelli.scafa.proto.processor.ByteSink;
-import com.github.apetrelli.scafa.proto.processor.Input;
+public interface InputProcessorFactory<I extends Input, S extends ByteSink<I>> {
 
-public class ClientBufferProcessor<I extends Input, S extends ByteSink<I>> extends AbstractBufferProcessor<I, S> {
-
-    public ClientBufferProcessor(S sink) {
-        super(sink);
-    }
+    InputProcessor<I, S> create(S sink);
 }

@@ -18,15 +18,15 @@
 package com.github.apetrelli.scafa.http.impl;
 
 import com.github.apetrelli.scafa.http.HttpInput;
-import com.github.apetrelli.scafa.proto.processor.BufferProcessor;
-import com.github.apetrelli.scafa.proto.processor.BufferProcessorFactory;
+import com.github.apetrelli.scafa.proto.processor.InputProcessor;
+import com.github.apetrelli.scafa.proto.processor.InputProcessorFactory;
 import com.github.apetrelli.scafa.proto.processor.ByteSink;
 
-public class HttpBufferProcessorFactory<S extends ByteSink<HttpInput>> implements
-        BufferProcessorFactory<HttpInput, S> {
+public class HttpInputProcessorFactory<S extends ByteSink<HttpInput>> implements
+        InputProcessorFactory<HttpInput, S> {
 
     @Override
-    public BufferProcessor<HttpInput, S> create(S sink) {
-        return new HttpBufferProcessor<>(sink);
+    public InputProcessor<HttpInput, S> create(S sink) {
+        return new HttpInputProcessor<>(sink);
     }
 }

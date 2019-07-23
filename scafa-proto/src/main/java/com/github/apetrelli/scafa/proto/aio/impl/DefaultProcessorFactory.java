@@ -21,7 +21,7 @@ import java.nio.channels.AsynchronousSocketChannel;
 
 import com.github.apetrelli.scafa.proto.aio.ByteSinkFactory;
 import com.github.apetrelli.scafa.proto.aio.ProcessorFactory;
-import com.github.apetrelli.scafa.proto.processor.BufferProcessorFactory;
+import com.github.apetrelli.scafa.proto.processor.InputProcessorFactory;
 import com.github.apetrelli.scafa.proto.processor.ByteSink;
 import com.github.apetrelli.scafa.proto.processor.Input;
 import com.github.apetrelli.scafa.proto.processor.Processor;
@@ -32,12 +32,12 @@ public class DefaultProcessorFactory<I extends Input, S extends ByteSink<I>, H> 
 
     private ByteSinkFactory<I, S, H> factory;
 
-    private BufferProcessorFactory<I, S> bufferProcessorFactory;
+    private InputProcessorFactory<I, S> bufferProcessorFactory;
 
     private Status<I, S> initialStatus;
 
     public DefaultProcessorFactory(ByteSinkFactory<I, S, H> factory,
-            BufferProcessorFactory<I, S> bufferProcessorFactory, Status<I, S> initialStatus) {
+            InputProcessorFactory<I, S> bufferProcessorFactory, Status<I, S> initialStatus) {
         this.factory = factory;
         this.bufferProcessorFactory = bufferProcessorFactory;
         this.initialStatus = initialStatus;

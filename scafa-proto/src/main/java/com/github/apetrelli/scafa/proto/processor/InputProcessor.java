@@ -17,7 +17,9 @@
  */
 package com.github.apetrelli.scafa.proto.processor;
 
-public interface BufferProcessorFactory<I extends Input, S extends ByteSink<I>> {
+import java.nio.channels.CompletionHandler;
 
-    BufferProcessor<I, S> create(S sink);
+public interface InputProcessor<I extends Input, S extends ByteSink<I>> {
+
+    void process(I input, Status<I, S> status, CompletionHandler<Status<I, S>, I> completionHandler);
 }
