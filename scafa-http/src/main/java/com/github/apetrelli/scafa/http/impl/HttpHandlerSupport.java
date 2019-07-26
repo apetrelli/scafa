@@ -59,6 +59,7 @@ public class HttpHandlerSupport implements HttpHandler {
     @Override
 	public void onChunk(ByteBuffer buffer, long totalOffset, long chunkOffset, long chunkLength,
 			CompletionHandler<Void, Void> handler) {
+        buffer.position(buffer.limit());
         handler.completed(null, null);
     }
 
@@ -69,6 +70,12 @@ public class HttpHandlerSupport implements HttpHandler {
 
     @Override
     public void onChunkedTransferEnd(CompletionHandler<Void, Void> handler) {
+        handler.completed(null, null);
+    }
+
+    @Override
+    public void onDataToPassAlong(ByteBuffer buffer, CompletionHandler<Void, Void> handler) {
+        buffer.position(buffer.limit());
         handler.completed(null, null);
     }
 

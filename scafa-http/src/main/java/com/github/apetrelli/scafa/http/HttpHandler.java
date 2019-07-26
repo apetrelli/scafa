@@ -41,6 +41,8 @@ public interface HttpHandler {
 
     void onChunkedTransferEnd(CompletionHandler<Void, Void> handler);
 
+    void onDataToPassAlong(ByteBuffer buffer, CompletionHandler<Void, Void> handler);
+
     void onEnd();
 
     void onDisconnect() throws IOException;

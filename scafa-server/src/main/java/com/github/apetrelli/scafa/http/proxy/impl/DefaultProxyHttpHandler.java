@@ -67,14 +67,24 @@ public class DefaultProxyHttpHandler implements ProxyHttpHandler {
 
     @Override
     public void onRequestHeader(HttpRequest request, CompletionHandler<Void, Void> handler) {
-        connectionFactory.create(sourceChannel, request, new ResultHandler<ProxyHttpConnection>() {
-
-            @Override
-            public void handle(ProxyHttpConnection result) {
-                connection = result;
-                connection.sendHeader(request, handler);
+        if ("CONNECT".equalsIgnoreCase(request.getMethod())) {
+            HttpConnectRequest connectRequest;
+            try {
+                connectRequest = new HttpConnectRequest(request);
+                onConnectMethod(connectRequest, handler);
+            } catch (IOException e) {
+                handler.failed(e, null);
             }
-        });
+        } else {
+            connectionFactory.create(sourceChannel, request, new ResultHandler<ProxyHttpConnection>() {
+
+                @Override
+                public void handle(ProxyHttpConnection result) {
+                    connection = result;
+                    connection.sendHeader(request, handler);
+                }
+            });
+        }
     }
 
     @Override
