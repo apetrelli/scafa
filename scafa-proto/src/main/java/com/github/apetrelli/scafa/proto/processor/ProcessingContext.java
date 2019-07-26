@@ -1,21 +1,21 @@
 package com.github.apetrelli.scafa.proto.processor;
 
-public class ProcessingContext<I extends Input, S extends ByteSink<I>> {
+public class ProcessingContext<I extends Input, ST> {
 
-	private Status<I, S> status;
+	private ST status;
 
 	private I input;
 
-	public ProcessingContext(Status<I, S> status, I input) {
+	public ProcessingContext(ST status, I input) {
 		this.status = status;
 		this.input = input;
 	}
 
-	public Status<I, S> getStatus() {
+	public ST getStatus() {
 		return status;
 	}
 
-	public void setStatus(Status<I, S> status) {
+	public void setStatus(ST status) {
 		this.status = status;
 	}
 

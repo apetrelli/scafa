@@ -17,7 +17,7 @@
  */
 package com.github.apetrelli.scafa.proto.processor;
 
-public interface InputProcessorFactory<I extends Input, S extends ByteSink<I>, P extends ProcessingContext<I, S>> {
+public interface InputProcessorFactory<I extends Input, S extends ByteSink<I>, ST, P extends ProcessingContext<I, ST>> {
 
-    InputProcessor<I, S, P> create(S sink);
+    InputProcessor<I, ST, P> create(S sink);
 }

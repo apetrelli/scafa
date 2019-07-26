@@ -9,16 +9,15 @@ import com.github.apetrelli.scafa.http.HttpInput;
 import com.github.apetrelli.scafa.http.HttpProcessingContext;
 import com.github.apetrelli.scafa.http.HttpStatus;
 import com.github.apetrelli.scafa.proto.processor.ProtocolStateMachine;
-import com.github.apetrelli.scafa.proto.processor.Status;
 
-public class HttpStateMachine implements ProtocolStateMachine<HttpInput, HttpByteSink, HttpProcessingContext> {
+public class HttpStateMachine implements ProtocolStateMachine<HttpInput, HttpByteSink, HttpStatus, HttpProcessingContext> {
 
     private static final byte CR = 13;
 
     private static final byte LF = 10;
 
 	@Override
-	public Status<HttpInput, HttpByteSink> next(HttpProcessingContext context) {
+	public HttpStatus next(HttpProcessingContext context) {
 		HttpStatus newStatus = null;
 		switch (context.getStatus()) {
 		case IDLE:

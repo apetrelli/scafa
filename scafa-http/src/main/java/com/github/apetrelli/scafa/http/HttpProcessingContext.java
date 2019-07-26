@@ -6,7 +6,7 @@ import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.proto.processor.ProcessingContext;
 
-public class HttpProcessingContext extends ProcessingContext<HttpInput, HttpByteSink> {
+public class HttpProcessingContext extends ProcessingContext<HttpInput, HttpStatus> {
 
 	private static final Logger LOG = Logger.getLogger(HttpProcessingContext.class.getName());
 

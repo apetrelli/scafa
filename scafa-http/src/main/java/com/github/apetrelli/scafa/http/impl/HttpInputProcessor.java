@@ -20,9 +20,10 @@ package com.github.apetrelli.scafa.http.impl;
 import com.github.apetrelli.scafa.http.HttpByteSink;
 import com.github.apetrelli.scafa.http.HttpInput;
 import com.github.apetrelli.scafa.http.HttpProcessingContext;
+import com.github.apetrelli.scafa.http.HttpStatus;
 import com.github.apetrelli.scafa.proto.processor.impl.AbstractInputProcessor;
 
-public class HttpInputProcessor extends AbstractInputProcessor<HttpInput, HttpByteSink, HttpProcessingContext> {
+public class HttpInputProcessor extends AbstractInputProcessor<HttpInput, HttpByteSink, HttpStatus, HttpProcessingContext> {
 
     public HttpInputProcessor(HttpByteSink sink, HttpStateMachine stateMachine) {
         super(sink, stateMachine);

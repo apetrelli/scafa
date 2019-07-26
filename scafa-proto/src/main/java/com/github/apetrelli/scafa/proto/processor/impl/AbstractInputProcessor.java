@@ -26,13 +26,13 @@ import com.github.apetrelli.scafa.proto.processor.InputProcessor;
 import com.github.apetrelli.scafa.proto.processor.ProcessingContext;
 import com.github.apetrelli.scafa.proto.processor.ProtocolStateMachine;
 
-public abstract class AbstractInputProcessor<I extends Input, S extends ByteSink<I>, P extends ProcessingContext<I, S>> implements InputProcessor<I, S, P> {
+public abstract class AbstractInputProcessor<I extends Input, S extends ByteSink<I>, ST, P extends ProcessingContext<I, ST>> implements InputProcessor<I, ST, P> {
 
     private S sink;
 
-    private ProtocolStateMachine<I, S, P> stateMachine;
+    private ProtocolStateMachine<I, S, ST, P> stateMachine;
 
-    public AbstractInputProcessor(S sink, ProtocolStateMachine<I, S, P> stateMachine) {
+    public AbstractInputProcessor(S sink, ProtocolStateMachine<I, S, ST, P> stateMachine) {
         this.sink = sink;
         this.stateMachine = stateMachine;
     }

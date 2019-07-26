@@ -34,17 +34,16 @@ import com.github.apetrelli.scafa.proto.processor.InputProcessorFactory;
 import com.github.apetrelli.scafa.proto.processor.ProcessingContext;
 import com.github.apetrelli.scafa.proto.processor.ProcessingContextFactory;
 import com.github.apetrelli.scafa.proto.processor.Processor;
-import com.github.apetrelli.scafa.proto.processor.Status;
 
-public class DefaultProcessor<I extends Input, S extends ByteSink<I>, P extends ProcessingContext<I, S>, H> implements Processor<H> {
+public class DefaultProcessor<I extends Input, S extends ByteSink<I>, ST, P extends ProcessingContext<I, ST>, H> implements Processor<H> {
 
     private class ClientReadCompletionHandler implements CompletionHandler<Integer, P> {
         private final S sink;
-        private final InputProcessor<I, S, P> processor;
+        private final InputProcessor<I, ST, P> processor;
 
         private ProcessCompletionHandler processCompletionHandler;
 
-		private ClientReadCompletionHandler(S sink, InputProcessor<I, S, P> processor) {
+		private ClientReadCompletionHandler(S sink, InputProcessor<I, ST, P> processor) {
             this.sink = sink;
             this.processor = processor;
         }
@@ -117,14 +116,14 @@ public class DefaultProcessor<I extends Input, S extends ByteSink<I>, P extends 
 
     private ByteSinkFactory<I, S, H> factory;
 
-    private InputProcessorFactory<I, S, P> inputProcessorFactory;
+    private InputProcessorFactory<I, S, ST, P> inputProcessorFactory;
 
-    private ProcessingContextFactory<I, S, P> processingContextFactory;
+    private ProcessingContextFactory<I, ST, P> processingContextFactory;
 
-    private Status<I, S> initialStatus;
+    private ST initialStatus;
 
     public DefaultProcessor(AsynchronousSocketChannel client, ByteSinkFactory<I, S, H> factory,
-            InputProcessorFactory<I, S, P> inputProcessorFactory, ProcessingContextFactory<I, S, P> processingContextFactory, Status<I, S> initialStatus) {
+            InputProcessorFactory<I, S, ST, P> inputProcessorFactory, ProcessingContextFactory<I, ST, P> processingContextFactory, ST initialStatus) {
         this.client = client;
         this.factory = factory;
         this.inputProcessorFactory = inputProcessorFactory;
@@ -139,7 +138,7 @@ public class DefaultProcessor<I extends Input, S extends ByteSink<I>, P extends 
             sink.connect();
             I input = sink.createInput();
             P context = processingContextFactory.create(input, initialStatus);
-            InputProcessor<I, S, P> processor = inputProcessorFactory.create(sink);
+            InputProcessor<I, ST, P> processor = inputProcessorFactory.create(sink);
             ClientReadCompletionHandler clientReadCompletionHandler = new ClientReadCompletionHandler(sink, processor);
             ProcessCompletionHandler processCompletionHandler = new ProcessCompletionHandler(clientReadCompletionHandler);
             clientReadCompletionHandler.setProcessCompletionHandler(processCompletionHandler);
