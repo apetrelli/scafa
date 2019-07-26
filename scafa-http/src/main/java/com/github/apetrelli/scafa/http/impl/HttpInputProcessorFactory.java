@@ -26,8 +26,14 @@ import com.github.apetrelli.scafa.proto.processor.InputProcessorFactory;
 public class HttpInputProcessorFactory implements
         InputProcessorFactory<HttpInput, HttpByteSink, HttpProcessingContext> {
 
+	private HttpStateMachine stateMachine;
+
+	public HttpInputProcessorFactory(HttpStateMachine stateMachine) {
+		this.stateMachine = stateMachine;
+	}
+
 	@Override
 	public InputProcessor<HttpInput, HttpByteSink, HttpProcessingContext> create(HttpByteSink sink) {
-        return new HttpInputProcessor(sink);
+        return new HttpInputProcessor(sink, stateMachine);
     }
 }

@@ -34,6 +34,7 @@ import com.github.apetrelli.scafa.config.Configuration;
 import com.github.apetrelli.scafa.http.HttpStatus;
 import com.github.apetrelli.scafa.http.impl.HttpInputProcessorFactory;
 import com.github.apetrelli.scafa.http.impl.HttpProcessingContextFactory;
+import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpHandler;
 import com.github.apetrelli.scafa.http.proxy.impl.DefaultHttpConnectionFactoryFactory;
 import com.github.apetrelli.scafa.http.proxy.impl.ProxyHttpByteSinkFactory;
@@ -108,11 +109,11 @@ public class ScafaLauncher {
             System.exit(1);
         }
         try {
-            Configuration configuration = Configuration.create(profile);
+        	HttpStateMachine stateMachine = new HttpStateMachine();
+            Configuration configuration = Configuration.create(profile, stateMachine);
             Integer port = configuration.getMainConfiguration().get("port", int.class);
-            proxy = new ScafaListener<>(
-                    new DefaultProcessorFactory<>(new ProxyHttpByteSinkFactory(), new HttpInputProcessorFactory(),
-                            new HttpProcessingContextFactory(), HttpStatus.IDLE),
+            proxy = new ScafaListener<>(new DefaultProcessorFactory<>(new ProxyHttpByteSinkFactory(),
+                    new HttpInputProcessorFactory(stateMachine), new HttpProcessingContextFactory(), HttpStatus.IDLE),
                     new ProxyHttpHandlerFactory(new DefaultHttpConnectionFactoryFactory(configuration)), port);
             proxy.listen();
         } catch (IOException e) {

@@ -30,6 +30,7 @@ import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpStatus;
 import com.github.apetrelli.scafa.http.impl.DefaultHttpByteSink;
 import com.github.apetrelli.scafa.http.impl.HttpInputProcessor;
+import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
 import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
 import com.github.apetrelli.scafa.http.proxy.MappedHttpConnectionFactory;
@@ -57,17 +58,20 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
 
     private String domain, username, password;
 
+    private HttpStateMachine stateMachine;
+
     private TentativeHandler tentativeHandler;
 
     public NtlmProxyHttpConnection(MappedHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
             HostPort calledAddress, String interfaceName, boolean forceIpV4, HostPort proxySocketAddress, String domain, String username, String password,
-            HttpRequestManipulator manipulator) {
+            HttpStateMachine stateMachine, HttpRequestManipulator manipulator) {
         super(factory, sourceChannel, calledAddress, interfaceName, forceIpV4, proxySocketAddress, manipulator);
         this.factory = factory;
         this.calledAddress = calledAddress;
         this.domain = domain;
         this.username = username;
         this.password = password;
+        this.stateMachine = stateMachine;
         tentativeHandler = new TentativeHandler(sourceChannel);
     }
 
@@ -93,7 +97,7 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
         HttpRequest modifiedRequest = new HttpRequest(request);
         modifiedRequest.setHeader("Proxy-Connection", "keep-alive");
         HttpByteSink sink = new DefaultHttpByteSink<HttpHandler>(tentativeHandler);
-        HttpInputProcessor processor = new HttpInputProcessor(sink);
+        HttpInputProcessor processor = new HttpInputProcessor(sink, stateMachine);
         ntlmAuthenticate(modifiedRequest, modifiedRequest, sink, tentativeHandler, processor, completionHandler);
     }
 
@@ -110,7 +114,7 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
             @Override
             public void completed(Void result, Void attachment) {
                 HttpByteSink sink = new DefaultHttpByteSink<HttpHandler>(tentativeHandler);
-                HttpInputProcessor processor = new HttpInputProcessor(sink);
+                HttpInputProcessor processor = new HttpInputProcessor(sink, stateMachine);
                 readResponse(tentativeHandler, sink, processor, new DelegateFailureCompletionHandler<Integer, Void>(completionHandler) {
 
                     @Override

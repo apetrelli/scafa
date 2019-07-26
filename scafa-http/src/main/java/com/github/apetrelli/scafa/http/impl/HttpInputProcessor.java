@@ -24,8 +24,8 @@ import com.github.apetrelli.scafa.proto.processor.impl.AbstractInputProcessor;
 
 public class HttpInputProcessor extends AbstractInputProcessor<HttpInput, HttpByteSink, HttpProcessingContext> {
 
-    public HttpInputProcessor(HttpByteSink sink) {
-        super(sink);
+    public HttpInputProcessor(HttpByteSink sink, HttpStateMachine stateMachine) {
+        super(sink, stateMachine);
     }
 
 }

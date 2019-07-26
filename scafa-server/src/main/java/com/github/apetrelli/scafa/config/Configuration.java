@@ -34,6 +34,7 @@ import org.ini4j.InvalidFileFormatException;
 import org.ini4j.Profile.Section;
 
 import com.github.apetrelli.scafa.http.HostPort;
+import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
 import com.github.apetrelli.scafa.http.ntlm.NtlmProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
@@ -65,25 +66,25 @@ public class Configuration {
         getFile(profile).delete();
     }
 
-    public static Configuration create(String profile) throws InvalidFileFormatException, IOException {
+    public static Configuration create(String profile, HttpStateMachine stateMachine) throws InvalidFileFormatException, IOException {
         if (profile == null) {
             profile = "direct";
         }
         Ini ini = loadIni(profile);
-        return new Configuration(ini);
+        return new Configuration(ini, stateMachine);
     }
 
     private static File getFile(String profile) {
         return new File(System.getProperty("user.home") + "/.scafa/" + profile + ".ini");
     }
 
-    private Configuration(Ini ini) {
+    private Configuration(Ini ini, HttpStateMachine stateMachine) {
         this.ini = ini;
         sectionName2factory = new LinkedHashMap<>();
         ini.keySet().stream().filter(t -> !"main".equals(t)).map(t -> ini.get(t)).forEach(t -> {
             switch (t.get("type")) {
             case "ntlm":
-                sectionName2factory.put(t.getName(), new NtlmProxyHttpConnectionFactory(t));
+                sectionName2factory.put(t.getName(), new NtlmProxyHttpConnectionFactory(t, stateMachine));
                 break;
             case "anon":
                 sectionName2factory.put(t.getName(), new AnonymousProxyHttpConnectionFactory(t));

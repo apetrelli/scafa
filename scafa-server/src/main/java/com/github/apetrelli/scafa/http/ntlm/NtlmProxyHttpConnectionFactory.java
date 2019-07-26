@@ -23,6 +23,7 @@ import org.ini4j.Profile.Section;
 
 import com.github.apetrelli.scafa.config.Configuration;
 import com.github.apetrelli.scafa.http.HostPort;
+import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
@@ -40,7 +41,9 @@ public class NtlmProxyHttpConnectionFactory implements HttpConnectionFactory {
 
     private boolean forceIpV4;
 
-    public NtlmProxyHttpConnectionFactory(Section section) {
+    private HttpStateMachine stateMachine;
+
+    public NtlmProxyHttpConnectionFactory(Section section, HttpStateMachine stateMachine) {
         this.proxySocketAddress = Configuration.createProxySocketAddress(section);
         this.interfaceName = section.get("interface");
         this.forceIpV4 = section.get("forceIPV4", boolean.class, false);
@@ -48,13 +51,14 @@ public class NtlmProxyHttpConnectionFactory implements HttpConnectionFactory {
         this.username = section.get("username");
         this.password = section.get("password");
         manipulator = Configuration.createManipulator(section);
+        this.stateMachine = stateMachine;
     }
 
     @Override
     public ProxyHttpConnection create(MappedHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
             HostPort socketAddress) {
         return new NtlmProxyHttpConnection(factory, sourceChannel, socketAddress, interfaceName, forceIpV4, proxySocketAddress,
-                domain, username, password, manipulator);
+                domain, username, password, stateMachine, manipulator);
     }
 
 }
