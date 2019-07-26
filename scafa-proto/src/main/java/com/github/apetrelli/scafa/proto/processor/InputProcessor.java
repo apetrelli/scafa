@@ -21,5 +21,5 @@ import java.nio.channels.CompletionHandler;
 
 public interface InputProcessor<I extends Input, S extends ByteSink<I>> {
 
-    void process(I input, Status<I, S> status, CompletionHandler<Status<I, S>, I> completionHandler);
+    void process(ProcessingContext<I, S> context, CompletionHandler<ProcessingContext<I, S>, ProcessingContext<I, S>> completionHandler);
 }

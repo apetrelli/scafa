@@ -35,6 +35,7 @@ import com.github.apetrelli.scafa.http.proxy.MappedHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.impl.AbstractUpstreamProxyHttpConnection;
 import com.github.apetrelli.scafa.proto.aio.DelegateFailureCompletionHandler;
 import com.github.apetrelli.scafa.proto.processor.InputProcessor;
+import com.github.apetrelli.scafa.proto.processor.ProcessingContext;
 import com.github.apetrelli.scafa.proto.processor.Status;
 import com.github.apetrelli.scafa.util.HttpUtils;
 
@@ -206,12 +207,13 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
         HttpInput input = sink.createInput();
         input.setBuffer(readBuffer);
         Status<HttpInput, HttpByteSink> status = HttpStatus.IDLE;
+        ProcessingContext<HttpInput, HttpByteSink> context = new ProcessingContext<>(status, input);
         Integer retValue = 0;
-        readResponse(handler, processor, completionHandler, input, status, retValue);
+        readResponse(handler, processor, completionHandler, context, retValue);
     }
 
     private void readResponse(CapturingHandler handler, InputProcessor<HttpInput, HttpByteSink> processor,
-            CompletionHandler<Integer, Void> completionHandler, HttpInput input, Status<HttpInput, HttpByteSink> status,
+            CompletionHandler<Integer, Void> completionHandler, ProcessingContext<HttpInput, HttpByteSink> context,
             Integer byteRead) {
         if (!handler.isFinished()) {
             readBuffer.clear();
@@ -221,11 +223,17 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
                 public void completed(Integer result, Integer attachment) {
                     Integer newByteRead = result + attachment;
                     readBuffer.flip();
-                    processor.process(input, status, new DelegateFailureCompletionHandler<Status<HttpInput,HttpByteSink>, HttpInput>(completionHandler) {
+                    processor.process(context, new CompletionHandler<ProcessingContext<HttpInput, HttpByteSink>, ProcessingContext<HttpInput, HttpByteSink>>() {
 
                         @Override
-                        public void completed(Status<HttpInput, HttpByteSink> result, HttpInput attachment) {
-                            readResponse(handler, processor, completionHandler, input, status, newByteRead);
+                        public void completed(ProcessingContext<HttpInput, HttpByteSink> result,
+                                ProcessingContext<HttpInput, HttpByteSink> attachment) {
+                            readResponse(handler, processor, completionHandler, context, newByteRead);
+                        }
+
+                        @Override
+                        public void failed(Throwable exc, ProcessingContext<HttpInput, HttpByteSink> attachment) {
+                            completionHandler.failed(exc, null);
                         }
                     });
                 }

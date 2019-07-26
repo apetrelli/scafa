@@ -20,10 +20,10 @@ package com.github.apetrelli.scafa.proto.processor.impl;
 import java.nio.ByteBuffer;
 import java.nio.channels.CompletionHandler;
 
-import com.github.apetrelli.scafa.proto.aio.DelegateFailureCompletionHandler;
-import com.github.apetrelli.scafa.proto.processor.InputProcessor;
 import com.github.apetrelli.scafa.proto.processor.ByteSink;
 import com.github.apetrelli.scafa.proto.processor.Input;
+import com.github.apetrelli.scafa.proto.processor.InputProcessor;
+import com.github.apetrelli.scafa.proto.processor.ProcessingContext;
 import com.github.apetrelli.scafa.proto.processor.Status;
 
 public abstract class AbstractInputProcessor<I extends Input, S extends ByteSink<I>> implements InputProcessor<I, S> {
@@ -35,19 +35,25 @@ public abstract class AbstractInputProcessor<I extends Input, S extends ByteSink
     }
 
     @Override
-    public void process(I input, Status<I, S> status, CompletionHandler<Status<I, S>, I> completionHandler) {
+    public void process(ProcessingContext<I, S> context, CompletionHandler<ProcessingContext<I, S>, ProcessingContext<I, S>> completionHandler) {
+    	I input = context.getInput();
         ByteBuffer buffer = input.getBuffer();
         if (buffer.position() < buffer.limit()) {
-            Status<I, S> newStatus = status.next(input);
-            newStatus.out(input, sink, new DelegateFailureCompletionHandler<Void, Void>(completionHandler) {
+            Status<I, S> newStatus = context.next();
+            newStatus.out(input, sink, new CompletionHandler<Void, Void>() {
 
-                @Override
-                public void completed(Void result, Void attachment) {
-                    process(input, newStatus, completionHandler);
-                }
-            });
+				@Override
+				public void completed(Void result, Void attachment) {
+                    process(context, completionHandler);
+				}
+
+				@Override
+				public void failed(Throwable exc, Void attachment) {
+					completionHandler.failed(exc, context);
+				}
+			});
         } else {
-            completionHandler.completed(status, input);
+            completionHandler.completed(context, context);
         }
     }
 
