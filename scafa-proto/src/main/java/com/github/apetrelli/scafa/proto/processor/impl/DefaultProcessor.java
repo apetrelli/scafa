@@ -32,18 +32,19 @@ import com.github.apetrelli.scafa.proto.processor.Input;
 import com.github.apetrelli.scafa.proto.processor.InputProcessor;
 import com.github.apetrelli.scafa.proto.processor.InputProcessorFactory;
 import com.github.apetrelli.scafa.proto.processor.ProcessingContext;
+import com.github.apetrelli.scafa.proto.processor.ProcessingContextFactory;
 import com.github.apetrelli.scafa.proto.processor.Processor;
 import com.github.apetrelli.scafa.proto.processor.Status;
 
-public class DefaultProcessor<I extends Input, S extends ByteSink<I>, H> implements Processor<H> {
+public class DefaultProcessor<I extends Input, S extends ByteSink<I>, P extends ProcessingContext<I, S>, H> implements Processor<H> {
 
-    private class ClientReadCompletionHandler implements CompletionHandler<Integer, ProcessingContext<I, S>> {
+    private class ClientReadCompletionHandler implements CompletionHandler<Integer, P> {
         private final S sink;
-        private final InputProcessor<I, S> processor;
+        private final InputProcessor<I, S, P> processor;
 
         private ProcessCompletionHandler processCompletionHandler;
 
-		private ClientReadCompletionHandler(S sink, InputProcessor<I, S> processor) {
+		private ClientReadCompletionHandler(S sink, InputProcessor<I, S, P> processor) {
             this.sink = sink;
             this.processor = processor;
         }
@@ -53,7 +54,7 @@ public class DefaultProcessor<I extends Input, S extends ByteSink<I>, H> impleme
 		}
 
         @Override
-        public void completed(Integer result, ProcessingContext<I, S> attachment) {
+        public void completed(Integer result, P attachment) {
             if (result >= 0) {
                 ByteBuffer buffer = attachment.getInput().getBuffer();
                 buffer.flip();
@@ -64,7 +65,7 @@ public class DefaultProcessor<I extends Input, S extends ByteSink<I>, H> impleme
         }
 
         @Override
-        public void failed(Throwable exc, ProcessingContext<I, S> attachment) {
+        public void failed(Throwable exc, P attachment) {
             if (exc instanceof AsynchronousCloseException || exc instanceof ClosedChannelException) {
                 LOG.log(Level.INFO, "Channel closed", exc);
             } else if (exc instanceof IOException) {
@@ -87,7 +88,7 @@ public class DefaultProcessor<I extends Input, S extends ByteSink<I>, H> impleme
         }
     }
 
-    private class ProcessCompletionHandler implements CompletionHandler<ProcessingContext<I, S>, ProcessingContext<I, S>> {
+    private class ProcessCompletionHandler implements CompletionHandler<P, P> {
         private ClientReadCompletionHandler clientReadCompletionHandler;
 
         private ProcessCompletionHandler(ClientReadCompletionHandler clientReadCompletionHandler) {
@@ -95,7 +96,7 @@ public class DefaultProcessor<I extends Input, S extends ByteSink<I>, H> impleme
         }
 
         @Override
-        public void completed(ProcessingContext<I, S> result, ProcessingContext<I, S> attachment) {
+        public void completed(P result, P attachment) {
         	ByteBuffer buffer = attachment.getInput().getBuffer();
             if (client.isOpen()) {
                 buffer.clear();
@@ -104,7 +105,7 @@ public class DefaultProcessor<I extends Input, S extends ByteSink<I>, H> impleme
         }
 
         @Override
-        public void failed(Throwable exc, ProcessingContext<I, S> attachment) {
+        public void failed(Throwable exc, P attachment) {
             LOG.log(Level.INFO, "Error when processing buffer, disconnecting", exc);
             clientReadCompletionHandler.disconnect();
         }
@@ -116,15 +117,18 @@ public class DefaultProcessor<I extends Input, S extends ByteSink<I>, H> impleme
 
     private ByteSinkFactory<I, S, H> factory;
 
-    private InputProcessorFactory<I, S> inputProcessorFactory;
+    private InputProcessorFactory<I, S, P> inputProcessorFactory;
+
+    private ProcessingContextFactory<I, S, P> processingContextFactory;
 
     private Status<I, S> initialStatus;
 
     public DefaultProcessor(AsynchronousSocketChannel client, ByteSinkFactory<I, S, H> factory,
-            InputProcessorFactory<I, S> inputProcessorFactory, Status<I, S> initialStatus) {
+            InputProcessorFactory<I, S, P> inputProcessorFactory, ProcessingContextFactory<I, S, P> processingContextFactory, Status<I, S> initialStatus) {
         this.client = client;
         this.factory = factory;
         this.inputProcessorFactory = inputProcessorFactory;
+        this.processingContextFactory = processingContextFactory;
         this.initialStatus = initialStatus;
     }
 
@@ -134,8 +138,8 @@ public class DefaultProcessor<I extends Input, S extends ByteSink<I>, H> impleme
         try {
             sink.connect();
             I input = sink.createInput();
-            ProcessingContext<I, S> context = new ProcessingContext<>(initialStatus, input);
-            InputProcessor<I, S> processor = inputProcessorFactory.create(sink);
+            P context = processingContextFactory.create(input, initialStatus);
+            InputProcessor<I, S, P> processor = inputProcessorFactory.create(sink);
             ClientReadCompletionHandler clientReadCompletionHandler = new ClientReadCompletionHandler(sink, processor);
             ProcessCompletionHandler processCompletionHandler = new ProcessCompletionHandler(clientReadCompletionHandler);
             clientReadCompletionHandler.setProcessCompletionHandler(processCompletionHandler);

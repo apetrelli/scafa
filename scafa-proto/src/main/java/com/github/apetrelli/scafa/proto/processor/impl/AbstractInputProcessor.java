@@ -26,7 +26,7 @@ import com.github.apetrelli.scafa.proto.processor.InputProcessor;
 import com.github.apetrelli.scafa.proto.processor.ProcessingContext;
 import com.github.apetrelli.scafa.proto.processor.Status;
 
-public abstract class AbstractInputProcessor<I extends Input, S extends ByteSink<I>> implements InputProcessor<I, S> {
+public abstract class AbstractInputProcessor<I extends Input, S extends ByteSink<I>, P extends ProcessingContext<I, S>> implements InputProcessor<I, S, P> {
 
     private S sink;
 
@@ -35,11 +35,12 @@ public abstract class AbstractInputProcessor<I extends Input, S extends ByteSink
     }
 
     @Override
-    public void process(ProcessingContext<I, S> context, CompletionHandler<ProcessingContext<I, S>, ProcessingContext<I, S>> completionHandler) {
+    public void process(P context, CompletionHandler<P, P> completionHandler) {
     	I input = context.getInput();
         ByteBuffer buffer = input.getBuffer();
         if (buffer.position() < buffer.limit()) {
-            Status<I, S> newStatus = context.next();
+            Status<I, S> newStatus = context.getStatus().next(input);
+            context.setStatus(newStatus);
             newStatus.out(input, sink, new CompletionHandler<Void, Void>() {
 
 				@Override

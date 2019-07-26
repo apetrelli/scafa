@@ -17,13 +17,14 @@
  */
 package com.github.apetrelli.scafa.http.impl;
 
+import com.github.apetrelli.scafa.http.HttpByteSink;
 import com.github.apetrelli.scafa.http.HttpInput;
-import com.github.apetrelli.scafa.proto.processor.ByteSink;
+import com.github.apetrelli.scafa.http.HttpProcessingContext;
 import com.github.apetrelli.scafa.proto.processor.impl.AbstractInputProcessor;
 
-public class HttpInputProcessor<S extends ByteSink<HttpInput>> extends AbstractInputProcessor<HttpInput, S> {
+public class HttpInputProcessor extends AbstractInputProcessor<HttpInput, HttpByteSink, HttpProcessingContext> {
 
-    public HttpInputProcessor(S sink) {
+    public HttpInputProcessor(HttpByteSink sink) {
         super(sink);
     }
 

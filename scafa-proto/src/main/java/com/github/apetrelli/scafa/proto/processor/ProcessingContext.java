@@ -15,12 +15,11 @@ public class ProcessingContext<I extends Input, S extends ByteSink<I>> {
 		return status;
 	}
 
-	public I getInput() {
-		return input;
+	public void setStatus(Status<I, S> status) {
+		this.status = status;
 	}
 
-	public Status<I, S> next() {
-		status = status.next(input);
-		return status;
+	public I getInput() {
+		return input;
 	}
 }

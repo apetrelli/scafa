@@ -25,6 +25,7 @@ import com.github.apetrelli.scafa.http.HostPort;
 import com.github.apetrelli.scafa.http.HttpByteSink;
 import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpInput;
+import com.github.apetrelli.scafa.http.HttpProcessingContext;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpStatus;
 import com.github.apetrelli.scafa.http.impl.DefaultHttpByteSink;
@@ -34,9 +35,6 @@ import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
 import com.github.apetrelli.scafa.http.proxy.MappedHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.impl.AbstractUpstreamProxyHttpConnection;
 import com.github.apetrelli.scafa.proto.aio.DelegateFailureCompletionHandler;
-import com.github.apetrelli.scafa.proto.processor.InputProcessor;
-import com.github.apetrelli.scafa.proto.processor.ProcessingContext;
-import com.github.apetrelli.scafa.proto.processor.Status;
 import com.github.apetrelli.scafa.util.HttpUtils;
 
 import jcifs.ntlmssp.NtlmFlags;
@@ -95,7 +93,7 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
         HttpRequest modifiedRequest = new HttpRequest(request);
         modifiedRequest.setHeader("Proxy-Connection", "keep-alive");
         HttpByteSink sink = new DefaultHttpByteSink<HttpHandler>(tentativeHandler);
-        InputProcessor<HttpInput, HttpByteSink> processor = new HttpInputProcessor<>(sink);
+        HttpInputProcessor processor = new HttpInputProcessor(sink);
         ntlmAuthenticate(modifiedRequest, modifiedRequest, sink, tentativeHandler, processor, completionHandler);
     }
 
@@ -112,7 +110,7 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
             @Override
             public void completed(Void result, Void attachment) {
                 HttpByteSink sink = new DefaultHttpByteSink<HttpHandler>(tentativeHandler);
-                InputProcessor<HttpInput, HttpByteSink> processor = new HttpInputProcessor<>(sink);
+                HttpInputProcessor processor = new HttpInputProcessor(sink);
                 readResponse(tentativeHandler, sink, processor, new DelegateFailureCompletionHandler<Integer, Void>(completionHandler) {
 
                     @Override
@@ -138,7 +136,7 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
     }
 
     private void ntlmAuthenticate(HttpRequest modifiedRequest, HttpRequest finalRequest, HttpByteSink sink, CapturingHandler handler,
-            InputProcessor<HttpInput, HttpByteSink> processor, CompletionHandler<Void, Void> completionHandler) {
+            HttpInputProcessor processor, CompletionHandler<Void, Void> completionHandler) {
         Type1Message message1 = new Type1Message(TYPE_1_FLAGS, null, null);
         modifiedRequest.setHeader("PROXY-AUTHORIZATION", "NTLM " + Base64.encode(message1.toByteArray()));
         HttpUtils.sendHeader(modifiedRequest, channel, new DelegateFailureCompletionHandler<Void, Void>(completionHandler) {
@@ -201,19 +199,18 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
     }
 
     private void readResponse(CapturingHandler handler, HttpByteSink sink,
-            InputProcessor<HttpInput, HttpByteSink> processor, CompletionHandler<Integer, Void> completionHandler) {
+            HttpInputProcessor processor, CompletionHandler<Integer, Void> completionHandler) {
         handler.reset();
         sink.reset();
         HttpInput input = sink.createInput();
         input.setBuffer(readBuffer);
-        Status<HttpInput, HttpByteSink> status = HttpStatus.IDLE;
-        ProcessingContext<HttpInput, HttpByteSink> context = new ProcessingContext<>(status, input);
+        HttpProcessingContext context = new HttpProcessingContext(HttpStatus.IDLE, input);
         Integer retValue = 0;
         readResponse(handler, processor, completionHandler, context, retValue);
     }
 
-    private void readResponse(CapturingHandler handler, InputProcessor<HttpInput, HttpByteSink> processor,
-            CompletionHandler<Integer, Void> completionHandler, ProcessingContext<HttpInput, HttpByteSink> context,
+    private void readResponse(CapturingHandler handler, HttpInputProcessor processor,
+            CompletionHandler<Integer, Void> completionHandler, HttpProcessingContext context,
             Integer byteRead) {
         if (!handler.isFinished()) {
             readBuffer.clear();
@@ -223,16 +220,16 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
                 public void completed(Integer result, Integer attachment) {
                     Integer newByteRead = result + attachment;
                     readBuffer.flip();
-                    processor.process(context, new CompletionHandler<ProcessingContext<HttpInput, HttpByteSink>, ProcessingContext<HttpInput, HttpByteSink>>() {
+                    processor.process(context, new CompletionHandler<HttpProcessingContext, HttpProcessingContext>() {
 
                         @Override
-                        public void completed(ProcessingContext<HttpInput, HttpByteSink> result,
-                                ProcessingContext<HttpInput, HttpByteSink> attachment) {
+                        public void completed(HttpProcessingContext result,
+                                HttpProcessingContext attachment) {
                             readResponse(handler, processor, completionHandler, context, newByteRead);
                         }
 
                         @Override
-                        public void failed(Throwable exc, ProcessingContext<HttpInput, HttpByteSink> attachment) {
+                        public void failed(Throwable exc, HttpProcessingContext attachment) {
                             completionHandler.failed(exc, null);
                         }
                     });

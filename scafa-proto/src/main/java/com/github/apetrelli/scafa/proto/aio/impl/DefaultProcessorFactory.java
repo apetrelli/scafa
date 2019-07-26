@@ -22,30 +22,36 @@ import java.nio.channels.AsynchronousSocketChannel;
 import com.github.apetrelli.scafa.proto.aio.ByteSinkFactory;
 import com.github.apetrelli.scafa.proto.aio.ProcessorFactory;
 import com.github.apetrelli.scafa.proto.processor.InputProcessorFactory;
+import com.github.apetrelli.scafa.proto.processor.ProcessingContext;
+import com.github.apetrelli.scafa.proto.processor.ProcessingContextFactory;
 import com.github.apetrelli.scafa.proto.processor.ByteSink;
 import com.github.apetrelli.scafa.proto.processor.Input;
 import com.github.apetrelli.scafa.proto.processor.Processor;
 import com.github.apetrelli.scafa.proto.processor.Status;
 import com.github.apetrelli.scafa.proto.processor.impl.DefaultProcessor;
 
-public class DefaultProcessorFactory<I extends Input, S extends ByteSink<I>, H> implements ProcessorFactory<H> {
+public class DefaultProcessorFactory<I extends Input, S extends ByteSink<I>, P extends ProcessingContext<I, S>, H> implements ProcessorFactory<H> {
 
     private ByteSinkFactory<I, S, H> factory;
 
-    private InputProcessorFactory<I, S> inputProcessorFactory;
+    private InputProcessorFactory<I, S, P> inputProcessorFactory;
+
+    private ProcessingContextFactory<I, S, P> processingContextFactory;
 
     private Status<I, S> initialStatus;
 
-    public DefaultProcessorFactory(ByteSinkFactory<I, S, H> factory,
-            InputProcessorFactory<I, S> inputProcessorFactory, Status<I, S> initialStatus) {
+	public DefaultProcessorFactory(ByteSinkFactory<I, S, H> factory,
+			InputProcessorFactory<I, S, P> inputProcessorFactory,
+			ProcessingContextFactory<I, S, P> processingContextFactory, Status<I, S> initialStatus) {
         this.factory = factory;
         this.inputProcessorFactory = inputProcessorFactory;
+        this.processingContextFactory = processingContextFactory;
         this.initialStatus = initialStatus;
     }
 
     @Override
     public Processor<H> create(AsynchronousSocketChannel client) {
-        return new DefaultProcessor<>(client, factory, inputProcessorFactory, initialStatus);
+        return new DefaultProcessor<>(client, factory, inputProcessorFactory, processingContextFactory, initialStatus);
     }
 
 }
