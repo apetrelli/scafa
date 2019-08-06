@@ -1,14 +1,15 @@
 package com.github.apetrelli.scafa.proto.processor;
 
-public class ProcessingContext<I extends Input, ST> {
+import java.nio.ByteBuffer;
+
+public class ProcessingContext<ST> implements Input {
+
+	private ByteBuffer buffer;
 
 	private ST status;
 
-	private I input;
-
-	public ProcessingContext(ST status, I input) {
+	public ProcessingContext(ST status) {
 		this.status = status;
-		this.input = input;
 	}
 
 	public ST getStatus() {
@@ -19,7 +20,17 @@ public class ProcessingContext<I extends Input, ST> {
 		this.status = status;
 	}
 
-	public I getInput() {
-		return input;
+	@Override
+	public ByteBuffer getBuffer() {
+		return buffer;
+	}
+
+	public void setBuffer(ByteBuffer buffer) {
+		this.buffer = buffer;
+	}
+
+	@Override
+	public byte peekNextByte() {
+        return buffer.array()[buffer.position()];
 	}
 }

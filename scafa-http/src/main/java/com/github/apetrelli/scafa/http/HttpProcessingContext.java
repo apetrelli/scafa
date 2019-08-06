@@ -6,9 +6,25 @@ import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.proto.processor.ProcessingContext;
 
-public class HttpProcessingContext extends ProcessingContext<HttpInput, HttpStatus> {
+public class HttpProcessingContext extends ProcessingContext<HttpStatus> {
 
 	private static final Logger LOG = Logger.getLogger(HttpProcessingContext.class.getName());
+
+    private HttpBodyMode bodyMode = HttpBodyMode.EMPTY;
+
+    private long countdown = 0L;
+
+    private long bodySize;
+
+    private long bodyOffset;
+
+    private long totalChunkedTransferLength;
+
+    private long chunkOffset;
+
+    private long chunkLength;
+
+    private boolean httpConnected = false;
 
     private StringBuilder lineBuilder = new StringBuilder();
 
@@ -18,14 +34,83 @@ public class HttpProcessingContext extends ProcessingContext<HttpInput, HttpStat
 
     private HeaderHolder holder;
 
-	public HttpProcessingContext(HttpStatus status, HttpInput input) {
-		super(status, input);
+	public HttpProcessingContext(HttpStatus status) {
+		super(status);
 	}
 
 	@Override
 	public HttpStatus getStatus() {
 		return (HttpStatus) super.getStatus();
 	}
+
+    public HttpBodyMode getBodyMode() {
+        return bodyMode;
+    }
+
+    public void setBodyMode(HttpBodyMode bodyMode) {
+        this.bodyMode = bodyMode;
+    }
+
+    public long getCountdown() {
+        return countdown;
+    }
+
+    public long getBodySize() {
+        return bodySize;
+    }
+
+    public void setBodySize(long bodySize) {
+        this.bodySize = bodySize;
+        countdown = bodySize;
+        bodyOffset = 0L;
+    }
+
+    public long getBodyOffset() {
+        return bodyOffset;
+    }
+
+    public long getTotalChunkedTransferLength() {
+        return totalChunkedTransferLength;
+    }
+
+    public long getChunkOffset() {
+        return chunkOffset;
+    }
+
+    public long getChunkLength() {
+        return chunkLength;
+    }
+
+    public void setChunkLength(long chunkLength) {
+        this.chunkLength = chunkLength;
+        countdown = chunkLength;
+        totalChunkedTransferLength += chunkLength;
+        chunkOffset = 0L;
+    }
+
+    public void reduceBody(int toSubtract) {
+        countdown -= toSubtract;
+        if (countdown < 0L) {
+            countdown = 0L;
+        }
+        bodyOffset += toSubtract;
+    }
+
+    public void reduceChunk(long toSubtract) {
+        countdown -= toSubtract;
+        if (countdown < 0L) {
+            countdown = 0L;
+        }
+        chunkOffset += toSubtract;
+    }
+
+    public boolean isHttpConnected() {
+        return httpConnected;
+    }
+
+    public void setHttpConnected(boolean httpConnected) {
+        this.httpConnected = httpConnected;
+    }
 
     public void appendToLine(byte currentByte) {
         lineBuilder.append((char) currentByte);
@@ -78,15 +163,14 @@ public class HttpProcessingContext extends ProcessingContext<HttpInput, HttpStat
     }
 
     public void evaluateBodyMode() {
-    	HttpInput input = getInput();
-        input.setBodyMode(HttpBodyMode.EMPTY);
+        setBodyMode(HttpBodyMode.EMPTY);
         String lengthString = holder.getHeader("CONTENT-LENGTH");
         if (lengthString != null) {
             try {
                 long length = Long.parseLong(lengthString.trim());
                 if (length > 0L) {
-                    input.setBodyMode(HttpBodyMode.BODY);
-                    input.setBodySize(length);
+                    setBodyMode(HttpBodyMode.BODY);
+                    setBodySize(length);
                 }
             } catch (NumberFormatException e) {
                 LOG.log(Level.SEVERE, "The provided length is not an integer: " + lengthString, e);
@@ -94,7 +178,7 @@ public class HttpProcessingContext extends ProcessingContext<HttpInput, HttpStat
         } else { // Check chunked transfer
             String encoding = holder.getHeader("TRANSFER-ENCODING");
             if ("chunked".equals(encoding)) {
-                input.setBodyMode(HttpBodyMode.CHUNKED);
+                setBodyMode(HttpBodyMode.CHUNKED);
             }
         }
     }
@@ -106,7 +190,7 @@ public class HttpProcessingContext extends ProcessingContext<HttpInput, HttpStat
             try {
                 long chunkCount = Long.parseLong(chunkCountHex, 16);
                 LOG.log(Level.FINEST, "Preparing to read {0} bytes of a chunk", chunkCount);
-                getInput().setChunkLength(chunkCount);
+                setChunkLength(chunkCount);
             } catch (NumberFormatException e) {
                 throw new IOException("Invalid chunk count " + chunkCountHex, e);
             }
@@ -115,6 +199,13 @@ public class HttpProcessingContext extends ProcessingContext<HttpInput, HttpStat
         }
     }
     public void reset() {
+        bodyMode = HttpBodyMode.EMPTY;
+        countdown = 0L;
+        bodySize = 0L;
+        bodyOffset = 0L;
+        totalChunkedTransferLength = 0L;
+        chunkOffset = 0L;
+        chunkLength = 0L;
         clearLineBuilder();
         request = null;
         response = null;

@@ -18,12 +18,11 @@
 package com.github.apetrelli.scafa.http.impl;
 
 import com.github.apetrelli.scafa.http.HttpHandler;
-import com.github.apetrelli.scafa.http.HttpInput;
 import com.github.apetrelli.scafa.http.HttpProcessingContext;
 import com.github.apetrelli.scafa.http.HttpStatus;
 import com.github.apetrelli.scafa.proto.processor.impl.AbstractInputProcessor;
 
-public class HttpInputProcessor extends AbstractInputProcessor<HttpInput, HttpHandler, HttpStatus, HttpProcessingContext> {
+public class HttpInputProcessor extends AbstractInputProcessor<HttpHandler, HttpStatus, HttpProcessingContext> {
 
     public HttpInputProcessor(HttpHandler handler, HttpStateMachine stateMachine) {
         super(handler, stateMachine);

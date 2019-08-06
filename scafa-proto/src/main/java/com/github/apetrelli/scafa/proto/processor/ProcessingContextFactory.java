@@ -1,6 +1,6 @@
 package com.github.apetrelli.scafa.proto.processor;
 
-public interface ProcessingContextFactory<I extends Input, ST, P extends ProcessingContext<I, ST>> {
+public interface ProcessingContextFactory<ST, P extends ProcessingContext<ST>> {
 
 	P create();
 }

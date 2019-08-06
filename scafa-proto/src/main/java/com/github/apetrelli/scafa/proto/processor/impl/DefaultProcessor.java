@@ -27,22 +27,21 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.proto.processor.Handler;
-import com.github.apetrelli.scafa.proto.processor.Input;
 import com.github.apetrelli.scafa.proto.processor.InputProcessor;
 import com.github.apetrelli.scafa.proto.processor.InputProcessorFactory;
 import com.github.apetrelli.scafa.proto.processor.ProcessingContext;
 import com.github.apetrelli.scafa.proto.processor.ProcessingContextFactory;
 import com.github.apetrelli.scafa.proto.processor.Processor;
 
-public class DefaultProcessor<I extends Input, ST, P extends ProcessingContext<I, ST>, H extends Handler> implements Processor<H> {
+public class DefaultProcessor<ST, P extends ProcessingContext<ST>, H extends Handler> implements Processor<H> {
 
     private class ClientReadCompletionHandler implements CompletionHandler<Integer, P> {
         private final H handler;
-        private final InputProcessor<I, ST, P> processor;
+        private final InputProcessor<ST, P> processor;
 
         private ProcessCompletionHandler processCompletionHandler;
 
-		private ClientReadCompletionHandler(H handler, InputProcessor<I, ST, P> processor) {
+		private ClientReadCompletionHandler(H handler, InputProcessor<ST, P> processor) {
             this.handler = handler;
             this.processor = processor;
         }
@@ -54,7 +53,7 @@ public class DefaultProcessor<I extends Input, ST, P extends ProcessingContext<I
         @Override
         public void completed(Integer result, P attachment) {
             if (result >= 0) {
-                ByteBuffer buffer = attachment.getInput().getBuffer();
+                ByteBuffer buffer = attachment.getBuffer();
                 buffer.flip();
                 processor.process(attachment, processCompletionHandler);
             } else {
@@ -95,7 +94,7 @@ public class DefaultProcessor<I extends Input, ST, P extends ProcessingContext<I
 
         @Override
         public void completed(P result, P attachment) {
-        	ByteBuffer buffer = attachment.getInput().getBuffer();
+        	ByteBuffer buffer = attachment.getBuffer();
             if (client.isOpen()) {
                 buffer.clear();
                 client.read(buffer, attachment, clientReadCompletionHandler);
@@ -113,12 +112,12 @@ public class DefaultProcessor<I extends Input, ST, P extends ProcessingContext<I
 
     private AsynchronousSocketChannel client;
 
-    private InputProcessorFactory<I, H, ST, P> inputProcessorFactory;
+    private InputProcessorFactory<H, ST, P> inputProcessorFactory;
 
-    private ProcessingContextFactory<I, ST, P> processingContextFactory;
+    private ProcessingContextFactory<ST, P> processingContextFactory;
 
     public DefaultProcessor(AsynchronousSocketChannel client,
-            InputProcessorFactory<I, H, ST, P> inputProcessorFactory, ProcessingContextFactory<I, ST, P> processingContextFactory) {
+            InputProcessorFactory<H, ST, P> inputProcessorFactory, ProcessingContextFactory<ST, P> processingContextFactory) {
         this.client = client;
         this.inputProcessorFactory = inputProcessorFactory;
         this.processingContextFactory = processingContextFactory;
@@ -129,11 +128,11 @@ public class DefaultProcessor<I extends Input, ST, P extends ProcessingContext<I
         try {
             handler.onConnect();
             P context = processingContextFactory.create();
-            InputProcessor<I, ST, P> processor = inputProcessorFactory.create(handler);
+            InputProcessor<ST, P> processor = inputProcessorFactory.create(handler);
             ClientReadCompletionHandler clientReadCompletionHandler = new ClientReadCompletionHandler(handler, processor);
             ProcessCompletionHandler processCompletionHandler = new ProcessCompletionHandler(clientReadCompletionHandler);
             clientReadCompletionHandler.setProcessCompletionHandler(processCompletionHandler);
-            client.read(context.getInput().getBuffer(), context, clientReadCompletionHandler);
+            client.read(context.getBuffer(), context, clientReadCompletionHandler);
         } catch (IOException e) {
             LOG.log(Level.INFO, "Error when establishing a connection", e);
         }

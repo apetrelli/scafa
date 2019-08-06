@@ -20,26 +20,24 @@ package com.github.apetrelli.scafa.proto.processor.impl;
 import java.nio.ByteBuffer;
 import java.nio.channels.CompletionHandler;
 
-import com.github.apetrelli.scafa.proto.processor.Input;
 import com.github.apetrelli.scafa.proto.processor.InputProcessor;
 import com.github.apetrelli.scafa.proto.processor.ProcessingContext;
 import com.github.apetrelli.scafa.proto.processor.ProtocolStateMachine;
 
-public abstract class AbstractInputProcessor<I extends Input, H, ST, P extends ProcessingContext<I, ST>> implements InputProcessor<I, ST, P> {
+public abstract class AbstractInputProcessor<H, ST, P extends ProcessingContext<ST>> implements InputProcessor<ST, P> {
 
-    private ProtocolStateMachine<I, H, ST, P> stateMachine;
+    private ProtocolStateMachine<H, ST, P> stateMachine;
 
     private H handler;
 
-    public AbstractInputProcessor(H handler, ProtocolStateMachine<I, H, ST, P> stateMachine) {
+    public AbstractInputProcessor(H handler, ProtocolStateMachine<H, ST, P> stateMachine) {
         this.handler = handler;
         this.stateMachine = stateMachine;
     }
 
     @Override
     public void process(P context, CompletionHandler<P, P> completionHandler) {
-    	I input = context.getInput();
-        ByteBuffer buffer = input.getBuffer();
+        ByteBuffer buffer = context.getBuffer();
         if (buffer.position() < buffer.limit()) {
         	stateMachine.next(context);
         	stateMachine.out(context, handler, new CompletionHandler<Void, Void>() {

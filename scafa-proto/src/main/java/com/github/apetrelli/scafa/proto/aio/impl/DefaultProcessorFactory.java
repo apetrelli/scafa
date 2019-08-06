@@ -21,22 +21,21 @@ import java.nio.channels.AsynchronousSocketChannel;
 
 import com.github.apetrelli.scafa.proto.aio.ProcessorFactory;
 import com.github.apetrelli.scafa.proto.processor.Handler;
-import com.github.apetrelli.scafa.proto.processor.Input;
 import com.github.apetrelli.scafa.proto.processor.InputProcessorFactory;
 import com.github.apetrelli.scafa.proto.processor.ProcessingContext;
 import com.github.apetrelli.scafa.proto.processor.ProcessingContextFactory;
 import com.github.apetrelli.scafa.proto.processor.Processor;
 import com.github.apetrelli.scafa.proto.processor.impl.DefaultProcessor;
 
-public class DefaultProcessorFactory<I extends Input, ST, P extends ProcessingContext<I, ST>, H extends Handler>
+public class DefaultProcessorFactory<ST, P extends ProcessingContext<ST>, H extends Handler>
 		implements ProcessorFactory<H> {
 
-	private InputProcessorFactory<I, H, ST, P> inputProcessorFactory;
+	private InputProcessorFactory<H, ST, P> inputProcessorFactory;
 
-	private ProcessingContextFactory<I, ST, P> processingContextFactory;
+	private ProcessingContextFactory<ST, P> processingContextFactory;
 
-	public DefaultProcessorFactory(InputProcessorFactory<I, H, ST, P> inputProcessorFactory,
-			ProcessingContextFactory<I, ST, P> processingContextFactory) {
+	public DefaultProcessorFactory(InputProcessorFactory<H, ST, P> inputProcessorFactory,
+			ProcessingContextFactory<ST, P> processingContextFactory) {
 		this.inputProcessorFactory = inputProcessorFactory;
 		this.processingContextFactory = processingContextFactory;
 	}

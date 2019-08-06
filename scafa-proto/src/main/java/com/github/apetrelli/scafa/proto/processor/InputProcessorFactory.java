@@ -17,7 +17,7 @@
  */
 package com.github.apetrelli.scafa.proto.processor;
 
-public interface InputProcessorFactory<I extends Input, H, ST, P extends ProcessingContext<I, ST>> {
+public interface InputProcessorFactory<H, ST, P extends ProcessingContext<ST>> {
 
-    InputProcessor<I, ST, P> create(H handler);
+    InputProcessor<ST, P> create(H handler);
 }

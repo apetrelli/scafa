@@ -2,7 +2,7 @@ package com.github.apetrelli.scafa.proto.processor;
 
 import java.nio.channels.CompletionHandler;
 
-public interface ProtocolStateMachine<I extends Input, H, ST, P extends ProcessingContext<I, ST>> {
+public interface ProtocolStateMachine<H, ST, P extends ProcessingContext<ST>> {
 
 	ST next(P context);
 
