@@ -28,6 +28,7 @@ import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.proto.aio.ByteSinkFactory;
 import com.github.apetrelli.scafa.proto.processor.ByteSink;
+import com.github.apetrelli.scafa.proto.processor.Handler;
 import com.github.apetrelli.scafa.proto.processor.Input;
 import com.github.apetrelli.scafa.proto.processor.InputProcessor;
 import com.github.apetrelli.scafa.proto.processor.InputProcessorFactory;
@@ -35,16 +36,16 @@ import com.github.apetrelli.scafa.proto.processor.ProcessingContext;
 import com.github.apetrelli.scafa.proto.processor.ProcessingContextFactory;
 import com.github.apetrelli.scafa.proto.processor.Processor;
 
-public class DefaultProcessor<I extends Input, S extends ByteSink<I>, ST, P extends ProcessingContext<I, ST>, H> implements Processor<H> {
+public class DefaultProcessor<I extends Input, S extends ByteSink<I>, ST, P extends ProcessingContext<I, ST>, H extends Handler> implements Processor<H> {
 
     private class ClientReadCompletionHandler implements CompletionHandler<Integer, P> {
-        private final S sink;
+        private final H handler;
         private final InputProcessor<I, ST, P> processor;
 
         private ProcessCompletionHandler processCompletionHandler;
 
-		private ClientReadCompletionHandler(S sink, InputProcessor<I, ST, P> processor) {
-            this.sink = sink;
+		private ClientReadCompletionHandler(H handler, InputProcessor<I, ST, P> processor) {
+            this.handler = handler;
             this.processor = processor;
         }
 
@@ -77,7 +78,7 @@ public class DefaultProcessor<I extends Input, S extends ByteSink<I>, ST, P exte
 
         private void disconnect() {
             try {
-                sink.disconnect();
+            	handler.onDisconnect();
                 if (client.isOpen()) {
                     client.close();
                 }
@@ -135,14 +136,13 @@ public class DefaultProcessor<I extends Input, S extends ByteSink<I>, ST, P exte
     public void process(H handler) {
         S sink = factory.create(client, handler);
         try {
-            sink.connect();
-            I input = sink.createInput();
-            P context = processingContextFactory.create(input, initialStatus);
+            handler.onConnect();
+            P context = processingContextFactory.create(initialStatus);
             InputProcessor<I, ST, P> processor = inputProcessorFactory.create(handler);
-            ClientReadCompletionHandler clientReadCompletionHandler = new ClientReadCompletionHandler(sink, processor);
+            ClientReadCompletionHandler clientReadCompletionHandler = new ClientReadCompletionHandler(handler, processor);
             ProcessCompletionHandler processCompletionHandler = new ProcessCompletionHandler(clientReadCompletionHandler);
             clientReadCompletionHandler.setProcessCompletionHandler(processCompletionHandler);
-            client.read(input.getBuffer(), context, clientReadCompletionHandler);
+            client.read(context.getInput().getBuffer(), context, clientReadCompletionHandler);
         } catch (IOException e) {
             LOG.log(Level.INFO, "Error when establishing a connection", e);
         }

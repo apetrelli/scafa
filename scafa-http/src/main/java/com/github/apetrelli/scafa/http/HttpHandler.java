@@ -21,9 +21,9 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.CompletionHandler;
 
-public interface HttpHandler {
+import com.github.apetrelli.scafa.proto.processor.Handler;
 
-    void onConnect() throws IOException;
+public interface HttpHandler extends Handler {
 
     void onStart() throws IOException;
 
@@ -44,6 +44,4 @@ public interface HttpHandler {
     void onDataToPassAlong(ByteBuffer buffer, CompletionHandler<Void, Void> handler);
 
     void onEnd();
-
-    void onDisconnect() throws IOException;
 }
