@@ -26,8 +26,6 @@ import java.nio.channels.CompletionHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.github.apetrelli.scafa.proto.aio.ByteSinkFactory;
-import com.github.apetrelli.scafa.proto.processor.ByteSink;
 import com.github.apetrelli.scafa.proto.processor.Handler;
 import com.github.apetrelli.scafa.proto.processor.Input;
 import com.github.apetrelli.scafa.proto.processor.InputProcessor;
@@ -36,7 +34,7 @@ import com.github.apetrelli.scafa.proto.processor.ProcessingContext;
 import com.github.apetrelli.scafa.proto.processor.ProcessingContextFactory;
 import com.github.apetrelli.scafa.proto.processor.Processor;
 
-public class DefaultProcessor<I extends Input, S extends ByteSink<I>, ST, P extends ProcessingContext<I, ST>, H extends Handler> implements Processor<H> {
+public class DefaultProcessor<I extends Input, ST, P extends ProcessingContext<I, ST>, H extends Handler> implements Processor<H> {
 
     private class ClientReadCompletionHandler implements CompletionHandler<Integer, P> {
         private final H handler;
@@ -115,18 +113,15 @@ public class DefaultProcessor<I extends Input, S extends ByteSink<I>, ST, P exte
 
     private AsynchronousSocketChannel client;
 
-    private ByteSinkFactory<I, S, H> factory;
-
-    private InputProcessorFactory<I, S, H, ST, P> inputProcessorFactory;
+    private InputProcessorFactory<I, H, ST, P> inputProcessorFactory;
 
     private ProcessingContextFactory<I, ST, P> processingContextFactory;
 
     private ST initialStatus;
 
-    public DefaultProcessor(AsynchronousSocketChannel client, ByteSinkFactory<I, S, H> factory,
-            InputProcessorFactory<I, S, H, ST, P> inputProcessorFactory, ProcessingContextFactory<I, ST, P> processingContextFactory, ST initialStatus) {
+    public DefaultProcessor(AsynchronousSocketChannel client,
+            InputProcessorFactory<I, H, ST, P> inputProcessorFactory, ProcessingContextFactory<I, ST, P> processingContextFactory, ST initialStatus) {
         this.client = client;
-        this.factory = factory;
         this.inputProcessorFactory = inputProcessorFactory;
         this.processingContextFactory = processingContextFactory;
         this.initialStatus = initialStatus;
@@ -134,7 +129,6 @@ public class DefaultProcessor<I extends Input, S extends ByteSink<I>, ST, P exte
 
     @Override
     public void process(H handler) {
-        S sink = factory.create(client, handler);
         try {
             handler.onConnect();
             P context = processingContextFactory.create(initialStatus);

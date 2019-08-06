@@ -20,22 +20,18 @@ package com.github.apetrelli.scafa.proto.processor.impl;
 import java.nio.ByteBuffer;
 import java.nio.channels.CompletionHandler;
 
-import com.github.apetrelli.scafa.proto.processor.ByteSink;
 import com.github.apetrelli.scafa.proto.processor.Input;
 import com.github.apetrelli.scafa.proto.processor.InputProcessor;
 import com.github.apetrelli.scafa.proto.processor.ProcessingContext;
 import com.github.apetrelli.scafa.proto.processor.ProtocolStateMachine;
 
-public abstract class AbstractInputProcessor<I extends Input, S extends ByteSink<I>, H, ST, P extends ProcessingContext<I, ST>> implements InputProcessor<I, ST, P> {
+public abstract class AbstractInputProcessor<I extends Input, H, ST, P extends ProcessingContext<I, ST>> implements InputProcessor<I, ST, P> {
 
-    private S sink;
-
-    private ProtocolStateMachine<I, S, H, ST, P> stateMachine;
+    private ProtocolStateMachine<I, H, ST, P> stateMachine;
 
     private H handler;
 
-    public AbstractInputProcessor(S sink, H handler, ProtocolStateMachine<I, S, H, ST, P> stateMachine) {
-        this.sink = sink;
+    public AbstractInputProcessor(H handler, ProtocolStateMachine<I, H, ST, P> stateMachine) {
         this.handler = handler;
         this.stateMachine = stateMachine;
     }

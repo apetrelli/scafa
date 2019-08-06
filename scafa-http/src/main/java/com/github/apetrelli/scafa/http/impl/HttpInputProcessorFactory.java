@@ -17,7 +17,6 @@
  */
 package com.github.apetrelli.scafa.http.impl;
 
-import com.github.apetrelli.scafa.http.HttpByteSink;
 import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpInput;
 import com.github.apetrelli.scafa.http.HttpProcessingContext;
@@ -26,7 +25,7 @@ import com.github.apetrelli.scafa.proto.processor.InputProcessor;
 import com.github.apetrelli.scafa.proto.processor.InputProcessorFactory;
 
 public class HttpInputProcessorFactory implements
-        InputProcessorFactory<HttpInput, HttpByteSink, HttpHandler, HttpStatus, HttpProcessingContext> {
+        InputProcessorFactory<HttpInput, HttpHandler, HttpStatus, HttpProcessingContext> {
 
 	private HttpStateMachine stateMachine;
 
@@ -35,12 +34,7 @@ public class HttpInputProcessorFactory implements
 	}
 
 	@Override
-	public InputProcessor<HttpInput, HttpStatus, HttpProcessingContext> create(HttpByteSink sink) {
-        return new HttpInputProcessor(sink, null, stateMachine);
-    }
-
-	@Override
 	public InputProcessor<HttpInput, HttpStatus, HttpProcessingContext> create(HttpHandler handler) {
-        return new HttpInputProcessor(null, handler, stateMachine);
+        return new HttpInputProcessor(handler, stateMachine);
 	}
 }

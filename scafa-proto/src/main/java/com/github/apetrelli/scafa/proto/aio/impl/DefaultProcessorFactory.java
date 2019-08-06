@@ -19,9 +19,7 @@ package com.github.apetrelli.scafa.proto.aio.impl;
 
 import java.nio.channels.AsynchronousSocketChannel;
 
-import com.github.apetrelli.scafa.proto.aio.ByteSinkFactory;
 import com.github.apetrelli.scafa.proto.aio.ProcessorFactory;
-import com.github.apetrelli.scafa.proto.processor.ByteSink;
 import com.github.apetrelli.scafa.proto.processor.Handler;
 import com.github.apetrelli.scafa.proto.processor.Input;
 import com.github.apetrelli.scafa.proto.processor.InputProcessorFactory;
@@ -30,28 +28,25 @@ import com.github.apetrelli.scafa.proto.processor.ProcessingContextFactory;
 import com.github.apetrelli.scafa.proto.processor.Processor;
 import com.github.apetrelli.scafa.proto.processor.impl.DefaultProcessor;
 
-public class DefaultProcessorFactory<I extends Input, S extends ByteSink<I>, ST, P extends ProcessingContext<I, ST>, H extends Handler> implements ProcessorFactory<H> {
+public class DefaultProcessorFactory<I extends Input, ST, P extends ProcessingContext<I, ST>, H extends Handler>
+		implements ProcessorFactory<H> {
 
-    private ByteSinkFactory<I, S, H> factory;
+	private InputProcessorFactory<I, H, ST, P> inputProcessorFactory;
 
-    private InputProcessorFactory<I, S, H, ST, P> inputProcessorFactory;
+	private ProcessingContextFactory<I, ST, P> processingContextFactory;
 
-    private ProcessingContextFactory<I, ST, P> processingContextFactory;
+	private ST initialStatus;
 
-    private ST initialStatus;
-
-	public DefaultProcessorFactory(ByteSinkFactory<I, S, H> factory,
-			InputProcessorFactory<I, S, H, ST, P> inputProcessorFactory,
+	public DefaultProcessorFactory(InputProcessorFactory<I, H, ST, P> inputProcessorFactory,
 			ProcessingContextFactory<I, ST, P> processingContextFactory, ST initialStatus) {
-        this.factory = factory;
-        this.inputProcessorFactory = inputProcessorFactory;
-        this.processingContextFactory = processingContextFactory;
-        this.initialStatus = initialStatus;
-    }
+		this.inputProcessorFactory = inputProcessorFactory;
+		this.processingContextFactory = processingContextFactory;
+		this.initialStatus = initialStatus;
+	}
 
-    @Override
-    public Processor<H> create(AsynchronousSocketChannel client) {
-        return new DefaultProcessor<>(client, factory, inputProcessorFactory, processingContextFactory, initialStatus);
-    }
+	@Override
+	public Processor<H> create(AsynchronousSocketChannel client) {
+		return new DefaultProcessor<>(client, inputProcessorFactory, processingContextFactory, initialStatus);
+	}
 
 }
