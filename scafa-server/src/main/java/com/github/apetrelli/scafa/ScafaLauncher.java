@@ -118,7 +118,7 @@ public class ScafaLauncher {
             DefaultHttpConnectionFactoryFactory connectionFactoryFactory = new DefaultHttpConnectionFactoryFactory(configuration);
             ProxyHttpHandlerFactory proxyHttpHandlerFactory = new ProxyHttpHandlerFactory(connectionFactoryFactory);
             DefaultProcessorFactory<HttpInput, HttpStatus, HttpProcessingContext, HttpHandler> defaultProcessorFactory = new DefaultProcessorFactory<>(
-                    inputProcessorFactory, processingContextFactory, HttpStatus.IDLE);
+                    inputProcessorFactory, processingContextFactory);
             proxy = new ScafaListener<HttpHandler>(defaultProcessorFactory, proxyHttpHandlerFactory, port);
             proxy.listen();
         } catch (IOException e) {

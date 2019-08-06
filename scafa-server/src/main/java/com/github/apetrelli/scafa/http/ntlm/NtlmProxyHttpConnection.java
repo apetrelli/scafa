@@ -24,7 +24,6 @@ import java.nio.channels.CompletionHandler;
 import com.github.apetrelli.scafa.http.HostPort;
 import com.github.apetrelli.scafa.http.HttpProcessingContext;
 import com.github.apetrelli.scafa.http.HttpRequest;
-import com.github.apetrelli.scafa.http.HttpStatus;
 import com.github.apetrelli.scafa.http.impl.HttpInputProcessor;
 import com.github.apetrelli.scafa.http.impl.HttpProcessingContextFactory;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
@@ -203,7 +202,7 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
     private void readResponse(CapturingHandler handler,
             HttpInputProcessor processor, CompletionHandler<Integer, Void> completionHandler) {
         handler.reset();
-        HttpProcessingContext context = processingContextFactory.create(HttpStatus.IDLE);
+        HttpProcessingContext context = processingContextFactory.create();
         Integer retValue = 0;
         readResponse(handler, processor, completionHandler, context, retValue);
     }

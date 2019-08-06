@@ -35,18 +35,15 @@ public class DefaultProcessorFactory<I extends Input, ST, P extends ProcessingCo
 
 	private ProcessingContextFactory<I, ST, P> processingContextFactory;
 
-	private ST initialStatus;
-
 	public DefaultProcessorFactory(InputProcessorFactory<I, H, ST, P> inputProcessorFactory,
-			ProcessingContextFactory<I, ST, P> processingContextFactory, ST initialStatus) {
+			ProcessingContextFactory<I, ST, P> processingContextFactory) {
 		this.inputProcessorFactory = inputProcessorFactory;
 		this.processingContextFactory = processingContextFactory;
-		this.initialStatus = initialStatus;
 	}
 
 	@Override
 	public Processor<H> create(AsynchronousSocketChannel client) {
-		return new DefaultProcessor<>(client, inputProcessorFactory, processingContextFactory, initialStatus);
+		return new DefaultProcessor<>(client, inputProcessorFactory, processingContextFactory);
 	}
 
 }

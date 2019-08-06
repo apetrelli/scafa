@@ -117,21 +117,18 @@ public class DefaultProcessor<I extends Input, ST, P extends ProcessingContext<I
 
     private ProcessingContextFactory<I, ST, P> processingContextFactory;
 
-    private ST initialStatus;
-
     public DefaultProcessor(AsynchronousSocketChannel client,
-            InputProcessorFactory<I, H, ST, P> inputProcessorFactory, ProcessingContextFactory<I, ST, P> processingContextFactory, ST initialStatus) {
+            InputProcessorFactory<I, H, ST, P> inputProcessorFactory, ProcessingContextFactory<I, ST, P> processingContextFactory) {
         this.client = client;
         this.inputProcessorFactory = inputProcessorFactory;
         this.processingContextFactory = processingContextFactory;
-        this.initialStatus = initialStatus;
     }
 
     @Override
     public void process(H handler) {
         try {
             handler.onConnect();
-            P context = processingContextFactory.create(initialStatus);
+            P context = processingContextFactory.create();
             InputProcessor<I, ST, P> processor = inputProcessorFactory.create(handler);
             ClientReadCompletionHandler clientReadCompletionHandler = new ClientReadCompletionHandler(handler, processor);
             ProcessCompletionHandler processCompletionHandler = new ProcessCompletionHandler(clientReadCompletionHandler);

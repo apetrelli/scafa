@@ -10,11 +10,11 @@ import com.github.apetrelli.scafa.proto.processor.ProcessingContextFactory;
 public class HttpProcessingContextFactory implements ProcessingContextFactory<HttpInput, HttpStatus, HttpProcessingContext> {
 
 	@Override
-	public HttpProcessingContext create(HttpStatus status) {
+	public HttpProcessingContext create() {
         HttpInput input = new HttpInput();
         ByteBuffer buffer = ByteBuffer.allocate(16384);
         input.setBuffer(buffer);
-		return new HttpProcessingContext(status, input);
+		return new HttpProcessingContext(HttpStatus.IDLE, input);
 	}
 
 }
