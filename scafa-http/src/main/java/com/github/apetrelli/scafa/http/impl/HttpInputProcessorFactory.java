@@ -19,12 +19,11 @@ package com.github.apetrelli.scafa.http.impl;
 
 import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpProcessingContext;
-import com.github.apetrelli.scafa.http.HttpStatus;
 import com.github.apetrelli.scafa.proto.processor.InputProcessor;
 import com.github.apetrelli.scafa.proto.processor.InputProcessorFactory;
 
 public class HttpInputProcessorFactory implements
-        InputProcessorFactory<HttpHandler, HttpStatus, HttpProcessingContext> {
+        InputProcessorFactory<HttpHandler, HttpProcessingContext> {
 
 	private HttpStateMachine stateMachine;
 
@@ -33,7 +32,7 @@ public class HttpInputProcessorFactory implements
 	}
 
 	@Override
-	public InputProcessor<HttpStatus, HttpProcessingContext> create(HttpHandler handler) {
+	public InputProcessor<HttpProcessingContext> create(HttpHandler handler) {
         return new HttpInputProcessor(handler, stateMachine);
 	}
 }

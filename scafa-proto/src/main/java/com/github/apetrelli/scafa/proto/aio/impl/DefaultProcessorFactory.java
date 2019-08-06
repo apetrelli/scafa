@@ -30,12 +30,12 @@ import com.github.apetrelli.scafa.proto.processor.impl.DefaultProcessor;
 public class DefaultProcessorFactory<ST, P extends ProcessingContext<ST>, H extends Handler>
 		implements ProcessorFactory<H> {
 
-	private InputProcessorFactory<H, ST, P> inputProcessorFactory;
+	private InputProcessorFactory<H, P> inputProcessorFactory;
 
-	private ProcessingContextFactory<ST, P> processingContextFactory;
+	private ProcessingContextFactory<P> processingContextFactory;
 
-	public DefaultProcessorFactory(InputProcessorFactory<H, ST, P> inputProcessorFactory,
-			ProcessingContextFactory<ST, P> processingContextFactory) {
+	public DefaultProcessorFactory(InputProcessorFactory<H, P> inputProcessorFactory,
+			ProcessingContextFactory<P> processingContextFactory) {
 		this.inputProcessorFactory = inputProcessorFactory;
 		this.processingContextFactory = processingContextFactory;
 	}

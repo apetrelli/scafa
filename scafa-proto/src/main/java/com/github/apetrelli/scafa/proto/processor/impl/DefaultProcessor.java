@@ -27,21 +27,21 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.proto.processor.Handler;
+import com.github.apetrelli.scafa.proto.processor.Input;
 import com.github.apetrelli.scafa.proto.processor.InputProcessor;
 import com.github.apetrelli.scafa.proto.processor.InputProcessorFactory;
-import com.github.apetrelli.scafa.proto.processor.ProcessingContext;
 import com.github.apetrelli.scafa.proto.processor.ProcessingContextFactory;
 import com.github.apetrelli.scafa.proto.processor.Processor;
 
-public class DefaultProcessor<ST, P extends ProcessingContext<ST>, H extends Handler> implements Processor<H> {
+public class DefaultProcessor<P extends Input, H extends Handler> implements Processor<H> {
 
     private class ClientReadCompletionHandler implements CompletionHandler<Integer, P> {
         private final H handler;
-        private final InputProcessor<ST, P> processor;
+        private final InputProcessor<P> processor;
 
         private ProcessCompletionHandler processCompletionHandler;
 
-		private ClientReadCompletionHandler(H handler, InputProcessor<ST, P> processor) {
+		private ClientReadCompletionHandler(H handler, InputProcessor<P> processor) {
             this.handler = handler;
             this.processor = processor;
         }
@@ -112,12 +112,12 @@ public class DefaultProcessor<ST, P extends ProcessingContext<ST>, H extends Han
 
     private AsynchronousSocketChannel client;
 
-    private InputProcessorFactory<H, ST, P> inputProcessorFactory;
+    private InputProcessorFactory<H, P> inputProcessorFactory;
 
-    private ProcessingContextFactory<ST, P> processingContextFactory;
+    private ProcessingContextFactory<P> processingContextFactory;
 
     public DefaultProcessor(AsynchronousSocketChannel client,
-            InputProcessorFactory<H, ST, P> inputProcessorFactory, ProcessingContextFactory<ST, P> processingContextFactory) {
+            InputProcessorFactory<H, P> inputProcessorFactory, ProcessingContextFactory<P> processingContextFactory) {
         this.client = client;
         this.inputProcessorFactory = inputProcessorFactory;
         this.processingContextFactory = processingContextFactory;
@@ -128,7 +128,7 @@ public class DefaultProcessor<ST, P extends ProcessingContext<ST>, H extends Han
         try {
             handler.onConnect();
             P context = processingContextFactory.create();
-            InputProcessor<ST, P> processor = inputProcessorFactory.create(handler);
+            InputProcessor<P> processor = inputProcessorFactory.create(handler);
             ClientReadCompletionHandler clientReadCompletionHandler = new ClientReadCompletionHandler(handler, processor);
             ProcessCompletionHandler processCompletionHandler = new ProcessCompletionHandler(clientReadCompletionHandler);
             clientReadCompletionHandler.setProcessCompletionHandler(processCompletionHandler);

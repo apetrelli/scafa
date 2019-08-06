@@ -6,7 +6,7 @@ import com.github.apetrelli.scafa.http.HttpProcessingContext;
 import com.github.apetrelli.scafa.http.HttpStatus;
 import com.github.apetrelli.scafa.proto.processor.ProcessingContextFactory;
 
-public class HttpProcessingContextFactory implements ProcessingContextFactory<HttpStatus, HttpProcessingContext> {
+public class HttpProcessingContextFactory implements ProcessingContextFactory<HttpProcessingContext> {
 
 	@Override
 	public HttpProcessingContext create() {

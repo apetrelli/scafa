@@ -24,7 +24,7 @@ import com.github.apetrelli.scafa.proto.processor.InputProcessor;
 import com.github.apetrelli.scafa.proto.processor.ProcessingContext;
 import com.github.apetrelli.scafa.proto.processor.ProtocolStateMachine;
 
-public abstract class AbstractInputProcessor<H, ST, P extends ProcessingContext<ST>> implements InputProcessor<ST, P> {
+public abstract class AbstractInputProcessor<H, ST, P extends ProcessingContext<ST>> implements InputProcessor<P> {
 
     private ProtocolStateMachine<H, ST, P> stateMachine;
 

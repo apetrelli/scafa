@@ -19,7 +19,7 @@ package com.github.apetrelli.scafa.proto.processor;
 
 import java.nio.channels.CompletionHandler;
 
-public interface InputProcessor<ST, P extends ProcessingContext<ST>> {
+public interface InputProcessor<P extends Input> {
 
     void process(P context, CompletionHandler<P, P> completionHandler);
 }
