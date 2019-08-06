@@ -26,14 +26,17 @@ import com.github.apetrelli.scafa.proto.processor.InputProcessor;
 import com.github.apetrelli.scafa.proto.processor.ProcessingContext;
 import com.github.apetrelli.scafa.proto.processor.ProtocolStateMachine;
 
-public abstract class AbstractInputProcessor<I extends Input, S extends ByteSink<I>, ST, P extends ProcessingContext<I, ST>> implements InputProcessor<I, ST, P> {
+public abstract class AbstractInputProcessor<I extends Input, S extends ByteSink<I>, H, ST, P extends ProcessingContext<I, ST>> implements InputProcessor<I, ST, P> {
 
     private S sink;
 
-    private ProtocolStateMachine<I, S, ST, P> stateMachine;
+    private ProtocolStateMachine<I, S, H, ST, P> stateMachine;
 
-    public AbstractInputProcessor(S sink, ProtocolStateMachine<I, S, ST, P> stateMachine) {
+    private H handler;
+
+    public AbstractInputProcessor(S sink, H handler, ProtocolStateMachine<I, S, H, ST, P> stateMachine) {
         this.sink = sink;
+        this.handler = handler;
         this.stateMachine = stateMachine;
     }
 
@@ -43,7 +46,7 @@ public abstract class AbstractInputProcessor<I extends Input, S extends ByteSink
         ByteBuffer buffer = input.getBuffer();
         if (buffer.position() < buffer.limit()) {
         	stateMachine.next(context);
-        	stateMachine.out(context, sink, new CompletionHandler<Void, Void>() {
+        	stateMachine.out(context, handler, new CompletionHandler<Void, Void>() {
 
 				@Override
 				public void completed(Void result, Void attachment) {

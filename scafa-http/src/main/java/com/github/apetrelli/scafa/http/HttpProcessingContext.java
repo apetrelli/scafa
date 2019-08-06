@@ -33,6 +33,7 @@ public class HttpProcessingContext extends ProcessingContext<HttpInput, HttpStat
 
     public void evaluateRequestLine() throws IOException {
         String requestLine = lineBuilder.toString();
+        clearLineBuilder();
         String[] pieces = requestLine.split("\\s+");
         if (pieces.length >= 3) {
             if (pieces[0].startsWith("HTTP/")) {
@@ -113,6 +114,20 @@ public class HttpProcessingContext extends ProcessingContext<HttpInput, HttpStat
             throw new IOException("Chunk count as empty string, invalid");
         }
     }
+    public void reset() {
+        clearLineBuilder();
+        request = null;
+        response = null;
+        holder = null;
+    }
+
+    public HttpRequest getRequest() {
+		return request;
+	}
+
+    public HttpResponse getResponse() {
+		return response;
+	}
 
     private void clearLineBuilder() {
         lineBuilder.delete(0, lineBuilder.length());

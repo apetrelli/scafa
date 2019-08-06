@@ -20,14 +20,14 @@ package com.github.apetrelli.scafa.http.proxy.impl;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 
+import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpInput;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.impl.DefaultHttpByteSink;
-import com.github.apetrelli.scafa.http.proxy.ProxyHttpHandler;
 
-public class ProxyHttpByteSink extends DefaultHttpByteSink<ProxyHttpHandler> {
+public class ProxyHttpByteSink extends DefaultHttpByteSink<HttpHandler> {
 
-    public ProxyHttpByteSink(AsynchronousSocketChannel sourceChannel, ProxyHttpHandler handler) {
+    public ProxyHttpByteSink(AsynchronousSocketChannel sourceChannel, HttpHandler handler) {
         super(handler);
     }
 
@@ -41,7 +41,7 @@ public class ProxyHttpByteSink extends DefaultHttpByteSink<ProxyHttpHandler> {
     }
 
     @Override
-    protected void manageRequestHeader(ProxyHttpHandler handler, HttpInput input, HttpRequest request,
+    protected void manageRequestHeader(HttpHandler handler, HttpInput input, HttpRequest request,
             CompletionHandler<Void, Void> completionHandler) {
         if ("CONNECT".equalsIgnoreCase(request.getMethod())) {
             input.setHttpConnected(true);

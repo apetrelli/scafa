@@ -33,14 +33,14 @@ public class DefaultProcessorFactory<I extends Input, S extends ByteSink<I>, ST,
 
     private ByteSinkFactory<I, S, H> factory;
 
-    private InputProcessorFactory<I, S, ST, P> inputProcessorFactory;
+    private InputProcessorFactory<I, S, H, ST, P> inputProcessorFactory;
 
     private ProcessingContextFactory<I, ST, P> processingContextFactory;
 
     private ST initialStatus;
 
 	public DefaultProcessorFactory(ByteSinkFactory<I, S, H> factory,
-			InputProcessorFactory<I, S, ST, P> inputProcessorFactory,
+			InputProcessorFactory<I, S, H, ST, P> inputProcessorFactory,
 			ProcessingContextFactory<I, ST, P> processingContextFactory, ST initialStatus) {
         this.factory = factory;
         this.inputProcessorFactory = inputProcessorFactory;

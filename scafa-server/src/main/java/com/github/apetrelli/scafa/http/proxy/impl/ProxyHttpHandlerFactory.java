@@ -19,11 +19,11 @@ package com.github.apetrelli.scafa.http.proxy.impl;
 
 import java.nio.channels.AsynchronousSocketChannel;
 
+import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectionFactoryFactory;
-import com.github.apetrelli.scafa.http.proxy.ProxyHttpHandler;
 import com.github.apetrelli.scafa.proto.aio.HandlerFactory;
 
-public class ProxyHttpHandlerFactory implements HandlerFactory<ProxyHttpHandler> {
+public class ProxyHttpHandlerFactory implements HandlerFactory<HttpHandler> {
 
     private HttpConnectionFactoryFactory connectionFactoryFactory;
 
@@ -32,7 +32,7 @@ public class ProxyHttpHandlerFactory implements HandlerFactory<ProxyHttpHandler>
     }
 
     @Override
-    public ProxyHttpHandler create(AsynchronousSocketChannel sourceChannel) {
+    public HttpHandler create(AsynchronousSocketChannel sourceChannel) {
         return new DefaultProxyHttpHandler(connectionFactoryFactory.create(), sourceChannel);
     }
 

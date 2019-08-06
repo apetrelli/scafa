@@ -116,14 +116,14 @@ public class DefaultProcessor<I extends Input, S extends ByteSink<I>, ST, P exte
 
     private ByteSinkFactory<I, S, H> factory;
 
-    private InputProcessorFactory<I, S, ST, P> inputProcessorFactory;
+    private InputProcessorFactory<I, S, H, ST, P> inputProcessorFactory;
 
     private ProcessingContextFactory<I, ST, P> processingContextFactory;
 
     private ST initialStatus;
 
     public DefaultProcessor(AsynchronousSocketChannel client, ByteSinkFactory<I, S, H> factory,
-            InputProcessorFactory<I, S, ST, P> inputProcessorFactory, ProcessingContextFactory<I, ST, P> processingContextFactory, ST initialStatus) {
+            InputProcessorFactory<I, S, H, ST, P> inputProcessorFactory, ProcessingContextFactory<I, ST, P> processingContextFactory, ST initialStatus) {
         this.client = client;
         this.factory = factory;
         this.inputProcessorFactory = inputProcessorFactory;
@@ -138,7 +138,7 @@ public class DefaultProcessor<I extends Input, S extends ByteSink<I>, ST, P exte
             sink.connect();
             I input = sink.createInput();
             P context = processingContextFactory.create(input, initialStatus);
-            InputProcessor<I, ST, P> processor = inputProcessorFactory.create(sink);
+            InputProcessor<I, ST, P> processor = inputProcessorFactory.create(handler);
             ClientReadCompletionHandler clientReadCompletionHandler = new ClientReadCompletionHandler(sink, processor);
             ProcessCompletionHandler processCompletionHandler = new ProcessCompletionHandler(clientReadCompletionHandler);
             clientReadCompletionHandler.setProcessCompletionHandler(processCompletionHandler);

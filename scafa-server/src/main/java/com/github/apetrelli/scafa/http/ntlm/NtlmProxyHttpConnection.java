@@ -97,7 +97,7 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
         HttpRequest modifiedRequest = new HttpRequest(request);
         modifiedRequest.setHeader("Proxy-Connection", "keep-alive");
         HttpByteSink sink = new DefaultHttpByteSink<HttpHandler>(tentativeHandler);
-        HttpInputProcessor processor = new HttpInputProcessor(sink, stateMachine);
+        HttpInputProcessor processor = new HttpInputProcessor(sink, tentativeHandler, stateMachine);
         ntlmAuthenticate(modifiedRequest, modifiedRequest, sink, tentativeHandler, processor, completionHandler);
     }
 
@@ -114,7 +114,7 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
             @Override
             public void completed(Void result, Void attachment) {
                 HttpByteSink sink = new DefaultHttpByteSink<HttpHandler>(tentativeHandler);
-                HttpInputProcessor processor = new HttpInputProcessor(sink, stateMachine);
+                HttpInputProcessor processor = new HttpInputProcessor(sink, tentativeHandler, stateMachine);
                 readResponse(tentativeHandler, sink, processor, new DelegateFailureCompletionHandler<Integer, Void>(completionHandler) {
 
                     @Override

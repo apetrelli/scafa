@@ -20,16 +20,17 @@ package com.github.apetrelli.scafa.http.proxy.impl;
 import java.nio.channels.AsynchronousSocketChannel;
 
 import com.github.apetrelli.scafa.http.HttpByteSink;
+import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpInput;
-import com.github.apetrelli.scafa.http.proxy.ProxyHttpHandler;
+import com.github.apetrelli.scafa.http.impl.DefaultHttpByteSink;
 import com.github.apetrelli.scafa.proto.aio.ByteSinkFactory;
 
 public class ProxyHttpByteSinkFactory
-        implements ByteSinkFactory<HttpInput, HttpByteSink, ProxyHttpHandler> {
+        implements ByteSinkFactory<HttpInput, HttpByteSink, HttpHandler> {
 
     @Override
-    public HttpByteSink create(AsynchronousSocketChannel sourceChannel, ProxyHttpHandler handler) {
-        return new ProxyHttpByteSink(sourceChannel, handler);
+    public HttpByteSink create(AsynchronousSocketChannel sourceChannel, HttpHandler handler) {
+        return new DefaultHttpByteSink<>(handler);
     }
 
 }
