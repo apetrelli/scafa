@@ -15,24 +15,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.apetrelli.scafa.http.impl;
+package com.github.apetrelli.scafa.proto.processor.impl;
 
-import com.github.apetrelli.scafa.http.HttpHandler;
-import com.github.apetrelli.scafa.http.HttpProcessingContext;
 import com.github.apetrelli.scafa.proto.processor.InputProcessor;
 import com.github.apetrelli.scafa.proto.processor.InputProcessorFactory;
+import com.github.apetrelli.scafa.proto.processor.ProcessingContext;
+import com.github.apetrelli.scafa.proto.processor.ProtocolStateMachine;
 
-public class HttpInputProcessorFactory implements
-        InputProcessorFactory<HttpHandler, HttpProcessingContext> {
+public class StatefulInputProcessorFactory<H, ST, P extends ProcessingContext<ST>> implements
+        InputProcessorFactory<H, P> {
 
-	private HttpStateMachine stateMachine;
+	private ProtocolStateMachine<H, ST, P> stateMachine;
 
-	public HttpInputProcessorFactory(HttpStateMachine stateMachine) {
+	public StatefulInputProcessorFactory(ProtocolStateMachine<H, ST, P> stateMachine) {
 		this.stateMachine = stateMachine;
 	}
 
 	@Override
-	public InputProcessor<HttpProcessingContext> create(HttpHandler handler) {
-        return new HttpInputProcessor(handler, stateMachine);
+	public InputProcessor<P> create(H handler) {
+        return new StatefulInputProcessor<>(handler, stateMachine);
 	}
 }

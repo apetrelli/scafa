@@ -22,9 +22,10 @@ import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 
 import com.github.apetrelli.scafa.http.HostPort;
+import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpProcessingContext;
 import com.github.apetrelli.scafa.http.HttpRequest;
-import com.github.apetrelli.scafa.http.impl.HttpInputProcessor;
+import com.github.apetrelli.scafa.http.HttpStatus;
 import com.github.apetrelli.scafa.http.impl.HttpProcessingContextFactory;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
@@ -32,6 +33,7 @@ import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
 import com.github.apetrelli.scafa.http.proxy.MappedHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.impl.AbstractUpstreamProxyHttpConnection;
 import com.github.apetrelli.scafa.proto.aio.DelegateFailureCompletionHandler;
+import com.github.apetrelli.scafa.proto.processor.impl.StatefulInputProcessor;
 import com.github.apetrelli.scafa.util.HttpUtils;
 
 import jcifs.ntlmssp.NtlmFlags;
@@ -95,7 +97,7 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
     private void authenticateOnConnect(HttpRequest request, CompletionHandler<Void, Void> completionHandler) {
         HttpRequest modifiedRequest = new HttpRequest(request);
         modifiedRequest.setHeader("Proxy-Connection", "keep-alive");
-        HttpInputProcessor processor = new HttpInputProcessor(tentativeHandler, stateMachine);
+        StatefulInputProcessor<HttpHandler, HttpStatus, HttpProcessingContext> processor = new StatefulInputProcessor<>(tentativeHandler, stateMachine);
         ntlmAuthenticate(modifiedRequest, modifiedRequest, tentativeHandler, processor, completionHandler);
     }
 
@@ -111,8 +113,9 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
 
             @Override
             public void completed(Void result, Void attachment) {
-                HttpInputProcessor processor = new HttpInputProcessor(tentativeHandler, stateMachine);
-                readResponse(tentativeHandler, processor, new DelegateFailureCompletionHandler<Integer, Void>(completionHandler) {
+                    StatefulInputProcessor<HttpHandler, HttpStatus, HttpProcessingContext> processor = new StatefulInputProcessor<>(
+                            tentativeHandler, stateMachine);
+                    readResponse(tentativeHandler, processor, new DelegateFailureCompletionHandler<Integer, Void>(completionHandler) {
 
                     @Override
                     public void completed(Integer result, Void attachment) {
@@ -137,7 +140,7 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
     }
 
     private void ntlmAuthenticate(HttpRequest modifiedRequest, HttpRequest finalRequest, CapturingHandler handler,
-            HttpInputProcessor processor, CompletionHandler<Void, Void> completionHandler) {
+            StatefulInputProcessor<HttpHandler, HttpStatus, HttpProcessingContext> processor, CompletionHandler<Void, Void> completionHandler) {
         Type1Message message1 = new Type1Message(TYPE_1_FLAGS, null, null);
         modifiedRequest.setHeader("PROXY-AUTHORIZATION", "NTLM " + Base64.encode(message1.toByteArray()));
         HttpUtils.sendHeader(modifiedRequest, channel, new DelegateFailureCompletionHandler<Void, Void>(completionHandler) {
@@ -200,14 +203,14 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
     }
 
     private void readResponse(CapturingHandler handler,
-            HttpInputProcessor processor, CompletionHandler<Integer, Void> completionHandler) {
+            StatefulInputProcessor<HttpHandler, HttpStatus, HttpProcessingContext> processor, CompletionHandler<Integer, Void> completionHandler) {
         handler.reset();
         HttpProcessingContext context = processingContextFactory.create();
         Integer retValue = 0;
         readResponse(handler, processor, completionHandler, context, retValue);
     }
 
-    private void readResponse(CapturingHandler handler, HttpInputProcessor processor,
+    private void readResponse(CapturingHandler handler, StatefulInputProcessor<HttpHandler, HttpStatus, HttpProcessingContext> processor,
             CompletionHandler<Integer, Void> completionHandler, HttpProcessingContext context,
             Integer byteRead) {
         if (!handler.isFinished()) {
