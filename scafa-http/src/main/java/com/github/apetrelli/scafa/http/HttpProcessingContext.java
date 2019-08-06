@@ -38,11 +38,6 @@ public class HttpProcessingContext extends ProcessingContext<HttpStatus> {
 		super(status);
 	}
 
-	@Override
-	public HttpStatus getStatus() {
-		return (HttpStatus) super.getStatus();
-	}
-
     public HttpBodyMode getBodyMode() {
         return bodyMode;
     }
