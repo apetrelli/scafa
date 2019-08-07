@@ -8,14 +8,14 @@ import com.github.apetrelli.scafa.proto.processor.InputProcessor;
 import com.github.apetrelli.scafa.proto.processor.InputProcessorFactory;
 
 public class PassthroughInputProcessorFactory implements InputProcessorFactory<Handler, Input> {
-    private final AsynchronousSocketChannel sourceChannel;
+    private final AsynchronousSocketChannel channel;
 
     public PassthroughInputProcessorFactory(AsynchronousSocketChannel sourceChannel) {
-        this.sourceChannel = sourceChannel;
+        this.channel = sourceChannel;
     }
 
     @Override
     public InputProcessor<Input> create(Handler handler) {
-        return new PassthroughInputProcessor<Input>(sourceChannel);
+        return new PassthroughInputProcessor<Input>(channel);
     }
 }
