@@ -18,6 +18,7 @@
 package com.github.apetrelli.scafa.http.ntlm;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 
@@ -61,6 +62,8 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
     private TentativeHandler tentativeHandler;
 
     private HttpProcessingContextFactory processingContextFactory;
+
+    private ByteBuffer readBuffer = ByteBuffer.allocate(16384);
 
     public NtlmProxyHttpConnection(MappedHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
             HostPort calledAddress, String interfaceName, boolean forceIpV4, HostPort proxySocketAddress, String domain, String username, String password,

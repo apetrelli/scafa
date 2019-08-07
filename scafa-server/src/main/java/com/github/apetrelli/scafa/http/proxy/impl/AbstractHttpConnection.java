@@ -24,9 +24,7 @@ import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
-import java.nio.channels.AsynchronousCloseException;
 import java.nio.channels.AsynchronousSocketChannel;
-import java.nio.channels.ClosedChannelException;
 import java.nio.channels.CompletionHandler;
 import java.util.Enumeration;
 import java.util.logging.Level;
@@ -37,29 +35,15 @@ import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.proxy.HttpConnection;
 import com.github.apetrelli.scafa.http.proxy.MappedHttpConnectionFactory;
 import com.github.apetrelli.scafa.proto.aio.DelegateFailureCompletionHandler;
+import com.github.apetrelli.scafa.proto.processor.Handler;
+import com.github.apetrelli.scafa.proto.processor.Input;
+import com.github.apetrelli.scafa.proto.processor.Processor;
+import com.github.apetrelli.scafa.proto.processor.impl.DefaultProcessor;
+import com.github.apetrelli.scafa.proto.processor.impl.PassthroughInputProcessorFactory;
+import com.github.apetrelli.scafa.proto.processor.impl.SimpleInputFactory;
 import com.github.apetrelli.scafa.util.HttpUtils;
 
 public abstract class AbstractHttpConnection implements HttpConnection {
-
-    private class WriteCompletionHandler implements CompletionHandler<Integer, ByteBuffer> {
-
-        private CompletionHandler<Integer, ByteBuffer> readHandler;
-
-        private WriteCompletionHandler(CompletionHandler<Integer, ByteBuffer> readHandler) {
-            this.readHandler = readHandler;
-        }
-
-        @Override
-        public void completed(Integer result, ByteBuffer attachment) {
-            attachment.clear();
-            channel.read(attachment, attachment, readHandler);
-        }
-
-        @Override
-        public void failed(Throwable exc, ByteBuffer attachment) {
-            readHandler.failed(exc, attachment);
-        }
-    }
 
     private static final Logger LOG = Logger.getLogger(AbstractHttpConnection.class.getName());
 
@@ -75,11 +59,11 @@ public abstract class AbstractHttpConnection implements HttpConnection {
 
     protected HostPort socketAddress;
 
-    protected ByteBuffer readBuffer = ByteBuffer.allocate(16384);
-
     private String interfaceName;
 
     private boolean forceIpV4;
+
+    private SimpleInputFactory inputFactory = new SimpleInputFactory();
 
     public AbstractHttpConnection(MappedHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
             HostPort socketAddress, String interfaceName, boolean forceIpV4) {
@@ -160,48 +144,8 @@ public abstract class AbstractHttpConnection implements HttpConnection {
 
     protected void prepareChannel(MappedHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
             HostPort socketAddress) {
-        channel.read(readBuffer, readBuffer, new CompletionHandler<Integer, ByteBuffer>() {
-
-            @Override
-            public void completed(Integer result, ByteBuffer attachment) {
-                if (result >= 0) {
-                    attachment.flip();
-                    sourceChannel.write(attachment, attachment, new WriteCompletionHandler(this));
-                } else {
-                    if (sourceChannel.isOpen()) {
-                        try {
-                            sourceChannel.shutdownOutput();
-                        } catch (IOException e) {
-                            LOG.log(Level.INFO, "Error when shutting down the source channel", e);
-                        }
-                    }
-                    disconnect();
-                }
-            }
-
-            @Override
-            public void failed(Throwable exc, ByteBuffer attachment) {
-                if (exc instanceof AsynchronousCloseException || exc instanceof ClosedChannelException) {
-                    LOG.log(Level.INFO, "Channel closed", exc);
-                } else if (exc instanceof IOException){
-                    LOG.log(Level.INFO, "I/O exception, closing", exc);
-                    disconnect();
-                } else {
-                    LOG.log(Level.SEVERE, "Unrecognized exception, don't know what to do...", exc);
-                }
-            }
-
-            private void disconnect() {
-                factory.dispose(socketAddress);
-                try {
-                    if (channel.isOpen()) {
-                        channel.close();
-                    }
-                } catch (IOException e) {
-                    LOG.log(Level.WARNING, "Error when closing channel", e);
-                }
-            }
-        });
+        Processor<Handler> processor = new DefaultProcessor<Input, Handler>(channel, new PassthroughInputProcessorFactory(sourceChannel), inputFactory);
+        processor.process(new ChannelDisconnectorHandler(factory, sourceChannel, socketAddress));
     }
 
     private void bindChannel() throws IOException {
