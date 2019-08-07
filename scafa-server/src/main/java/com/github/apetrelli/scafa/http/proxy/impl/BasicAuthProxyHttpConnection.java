@@ -9,13 +9,13 @@ import com.github.apetrelli.scafa.http.HostPort;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
 import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
-import com.github.apetrelli.scafa.http.proxy.MappedHttpConnectionFactory;
+import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 
 public class BasicAuthProxyHttpConnection extends AbstractUpstreamProxyHttpConnection {
 
     private String authString;
 
-    public BasicAuthProxyHttpConnection(MappedHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
+    public BasicAuthProxyHttpConnection(MappedProxyHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
             HostPort calledAddress, String interfaceName, boolean forceIpV4, HostPort proxySocketAddress, HttpRequestManipulator manipulator, String username, String password) {
         super(factory, sourceChannel, calledAddress, interfaceName, forceIpV4, proxySocketAddress, manipulator);
         String auth = username + ":" + password;

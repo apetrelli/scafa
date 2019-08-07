@@ -21,11 +21,11 @@ import java.nio.channels.AsynchronousSocketChannel;
 
 import com.github.apetrelli.scafa.http.HostPort;
 import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
-import com.github.apetrelli.scafa.http.proxy.MappedHttpConnectionFactory;
+import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 
 public class AnonymousProxyHttpConnection extends AbstractUpstreamProxyHttpConnection {
 
-    public AnonymousProxyHttpConnection(MappedHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
+    public AnonymousProxyHttpConnection(MappedProxyHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
             HostPort calledAddress, String interfaceName, boolean forceIpV4, HostPort proxySocketAddress, HttpRequestManipulator manipulator) {
         super(factory, sourceChannel, calledAddress, interfaceName, forceIpV4, proxySocketAddress, manipulator);
     }

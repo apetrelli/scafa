@@ -25,11 +25,11 @@ import com.github.apetrelli.scafa.config.Configuration;
 import com.github.apetrelli.scafa.http.HostPort;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
-import com.github.apetrelli.scafa.http.proxy.HttpConnectionFactory;
+import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
-import com.github.apetrelli.scafa.http.proxy.MappedHttpConnectionFactory;
+import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 
-public class NtlmProxyHttpConnectionFactory implements HttpConnectionFactory {
+public class NtlmProxyHttpConnectionFactory implements ProxyHttpConnectionFactory {
 
     private String domain, username, password;
 
@@ -55,7 +55,7 @@ public class NtlmProxyHttpConnectionFactory implements HttpConnectionFactory {
     }
 
     @Override
-    public ProxyHttpConnection create(MappedHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
+    public ProxyHttpConnection create(MappedProxyHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
             HostPort socketAddress) {
         return new NtlmProxyHttpConnection(factory, sourceChannel, socketAddress, interfaceName, forceIpV4, proxySocketAddress,
                 domain, username, password, stateMachine, manipulator);

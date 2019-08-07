@@ -20,14 +20,14 @@ package com.github.apetrelli.scafa.http.proxy.impl;
 import java.nio.channels.AsynchronousSocketChannel;
 
 import com.github.apetrelli.scafa.http.HttpHandler;
-import com.github.apetrelli.scafa.http.proxy.HttpConnectionFactoryFactory;
+import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnectionFactoryFactory;
 import com.github.apetrelli.scafa.proto.aio.HandlerFactory;
 
 public class ProxyHttpHandlerFactory implements HandlerFactory<HttpHandler> {
 
-    private HttpConnectionFactoryFactory connectionFactoryFactory;
+    private ProxyHttpConnectionFactoryFactory connectionFactoryFactory;
 
-    public ProxyHttpHandlerFactory(HttpConnectionFactoryFactory connectionFactoryFactory) {
+    public ProxyHttpHandlerFactory(ProxyHttpConnectionFactoryFactory connectionFactoryFactory) {
         this.connectionFactoryFactory = connectionFactoryFactory;
     }
 

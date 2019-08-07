@@ -32,10 +32,10 @@ import com.github.apetrelli.scafa.http.HostPort;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
-import com.github.apetrelli.scafa.http.proxy.MappedHttpConnectionFactory;
+import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.ResultHandler;
 
-public class DefaultMappedHttpConnectionFactory implements MappedHttpConnectionFactory {
+public class DefaultMappedHttpConnectionFactory implements MappedProxyHttpConnectionFactory {
 
     private static final Map<String, Integer> protocol2port = new HashMap<String, Integer>();
 

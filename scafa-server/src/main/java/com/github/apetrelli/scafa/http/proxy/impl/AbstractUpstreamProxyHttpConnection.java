@@ -28,11 +28,11 @@ import com.github.apetrelli.scafa.http.HostPort;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
 import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
-import com.github.apetrelli.scafa.http.proxy.MappedHttpConnectionFactory;
+import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.util.HttpUtils;
 
-public abstract class AbstractUpstreamProxyHttpConnection extends AbstractHttpConnection implements ProxyHttpConnection {
+public abstract class AbstractUpstreamProxyHttpConnection extends AbstractProxyHttpConnection implements ProxyHttpConnection {
 
     private static final Logger LOG = Logger.getLogger(AnonymousProxyHttpConnection.class.getName());
 
@@ -40,7 +40,7 @@ public abstract class AbstractUpstreamProxyHttpConnection extends AbstractHttpCo
 
     private HostPort proxySocketAddress;
 
-    public AbstractUpstreamProxyHttpConnection(MappedHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
+    public AbstractUpstreamProxyHttpConnection(MappedProxyHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
             HostPort socketAddress, String interfaceName, boolean forceIpV4, HostPort proxySocketAddress, HttpRequestManipulator manipulator) {
         super(factory, sourceChannel, socketAddress, interfaceName, forceIpV4);
         this.proxySocketAddress = proxySocketAddress;

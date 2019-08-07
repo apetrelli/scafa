@@ -27,7 +27,7 @@ import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
-import com.github.apetrelli.scafa.http.proxy.MappedHttpConnectionFactory;
+import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpHandler;
 import com.github.apetrelli.scafa.http.proxy.ResultHandler;
 
@@ -39,13 +39,13 @@ public class DefaultProxyHttpHandler implements ProxyHttpHandler {
 
     private static final byte[] CRLF = new byte[] {CR, LF};
 
-    private MappedHttpConnectionFactory connectionFactory;
+    private MappedProxyHttpConnectionFactory connectionFactory;
 
     private AsynchronousSocketChannel sourceChannel;
 
     private ProxyHttpConnection connection;
 
-    public DefaultProxyHttpHandler(MappedHttpConnectionFactory connectionFactory, AsynchronousSocketChannel sourceChannel) {
+    public DefaultProxyHttpHandler(MappedProxyHttpConnectionFactory connectionFactory, AsynchronousSocketChannel sourceChannel) {
         this.connectionFactory = connectionFactory;
         this.sourceChannel = sourceChannel;
     }

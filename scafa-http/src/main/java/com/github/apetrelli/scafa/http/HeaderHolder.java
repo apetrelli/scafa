@@ -21,6 +21,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -84,6 +85,10 @@ public abstract class HeaderHolder {
     public List<String> getHeaders(String header) {
         List<String> values = headers.get(header.toUpperCase());
         return values != null ? Collections.unmodifiableList(values) : Collections.emptyList();
+    }
+
+    public Collection<String> getHeaderNames() {
+    	return Collections.unmodifiableCollection(capitalized2normalHeader.values());
     }
 
     public abstract ByteBuffer toHeapByteBuffer();

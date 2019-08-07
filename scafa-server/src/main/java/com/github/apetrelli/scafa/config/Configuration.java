@@ -36,7 +36,7 @@ import org.ini4j.Profile.Section;
 import com.github.apetrelli.scafa.http.HostPort;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
 import com.github.apetrelli.scafa.http.ntlm.NtlmProxyHttpConnectionFactory;
-import com.github.apetrelli.scafa.http.proxy.HttpConnectionFactory;
+import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
 import com.github.apetrelli.scafa.http.proxy.impl.AnonymousProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.impl.BasicAuthProxyHttpConnectionFactory;
@@ -48,9 +48,9 @@ public class Configuration {
 
     private Ini ini;
 
-    private Map<String, HttpConnectionFactory> sectionName2factory;
+    private Map<String, ProxyHttpConnectionFactory> sectionName2factory;
 
-    private HttpConnectionFactory directHttpConnectionFactory = new DirectHttpConnectionFactory();
+    private ProxyHttpConnectionFactory directHttpConnectionFactory = new DirectHttpConnectionFactory();
 
     public static Ini loadIni(String profile) throws IOException, InvalidFileFormatException {
         Ini ini = new Ini();
@@ -128,8 +128,8 @@ public class Configuration {
         return found ? section : null;
     }
 
-    public HttpConnectionFactory getHttpConnectionFactoryByHost(String host) {
-        HttpConnectionFactory factory = null;
+    public ProxyHttpConnectionFactory getHttpConnectionFactoryByHost(String host) {
+        ProxyHttpConnectionFactory factory = null;
         Section section = getConfigurationByHost(host);
         if (section != null) {
             factory = sectionName2factory.get(section.getName());

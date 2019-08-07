@@ -31,7 +31,7 @@ import com.github.apetrelli.scafa.http.impl.HttpProcessingContextFactory;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
 import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
-import com.github.apetrelli.scafa.http.proxy.MappedHttpConnectionFactory;
+import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.impl.AbstractUpstreamProxyHttpConnection;
 import com.github.apetrelli.scafa.proto.aio.DelegateFailureCompletionHandler;
 import com.github.apetrelli.scafa.proto.processor.impl.StatefulInputProcessor;
@@ -51,7 +51,7 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
 
     private boolean authenticated = false;
 
-    private MappedHttpConnectionFactory factory;
+    private MappedProxyHttpConnectionFactory factory;
 
     private HostPort calledAddress;
 
@@ -65,7 +65,7 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
 
     private ByteBuffer readBuffer = ByteBuffer.allocate(16384);
 
-    public NtlmProxyHttpConnection(MappedHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
+    public NtlmProxyHttpConnection(MappedProxyHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
             HostPort calledAddress, String interfaceName, boolean forceIpV4, HostPort proxySocketAddress, String domain, String username, String password,
             HttpStateMachine stateMachine, HttpRequestManipulator manipulator) {
         super(factory, sourceChannel, calledAddress, interfaceName, forceIpV4, proxySocketAddress, manipulator);

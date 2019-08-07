@@ -32,8 +32,8 @@ import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.http.HostPort;
 import com.github.apetrelli.scafa.http.HttpRequest;
-import com.github.apetrelli.scafa.http.proxy.HttpConnection;
-import com.github.apetrelli.scafa.http.proxy.MappedHttpConnectionFactory;
+import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
+import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.proto.aio.DelegateFailureCompletionHandler;
 import com.github.apetrelli.scafa.proto.processor.Handler;
 import com.github.apetrelli.scafa.proto.processor.Input;
@@ -43,9 +43,9 @@ import com.github.apetrelli.scafa.proto.processor.impl.PassthroughInputProcessor
 import com.github.apetrelli.scafa.proto.processor.impl.SimpleInputFactory;
 import com.github.apetrelli.scafa.util.HttpUtils;
 
-public abstract class AbstractHttpConnection implements HttpConnection {
+public abstract class AbstractProxyHttpConnection implements ProxyHttpConnection {
 
-    private static final Logger LOG = Logger.getLogger(AbstractHttpConnection.class.getName());
+    private static final Logger LOG = Logger.getLogger(AbstractProxyHttpConnection.class.getName());
 
     protected static final byte CR = 13;
 
@@ -53,7 +53,7 @@ public abstract class AbstractHttpConnection implements HttpConnection {
 
     protected static final byte SPACE = 32;
 
-    protected MappedHttpConnectionFactory factory;
+    protected MappedProxyHttpConnectionFactory factory;
 
     protected AsynchronousSocketChannel channel, sourceChannel;
 
@@ -65,7 +65,7 @@ public abstract class AbstractHttpConnection implements HttpConnection {
 
     private SimpleInputFactory inputFactory = new SimpleInputFactory();
 
-    public AbstractHttpConnection(MappedHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
+    public AbstractProxyHttpConnection(MappedProxyHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
             HostPort socketAddress, String interfaceName, boolean forceIpV4) {
         this.factory = factory;
         this.sourceChannel = sourceChannel;
@@ -142,7 +142,7 @@ public abstract class AbstractHttpConnection implements HttpConnection {
         HttpUtils.sendHeader(request, channel, completionHandler);
     }
 
-    protected void prepareChannel(MappedHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
+    protected void prepareChannel(MappedProxyHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
             HostPort socketAddress) {
         Processor<Handler> processor = new DefaultProcessor<Input, Handler>(channel, new PassthroughInputProcessorFactory(sourceChannel), inputFactory);
         processor.process(new ChannelDisconnectorHandler(factory, sourceChannel, socketAddress));

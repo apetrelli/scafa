@@ -23,10 +23,10 @@ import org.ini4j.Profile.Section;
 
 import com.github.apetrelli.scafa.http.HostPort;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
-import com.github.apetrelli.scafa.http.proxy.HttpConnectionFactory;
-import com.github.apetrelli.scafa.http.proxy.MappedHttpConnectionFactory;
+import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnectionFactory;
+import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 
-public class DirectHttpConnectionFactory implements HttpConnectionFactory {
+public class DirectHttpConnectionFactory implements ProxyHttpConnectionFactory {
 
     private String interfaceName;
 
@@ -41,7 +41,7 @@ public class DirectHttpConnectionFactory implements HttpConnectionFactory {
     }
 
     @Override
-    public ProxyHttpConnection create(MappedHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
+    public ProxyHttpConnection create(MappedProxyHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
             HostPort socketAddress) {
         return new DirectProxyHttpConnection(factory, sourceChannel, socketAddress, interfaceName, forceIpV4);
     }
