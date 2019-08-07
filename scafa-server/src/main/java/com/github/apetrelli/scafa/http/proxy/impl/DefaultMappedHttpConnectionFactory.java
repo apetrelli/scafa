@@ -18,8 +18,6 @@
 package com.github.apetrelli.scafa.http.proxy.impl;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 import java.util.HashMap;
@@ -31,8 +29,8 @@ import com.github.apetrelli.scafa.config.Configuration;
 import com.github.apetrelli.scafa.http.HostPort;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
-import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
+import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.http.proxy.ResultHandler;
 
 public class DefaultMappedHttpConnectionFactory implements MappedProxyHttpConnectionFactory {
@@ -58,8 +56,7 @@ public class DefaultMappedHttpConnectionFactory implements MappedProxyHttpConnec
     @Override
     public void create(AsynchronousSocketChannel sourceChannel, HttpRequest request, ResultHandler<ProxyHttpConnection> handler) {
         try {
-            HostPort hostPort = getHostToConnect(request);
-            create(sourceChannel, hostPort, handler);
+            create(sourceChannel, request.getHostPort(), handler);
         } catch (IOException e) {
             LOG.log(Level.SEVERE, "Problem with determining the host to connect to.", e);
             handler.handle(new NullHttpConnection(sourceChannel));
@@ -113,46 +110,6 @@ public class DefaultMappedHttpConnectionFactory implements MappedProxyHttpConnec
         } else {
             handler.handle(connection);
         }
-    }
-
-    private HostPort getHostToConnect(HttpRequest request) throws IOException {
-        HostPort retValue;
-        String hostString = request.getHeader("HOST");
-        String url = request.getResource();
-        if (hostString != null) {
-            String[] hostStringSplit = hostString.split(":");
-            Integer port = null;
-            if (hostStringSplit.length == 1) {
-                try {
-                    URL realUrl = new URL(url);
-                    port = protocol2port.get(realUrl.getProtocol());
-                } catch (MalformedURLException e) {
-                    // Rare, only in HTTP 1.0
-                    LOG.log(Level.FINE, "Host header not present and connect executed!", e);
-                    hostStringSplit = url.split(":");
-                    if (hostStringSplit.length != 2) {
-                        throw new IOException("Malformed Host url: " + url);
-                    }
-                }
-            } else if (hostStringSplit.length != 2) {
-                throw new IOException("Malformed Host header: " + hostString);
-            }
-            if (port == null) {
-                try {
-                    port = Integer.decode(hostStringSplit[1]);
-                } catch (NumberFormatException e) {
-                    throw new IOException("Malformed port: " + hostStringSplit[1], e);
-                }
-            }
-            if (port == null || port < 0) {
-                throw new IOException("Invalid port " + port + " for connection to " + url);
-            }
-            retValue = new HostPort(hostStringSplit[0], port);
-        } else {
-            URL realUrl = new URL(url);
-            retValue = new HostPort(realUrl.getHost(), realUrl.getPort());
-        }
-        return retValue;
     }
 
     private void closeQuietly(ProxyHttpConnection connection) {

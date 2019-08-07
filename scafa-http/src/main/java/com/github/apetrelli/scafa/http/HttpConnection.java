@@ -1,10 +1,8 @@
-package com.github.apetrelli.scafa.http.proxy;
+package com.github.apetrelli.scafa.http;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.CompletionHandler;
-
-import com.github.apetrelli.scafa.http.HttpRequest;
 
 public interface HttpConnection {
 

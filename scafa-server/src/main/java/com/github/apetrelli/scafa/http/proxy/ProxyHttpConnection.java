@@ -19,6 +19,8 @@ package com.github.apetrelli.scafa.http.proxy;
 
 import java.nio.channels.CompletionHandler;
 
+import com.github.apetrelli.scafa.http.HttpConnection;
+
 public interface ProxyHttpConnection extends HttpConnection {
 
     void connect(HttpConnectRequest request, CompletionHandler<Void, Void> completionHandler);

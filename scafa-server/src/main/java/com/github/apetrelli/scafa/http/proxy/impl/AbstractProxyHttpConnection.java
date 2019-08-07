@@ -100,7 +100,7 @@ public abstract class AbstractProxyHttpConnection implements ProxyHttpConnection
                     }
                 }
 
-                prepareChannel(factory, sourceChannel, socketAddress);
+                prepareChannel();
                 handler.completed(result, attachment);
             }
         });
@@ -142,8 +142,7 @@ public abstract class AbstractProxyHttpConnection implements ProxyHttpConnection
         HttpUtils.sendHeader(request, channel, completionHandler);
     }
 
-    protected void prepareChannel(MappedProxyHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
-            HostPort socketAddress) {
+    protected void prepareChannel() {
         Processor<Handler> processor = new DefaultProcessor<Input, Handler>(channel, new PassthroughInputProcessorFactory(sourceChannel), inputFactory);
         processor.process(new ChannelDisconnectorHandler(factory, sourceChannel, socketAddress));
     }
