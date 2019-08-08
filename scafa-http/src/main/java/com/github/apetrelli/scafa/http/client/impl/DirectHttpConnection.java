@@ -9,11 +9,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.http.HostPort;
-import com.github.apetrelli.scafa.http.HttpConnection;
 import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpProcessingContext;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpStatus;
+import com.github.apetrelli.scafa.http.client.HttpClientConnection;
+import com.github.apetrelli.scafa.http.client.HttpClientHandler;
 import com.github.apetrelli.scafa.http.impl.HttpProcessingContextFactory;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
 import com.github.apetrelli.scafa.http.util.HttpUtils;
@@ -22,22 +23,22 @@ import com.github.apetrelli.scafa.proto.processor.Processor;
 import com.github.apetrelli.scafa.proto.processor.impl.DefaultProcessor;
 import com.github.apetrelli.scafa.proto.processor.impl.StatefulInputProcessorFactory;
 
-public class DirectHttpConnection implements HttpConnection {
+public class DirectHttpConnection implements HttpClientConnection {
 
 	private static final Logger LOG = Logger.getLogger(DirectHttpConnection.class.getName());
 
 	private HostPort socketAddress;
 
-    private HttpHandler responseHandler;
+    private ClientPipelineHttpHandler responseHandler;
 
     private MappedHttpConnectionFactory connectionFactory;
 
     private AsynchronousSocketChannel channel;
 
-	public DirectHttpConnection(HostPort socketAddress, HttpHandler responseHandler, MappedHttpConnectionFactory connectionFactory) {
+	public DirectHttpConnection(HostPort socketAddress, MappedHttpConnectionFactory connectionFactory) {
 		this.socketAddress = socketAddress;
-		this.responseHandler = responseHandler;
 		this.connectionFactory = connectionFactory;
+		responseHandler = new ClientPipelineHttpHandler(this);
 	}
 
 	@Override
@@ -71,8 +72,20 @@ public class DirectHttpConnection implements HttpConnection {
 	}
 
 	@Override
-	public void sendHeader(HttpRequest request, CompletionHandler<Void, Void> completionHandler) {
-        HttpUtils.sendHeader(request, channel, completionHandler);
+	public void sendHeader(HttpRequest request, HttpClientHandler clientHandler) {
+		responseHandler.add(request, clientHandler, this);
+        HttpUtils.sendHeader(request, channel, new CompletionHandler<Void, Void>() {
+
+			@Override
+			public void completed(Void result, Void attachment) {
+				clientHandler.onRequestHeaderSent(request);
+			}
+
+			@Override
+			public void failed(Throwable exc, Void attachment) {
+				clientHandler.onRequestError(exc);
+			}
+		});
 	}
 
 	@Override

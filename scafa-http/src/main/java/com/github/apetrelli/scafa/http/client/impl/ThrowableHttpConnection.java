@@ -21,10 +21,11 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.CompletionHandler;
 
-import com.github.apetrelli.scafa.http.HttpConnection;
 import com.github.apetrelli.scafa.http.HttpRequest;
+import com.github.apetrelli.scafa.http.client.HttpClientConnection;
+import com.github.apetrelli.scafa.http.client.HttpClientHandler;
 
-public class ThrowableHttpConnection implements HttpConnection {
+public class ThrowableHttpConnection implements HttpClientConnection {
 
 	private Throwable throwable;
 
@@ -37,9 +38,9 @@ public class ThrowableHttpConnection implements HttpConnection {
         handler.completed(null, null);
     }
 
-    @Override
-    public void sendHeader(HttpRequest request, CompletionHandler<Void, Void> completionHandler) {
-        completionHandler.failed(throwable, null);
+	@Override
+	public void sendHeader(HttpRequest request, HttpClientHandler clientHandler) {
+        clientHandler.onRequestError(throwable);
     }
 
     @Override

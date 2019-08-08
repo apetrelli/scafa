@@ -1,6 +1,5 @@
 package com.github.apetrelli.scafa.http.client.impl;
 
-import com.github.apetrelli.scafa.http.HttpConnection;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.client.HttpClientHandler;
@@ -13,9 +12,7 @@ public class HttpPipelineContext {
 
 	private HttpResponse response;
 
-	private HttpConnection connection;
-
-	public HttpPipelineContext(HttpClientHandler handler, HttpRequest request) {
+	public HttpPipelineContext(HttpRequest request, HttpClientHandler handler) {
 		this.handler = handler;
 		this.request = request;
 	}
@@ -35,14 +32,4 @@ public class HttpPipelineContext {
 	public void setResponse(HttpResponse response) {
 		this.response = response;
 	}
-
-	public HttpConnection getConnection() {
-		return connection;
-	}
-
-	public void setConnection(HttpConnection connection) {
-		this.connection = connection;
-	}
-
-
 }

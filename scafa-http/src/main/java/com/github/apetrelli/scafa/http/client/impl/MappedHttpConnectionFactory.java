@@ -18,14 +18,13 @@
 package com.github.apetrelli.scafa.http.client.impl;
 
 import com.github.apetrelli.scafa.http.HostPort;
-import com.github.apetrelli.scafa.http.HttpConnection;
-import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpRequest;
+import com.github.apetrelli.scafa.http.client.HttpClientConnection;
 import com.github.apetrelli.scafa.proto.aio.ResultHandler;
 
 public interface MappedHttpConnectionFactory {
 
-    void create(HttpRequest request, ResultHandler<HttpConnection> handler, HttpHandler responseHandler);
+    void create(HttpRequest request, ResultHandler<HttpClientConnection> handler);
 
     void disconnectAll();
 

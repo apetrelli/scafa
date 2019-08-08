@@ -8,8 +8,6 @@ public interface HttpConnection extends Closeable {
 
     void ensureConnected(CompletionHandler<Void, Void> handler);
 
-    void sendHeader(HttpRequest request, CompletionHandler<Void, Void> completionHandler);
-
     void send(ByteBuffer buffer, CompletionHandler<Void, Void> completionHandler);
 
     void end();

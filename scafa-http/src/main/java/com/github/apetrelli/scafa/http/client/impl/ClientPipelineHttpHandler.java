@@ -7,10 +7,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.github.apetrelli.scafa.http.HttpConnection;
 import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
+import com.github.apetrelli.scafa.http.client.HttpClientConnection;
 import com.github.apetrelli.scafa.http.client.HttpClientHandler;
 
 public class ClientPipelineHttpHandler implements HttpHandler {
@@ -21,16 +21,16 @@ public class ClientPipelineHttpHandler implements HttpHandler {
 
 	private ConcurrentLinkedQueue<HttpPipelineContext> contexts = new ConcurrentLinkedQueue<>();
 
-	private HttpPipelineContext currentContext = new HttpPipelineContext(NULL_HANDLER, null);
+	private HttpPipelineContext currentContext = new HttpPipelineContext(null, NULL_HANDLER);
 
-	private HttpConnection connection = null;
+	private HttpClientConnection connection;
 
-	public void add(HttpClientHandler handler, HttpRequest request) {
-		contexts.offer(new HttpPipelineContext(handler, request));
+	public ClientPipelineHttpHandler(HttpClientConnection connection) {
+		this.connection = connection;
 	}
 
-	public void setConnection(HttpConnection connection) {
-		this.connection = connection;
+	public void add(HttpRequest request, HttpClientHandler handler, HttpClientConnection connection) {
+		contexts.offer(new HttpPipelineContext(request, handler));
 	}
 
 	@Override
@@ -40,17 +40,15 @@ public class ClientPipelineHttpHandler implements HttpHandler {
 	@Override
 	public void onDisconnect() throws IOException {
 		contexts.clear();
-		currentContext = new HttpPipelineContext(NULL_HANDLER, null);
+		currentContext = new HttpPipelineContext(null, NULL_HANDLER);
 	}
 
 	@Override
 	public void onStart() {
 		currentContext = contexts.poll();
 		if (currentContext == null) {
-			currentContext = new HttpPipelineContext(NULL_HANDLER, null);
+			currentContext = new HttpPipelineContext(null, NULL_HANDLER);
 		}
-		currentContext.setConnection(connection);
-		connection = null;
 		currentContext.getHandler().onStart();
 	}
 
@@ -100,8 +98,7 @@ public class ClientPipelineHttpHandler implements HttpHandler {
 	public void onEnd() {
 		currentContext.getHandler().onEnd();
 		HttpResponse response = currentContext.getResponse();
-		HttpConnection connection = currentContext.getConnection();
-		if (response != null && "close".equals(response.getHeader("Connection")) && connection != null) {
+		if (response != null && "close".equals(response.getHeader("Connection"))) {
 			try {
 				connection.close();
 			} catch (IOException e) {

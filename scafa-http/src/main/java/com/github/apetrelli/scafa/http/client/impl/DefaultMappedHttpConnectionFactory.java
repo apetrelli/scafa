@@ -9,23 +9,23 @@ import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.http.HostPort;
 import com.github.apetrelli.scafa.http.HttpConnection;
-import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpRequest;
+import com.github.apetrelli.scafa.http.client.HttpClientConnection;
 import com.github.apetrelli.scafa.proto.aio.ResultHandler;
 
 public class DefaultMappedHttpConnectionFactory implements MappedHttpConnectionFactory {
 
 	private static final Logger LOG = Logger.getLogger(DefaultMappedHttpConnectionFactory.class.getName());
 
-    private Map<HostPort, HttpConnection> connectionCache = new HashMap<>();
+    private Map<HostPort, HttpClientConnection> connectionCache = new HashMap<>();
 
 	@Override
-	public void create(HttpRequest request, ResultHandler<HttpConnection> handler, HttpHandler responseHandler) {
+	public void create(HttpRequest request, ResultHandler<HttpClientConnection> handler) {
 		try {
 			HostPort hostPort = request.getHostPort();
-			HttpConnection cachedConnection = connectionCache.get(hostPort);
+			HttpClientConnection cachedConnection = connectionCache.get(hostPort);
 			if (cachedConnection == null) {
-				HttpConnection connection = new DirectHttpConnection(hostPort, responseHandler, this);
+				HttpClientConnection connection = new DirectHttpConnection(hostPort, this);
 				connectionCache.put(hostPort, connection);
 				connection.ensureConnected(new CompletionHandler<Void, Void>() {
 
