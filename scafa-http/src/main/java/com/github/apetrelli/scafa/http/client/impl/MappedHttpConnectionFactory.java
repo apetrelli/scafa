@@ -15,11 +15,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.apetrelli.scafa.http;
+package com.github.apetrelli.scafa.http.client.impl;
 
-public enum HttpStatus {
+import java.io.IOException;
 
-	IDLE, START_REQUEST_LINE, REQUEST_LINE, REQUEST_LINE_CR, REQUEST_LINE_LF, POSSIBLE_HEADER_CR, SEND_HEADER_AND_END,
-	POSSIBLE_HEADER_LF, HEADER, HEADER_CR, HEADER_LF, BODY, PENULTIMATE_BYTE, LAST_BYTE, CHUNK_COUNT, CHUNK_COUNT_CR,
-	CHUNK_COUNT_LF, CHUNK, CHUNK_CR, CHUNK_LF, CONNECT;
+import com.github.apetrelli.scafa.http.HostPort;
+import com.github.apetrelli.scafa.http.HttpConnection;
+import com.github.apetrelli.scafa.http.HttpHandler;
+import com.github.apetrelli.scafa.http.HttpRequest;
+import com.github.apetrelli.scafa.proto.aio.ResultHandler;
+
+public interface MappedHttpConnectionFactory {
+
+    void create(HttpRequest request, ResultHandler<HttpConnection> handler, HttpHandler responseHandler);
+
+    void disconnectAll() throws IOException;
+
+    void dispose(HostPort target);
 }

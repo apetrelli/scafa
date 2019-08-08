@@ -149,8 +149,8 @@ public class HttpProcessingContext extends ProcessingContext<HttpStatus> {
         clearLineBuilder();
         int pos = header.indexOf(": ");
         if (pos > 0) {
-            String key = header.substring(0, pos);
-            String value = header.substring(pos + 2, header.length());
+            String key = header.substring(0, pos).trim();
+            String value = header.substring(pos + 2, header.length()).trim();
             holder.addHeader(key, value);
         } else {
             LOG.severe("The header is invalid: " + header);

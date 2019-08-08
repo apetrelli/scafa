@@ -32,7 +32,7 @@ public class HttpHandlerSupport implements HttpHandler {
     }
 
     @Override
-    public void onStart() throws IOException {
+    public void onStart() {
     }
 
     @Override

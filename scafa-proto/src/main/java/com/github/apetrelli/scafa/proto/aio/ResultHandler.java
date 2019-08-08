@@ -1,4 +1,4 @@
-package com.github.apetrelli.scafa.http.proxy;
+package com.github.apetrelli.scafa.proto.aio;
 
 public interface ResultHandler<T> {
 

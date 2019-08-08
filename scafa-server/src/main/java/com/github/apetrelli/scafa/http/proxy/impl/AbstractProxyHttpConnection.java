@@ -34,6 +34,7 @@ import com.github.apetrelli.scafa.http.HostPort;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
+import com.github.apetrelli.scafa.http.util.HttpUtils;
 import com.github.apetrelli.scafa.proto.aio.DelegateFailureCompletionHandler;
 import com.github.apetrelli.scafa.proto.processor.Handler;
 import com.github.apetrelli.scafa.proto.processor.Input;
@@ -41,7 +42,6 @@ import com.github.apetrelli.scafa.proto.processor.Processor;
 import com.github.apetrelli.scafa.proto.processor.impl.DefaultProcessor;
 import com.github.apetrelli.scafa.proto.processor.impl.PassthroughInputProcessorFactory;
 import com.github.apetrelli.scafa.proto.processor.impl.SimpleInputFactory;
-import com.github.apetrelli.scafa.util.HttpUtils;
 
 public abstract class AbstractProxyHttpConnection implements ProxyHttpConnection {
 

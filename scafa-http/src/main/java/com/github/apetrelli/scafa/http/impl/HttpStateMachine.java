@@ -28,6 +28,9 @@ public class HttpStateMachine implements ProtocolStateMachine<HttpHandler, HttpS
 		HttpStatus newStatus = null;
 		switch (context.getStatus()) {
 		case IDLE:
+			newStatus = HttpStatus.START_REQUEST_LINE;
+			break;
+		case START_REQUEST_LINE:
 			newStatus = HttpStatus.REQUEST_LINE;
 			break;
 		case REQUEST_LINE:
@@ -52,7 +55,7 @@ public class HttpStateMachine implements ProtocolStateMachine<HttpHandler, HttpS
 			newStatus = context.getBodyMode() == HttpBodyMode.EMPTY ? HttpStatus.SEND_HEADER_AND_END : HttpStatus.POSSIBLE_HEADER_LF;
 			break;
 		case SEND_HEADER_AND_END:
-			newStatus = context.isHttpConnected() ? HttpStatus.CONNECT : HttpStatus.IDLE;
+			newStatus = context.isHttpConnected() ? HttpStatus.CONNECT : HttpStatus.START_REQUEST_LINE;
 			break;
 		case POSSIBLE_HEADER_LF:
             switch (context.getBodyMode()) {
@@ -85,13 +88,13 @@ public class HttpStateMachine implements ProtocolStateMachine<HttpHandler, HttpS
 			newStatus = context.peekNextByte() == CR ? HttpStatus.POSSIBLE_HEADER_CR : HttpStatus.HEADER;
 			break;
 		case BODY:
-			newStatus = context.getCountdown() > 0L ? HttpStatus.BODY : HttpStatus.IDLE;
+			newStatus = context.getCountdown() > 0L ? HttpStatus.BODY : HttpStatus.START_REQUEST_LINE;
 			break;
 		case PENULTIMATE_BYTE:
 			newStatus = HttpStatus.LAST_BYTE;
 			break;
 		case LAST_BYTE:
-			newStatus = HttpStatus.IDLE;
+			newStatus = HttpStatus.START_REQUEST_LINE;
 			break;
 		case CHUNK_COUNT:
             switch (context.peekNextByte()) {
@@ -131,8 +134,12 @@ public class HttpStateMachine implements ProtocolStateMachine<HttpHandler, HttpS
 	public void out(HttpProcessingContext context, HttpHandler handler, CompletionHandler<Void, Void> completionHandler) {
 		switch (context.getStatus()) {
 		case IDLE:
+			// This is useful only to start the process.
+			break;
+		case START_REQUEST_LINE:
 	        context.reset();
 	        context.appendToLine(context.getBuffer().get());
+			handler.onStart();
             completionHandler.completed(null, null);
 			break;
 		case REQUEST_LINE:
@@ -258,7 +265,7 @@ public class HttpStateMachine implements ProtocolStateMachine<HttpHandler, HttpS
 		}
 	}
 
-    public void endHeader(HttpProcessingContext context, HttpHandler handler, CompletionHandler<Void, Void> completionHandler) {
+    private void endHeader(HttpProcessingContext context, HttpHandler handler, CompletionHandler<Void, Void> completionHandler) {
     	HttpRequest request = context.getRequest();
     	HttpResponse response = context.getResponse();
         if (request != null) {

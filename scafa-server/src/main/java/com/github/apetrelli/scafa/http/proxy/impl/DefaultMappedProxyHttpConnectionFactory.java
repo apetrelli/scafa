@@ -31,13 +31,13 @@ import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
 import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
-import com.github.apetrelli.scafa.http.proxy.ResultHandler;
+import com.github.apetrelli.scafa.proto.aio.ResultHandler;
 
-public class DefaultMappedHttpConnectionFactory implements MappedProxyHttpConnectionFactory {
+public class DefaultMappedProxyHttpConnectionFactory implements MappedProxyHttpConnectionFactory {
 
     private static final Map<String, Integer> protocol2port = new HashMap<String, Integer>();
 
-    private static final Logger LOG = Logger.getLogger(DefaultMappedHttpConnectionFactory.class.getName());
+    private static final Logger LOG = Logger.getLogger(DefaultMappedProxyHttpConnectionFactory.class.getName());
 
     static {
         protocol2port.put("http", 80);
@@ -49,7 +49,7 @@ public class DefaultMappedHttpConnectionFactory implements MappedProxyHttpConnec
 
     private Configuration configuration;
 
-    public DefaultMappedHttpConnectionFactory(Configuration configuration) {
+    public DefaultMappedProxyHttpConnectionFactory(Configuration configuration) {
         this.configuration = configuration;
     }
 
@@ -59,7 +59,7 @@ public class DefaultMappedHttpConnectionFactory implements MappedProxyHttpConnec
             create(sourceChannel, request.getHostPort(), handler);
         } catch (IOException e) {
             LOG.log(Level.SEVERE, "Problem with determining the host to connect to.", e);
-            handler.handle(new NullHttpConnection(sourceChannel));
+            handler.handle(new NullProxyHttpConnection(sourceChannel));
         }
     }
 
@@ -102,7 +102,7 @@ public class DefaultMappedHttpConnectionFactory implements MappedProxyHttpConnec
                 @Override
                 public void failed(Throwable exc, Void attachment) {
                     LOG.log(Level.INFO, "Connection failed to " + hostPort.toString(), exc);
-                    NullHttpConnection nullConnection = new NullHttpConnection(sourceChannel);
+                    NullProxyHttpConnection nullConnection = new NullProxyHttpConnection(sourceChannel);
                     connectionCache.put(hostPort, nullConnection);
                     handler.handle(nullConnection);
                 }

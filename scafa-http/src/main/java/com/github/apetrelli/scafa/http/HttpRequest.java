@@ -104,17 +104,21 @@ public class HttpRequest extends HeaderHolder {
             String[] hostStringSplit = hostString.split(":");
             Integer port = null;
             if (hostStringSplit.length == 1) {
-                try {
-                    URL realUrl = new URL(url);
-                    port = protocol2port.get(realUrl.getProtocol());
-                } catch (MalformedURLException e) {
-                    // Rare, only in HTTP 1.0
-                    LOG.log(Level.FINE, "Host header not present and connect executed!", e);
-                    hostStringSplit = url.split(":");
-                    if (hostStringSplit.length != 2) {
-                        throw new IOException("Malformed Host url: " + url);
-                    }
-                }
+            	if (url.startsWith("http") || url.startsWith("ftp")) {
+	                try {
+	                    URL realUrl = new URL(url);
+	                    port = protocol2port.get(realUrl.getProtocol());
+	                } catch (MalformedURLException e) {
+	                    // Rare, only in HTTP 1.0
+	                    LOG.log(Level.FINE, "Host header not present and connect executed!", e);
+	                    hostStringSplit = url.split(":");
+	                    if (hostStringSplit.length != 2) {
+	                        throw new IOException("Malformed Host url: " + url);
+	                    }
+	                }
+            	} else {
+            		port = 80;
+            	}
             } else if (hostStringSplit.length != 2) {
                 throw new IOException("Malformed Host header: " + hostString);
             }

@@ -17,7 +17,6 @@
  */
 package com.github.apetrelli.scafa.http;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.CompletionHandler;
 
@@ -25,7 +24,7 @@ import com.github.apetrelli.scafa.proto.processor.Handler;
 
 public interface HttpHandler extends Handler {
 
-    void onStart() throws IOException;
+    void onStart();
 
     void onResponseHeader(HttpResponse response, CompletionHandler<Void, Void> handler);
 

@@ -29,7 +29,7 @@ import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpHandler;
-import com.github.apetrelli.scafa.http.proxy.ResultHandler;
+import com.github.apetrelli.scafa.proto.aio.ResultHandler;
 
 public class DefaultProxyHttpHandler implements ProxyHttpHandler {
 
@@ -56,7 +56,7 @@ public class DefaultProxyHttpHandler implements ProxyHttpHandler {
     }
 
     @Override
-    public void onStart() throws IOException {
+    public void onStart() {
         // Does nothing
     }
 

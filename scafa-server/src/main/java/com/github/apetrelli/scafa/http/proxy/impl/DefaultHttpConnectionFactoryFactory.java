@@ -31,7 +31,7 @@ public class DefaultHttpConnectionFactoryFactory implements ProxyHttpConnectionF
 
     @Override
     public MappedProxyHttpConnectionFactory create() {
-        return new DefaultMappedHttpConnectionFactory(configuration);
+        return new DefaultMappedProxyHttpConnectionFactory(configuration);
     }
 
 }

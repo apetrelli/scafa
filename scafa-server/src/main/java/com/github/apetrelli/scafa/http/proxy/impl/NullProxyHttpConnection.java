@@ -26,11 +26,11 @@ import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 
-public class NullHttpConnection implements ProxyHttpConnection {
+public class NullProxyHttpConnection implements ProxyHttpConnection {
 
     private AsynchronousSocketChannel sourceChannel;
 
-    public NullHttpConnection(AsynchronousSocketChannel sourceChannel) {
+    public NullProxyHttpConnection(AsynchronousSocketChannel sourceChannel) {
         this.sourceChannel = sourceChannel;
     }
 
