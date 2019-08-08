@@ -55,7 +55,7 @@ public class ClientPipelineHttpHandler implements HttpHandler {
 	@Override
 	public void onResponseHeader(HttpResponse response, CompletionHandler<Void, Void> handler) {
 		currentContext.setResponse(response);
-		currentContext.getHandler().onResponseHeader(response, handler);
+		currentContext.getHandler().onResponseHeader(currentContext.getRequest(), response, handler);
 	}
 
 	@Override
@@ -65,7 +65,7 @@ public class ClientPipelineHttpHandler implements HttpHandler {
 
 	@Override
 	public void onBody(ByteBuffer buffer, long offset, long length, CompletionHandler<Void, Void> handler) {
-		currentContext.getHandler().onBody(buffer, offset, length, handler);
+		currentContext.getHandler().onBody(currentContext.getRequest(), currentContext.getResponse(), buffer, offset, length, handler);
 	}
 
 	@Override
@@ -76,7 +76,7 @@ public class ClientPipelineHttpHandler implements HttpHandler {
 	@Override
 	public void onChunk(ByteBuffer buffer, long totalOffset, long chunkOffset, long chunkLength,
 			CompletionHandler<Void, Void> handler) {
-		currentContext.getHandler().onBody(buffer, totalOffset, -1L, handler);
+		currentContext.getHandler().onBody(currentContext.getRequest(), currentContext.getResponse(), buffer, totalOffset, -1L, handler);
 	}
 
 	@Override
@@ -96,8 +96,8 @@ public class ClientPipelineHttpHandler implements HttpHandler {
 
 	@Override
 	public void onEnd() {
-		currentContext.getHandler().onEnd();
 		HttpResponse response = currentContext.getResponse();
+		currentContext.getHandler().onEnd(currentContext.getRequest(), response);
 		if (response != null && "close".equals(response.getHeader("Connection"))) {
 			try {
 				connection.close();

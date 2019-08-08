@@ -40,7 +40,7 @@ public class ThrowableHttpConnection implements HttpClientConnection {
 
 	@Override
 	public void sendHeader(HttpRequest request, HttpClientHandler clientHandler) {
-        clientHandler.onRequestError(throwable);
+        clientHandler.onRequestError(request, throwable);
     }
 
     @Override

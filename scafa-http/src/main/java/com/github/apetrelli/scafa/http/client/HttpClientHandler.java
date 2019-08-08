@@ -12,11 +12,11 @@ public interface HttpClientHandler {
 
 	void onRequestHeaderSent(HttpRequest request);
 
-	void onRequestError(Throwable exc);
+	void onRequestError(HttpRequest request, Throwable exc);
 
-    void onResponseHeader(HttpResponse response, CompletionHandler<Void, Void> handler);
+    void onResponseHeader(HttpRequest request, HttpResponse response, CompletionHandler<Void, Void> handler);
 
-    void onBody(ByteBuffer buffer, long offset, long length, CompletionHandler<Void, Void> handler);
+    void onBody(HttpRequest request, HttpResponse response, ByteBuffer buffer, long offset, long length, CompletionHandler<Void, Void> handler);
 
-	void onEnd();
+	void onEnd(HttpRequest request, HttpResponse response);
 }

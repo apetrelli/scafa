@@ -19,18 +19,18 @@ public class NullHttpClientHandler implements HttpClientHandler {
 	}
 
 	@Override
-	public void onResponseHeader(HttpResponse response, CompletionHandler<Void, Void> handler) {
+	public void onResponseHeader(HttpRequest request, HttpResponse response, CompletionHandler<Void, Void> handler) {
 		handler.completed(null, null);
 	}
 
 	@Override
-	public void onBody(ByteBuffer buffer, long offset, long length, CompletionHandler<Void, Void> handler) {
+	public void onBody(HttpRequest request, HttpResponse response, ByteBuffer buffer, long offset, long length, CompletionHandler<Void, Void> handler) {
 		buffer.clear();
 		handler.completed(null, null);
 	}
 
 	@Override
-	public void onEnd() {
+	public void onEnd(HttpRequest request, HttpResponse response) {
 		// Do nothing
 	}
 
@@ -40,7 +40,7 @@ public class NullHttpClientHandler implements HttpClientHandler {
 	}
 
 	@Override
-	public void onRequestError(Throwable exc) {
+	public void onRequestError(HttpRequest request, Throwable exc) {
 		LOG.log(Level.SEVERE, "Error when sending the request", exc);
 	}
 

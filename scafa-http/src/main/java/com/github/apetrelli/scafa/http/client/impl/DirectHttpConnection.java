@@ -83,7 +83,7 @@ public class DirectHttpConnection implements HttpClientConnection {
 
 			@Override
 			public void failed(Throwable exc, Void attachment) {
-				clientHandler.onRequestError(exc);
+				clientHandler.onRequestError(request, exc);
 			}
 		});
 	}
