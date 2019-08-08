@@ -17,8 +17,6 @@
  */
 package com.github.apetrelli.scafa.http.client.impl;
 
-import java.io.IOException;
-
 import com.github.apetrelli.scafa.http.HostPort;
 import com.github.apetrelli.scafa.http.HttpConnection;
 import com.github.apetrelli.scafa.http.HttpHandler;
@@ -29,7 +27,7 @@ public interface MappedHttpConnectionFactory {
 
     void create(HttpRequest request, ResultHandler<HttpConnection> handler, HttpHandler responseHandler);
 
-    void disconnectAll() throws IOException;
+    void disconnectAll();
 
     void dispose(HostPort target);
 }

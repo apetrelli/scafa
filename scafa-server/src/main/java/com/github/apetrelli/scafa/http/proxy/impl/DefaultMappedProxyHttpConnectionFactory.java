@@ -35,15 +35,7 @@ import com.github.apetrelli.scafa.proto.aio.ResultHandler;
 
 public class DefaultMappedProxyHttpConnectionFactory implements MappedProxyHttpConnectionFactory {
 
-    private static final Map<String, Integer> protocol2port = new HashMap<String, Integer>();
-
     private static final Logger LOG = Logger.getLogger(DefaultMappedProxyHttpConnectionFactory.class.getName());
-
-    static {
-        protocol2port.put("http", 80);
-        protocol2port.put("https", 443);
-        protocol2port.put("ftp", 80); // This works only with a proxy.
-    }
 
     private Map<HostPort, ProxyHttpConnection> connectionCache = new HashMap<>();
 

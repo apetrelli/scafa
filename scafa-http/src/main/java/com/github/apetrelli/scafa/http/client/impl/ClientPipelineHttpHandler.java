@@ -4,7 +4,10 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.CompletionHandler;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import com.github.apetrelli.scafa.http.HttpConnection;
 import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
@@ -12,14 +15,22 @@ import com.github.apetrelli.scafa.http.client.HttpClientHandler;
 
 public class ClientPipelineHttpHandler implements HttpHandler {
 
+	private static final Logger LOG = Logger.getLogger(ClientPipelineHttpHandler.class.getName());
+
 	private static final HttpClientHandler NULL_HANDLER = new NullHttpClientHandler();
 
-	private ConcurrentLinkedQueue<HttpClientHandler> handlers = new ConcurrentLinkedQueue<>();
+	private ConcurrentLinkedQueue<HttpPipelineContext> contexts = new ConcurrentLinkedQueue<>();
 
-	private HttpClientHandler currentHandler = NULL_HANDLER;
+	private HttpPipelineContext currentContext = new HttpPipelineContext(NULL_HANDLER, null);
 
-	public void add(HttpClientHandler handler) {
-		handlers.offer(handler);
+	private HttpConnection connection = null;
+
+	public void add(HttpClientHandler handler, HttpRequest request) {
+		contexts.offer(new HttpPipelineContext(handler, request));
+	}
+
+	public void setConnection(HttpConnection connection) {
+		this.connection = connection;
 	}
 
 	@Override
@@ -28,22 +39,25 @@ public class ClientPipelineHttpHandler implements HttpHandler {
 
 	@Override
 	public void onDisconnect() throws IOException {
-		handlers.clear();
-		currentHandler = NULL_HANDLER;
+		contexts.clear();
+		currentContext = new HttpPipelineContext(NULL_HANDLER, null);
 	}
 
 	@Override
 	public void onStart() {
-		currentHandler = handlers.poll();
-		if (currentHandler == null) {
-			currentHandler = NULL_HANDLER;
+		currentContext = contexts.poll();
+		if (currentContext == null) {
+			currentContext = new HttpPipelineContext(NULL_HANDLER, null);
 		}
-		currentHandler.onStart();
+		currentContext.setConnection(connection);
+		connection = null;
+		currentContext.getHandler().onStart();
 	}
 
 	@Override
 	public void onResponseHeader(HttpResponse response, CompletionHandler<Void, Void> handler) {
-		currentHandler.onResponseHeader(response, handler);
+		currentContext.setResponse(response);
+		currentContext.getHandler().onResponseHeader(response, handler);
 	}
 
 	@Override
@@ -53,7 +67,7 @@ public class ClientPipelineHttpHandler implements HttpHandler {
 
 	@Override
 	public void onBody(ByteBuffer buffer, long offset, long length, CompletionHandler<Void, Void> handler) {
-		currentHandler.onBody(buffer, offset, length, handler);
+		currentContext.getHandler().onBody(buffer, offset, length, handler);
 	}
 
 	@Override
@@ -64,7 +78,7 @@ public class ClientPipelineHttpHandler implements HttpHandler {
 	@Override
 	public void onChunk(ByteBuffer buffer, long totalOffset, long chunkOffset, long chunkLength,
 			CompletionHandler<Void, Void> handler) {
-		currentHandler.onBody(buffer, totalOffset, -1L, handler);
+		currentContext.getHandler().onBody(buffer, totalOffset, -1L, handler);
 	}
 
 	@Override
@@ -84,8 +98,16 @@ public class ClientPipelineHttpHandler implements HttpHandler {
 
 	@Override
 	public void onEnd() {
-		currentHandler.onEnd();
-		currentHandler = NULL_HANDLER;
+		currentContext.getHandler().onEnd();
+		HttpResponse response = currentContext.getResponse();
+		HttpConnection connection = currentContext.getConnection();
+		if (response != null && "close".equals(response.getHeader("Connection")) && connection != null) {
+			try {
+				connection.close();
+			} catch (IOException e) {
+				LOG.log(Level.SEVERE, "Cannot close connection because the request has an invalid host:port", e);
+			}
+		}
 	}
 
 }

@@ -28,13 +28,16 @@ public class DirectHttpConnection implements HttpConnection {
 
 	private HostPort socketAddress;
 
-    private AsynchronousSocketChannel channel;
-
     private HttpHandler responseHandler;
 
-	public DirectHttpConnection(HostPort socketAddress, HttpHandler responseHandler) {
+    private MappedHttpConnectionFactory connectionFactory;
+
+    private AsynchronousSocketChannel channel;
+
+	public DirectHttpConnection(HostPort socketAddress, HttpHandler responseHandler, MappedHttpConnectionFactory connectionFactory) {
 		this.socketAddress = socketAddress;
 		this.responseHandler = responseHandler;
+		this.connectionFactory = connectionFactory;
 	}
 
 	@Override
@@ -84,6 +87,7 @@ public class DirectHttpConnection implements HttpConnection {
 
 	@Override
 	public void close() throws IOException {
+		connectionFactory.dispose(socketAddress);
         if (channel != null && channel.isOpen()) {
             channel.close();
         }

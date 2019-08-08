@@ -10,17 +10,23 @@ import com.github.apetrelli.scafa.proto.aio.ResultHandler;
 
 public class DefaultHttpClient implements HttpClient {
 
-	private ClientPipelineHttpHandler mainHandler = new ClientPipelineHttpHandler();
+	private ClientPipelineHttpHandler mainHandler;
 
-	private MappedHttpConnectionFactory connectionFactory = new DefaultMappedHttpConnectionFactory();
+	private MappedHttpConnectionFactory connectionFactory;
+
+	public DefaultHttpClient() {
+		connectionFactory = new DefaultMappedHttpConnectionFactory();
+		mainHandler = new ClientPipelineHttpHandler();
+	}
 
 	@Override
 	public void request(HttpRequest request, HttpClientHandler handler) {
-		mainHandler.add(handler);
+		mainHandler.add(handler, request);
 		connectionFactory.create(request, new ResultHandler<HttpConnection>() {
 
 			@Override
 			public void handle(HttpConnection result) {
+				mainHandler.setConnection(result);
 				result.sendHeader(request, new CompletionHandler<Void, Void>() {
 
 					@Override
