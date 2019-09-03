@@ -12,6 +12,8 @@ public interface HttpClientHandler {
 
 	void onRequestHeaderSent(HttpRequest request);
 
+	void onRequestEnd(HttpRequest request);
+
 	void onRequestError(HttpRequest request, Throwable exc);
 
     void onResponseHeader(HttpRequest request, HttpResponse response, CompletionHandler<Void, Void> handler);

@@ -115,7 +115,7 @@ public class HttpProcessingContext extends ProcessingContext<HttpStatus> {
         String requestLine = lineBuilder.toString();
         clearLineBuilder();
         String[] pieces = requestLine.split("\\s+");
-        if (pieces.length >= 3) {
+        if (pieces.length >= 2) {
             if (pieces[0].startsWith("HTTP/")) {
                 String httpVersion = pieces[0];
                 int responseCode;
@@ -125,12 +125,15 @@ public class HttpProcessingContext extends ProcessingContext<HttpStatus> {
                     responseCode = 500;
                     LOG.log(Level.SEVERE, "The response code is not a number: " + pieces[1], e);
                 }
-                StringBuilder builder = new StringBuilder();
-                builder.append(pieces[2]);
-                for (int i = 3; i < pieces.length; i++) {
-                    builder.append(" ").append(pieces[i]);
+                String responseMessage = null;
+                if (pieces.length > 2) {
+	                StringBuilder builder = new StringBuilder();
+	                builder.append(pieces[2]);
+	                for (int i = 3; i < pieces.length; i++) {
+	                    builder.append(" ").append(pieces[i]);
+	                }
+	                responseMessage = builder.toString();
                 }
-                String responseMessage = builder.toString();
                 response = new HttpResponse(httpVersion, responseCode, responseMessage);
                 holder = response;
             } else if (pieces.length == 3) {

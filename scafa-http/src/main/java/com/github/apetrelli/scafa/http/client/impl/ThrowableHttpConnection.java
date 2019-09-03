@@ -39,8 +39,9 @@ public class ThrowableHttpConnection implements HttpClientConnection {
     }
 
 	@Override
-	public void sendHeader(HttpRequest request, HttpClientHandler clientHandler) {
+	public void sendHeader(HttpRequest request, HttpClientHandler clientHandler, CompletionHandler<Void, Void> completionHandler) {
         clientHandler.onRequestError(request, throwable);
+        completionHandler.failed(throwable, null);
     }
 
     @Override

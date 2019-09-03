@@ -72,20 +72,9 @@ public class DirectHttpConnection implements HttpClientConnection {
 	}
 
 	@Override
-	public void sendHeader(HttpRequest request, HttpClientHandler clientHandler) {
+	public void sendHeader(HttpRequest request, HttpClientHandler clientHandler, CompletionHandler<Void, Void> completionHandler) {
 		responseHandler.add(request, clientHandler, this);
-        HttpUtils.sendHeader(request, channel, new CompletionHandler<Void, Void>() {
-
-			@Override
-			public void completed(Void result, Void attachment) {
-				clientHandler.onRequestHeaderSent(request);
-			}
-
-			@Override
-			public void failed(Throwable exc, Void attachment) {
-				clientHandler.onRequestError(request, exc);
-			}
-		});
+        HttpUtils.sendHeader(request, channel, completionHandler);
 	}
 
 	@Override

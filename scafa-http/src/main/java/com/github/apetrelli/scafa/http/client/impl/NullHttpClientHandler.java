@@ -40,6 +40,11 @@ public class NullHttpClientHandler implements HttpClientHandler {
 	}
 
 	@Override
+	public void onRequestEnd(HttpRequest request) {
+		// Do nothing
+	}
+
+	@Override
 	public void onRequestError(HttpRequest request, Throwable exc) {
 		LOG.log(Level.SEVERE, "Error when sending the request", exc);
 	}

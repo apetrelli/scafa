@@ -32,7 +32,7 @@ public class HttpResponse extends HeaderHolder {
         this.httpVersion = httpVersion;
         this.code = code;
         this.message = message;
-        byteSize = httpVersion.length() + 1 + 3 + 1 + message.length() + 4;
+        byteSize = httpVersion.length() + 1 + 3 + (message != null ? 1 + message.length() : 0) + 4;
     }
 
     public HttpResponse(HttpResponse toCopy) {
@@ -78,8 +78,11 @@ public class HttpResponse extends HeaderHolder {
     public ByteBuffer toHeapByteBuffer() {
         ByteBuffer buffer = ByteBuffer.allocate(byteSize);
         Charset charset = StandardCharsets.US_ASCII;
-        buffer.put(httpVersion.getBytes(charset)).put(SPACE).put(Integer.toString(code).getBytes(charset)).put(SPACE)
-                .put(message.getBytes(charset)).put(CR).put(LF);
+        buffer.put(httpVersion.getBytes(charset)).put(SPACE).put(Integer.toString(code).getBytes(charset));
+        if (message != null) {
+        	buffer.put(SPACE).put(message.getBytes(charset));
+        }
+        buffer.put(CR).put(LF);
         loadInBuffer(buffer);
         return buffer;
     }
