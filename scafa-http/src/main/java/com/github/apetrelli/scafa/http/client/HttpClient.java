@@ -8,5 +8,7 @@ public interface HttpClient {
 
 	void request(HttpRequest request, HttpClientHandler handler);
 
+	void request(HttpRequest request, BufferContextReader payloadReader, long size, HttpClientHandler handler);
+
 	void request(HttpRequest request, Path payload, HttpClientHandler handler);
 }

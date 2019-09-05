@@ -32,6 +32,7 @@ import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
 import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.proto.aio.ResultHandler;
+import com.github.apetrelli.scafa.proto.util.IOUtils;
 
 public class DefaultMappedProxyHttpConnectionFactory implements MappedProxyHttpConnectionFactory {
 
@@ -62,7 +63,7 @@ public class DefaultMappedProxyHttpConnectionFactory implements MappedProxyHttpC
 
     @Override
     public void disconnectAll() throws IOException {
-        connectionCache.values().stream().forEach(t -> closeQuietly(t));
+        connectionCache.values().stream().forEach(t -> IOUtils.closeQuietly(t));
         connectionCache.clear();
     }
 
@@ -103,13 +104,4 @@ public class DefaultMappedProxyHttpConnectionFactory implements MappedProxyHttpC
             handler.handle(connection);
         }
     }
-
-    private void closeQuietly(ProxyHttpConnection connection) {
-        try {
-            connection.close();
-        } catch (IOException e) {
-            LOG.log(Level.WARNING, "Error during closing a connection", e);
-        }
-    }
-
 }

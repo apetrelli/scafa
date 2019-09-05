@@ -4,18 +4,14 @@ import java.io.IOException;
 import java.nio.channels.CompletionHandler;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.http.HostPort;
-import com.github.apetrelli.scafa.http.HttpConnection;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.client.HttpClientConnection;
 import com.github.apetrelli.scafa.proto.aio.ResultHandler;
+import com.github.apetrelli.scafa.proto.util.IOUtils;
 
 public class DefaultMappedHttpConnectionFactory implements MappedHttpConnectionFactory {
-
-	private static final Logger LOG = Logger.getLogger(DefaultMappedHttpConnectionFactory.class.getName());
 
     private Map<HostPort, HttpClientConnection> connectionCache = new HashMap<>();
 
@@ -49,22 +45,12 @@ public class DefaultMappedHttpConnectionFactory implements MappedHttpConnectionF
 
 	@Override
 	public void disconnectAll() {
-        connectionCache.values().stream().forEach(t -> closeQuietly(t));
+        connectionCache.values().stream().forEach(t -> IOUtils.closeQuietly(t));
         connectionCache.clear();
 	}
 
 	@Override
 	public void dispose(HostPort target) {
 		connectionCache.remove(target);
-	}
-
-	private void closeQuietly(HttpConnection connection) {
-		if (connection != null) {
-			try {
-				connection.close();
-			} catch (IOException e) {
-				LOG.log(Level.SEVERE, "Cannot close connection", e);
-			}
-		}
 	}
 }

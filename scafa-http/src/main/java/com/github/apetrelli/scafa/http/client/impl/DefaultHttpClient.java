@@ -5,63 +5,59 @@ import java.nio.channels.AsynchronousFileChannel;
 import java.nio.channels.CompletionHandler;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.http.HttpRequest;
+import com.github.apetrelli.scafa.http.client.BufferContext;
+import com.github.apetrelli.scafa.http.client.BufferContextReader;
 import com.github.apetrelli.scafa.http.client.HttpClient;
 import com.github.apetrelli.scafa.http.client.HttpClientConnection;
 import com.github.apetrelli.scafa.http.client.HttpClientHandler;
 import com.github.apetrelli.scafa.proto.aio.ResultHandler;
+import com.github.apetrelli.scafa.proto.util.IOUtils;
 
 public class DefaultHttpClient implements HttpClient {
 
-	private static class ReadFileHandler implements CompletionHandler<Integer, FileContext> {
+	private static class ReadFileHandler implements CompletionHandler<Integer, BufferContext> {
 		private final HttpRequest request;
 		private final CompletionHandler<Void, Void> requestBodySentCompletionHandler;
 		private final HttpClientHandler handler;
-		private final AsynchronousFileChannel fileChannel;
 		private final HttpClientConnection connection;
 
 		private ReadFileHandler(HttpRequest request, CompletionHandler<Void, Void> requestBodySentCompletionHandler,
-				HttpClientHandler handler, AsynchronousFileChannel fileChannel, HttpClientConnection connection) {
+				HttpClientHandler handler, HttpClientConnection connection) {
 			this.request = request;
 			this.requestBodySentCompletionHandler = requestBodySentCompletionHandler;
 			this.handler = handler;
-			this.fileChannel = fileChannel;
 			this.connection = connection;
 		}
 
 		@Override
-		public void completed(Integer result, FileContext currentFileContext) {
+		public void completed(Integer result, BufferContext fileContext) {
 			if (result >= 0) {
-				currentFileContext.moveForwardBy(result);
-				currentFileContext.getBuffer().flip();
-				connection.send(currentFileContext.getBuffer(), requestBodySentCompletionHandler);
+				connection.send(fileContext.getBuffer(), requestBodySentCompletionHandler);
 			} else {
-				closeFileChannel(fileChannel);
 				handler.onRequestEnd(request);
 			}
 		}
 
 		@Override
-		public void failed(Throwable exc, FileContext attachment) {
+		public void failed(Throwable exc, BufferContext attachment) {
 			handler.onRequestError(request, exc);
 		}
 	}
 
 	private static class RequestBodySentCompletionHandler implements CompletionHandler<Void, Void> {
 		private final HttpRequest realRequest;
-		private final AsynchronousFileChannel fileChannel;
+		private final BufferContextReader reader;
 		private final HttpClientHandler handler;
-		private final FileContext fileContext;
+		private final BufferContext fileContext;
 
 		private ReadFileHandler readFileHandler;
 
-		private RequestBodySentCompletionHandler(HttpRequest realRequest, AsynchronousFileChannel fileChannel,
-				HttpClientHandler handler, FileContext fileContext) {
+		private RequestBodySentCompletionHandler(HttpRequest realRequest, BufferContextReader reader,
+				HttpClientHandler handler, BufferContext fileContext) {
 			this.realRequest = realRequest;
-			this.fileChannel = fileChannel;
+			this.reader = reader;
 			this.handler = handler;
 			this.fileContext = fileContext;
 		}
@@ -73,17 +69,15 @@ public class DefaultHttpClient implements HttpClient {
 		@Override
 		public void completed(Void result, Void attachment) {
 			fileContext.getBuffer().clear();
-			fileChannel.read(fileContext.getBuffer(), fileContext.getPosition(), fileContext, readFileHandler);
+			reader.read(fileContext, readFileHandler);
 		}
 
 		@Override
 		public void failed(Throwable exc, Void attachment) {
-			closeFileChannel(fileChannel);
+			IOUtils.closeQuietly(reader);
 			handler.onRequestError(realRequest, exc);
 		}
 	}
-
-	private static final Logger LOG = Logger.getLogger(DefaultHttpClient.class.getName());
 
 	private MappedHttpConnectionFactory connectionFactory;
 
@@ -115,47 +109,45 @@ public class DefaultHttpClient implements HttpClient {
 	}
 
 	@Override
-	public void request(HttpRequest request, Path payload, HttpClientHandler handler) {
-		try {
-			AsynchronousFileChannel fileChannel = AsynchronousFileChannel.open(payload, StandardOpenOption.READ);
-			HttpRequest realRequest = new HttpRequest(request);
-			realRequest.setHeader("Content-Length", Long.toString(fileChannel.size()));
-			connectionFactory.create(realRequest, new ResultHandler<HttpClientConnection>() {
+	public void request(HttpRequest request, BufferContextReader payloadReader, long size, HttpClientHandler handler) {
+		HttpRequest realRequest = new HttpRequest(request);
+		realRequest.setHeader("Content-Length", Long.toString(size));
+		connectionFactory.create(realRequest, new ResultHandler<HttpClientConnection>() {
 
-				@Override
-				public void handle(HttpClientConnection connection) {
-					connection.sendHeader(realRequest, handler, new CompletionHandler<Void, Void>() {
+			@Override
+			public void handle(HttpClientConnection connection) {
+				connection.sendHeader(realRequest, handler, new CompletionHandler<Void, Void>() {
 
-						@Override
-						public void completed(Void result, Void attachment) {
-							handler.onRequestHeaderSent(realRequest);
-							FileContext fileContext = new FileContext();
-							RequestBodySentCompletionHandler requestBodySentCompletionHandler = new RequestBodySentCompletionHandler(realRequest, fileChannel, handler, fileContext);
-							ReadFileHandler readFileHandler = new ReadFileHandler(realRequest, requestBodySentCompletionHandler, handler, fileChannel,
-									connection);
-							requestBodySentCompletionHandler.setReadFileHandler(readFileHandler);
-							fileChannel.read(fileContext.getBuffer(), 0, fileContext, readFileHandler);
-						}
+					@Override
+					public void completed(Void result, Void attachment) {
+						handler.onRequestHeaderSent(realRequest);
+						BufferContext fileContext = new BufferContext();
+						RequestBodySentCompletionHandler requestBodySentCompletionHandler = new RequestBodySentCompletionHandler(
+								realRequest, payloadReader, handler, fileContext);
+						ReadFileHandler readFileHandler = new ReadFileHandler(realRequest,
+								requestBodySentCompletionHandler, handler, connection);
+						requestBodySentCompletionHandler.setReadFileHandler(readFileHandler);
+						payloadReader.read(fileContext, readFileHandler);
+					}
 
-						@Override
-						public void failed(Throwable exc, Void attachment) {
-							handler.onRequestError(realRequest, exc);
-						}
-					});
-				}
-			});
-		} catch (IOException e1) {
-			handler.onRequestError(request, e1);
-		}
+					@Override
+					public void failed(Throwable exc, Void attachment) {
+						handler.onRequestError(realRequest, exc);
+					}
+				});
+			}
+		});
 	}
 
-	private static void closeFileChannel(AsynchronousFileChannel fileChannel) {
-		if (fileChannel.isOpen()) {
-			try {
-				fileChannel.close();
-			} catch (IOException e) {
-				LOG.log(Level.SEVERE, "Cannot close file", e);
-			}
+	@Override
+	public void request(HttpRequest request, Path payload, HttpClientHandler handler) {
+		AsynchronousFileChannel fileChannel = null;
+		try {
+			fileChannel = AsynchronousFileChannel.open(payload, StandardOpenOption.READ);
+			request(request, new PathBufferContextReader(fileChannel), fileChannel.size(), handler);
+		} catch (IOException e1) {
+			IOUtils.closeQuietly(fileChannel);
+			handler.onRequestError(request, e1);
 		}
 	}
 }

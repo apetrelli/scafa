@@ -1,14 +1,14 @@
-package com.github.apetrelli.scafa.http.client.impl;
+package com.github.apetrelli.scafa.http.client;
 
 import java.nio.ByteBuffer;
 
-public class FileContext {
+public class BufferContext {
 
 	private long position = 0L;
 
 	private ByteBuffer buffer;
 
-	public FileContext() {
+	public BufferContext() {
 		buffer = ByteBuffer.allocate(16384);
 	}
 
