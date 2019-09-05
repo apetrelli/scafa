@@ -61,6 +61,7 @@
     <module>scafa-systray-windows</module>
     <module>scafa-proto</module>
     <module>scafa-http</module>
+    <module>scafa-http-client</module>
   </modules>
   <build>
     <plugins>
