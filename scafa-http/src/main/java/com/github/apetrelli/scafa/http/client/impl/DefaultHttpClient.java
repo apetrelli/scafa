@@ -12,31 +12,79 @@ import com.github.apetrelli.scafa.http.client.BufferContextReader;
 import com.github.apetrelli.scafa.http.client.HttpClient;
 import com.github.apetrelli.scafa.http.client.HttpClientConnection;
 import com.github.apetrelli.scafa.http.client.HttpClientHandler;
+import com.github.apetrelli.scafa.http.client.impl.internal.ChunkedDataSenderFactory;
+import com.github.apetrelli.scafa.http.client.impl.internal.DataSender;
+import com.github.apetrelli.scafa.http.client.impl.internal.DataSenderFactory;
+import com.github.apetrelli.scafa.http.client.impl.internal.DirectDataSenderFactory;
 import com.github.apetrelli.scafa.proto.aio.ResultHandler;
 import com.github.apetrelli.scafa.proto.util.IOUtils;
 
 public class DefaultHttpClient implements HttpClient {
 
+	private class RequestWithPayloadCompletionHandler implements CompletionHandler<Void, Void> {
+		private final DataSender sender;
+		private final HttpRequest realRequest;
+		private final BufferContextReader payloadReader;
+		private final HttpClientHandler handler;
+
+		private RequestWithPayloadCompletionHandler(DataSender sender, HttpRequest realRequest,
+				BufferContextReader payloadReader, HttpClientHandler handler) {
+			this.sender = sender;
+			this.realRequest = realRequest;
+			this.payloadReader = payloadReader;
+			this.handler = handler;
+		}
+
+		@Override
+		public void completed(Void result, Void attachment) {
+			handler.onRequestHeaderSent(realRequest);
+			BufferContext fileContext = new BufferContext();
+			RequestBodySentCompletionHandler requestBodySentCompletionHandler = new RequestBodySentCompletionHandler(
+					realRequest, payloadReader, handler, fileContext);
+			ReadFileHandler readFileHandler = new ReadFileHandler(realRequest,
+					requestBodySentCompletionHandler, handler, sender);
+			requestBodySentCompletionHandler.setReadFileHandler(readFileHandler);
+			payloadReader.read(fileContext, readFileHandler);
+		}
+
+		@Override
+		public void failed(Throwable exc, Void attachment) {
+			handler.onRequestError(realRequest, exc);
+		}
+	}
+
 	private static class ReadFileHandler implements CompletionHandler<Integer, BufferContext> {
+		private class AfterPayloadSentCompletionHandler implements CompletionHandler<Void, Void> {
+			@Override
+			public void completed(Void result, Void attachment) {
+				handler.onRequestEnd(request);
+			}
+
+			@Override
+			public void failed(Throwable exc, Void attachment) {
+				handler.onRequestError(request, exc);
+			}
+		}
+
 		private final HttpRequest request;
 		private final CompletionHandler<Void, Void> requestBodySentCompletionHandler;
 		private final HttpClientHandler handler;
-		private final HttpClientConnection connection;
+		private final DataSender sender;
 
 		private ReadFileHandler(HttpRequest request, CompletionHandler<Void, Void> requestBodySentCompletionHandler,
-				HttpClientHandler handler, HttpClientConnection connection) {
+				HttpClientHandler handler, DataSender sender) {
 			this.request = request;
 			this.requestBodySentCompletionHandler = requestBodySentCompletionHandler;
 			this.handler = handler;
-			this.connection = connection;
+			this.sender = sender;
 		}
 
 		@Override
 		public void completed(Integer result, BufferContext fileContext) {
 			if (result >= 0) {
-				connection.send(fileContext.getBuffer(), requestBodySentCompletionHandler);
+				sender.send(fileContext.getBuffer(), requestBodySentCompletionHandler);
 			} else {
-				handler.onRequestEnd(request);
+				sender.end(new AfterPayloadSentCompletionHandler());
 			}
 		}
 
@@ -81,6 +129,10 @@ public class DefaultHttpClient implements HttpClient {
 
 	private MappedHttpConnectionFactory connectionFactory;
 
+	private DataSenderFactory directDataSenderFactory = new DirectDataSenderFactory();
+
+	private DataSenderFactory chunkedDataSenderFactory = new ChunkedDataSenderFactory();
+
 	public DefaultHttpClient() {
 		connectionFactory = new DefaultMappedHttpConnectionFactory();
 	}
@@ -109,34 +161,17 @@ public class DefaultHttpClient implements HttpClient {
 	}
 
 	@Override
+	public void request(HttpRequest request, BufferContextReader payloadReader, HttpClientHandler handler) {
+		HttpRequest realRequest = new HttpRequest(request);
+		realRequest.setHeader("Transfer-Encoding", "chunked");
+		requestWithPayload(realRequest, payloadReader, handler, chunkedDataSenderFactory);
+	}
+
+	@Override
 	public void request(HttpRequest request, BufferContextReader payloadReader, long size, HttpClientHandler handler) {
 		HttpRequest realRequest = new HttpRequest(request);
 		realRequest.setHeader("Content-Length", Long.toString(size));
-		connectionFactory.create(realRequest, new ResultHandler<HttpClientConnection>() {
-
-			@Override
-			public void handle(HttpClientConnection connection) {
-				connection.sendHeader(realRequest, handler, new CompletionHandler<Void, Void>() {
-
-					@Override
-					public void completed(Void result, Void attachment) {
-						handler.onRequestHeaderSent(realRequest);
-						BufferContext fileContext = new BufferContext();
-						RequestBodySentCompletionHandler requestBodySentCompletionHandler = new RequestBodySentCompletionHandler(
-								realRequest, payloadReader, handler, fileContext);
-						ReadFileHandler readFileHandler = new ReadFileHandler(realRequest,
-								requestBodySentCompletionHandler, handler, connection);
-						requestBodySentCompletionHandler.setReadFileHandler(readFileHandler);
-						payloadReader.read(fileContext, readFileHandler);
-					}
-
-					@Override
-					public void failed(Throwable exc, Void attachment) {
-						handler.onRequestError(realRequest, exc);
-					}
-				});
-			}
-		});
+		requestWithPayload(realRequest, payloadReader, handler, directDataSenderFactory);
 	}
 
 	@Override
@@ -149,5 +184,17 @@ public class DefaultHttpClient implements HttpClient {
 			IOUtils.closeQuietly(fileChannel);
 			handler.onRequestError(request, e1);
 		}
+	}
+
+	private void requestWithPayload(HttpRequest realRequest, BufferContextReader payloadReader,
+			HttpClientHandler handler, DataSenderFactory dataSenderFactory) {
+		connectionFactory.create(realRequest, new ResultHandler<HttpClientConnection>() {
+
+			@Override
+			public void handle(HttpClientConnection connection) {
+				DataSender sender = dataSenderFactory.create(connection);
+				connection.sendHeader(realRequest, handler, new RequestWithPayloadCompletionHandler(sender, realRequest, payloadReader, handler));
+			}
+		});
 	}
 }

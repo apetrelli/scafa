@@ -83,6 +83,38 @@ public class DirectHttpConnection implements HttpClientConnection {
 	}
 
 	@Override
+	public void sendAsChunk(ByteBuffer buffer, CompletionHandler<Void, Void> completionHandler) {
+		HttpUtils.sendChunkSize(buffer.remaining(), channel, new CompletionHandler<Void, Void>() {
+
+			@Override
+			public void completed(Void result, Void attachment) {
+				HttpUtils.flushBuffer(buffer, channel, new CompletionHandler<Void, Void>() {
+
+					@Override
+					public void completed(Void result, Void attachment) {
+						HttpUtils.sendNewline(channel, completionHandler);
+					}
+
+					@Override
+					public void failed(Throwable exc, Void attachment) {
+						completionHandler.failed(exc, attachment);
+					}
+				});
+			}
+
+			@Override
+			public void failed(Throwable exc, Void attachment) {
+				completionHandler.failed(exc, attachment);
+			}
+		});
+	}
+
+	@Override
+	public void endChunkedTransfer(CompletionHandler<Void, Void> completionHandler) {
+		HttpUtils.sendEndOfChunkedTransfer(channel, completionHandler);
+	}
+
+	@Override
 	public void end() {
         // Does nothing.
 	}

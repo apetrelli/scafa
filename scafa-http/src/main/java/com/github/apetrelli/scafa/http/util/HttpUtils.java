@@ -28,7 +28,9 @@ import com.github.apetrelli.scafa.http.HeaderHolder;
 
 public class HttpUtils {
 
-    private static class BufferFlusherCompletionHandler implements CompletionHandler<Integer, ByteBuffer> {
+    private static final String END_OF_CHUNKED_TRANSFER_SIZE_STRING = "0";
+
+	private static class BufferFlusherCompletionHandler implements CompletionHandler<Integer, ByteBuffer> {
         private final CompletionHandler<Void, Void> completionHandler;
 
         private AsynchronousSocketChannel channel;
@@ -87,6 +89,12 @@ public class HttpUtils {
     public static void sendNewline(AsynchronousSocketChannel channelToSend, CompletionHandler<Void, Void> completionHandler) {
         ByteBuffer buffer = ByteBuffer.allocate(2);
         buffer.put(CR).put(LF);
+        flipAndFlushBuffer(buffer, channelToSend, completionHandler);
+    }
+
+    public static void sendEndOfChunkedTransfer(AsynchronousSocketChannel channelToSend, CompletionHandler<Void, Void> completionHandler) {
+        ByteBuffer buffer = ByteBuffer.allocate(END_OF_CHUNKED_TRANSFER_SIZE_STRING.length() + 4);
+        buffer.put(END_OF_CHUNKED_TRANSFER_SIZE_STRING.getBytes(StandardCharsets.US_ASCII)).put(CR).put(LF).put(CR).put(LF);
         flipAndFlushBuffer(buffer, channelToSend, completionHandler);
     }
 
