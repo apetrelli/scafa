@@ -10,9 +10,5 @@ public interface HttpConnection extends Closeable {
 
     void send(ByteBuffer buffer, CompletionHandler<Void, Void> completionHandler);
 
-    void sendAsChunk(ByteBuffer buffer, CompletionHandler<Void, Void> completionHandler);
-
-    void endChunkedTransfer(CompletionHandler<Void, Void> completionHandler);
-
     void end();
 }
