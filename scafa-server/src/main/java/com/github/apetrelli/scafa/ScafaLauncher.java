@@ -38,9 +38,9 @@ import com.github.apetrelli.scafa.http.impl.HttpProcessingContextFactory;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
 import com.github.apetrelli.scafa.http.proxy.impl.DefaultHttpConnectionFactoryFactory;
 import com.github.apetrelli.scafa.http.proxy.impl.ProxyHttpHandlerFactory;
+import com.github.apetrelli.scafa.proto.aio.ScafaListener;
 import com.github.apetrelli.scafa.proto.aio.impl.DefaultProcessorFactory;
 import com.github.apetrelli.scafa.proto.processor.impl.StatefulInputProcessorFactory;
-import com.github.apetrelli.scafa.server.ScafaListener;
 
 public class ScafaLauncher {
 

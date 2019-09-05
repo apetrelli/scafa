@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.apetrelli.scafa.server;
+package com.github.apetrelli.scafa.proto.aio;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -25,8 +25,6 @@ import java.nio.channels.CompletionHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.github.apetrelli.scafa.proto.aio.HandlerFactory;
-import com.github.apetrelli.scafa.proto.aio.ProcessorFactory;
 import com.github.apetrelli.scafa.proto.processor.Processor;
 
 public class ScafaListener<H> {
