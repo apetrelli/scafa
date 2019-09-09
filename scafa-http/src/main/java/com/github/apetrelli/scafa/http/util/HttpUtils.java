@@ -92,6 +92,32 @@ public class HttpUtils {
         flipAndFlushBuffer(buffer, channelToSend, completionHandler);
     }
 
+    public static void sendAsChunk(ByteBuffer buffer, AsynchronousSocketChannel channel, CompletionHandler<Void, Void> completionHandler) {
+		HttpUtils.sendChunkSize(buffer.remaining(), channel, new CompletionHandler<Void, Void>() {
+
+			@Override
+			public void completed(Void result, Void attachment) {
+				HttpUtils.flushBuffer(buffer, channel, new CompletionHandler<Void, Void>() {
+
+					@Override
+					public void completed(Void result, Void attachment) {
+						HttpUtils.sendNewline(channel, completionHandler);
+					}
+
+					@Override
+					public void failed(Throwable exc, Void attachment) {
+						completionHandler.failed(exc, attachment);
+					}
+				});
+			}
+
+			@Override
+			public void failed(Throwable exc, Void attachment) {
+				completionHandler.failed(exc, attachment);
+			}
+		});
+    }
+
     public static void sendEndOfChunkedTransfer(AsynchronousSocketChannel channelToSend, CompletionHandler<Void, Void> completionHandler) {
         ByteBuffer buffer = ByteBuffer.allocate(END_OF_CHUNKED_TRANSFER_SIZE_STRING.length() + 4);
         buffer.put(END_OF_CHUNKED_TRANSFER_SIZE_STRING.getBytes(StandardCharsets.US_ASCII)).put(CR).put(LF).put(CR).put(LF);

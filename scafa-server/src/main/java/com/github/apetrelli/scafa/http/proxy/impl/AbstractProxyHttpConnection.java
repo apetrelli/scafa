@@ -23,7 +23,6 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
-import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 import java.util.Enumeration;
@@ -32,6 +31,7 @@ import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.http.HostPort;
 import com.github.apetrelli.scafa.http.HttpRequest;
+import com.github.apetrelli.scafa.http.impl.AbstractHttpConnection;
 import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.http.util.HttpUtils;
@@ -43,7 +43,7 @@ import com.github.apetrelli.scafa.proto.processor.impl.DefaultProcessor;
 import com.github.apetrelli.scafa.proto.processor.impl.PassthroughInputProcessorFactory;
 import com.github.apetrelli.scafa.proto.processor.impl.SimpleInputFactory;
 
-public abstract class AbstractProxyHttpConnection implements ProxyHttpConnection {
+public abstract class AbstractProxyHttpConnection extends AbstractHttpConnection implements ProxyHttpConnection {
 
     private static final Logger LOG = Logger.getLogger(AbstractProxyHttpConnection.class.getName());
 
@@ -57,8 +57,6 @@ public abstract class AbstractProxyHttpConnection implements ProxyHttpConnection
 
     protected AsynchronousSocketChannel channel, sourceChannel;
 
-    protected HostPort socketAddress;
-
     private String interfaceName;
 
     private boolean forceIpV4;
@@ -67,9 +65,9 @@ public abstract class AbstractProxyHttpConnection implements ProxyHttpConnection
 
     public AbstractProxyHttpConnection(MappedProxyHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
             HostPort socketAddress, String interfaceName, boolean forceIpV4) {
+        super(socketAddress);
         this.factory = factory;
         this.sourceChannel = sourceChannel;
-        this.socketAddress = socketAddress;
         this.interfaceName = interfaceName;
         this.forceIpV4 = forceIpV4;
     }
@@ -118,11 +116,6 @@ public abstract class AbstractProxyHttpConnection implements ProxyHttpConnection
     }
 
     @Override
-    public void send(ByteBuffer buffer, CompletionHandler<Void, Void> completionHandler) {
-        HttpUtils.flushBuffer(buffer, channel, completionHandler);
-    }
-
-    @Override
     public void end() {
         // Does nothing.
     }
@@ -147,7 +140,8 @@ public abstract class AbstractProxyHttpConnection implements ProxyHttpConnection
         processor.process(new ChannelDisconnectorHandler(factory, sourceChannel, socketAddress));
     }
 
-    private void bindChannel() throws IOException {
+    @Override
+    protected void bindChannel() throws IOException {
         if (interfaceName != null) {
             NetworkInterface intf = NetworkInterface.getByName(interfaceName);
             if (!intf.isUp()) {
