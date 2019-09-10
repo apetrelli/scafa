@@ -26,8 +26,6 @@ import java.net.SocketException;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 import java.util.Enumeration;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.http.HostPort;
 import com.github.apetrelli.scafa.http.HttpRequest;
@@ -35,7 +33,6 @@ import com.github.apetrelli.scafa.http.impl.AbstractHttpConnection;
 import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.http.util.HttpUtils;
-import com.github.apetrelli.scafa.proto.aio.DelegateFailureCompletionHandler;
 import com.github.apetrelli.scafa.proto.processor.Handler;
 import com.github.apetrelli.scafa.proto.processor.Input;
 import com.github.apetrelli.scafa.proto.processor.Processor;
@@ -45,8 +42,6 @@ import com.github.apetrelli.scafa.proto.processor.impl.SimpleInputFactory;
 
 public abstract class AbstractProxyHttpConnection extends AbstractHttpConnection implements ProxyHttpConnection {
 
-    private static final Logger LOG = Logger.getLogger(AbstractProxyHttpConnection.class.getName());
-
     protected static final byte CR = 13;
 
     protected static final byte LF = 10;
@@ -55,7 +50,7 @@ public abstract class AbstractProxyHttpConnection extends AbstractHttpConnection
 
     protected MappedProxyHttpConnectionFactory factory;
 
-    protected AsynchronousSocketChannel channel, sourceChannel;
+    protected AsynchronousSocketChannel sourceChannel;
 
     private String interfaceName;
 
@@ -73,38 +68,6 @@ public abstract class AbstractProxyHttpConnection extends AbstractHttpConnection
     }
 
     @Override
-    public void ensureConnected(CompletionHandler<Void, Void> handler) {
-
-        if (LOG.isLoggable(Level.INFO)) {
-            LOG.log(Level.INFO, "Connected thread {0} to address {1}",
-                    new Object[] { Thread.currentThread().getName(), socketAddress.toString() });
-        }
-        try {
-            channel = AsynchronousSocketChannel.open();
-            bindChannel();
-        } catch (IOException e1) {
-            handler.failed(e1, null);
-        }
-        establishConnection(new DelegateFailureCompletionHandler<Void, Void>(handler) {
-
-            @Override
-            public void completed(Void result, Void attachment) {
-                if (LOG.isLoggable(Level.INFO)) {
-                    try {
-                        LOG.log(Level.INFO, "Connected thread {0} to port {1}",
-                                new Object[] { Thread.currentThread().getName(), channel.getLocalAddress().toString() });
-                    } catch (IOException e) {
-                        LOG.log(Level.SEVERE, "Cannot obtain local address", e);
-                    }
-                }
-
-                prepareChannel();
-                handler.completed(result, attachment);
-            }
-        });
-    }
-
-    @Override
     public void sendHeader(HttpRequest request, CompletionHandler<Void, Void> completionHandler) {
         HttpRequest modifiedRequest;
         try {
@@ -118,13 +81,6 @@ public abstract class AbstractProxyHttpConnection extends AbstractHttpConnection
     @Override
     public void end() {
         // Does nothing.
-    }
-
-    @Override
-    public void close() throws IOException {
-        if (channel != null && channel.isOpen()) {
-            channel.shutdownInput();
-        }
     }
 
     protected abstract void establishConnection(CompletionHandler<Void, Void> handler);

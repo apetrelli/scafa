@@ -1,25 +1,24 @@
 package com.github.apetrelli.scafa.http.client.impl.internal;
 
 import java.nio.ByteBuffer;
+import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 
-import com.github.apetrelli.scafa.http.client.HttpClientConnection;
+import com.github.apetrelli.scafa.http.util.HttpUtils;
 
-public class ChunkedDataSender implements DataSender {
+public class ChunkedDataSender extends AbstractDataSender {
 
-	private HttpClientConnection connection;
+	public ChunkedDataSender(AsynchronousSocketChannel channel) {
+        super(channel);
+    }
 
-	public ChunkedDataSender(HttpClientConnection connection) {
-		this.connection = connection;
-	}
-
-	@Override
+    @Override
 	public void send(ByteBuffer buffer, CompletionHandler<Void, Void> completionHandler) {
-		connection.sendAsChunk(buffer, completionHandler);
-	}
+	    HttpUtils.sendAsChunk(buffer, channel, completionHandler);
+    }
 
 	@Override
 	public void end(CompletionHandler<Void, Void> completionHandler) {
-		connection.endChunkedTransfer(completionHandler);
+	    HttpUtils.sendEndOfChunkedTransfer(channel, completionHandler);
 	}
 }

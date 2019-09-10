@@ -24,6 +24,8 @@ import java.nio.channels.CompletionHandler;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.client.HttpClientConnection;
 import com.github.apetrelli.scafa.http.client.HttpClientHandler;
+import com.github.apetrelli.scafa.http.client.impl.internal.DataSender;
+import com.github.apetrelli.scafa.http.client.impl.internal.NullDataSender;
 
 public class ThrowableHttpConnection implements HttpClientConnection {
 
@@ -69,6 +71,11 @@ public class ThrowableHttpConnection implements HttpClientConnection {
     @Override
     public void close() throws IOException {
         // Does nothing
+    }
+
+    @Override
+    public DataSender createDataSender(HttpRequest request) {
+        return new NullDataSender();
     }
 
 }

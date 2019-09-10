@@ -12,10 +12,9 @@ import com.github.apetrelli.scafa.http.client.BufferContextReader;
 import com.github.apetrelli.scafa.http.client.HttpClient;
 import com.github.apetrelli.scafa.http.client.HttpClientConnection;
 import com.github.apetrelli.scafa.http.client.HttpClientHandler;
-import com.github.apetrelli.scafa.http.client.impl.internal.ChunkedDataSenderFactory;
 import com.github.apetrelli.scafa.http.client.impl.internal.DataSender;
 import com.github.apetrelli.scafa.http.client.impl.internal.DataSenderFactory;
-import com.github.apetrelli.scafa.http.client.impl.internal.DirectDataSenderFactory;
+import com.github.apetrelli.scafa.http.client.impl.internal.DefaultDataSenderFactory;
 import com.github.apetrelli.scafa.proto.aio.ResultHandler;
 import com.github.apetrelli.scafa.proto.util.IOUtils;
 
@@ -129,12 +128,10 @@ public class DefaultHttpClient implements HttpClient {
 
 	private MappedHttpConnectionFactory connectionFactory;
 
-	private DataSenderFactory directDataSenderFactory = new DirectDataSenderFactory();
-
-	private DataSenderFactory chunkedDataSenderFactory = new ChunkedDataSenderFactory();
+	private DataSenderFactory dataSenderFactory = new DefaultDataSenderFactory();
 
 	public DefaultHttpClient() {
-		connectionFactory = new DefaultMappedHttpConnectionFactory();
+		connectionFactory = new DefaultMappedHttpConnectionFactory(dataSenderFactory);
 	}
 
 	@Override
@@ -164,14 +161,14 @@ public class DefaultHttpClient implements HttpClient {
 	public void request(HttpRequest request, BufferContextReader payloadReader, HttpClientHandler handler) {
 		HttpRequest realRequest = new HttpRequest(request);
 		realRequest.setHeader("Transfer-Encoding", "chunked");
-		requestWithPayload(realRequest, payloadReader, handler, chunkedDataSenderFactory);
+		requestWithPayload(realRequest, payloadReader, handler);
 	}
 
 	@Override
 	public void request(HttpRequest request, BufferContextReader payloadReader, long size, HttpClientHandler handler) {
 		HttpRequest realRequest = new HttpRequest(request);
 		realRequest.setHeader("Content-Length", Long.toString(size));
-		requestWithPayload(realRequest, payloadReader, handler, directDataSenderFactory);
+		requestWithPayload(realRequest, payloadReader, handler);
 	}
 
 	@Override
@@ -187,12 +184,12 @@ public class DefaultHttpClient implements HttpClient {
 	}
 
 	private void requestWithPayload(HttpRequest realRequest, BufferContextReader payloadReader,
-			HttpClientHandler handler, DataSenderFactory dataSenderFactory) {
+			HttpClientHandler handler) {
 		connectionFactory.create(realRequest, new ResultHandler<HttpClientConnection>() {
 
 			@Override
 			public void handle(HttpClientConnection connection) {
-				DataSender sender = dataSenderFactory.create(connection);
+				DataSender sender = connection.createDataSender(realRequest);
 				connection.sendHeader(realRequest, handler, new RequestWithPayloadCompletionHandler(sender, realRequest, payloadReader, handler));
 			}
 		});

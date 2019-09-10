@@ -3,7 +3,6 @@ package com.github.apetrelli.scafa.http.client.impl;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 
 import com.github.apetrelli.scafa.http.HostPort;
@@ -13,6 +12,8 @@ import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpStatus;
 import com.github.apetrelli.scafa.http.client.HttpClientConnection;
 import com.github.apetrelli.scafa.http.client.HttpClientHandler;
+import com.github.apetrelli.scafa.http.client.impl.internal.DataSender;
+import com.github.apetrelli.scafa.http.client.impl.internal.DataSenderFactory;
 import com.github.apetrelli.scafa.http.impl.AbstractHttpConnection;
 import com.github.apetrelli.scafa.http.impl.HttpProcessingContextFactory;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
@@ -27,11 +28,12 @@ public class DirectHttpConnection extends AbstractHttpConnection implements Http
 
     private MappedHttpConnectionFactory connectionFactory;
 
-    private AsynchronousSocketChannel channel;
+    private DataSenderFactory dataSenderFactory;
 
-	public DirectHttpConnection(HostPort socketAddress, MappedHttpConnectionFactory connectionFactory) {
+	public DirectHttpConnection(HostPort socketAddress, MappedHttpConnectionFactory connectionFactory, DataSenderFactory dataSenderFactory) {
 		super(socketAddress);
 		this.connectionFactory = connectionFactory;
+		this.dataSenderFactory = dataSenderFactory;
 		responseHandler = new ClientPipelineHttpHandler(this);
 	}
 
@@ -57,12 +59,14 @@ public class DirectHttpConnection extends AbstractHttpConnection implements Http
 	}
 
 	@Override
+	public DataSender createDataSender(HttpRequest request) {
+	    return dataSenderFactory.create(request, channel);
+	}
+
+	@Override
 	public void close() throws IOException {
 		connectionFactory.dispose(socketAddress);
 		super.close();
-        if (channel != null && channel.isOpen()) {
-            channel.close();
-        }
 	}
 
 	@Override
