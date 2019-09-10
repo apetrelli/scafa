@@ -53,17 +53,6 @@ public class ThrowableHttpConnection implements HttpClientConnection {
     }
 
     @Override
-    public void sendAsChunk(ByteBuffer buffer, CompletionHandler<Void, Void> completionHandler) {
-        buffer.clear();
-        completionHandler.completed(null, null);
-    }
-
-    @Override
-    public void endChunkedTransfer(CompletionHandler<Void, Void> completionHandler) {
-        completionHandler.completed(null, null);
-    }
-
-    @Override
     public void end() {
         // Does nothing
     }

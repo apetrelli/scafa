@@ -2,7 +2,6 @@ package com.github.apetrelli.scafa.http.client.impl;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
 import java.nio.channels.CompletionHandler;
 
 import com.github.apetrelli.scafa.http.HostPort;
@@ -42,16 +41,6 @@ public class DirectHttpConnection extends AbstractHttpConnection implements Http
 		responseHandler.add(request, clientHandler, this);
         HttpUtils.sendHeader(request, channel, completionHandler);
 	}
-
-    @Override
-    public void sendAsChunk(ByteBuffer buffer, CompletionHandler<Void, Void> completionHandler) {
-        HttpUtils.sendAsChunk(buffer, channel, completionHandler);
-    }
-
-    @Override
-    public void endChunkedTransfer(CompletionHandler<Void, Void> completionHandler) {
-        HttpUtils.sendEndOfChunkedTransfer(channel, completionHandler);
-    }
 
 	@Override
 	public void end() {
