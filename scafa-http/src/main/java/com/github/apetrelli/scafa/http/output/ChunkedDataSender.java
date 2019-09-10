@@ -1,4 +1,4 @@
-package com.github.apetrelli.scafa.http.client.impl.internal;
+package com.github.apetrelli.scafa.http.output;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;

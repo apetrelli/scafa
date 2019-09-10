@@ -1,9 +1,8 @@
-package com.github.apetrelli.scafa.http.client.impl.internal;
+package com.github.apetrelli.scafa.http.output;
 
 import java.nio.channels.AsynchronousSocketChannel;
 
 import com.github.apetrelli.scafa.http.HeaderHolder;
-import com.github.apetrelli.scafa.http.output.DataSenderFactory;
 import com.github.apetrelli.scafa.proto.output.DataSender;
 import com.github.apetrelli.scafa.proto.output.DirectDataSender;
 
