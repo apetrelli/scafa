@@ -24,8 +24,8 @@ import java.nio.channels.CompletionHandler;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.client.HttpClientConnection;
 import com.github.apetrelli.scafa.http.client.HttpClientHandler;
-import com.github.apetrelli.scafa.http.client.impl.internal.DataSender;
-import com.github.apetrelli.scafa.http.client.impl.internal.NullDataSender;
+import com.github.apetrelli.scafa.proto.output.DataSender;
+import com.github.apetrelli.scafa.proto.output.NullDataSender;
 
 public class ThrowableHttpConnection implements HttpClientConnection {
 

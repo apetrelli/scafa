@@ -25,37 +25,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.http.HeaderHolder;
+import com.github.apetrelli.scafa.proto.util.AIOUtils;
 
 public class HttpUtils {
 
     private static final String END_OF_CHUNKED_TRANSFER_SIZE_STRING = "0";
 
-	private static class BufferFlusherCompletionHandler implements CompletionHandler<Integer, ByteBuffer> {
-        private final CompletionHandler<Void, Void> completionHandler;
-
-        private AsynchronousSocketChannel channel;
-
-        private BufferFlusherCompletionHandler(AsynchronousSocketChannel channel, CompletionHandler<Void, Void> completionHandler) {
-            this.channel = channel;
-            this.completionHandler = completionHandler;
-        }
-
-        @Override
-        public void completed(Integer result, ByteBuffer attachment) {
-            if (attachment.hasRemaining()) {
-                channel.write(attachment, attachment, this);
-            } else {
-                completionHandler.completed(null, null);
-            }
-        }
-
-        @Override
-        public void failed(Throwable exc, ByteBuffer attachment) {
-            completionHandler.failed(exc, null);
-        }
-    }
-
-    private static final Logger LOG = Logger.getLogger(HttpUtils.class.getName());
+	private static final Logger LOG = Logger.getLogger(HttpUtils.class.getName());
 
     private static final byte CR = 13;
 
@@ -72,24 +48,20 @@ public class HttpUtils {
             LOG.finest(request);
             LOG.finest("-- End of header --");
         }
-        flipAndFlushBuffer(buffer, channelToSend, completionHandler);
-    }
-
-    public static void flushBuffer(ByteBuffer buffer, AsynchronousSocketChannel channelToSend, CompletionHandler<Void, Void> completionHandler) {
-        channelToSend.write(buffer, buffer, new BufferFlusherCompletionHandler(channelToSend, completionHandler));
+        AIOUtils.flipAndFlushBuffer(buffer, channelToSend, completionHandler);
     }
 
     public static void sendChunkSize(long size, AsynchronousSocketChannel channelToSend, CompletionHandler<Void, Void> completionHandler) {
         String sizeString = Long.toString(size, 16);
         ByteBuffer buffer = ByteBuffer.allocate(sizeString.length() + 2);
         buffer.put(sizeString.getBytes(StandardCharsets.US_ASCII)).put(CR).put(LF);
-        flipAndFlushBuffer(buffer, channelToSend, completionHandler);
+        AIOUtils.flipAndFlushBuffer(buffer, channelToSend, completionHandler);
     }
 
     public static void sendNewline(AsynchronousSocketChannel channelToSend, CompletionHandler<Void, Void> completionHandler) {
         ByteBuffer buffer = ByteBuffer.allocate(2);
         buffer.put(CR).put(LF);
-        flipAndFlushBuffer(buffer, channelToSend, completionHandler);
+        AIOUtils.flipAndFlushBuffer(buffer, channelToSend, completionHandler);
     }
 
     public static void sendAsChunk(ByteBuffer buffer, AsynchronousSocketChannel channel, CompletionHandler<Void, Void> completionHandler) {
@@ -97,7 +69,7 @@ public class HttpUtils {
 
 			@Override
 			public void completed(Void result, Void attachment) {
-				HttpUtils.flushBuffer(buffer, channel, new CompletionHandler<Void, Void>() {
+				AIOUtils.flushBuffer(buffer, channel, new CompletionHandler<Void, Void>() {
 
 					@Override
 					public void completed(Void result, Void attachment) {
@@ -121,11 +93,6 @@ public class HttpUtils {
     public static void sendEndOfChunkedTransfer(AsynchronousSocketChannel channelToSend, CompletionHandler<Void, Void> completionHandler) {
         ByteBuffer buffer = ByteBuffer.allocate(END_OF_CHUNKED_TRANSFER_SIZE_STRING.length() + 4);
         buffer.put(END_OF_CHUNKED_TRANSFER_SIZE_STRING.getBytes(StandardCharsets.US_ASCII)).put(CR).put(LF).put(CR).put(LF);
-        flipAndFlushBuffer(buffer, channelToSend, completionHandler);
-    }
-
-    private static void flipAndFlushBuffer(ByteBuffer buffer, AsynchronousSocketChannel channelToSend, CompletionHandler<Void, Void> completionHandler) {
-        buffer.flip();
-        flushBuffer(buffer, channelToSend, completionHandler);
+        AIOUtils.flipAndFlushBuffer(buffer, channelToSend, completionHandler);
     }
 }

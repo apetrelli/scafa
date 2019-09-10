@@ -8,7 +8,7 @@ import java.util.Map;
 import com.github.apetrelli.scafa.http.HostPort;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.client.HttpClientConnection;
-import com.github.apetrelli.scafa.http.client.impl.internal.DataSenderFactory;
+import com.github.apetrelli.scafa.http.output.DataSenderFactory;
 import com.github.apetrelli.scafa.proto.aio.ResultHandler;
 import com.github.apetrelli.scafa.proto.util.IOUtils;
 

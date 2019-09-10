@@ -3,6 +3,9 @@ package com.github.apetrelli.scafa.http.client.impl.internal;
 import java.nio.channels.AsynchronousSocketChannel;
 
 import com.github.apetrelli.scafa.http.HeaderHolder;
+import com.github.apetrelli.scafa.http.output.DataSenderFactory;
+import com.github.apetrelli.scafa.proto.output.DataSender;
+import com.github.apetrelli.scafa.proto.output.DirectDataSender;
 
 public class DefaultDataSenderFactory implements DataSenderFactory {
 

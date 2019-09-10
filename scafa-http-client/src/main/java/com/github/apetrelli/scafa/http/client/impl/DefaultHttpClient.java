@@ -12,10 +12,10 @@ import com.github.apetrelli.scafa.http.client.BufferContextReader;
 import com.github.apetrelli.scafa.http.client.HttpClient;
 import com.github.apetrelli.scafa.http.client.HttpClientConnection;
 import com.github.apetrelli.scafa.http.client.HttpClientHandler;
-import com.github.apetrelli.scafa.http.client.impl.internal.DataSender;
-import com.github.apetrelli.scafa.http.client.impl.internal.DataSenderFactory;
 import com.github.apetrelli.scafa.http.client.impl.internal.DefaultDataSenderFactory;
+import com.github.apetrelli.scafa.http.output.DataSenderFactory;
 import com.github.apetrelli.scafa.proto.aio.ResultHandler;
+import com.github.apetrelli.scafa.proto.output.DataSender;
 import com.github.apetrelli.scafa.proto.util.IOUtils;
 
 public class DefaultHttpClient implements HttpClient {

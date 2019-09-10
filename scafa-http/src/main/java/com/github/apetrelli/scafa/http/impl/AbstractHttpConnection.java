@@ -9,8 +9,8 @@ import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.http.HostPort;
 import com.github.apetrelli.scafa.http.HttpConnection;
-import com.github.apetrelli.scafa.http.util.HttpUtils;
 import com.github.apetrelli.scafa.proto.aio.DelegateFailureCompletionHandler;
+import com.github.apetrelli.scafa.proto.util.AIOUtils;
 
 public abstract class AbstractHttpConnection implements HttpConnection {
 
@@ -58,7 +58,7 @@ public abstract class AbstractHttpConnection implements HttpConnection {
 
 	@Override
 	public void send(ByteBuffer buffer, CompletionHandler<Void, Void> completionHandler) {
-		HttpUtils.flushBuffer(buffer, channel, completionHandler);
+		AIOUtils.flushBuffer(buffer, channel, completionHandler);
 	}
 
     @Override
