@@ -30,8 +30,8 @@ public class NullHttpClientHandler implements HttpClientHandler {
 	}
 
 	@Override
-	public void onEnd(HttpRequest request, HttpResponse response) {
-		// Do nothing
+	public void onEnd(HttpRequest request, HttpResponse response, CompletionHandler<Void, Void> handler) {
+        handler.completed(null, null);
 	}
 
 	@Override

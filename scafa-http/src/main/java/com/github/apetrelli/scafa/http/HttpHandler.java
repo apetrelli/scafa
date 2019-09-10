@@ -42,5 +42,5 @@ public interface HttpHandler extends Handler {
 
     void onDataToPassAlong(ByteBuffer buffer, CompletionHandler<Void, Void> handler);
 
-    void onEnd();
+    void onEnd(CompletionHandler<Void, Void> handler);
 }

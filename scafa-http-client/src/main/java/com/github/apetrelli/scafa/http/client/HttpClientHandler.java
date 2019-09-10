@@ -20,5 +20,5 @@ public interface HttpClientHandler {
 
     void onBody(HttpRequest request, HttpResponse response, ByteBuffer buffer, long offset, long length, CompletionHandler<Void, Void> handler);
 
-	void onEnd(HttpRequest request, HttpResponse response);
+	void onEnd(HttpRequest request, HttpResponse response, CompletionHandler<Void, Void> handler);
 }

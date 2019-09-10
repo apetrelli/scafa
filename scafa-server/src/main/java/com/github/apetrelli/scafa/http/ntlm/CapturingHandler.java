@@ -35,8 +35,9 @@ public class CapturingHandler extends HttpHandlerSupport {
     }
 
     @Override
-    public void onEnd() {
+    public void onEnd(CompletionHandler<Void, Void> handler) {
         finished = true;
+        handler.completed(null, null);
     }
 
     public boolean isFinished() {

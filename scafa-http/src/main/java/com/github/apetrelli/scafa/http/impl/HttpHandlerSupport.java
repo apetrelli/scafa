@@ -80,7 +80,8 @@ public class HttpHandlerSupport implements HttpHandler {
     }
 
     @Override
-    public void onEnd() {
+    public void onEnd(CompletionHandler<Void, Void> handler) {
+        handler.completed(null, null);
     }
 
     @Override

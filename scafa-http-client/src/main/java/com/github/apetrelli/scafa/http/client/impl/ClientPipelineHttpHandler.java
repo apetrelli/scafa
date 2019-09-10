@@ -12,6 +12,7 @@ import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.client.HttpClientConnection;
 import com.github.apetrelli.scafa.http.client.HttpClientHandler;
+import com.github.apetrelli.scafa.proto.aio.DelegateFailureCompletionHandler;
 
 public class ClientPipelineHttpHandler implements HttpHandler {
 
@@ -95,16 +96,22 @@ public class ClientPipelineHttpHandler implements HttpHandler {
     }
 
     @Override
-    public void onEnd() {
+    public void onEnd(CompletionHandler<Void, Void> handler) {
         HttpResponse response = currentContext.getResponse();
-        currentContext.getHandler().onEnd(currentContext.getRequest(), response);
-        if (response != null && "close".equals(response.getHeader("Connection"))) {
-            try {
-                connection.close();
-            } catch (IOException e) {
-                LOG.log(Level.SEVERE, "Cannot close connection because the request has an invalid host:port", e);
+        currentContext.getHandler().onEnd(currentContext.getRequest(), response, new DelegateFailureCompletionHandler<Void, Void>(handler) {
+
+            @Override
+            public void completed(Void result, Void attachment) {
+                if (response != null && "close".equals(response.getHeader("Connection"))) {
+                    try {
+                        connection.close();
+                    } catch (IOException e) {
+                        LOG.log(Level.SEVERE, "Cannot close connection because the request has an invalid host:port", e);
+                    }
+                }
+                handler.completed(null, null);
             }
-        }
+        });
     }
 
 }

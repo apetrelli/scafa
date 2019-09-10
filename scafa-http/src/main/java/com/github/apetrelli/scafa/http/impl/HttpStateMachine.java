@@ -285,8 +285,7 @@ public class HttpStateMachine implements ProtocolStateMachine<HttpHandler, HttpS
 
             @Override
             public void completed(Void result, Void attachment) {
-                handler.onEnd();
-                completionHandler.completed(result, attachment);
+                handler.onEnd(completionHandler);
             }
         });
 
@@ -305,9 +304,8 @@ public class HttpStateMachine implements ProtocolStateMachine<HttpHandler, HttpS
                 context.reduceBody(sizeToSend);
                 buffer.limit(oldLimit);
                 if (context.getCountdown() <= 0L) {
-                    handler.onEnd();
+                    handler.onEnd(completionHandler);
                 }
-                completionHandler.completed(result, attachment);
             }
         });
     }
@@ -352,8 +350,7 @@ public class HttpStateMachine implements ProtocolStateMachine<HttpHandler, HttpS
 
 	                                @Override
 	                                public void completed(Void result, Void attachment) {
-	                                    handler.onEnd();
-	                                    completionHandler.completed(result, attachment);
+	                                    handler.onEnd(completionHandler);
 	                                }
 	                            });
 	                        }

@@ -18,10 +18,15 @@
 package com.github.apetrelli.scafa.proto.aio;
 
 import java.io.IOException;
+import java.net.Inet4Address;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.nio.channels.AsynchronousServerSocketChannel;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
+import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -37,16 +42,27 @@ public class ScafaListener<H> {
 
     private int portNumber;
 
+    private String interfaceName;
+
+    private boolean forceIpV4;
+
     private AsynchronousServerSocketChannel server;
 
-    public ScafaListener(ProcessorFactory<H> processorFactory, HandlerFactory<H> handlerFactory, int portNumber) {
+    public ScafaListener(ProcessorFactory<H> processorFactory, HandlerFactory<H> handlerFactory, int portNumber, String interfaceName, boolean forceIpV4) {
         this.processorFactory = processorFactory;
         this.handlerFactory = handlerFactory;
         this.portNumber = portNumber;
+        this.interfaceName = interfaceName;
+        this.forceIpV4 = forceIpV4;
+    }
+
+    public ScafaListener(ProcessorFactory<H> processorFactory, HandlerFactory<H> handlerFactory, int portNumber) {
+    	this(processorFactory, handlerFactory, portNumber, null, false);
     }
 
     public void listen() throws IOException {
         server = AsynchronousServerSocketChannel.open().bind(new InetSocketAddress(portNumber));
+        bindChannel();
         server.accept((Void) null, new CompletionHandler<AsynchronousSocketChannel, Void>() {
 
             @Override
@@ -73,6 +89,30 @@ public class ScafaListener<H> {
             } catch (IOException e) {
                 LOG.log(Level.WARNING, "Error when closing server channel", e);
             }
+        }
+    }
+
+    private void bindChannel() throws IOException {
+        if (interfaceName != null) {
+            NetworkInterface intf = NetworkInterface.getByName(interfaceName);
+            if (!intf.isUp()) {
+                throw new SocketException("The interface " + interfaceName + " is not connected");
+            }
+            Enumeration<InetAddress> addresses = intf.getInetAddresses();
+            if (!addresses.hasMoreElements()) {
+                throw new SocketException("The interface " + interfaceName + " has no addresses");
+            }
+            InetAddress address = null;
+            while (addresses.hasMoreElements() && address == null) {
+                InetAddress currentAddress = addresses.nextElement();
+                if (!forceIpV4 || currentAddress instanceof Inet4Address) {
+                    address = currentAddress;
+                }
+            }
+            if (address == null) {
+                throw new SocketException("Not able to find a feasible address for interface " + interfaceName);
+            }
+            server.bind(new InetSocketAddress(address, 0));
         }
     }
 }

@@ -136,8 +136,9 @@ public class DefaultProxyHttpHandler implements ProxyHttpHandler {
     }
 
     @Override
-    public void onEnd() {
+    public void onEnd(CompletionHandler<Void, Void> handler) {
         connection.end();
+        handler.completed(null, null);
     }
 
     @Override
