@@ -150,4 +150,7 @@ public class HttpRequest extends HeaderHolder {
         return buffer;
     }
 
+    public ParsedResource getParsedResource() {
+    	return new ParsedResource(resource);
+    }
 }

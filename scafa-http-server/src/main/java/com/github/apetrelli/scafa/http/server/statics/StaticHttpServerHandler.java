@@ -39,7 +39,7 @@ public class StaticHttpServerHandler extends HttpServerHandlerSupport {
 	public void onRequestEnd(HttpRequest request, CompletionHandler<Void, Void> handler) {
 		if ("GET".equals(request.getMethod())) {
 			if (request.getResource().startsWith(basePath)) {
-				String localResource = request.getResource().substring(basePath.length());
+				String localResource = request.getParsedResource().getResource().substring(basePath.length());
 				while (localResource.startsWith("/")) {
 					localResource = localResource.substring(1);
 				}
