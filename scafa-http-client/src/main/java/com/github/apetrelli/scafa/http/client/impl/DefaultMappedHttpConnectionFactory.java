@@ -9,7 +9,6 @@ import com.github.apetrelli.scafa.http.HostPort;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.client.HttpClientConnection;
 import com.github.apetrelli.scafa.http.output.DataSenderFactory;
-import com.github.apetrelli.scafa.proto.aio.ResultHandler;
 import com.github.apetrelli.scafa.proto.util.IOUtils;
 
 public class DefaultMappedHttpConnectionFactory implements MappedHttpConnectionFactory {
@@ -23,7 +22,7 @@ public class DefaultMappedHttpConnectionFactory implements MappedHttpConnectionF
     }
 
     @Override
-	public void create(HttpRequest request, ResultHandler<HttpClientConnection> handler) {
+	public void create(HttpRequest request, CompletionHandler<HttpClientConnection, Void> handler) {
 		try {
 			HostPort hostPort = request.getHostPort();
 			HttpClientConnection cachedConnection = connectionCache.get(hostPort);
@@ -34,19 +33,19 @@ public class DefaultMappedHttpConnectionFactory implements MappedHttpConnectionF
 
 					@Override
 					public void completed(Void result, Void attachment) {
-						handler.handle(connection);
+						handler.completed(connection, attachment);
 					}
 
 					@Override
 					public void failed(Throwable exc, Void attachment) {
-						handler.handle(new ThrowableHttpConnection(exc));
+						handler.failed(exc, attachment);
 					}
 				});
 			} else {
-				handler.handle(cachedConnection);
+				handler.completed(cachedConnection, null);
 			}
 		} catch (IOException e) {
-			handler.handle(new ThrowableHttpConnection(e));
+			handler.failed(e, null);
 		}
 	}
 

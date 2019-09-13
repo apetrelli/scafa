@@ -14,7 +14,6 @@ import com.github.apetrelli.scafa.http.client.HttpClientConnection;
 import com.github.apetrelli.scafa.http.client.HttpClientHandler;
 import com.github.apetrelli.scafa.http.output.DataSenderFactory;
 import com.github.apetrelli.scafa.http.output.DefaultDataSenderFactory;
-import com.github.apetrelli.scafa.proto.aio.ResultHandler;
 import com.github.apetrelli.scafa.proto.output.DataSender;
 import com.github.apetrelli.scafa.proto.util.IOUtils;
 
@@ -136,24 +135,29 @@ public class DefaultHttpClient implements HttpClient {
 
 	@Override
 	public void request(HttpRequest request, HttpClientHandler handler) {
-		connectionFactory.create(request, new ResultHandler<HttpClientConnection>() {
+		connectionFactory.create(request, new CompletionHandler<HttpClientConnection, Void>() {
 
-			@Override
-			public void handle(HttpClientConnection result) {
-				result.sendHeader(request, handler, new CompletionHandler<Void, Void>() {
+            @Override
+            public void completed(HttpClientConnection result, Void attachment) {
+                result.sendHeader(request, handler, new CompletionHandler<Void, Void>() {
 
-					@Override
-					public void completed(Void result, Void attachment) {
-						handler.onRequestHeaderSent(request);
-						handler.onRequestEnd(request);
-					}
+                    @Override
+                    public void completed(Void result, Void attachment) {
+                        handler.onRequestHeaderSent(request);
+                        handler.onRequestEnd(request);
+                    }
 
-					@Override
-					public void failed(Throwable exc, Void attachment) {
-						handler.onRequestError(request, exc);
-					}
-				});
-			}
+                    @Override
+                    public void failed(Throwable exc, Void attachment) {
+                        handler.onRequestError(request, exc);
+                    }
+                });
+            }
+
+            @Override
+            public void failed(Throwable exc, Void attachment) {
+                handler.onRequestError(request, exc);
+            }
 		});
 	}
 
@@ -185,13 +189,18 @@ public class DefaultHttpClient implements HttpClient {
 
 	private void requestWithPayload(HttpRequest realRequest, BufferContextReader payloadReader,
 			HttpClientHandler handler) {
-		connectionFactory.create(realRequest, new ResultHandler<HttpClientConnection>() {
+		connectionFactory.create(realRequest, new CompletionHandler<HttpClientConnection, Void>() {
 
-			@Override
-			public void handle(HttpClientConnection connection) {
-				DataSender sender = connection.createDataSender(realRequest);
-				connection.sendHeader(realRequest, handler, new RequestWithPayloadCompletionHandler(sender, realRequest, payloadReader, handler));
-			}
+            @Override
+            public void completed(HttpClientConnection connection, Void attachment) {
+                DataSender sender = connection.createDataSender(realRequest);
+                connection.sendHeader(realRequest, handler, new RequestWithPayloadCompletionHandler(sender, realRequest, payloadReader, handler));
+            }
+
+            @Override
+            public void failed(Throwable exc, Void attachment) {
+                handler.onRequestError(realRequest, exc);
+            }
 		});
 	}
 }

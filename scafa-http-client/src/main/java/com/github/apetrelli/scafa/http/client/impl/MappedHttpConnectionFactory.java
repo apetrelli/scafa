@@ -17,14 +17,15 @@
  */
 package com.github.apetrelli.scafa.http.client.impl;
 
+import java.nio.channels.CompletionHandler;
+
 import com.github.apetrelli.scafa.http.HostPort;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.client.HttpClientConnection;
-import com.github.apetrelli.scafa.proto.aio.ResultHandler;
 
 public interface MappedHttpConnectionFactory {
 
-    void create(HttpRequest request, ResultHandler<HttpClientConnection> handler);
+    void create(HttpRequest request, CompletionHandler<HttpClientConnection, Void> handler);
 
     void disconnectAll();
 

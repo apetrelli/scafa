@@ -26,10 +26,9 @@ import java.nio.charset.StandardCharsets;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
-import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
+import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpHandler;
-import com.github.apetrelli.scafa.proto.aio.ResultHandler;
 
 public class DefaultProxyHttpHandler implements ProxyHttpHandler {
 
@@ -76,12 +75,17 @@ public class DefaultProxyHttpHandler implements ProxyHttpHandler {
                 handler.failed(e, null);
             }
         } else {
-            connectionFactory.create(sourceChannel, request, new ResultHandler<ProxyHttpConnection>() {
+            connectionFactory.create(sourceChannel, request, new CompletionHandler<ProxyHttpConnection, Void>() {
 
                 @Override
-                public void handle(ProxyHttpConnection result) {
+                public void completed(ProxyHttpConnection result, Void attachment) {
                     connection = result;
                     connection.sendHeader(request, handler);
+                }
+
+                @Override
+                public void failed(Throwable exc, Void attachment) {
+                    handler.failed(exc, attachment);
                 }
             });
         }
@@ -119,12 +123,17 @@ public class DefaultProxyHttpHandler implements ProxyHttpHandler {
 
     @Override
     public void onConnectMethod(HttpConnectRequest connectRequest, CompletionHandler<Void, Void> handler) {
-        connectionFactory.create(sourceChannel, connectRequest, new ResultHandler<ProxyHttpConnection>() {
+        connectionFactory.create(sourceChannel, connectRequest, new CompletionHandler<ProxyHttpConnection, Void>() {
 
             @Override
-            public void handle(ProxyHttpConnection result) {
+            public void completed(ProxyHttpConnection result, Void attachment) {
                 connection = result;
                 connection.connect(connectRequest, handler);
+            }
+
+            @Override
+            public void failed(Throwable exc, Void attachment) {
+                handler.failed(exc, attachment);
             }
         });
 

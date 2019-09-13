@@ -31,7 +31,6 @@ import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
 import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
-import com.github.apetrelli.scafa.proto.aio.ResultHandler;
 import com.github.apetrelli.scafa.proto.util.IOUtils;
 
 public class DefaultMappedProxyHttpConnectionFactory implements MappedProxyHttpConnectionFactory {
@@ -47,17 +46,17 @@ public class DefaultMappedProxyHttpConnectionFactory implements MappedProxyHttpC
     }
 
     @Override
-    public void create(AsynchronousSocketChannel sourceChannel, HttpRequest request, ResultHandler<ProxyHttpConnection> handler) {
+    public void create(AsynchronousSocketChannel sourceChannel, HttpRequest request, CompletionHandler<ProxyHttpConnection, Void> handler) {
         try {
             create(sourceChannel, request.getHostPort(), handler);
         } catch (IOException e) {
             LOG.log(Level.SEVERE, "Problem with determining the host to connect to.", e);
-            handler.handle(new NullProxyHttpConnection(sourceChannel));
+            handler.failed(e, null);
         }
     }
 
     @Override
-    public void create(AsynchronousSocketChannel sourceChannel, HttpConnectRequest request, ResultHandler<ProxyHttpConnection> handler) {
+    public void create(AsynchronousSocketChannel sourceChannel, HttpConnectRequest request, CompletionHandler<ProxyHttpConnection, Void> handler) {
         create(sourceChannel, new HostPort(request.getHost(), request.getPort()), handler);
     }
 
@@ -75,7 +74,7 @@ public class DefaultMappedProxyHttpConnectionFactory implements MappedProxyHttpC
         }
     }
 
-    private void create(AsynchronousSocketChannel sourceChannel, HostPort hostPort, ResultHandler<ProxyHttpConnection> handler) {
+    private void create(AsynchronousSocketChannel sourceChannel, HostPort hostPort, CompletionHandler<ProxyHttpConnection, Void> handler) {
         ProxyHttpConnection connection = connectionCache.get(hostPort);
         if (connection == null) {
             if (LOG.isLoggable(Level.INFO)) {
@@ -89,19 +88,17 @@ public class DefaultMappedProxyHttpConnectionFactory implements MappedProxyHttpC
                 @Override
                 public void completed(Void result, Void attachment) {
                     connectionCache.put(hostPort, newConnection);
-                    handler.handle(newConnection);
+                    handler.completed(newConnection, attachment);
                 }
 
                 @Override
                 public void failed(Throwable exc, Void attachment) {
                     LOG.log(Level.INFO, "Connection failed to " + hostPort.toString(), exc);
-                    NullProxyHttpConnection nullConnection = new NullProxyHttpConnection(sourceChannel);
-                    connectionCache.put(hostPort, nullConnection);
-                    handler.handle(nullConnection);
+                    handler.failed(exc, attachment);
                 }
             });
         } else {
-            handler.handle(connection);
+            handler.completed(connection, null);
         }
     }
 }
