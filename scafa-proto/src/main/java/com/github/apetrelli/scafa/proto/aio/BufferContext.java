@@ -1,4 +1,4 @@
-package com.github.apetrelli.scafa.http.client;
+package com.github.apetrelli.scafa.proto.aio;
 
 import java.nio.ByteBuffer;
 

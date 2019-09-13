@@ -1,11 +1,11 @@
-package com.github.apetrelli.scafa.http.client.impl;
+package com.github.apetrelli.scafa.proto.aio.impl;
 
 import java.io.IOException;
 import java.nio.channels.AsynchronousFileChannel;
 import java.nio.channels.CompletionHandler;
 
-import com.github.apetrelli.scafa.http.client.BufferContext;
-import com.github.apetrelli.scafa.http.client.BufferContextReader;
+import com.github.apetrelli.scafa.proto.aio.BufferContext;
+import com.github.apetrelli.scafa.proto.aio.BufferContextReader;
 import com.github.apetrelli.scafa.proto.util.IOUtils;
 
 public class PathBufferContextReader implements BufferContextReader {

@@ -4,6 +4,7 @@ import java.nio.file.Path;
 
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.client.impl.DefaultHttpClient;
+import com.github.apetrelli.scafa.proto.aio.BufferContextReader;
 
 public interface HttpClient {
 

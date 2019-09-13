@@ -7,13 +7,14 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
 import com.github.apetrelli.scafa.http.HttpRequest;
-import com.github.apetrelli.scafa.http.client.BufferContext;
-import com.github.apetrelli.scafa.http.client.BufferContextReader;
 import com.github.apetrelli.scafa.http.client.HttpClient;
 import com.github.apetrelli.scafa.http.client.HttpClientConnection;
 import com.github.apetrelli.scafa.http.client.HttpClientHandler;
 import com.github.apetrelli.scafa.http.output.DataSenderFactory;
 import com.github.apetrelli.scafa.http.output.DefaultDataSenderFactory;
+import com.github.apetrelli.scafa.proto.aio.BufferContext;
+import com.github.apetrelli.scafa.proto.aio.BufferContextReader;
+import com.github.apetrelli.scafa.proto.aio.impl.PathBufferContextReader;
 import com.github.apetrelli.scafa.proto.output.DataSender;
 import com.github.apetrelli.scafa.proto.util.IOUtils;
 
