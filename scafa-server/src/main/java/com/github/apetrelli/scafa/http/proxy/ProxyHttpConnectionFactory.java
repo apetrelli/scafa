@@ -19,7 +19,7 @@ package com.github.apetrelli.scafa.http.proxy;
 
 import java.nio.channels.AsynchronousSocketChannel;
 
-import com.github.apetrelli.scafa.http.HostPort;
+import com.github.apetrelli.scafa.proto.client.HostPort;
 
 public interface ProxyHttpConnectionFactory {
 

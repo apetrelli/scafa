@@ -1,27 +1,26 @@
 package com.github.apetrelli.scafa.http.client.impl;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.nio.channels.CompletionHandler;
 
-import com.github.apetrelli.scafa.http.HostPort;
 import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpProcessingContext;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpStatus;
 import com.github.apetrelli.scafa.http.client.HttpClientConnection;
 import com.github.apetrelli.scafa.http.client.HttpClientHandler;
-import com.github.apetrelli.scafa.http.impl.AbstractHttpConnection;
 import com.github.apetrelli.scafa.http.impl.HttpProcessingContextFactory;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
 import com.github.apetrelli.scafa.http.output.DataSenderFactory;
 import com.github.apetrelli.scafa.http.util.HttpUtils;
+import com.github.apetrelli.scafa.proto.client.HostPort;
+import com.github.apetrelli.scafa.proto.client.impl.AbstractClientConnection;
 import com.github.apetrelli.scafa.proto.output.DataSender;
 import com.github.apetrelli.scafa.proto.processor.Processor;
 import com.github.apetrelli.scafa.proto.processor.impl.DefaultProcessor;
 import com.github.apetrelli.scafa.proto.processor.impl.StatefulInputProcessorFactory;
 
-public class DirectHttpConnection extends AbstractHttpConnection implements HttpClientConnection {
+public class DirectHttpConnection extends AbstractClientConnection implements HttpClientConnection {
 
     private ClientPipelineHttpHandler responseHandler;
 
@@ -30,7 +29,7 @@ public class DirectHttpConnection extends AbstractHttpConnection implements Http
     private DataSenderFactory dataSenderFactory;
 
 	public DirectHttpConnection(HostPort socketAddress, MappedHttpConnectionFactory connectionFactory, DataSenderFactory dataSenderFactory) {
-		super(socketAddress);
+		super(socketAddress, null, false); // No binding ATM.
 		this.connectionFactory = connectionFactory;
 		this.dataSenderFactory = dataSenderFactory;
 		responseHandler = new ClientPipelineHttpHandler(this);
@@ -57,11 +56,6 @@ public class DirectHttpConnection extends AbstractHttpConnection implements Http
 		connectionFactory.dispose(socketAddress);
 		super.close();
 	}
-
-	@Override
-    protected void establishConnection(CompletionHandler<Void, Void> handler) {
-        channel.connect(new InetSocketAddress(socketAddress.getHost(), socketAddress.getPort()), null, handler);
-    }
 
 	@Override
     protected void prepareChannel() {

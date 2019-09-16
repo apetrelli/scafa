@@ -28,6 +28,8 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.github.apetrelli.scafa.proto.client.HostPort;
+
 public class HttpRequest extends HeaderHolder {
 
 	private static final Logger LOG = Logger.getLogger(HttpRequest.class.getName());

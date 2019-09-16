@@ -1,10 +1,10 @@
-package com.github.apetrelli.scafa.http;
+package com.github.apetrelli.scafa.proto.client;
 
 import java.io.Closeable;
 import java.nio.ByteBuffer;
 import java.nio.channels.CompletionHandler;
 
-public interface HttpConnection extends Closeable {
+public interface ClientConnection extends Closeable {
 
     void ensureConnected(CompletionHandler<Void, Void> handler);
 

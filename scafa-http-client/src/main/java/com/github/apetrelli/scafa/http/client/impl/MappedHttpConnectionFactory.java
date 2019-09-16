@@ -19,9 +19,9 @@ package com.github.apetrelli.scafa.http.client.impl;
 
 import java.nio.channels.CompletionHandler;
 
-import com.github.apetrelli.scafa.http.HostPort;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.client.HttpClientConnection;
+import com.github.apetrelli.scafa.proto.client.HostPort;
 
 public interface MappedHttpConnectionFactory {
 

@@ -18,21 +18,15 @@
 package com.github.apetrelli.scafa.http.proxy.impl;
 
 import java.io.IOException;
-import java.net.Inet4Address;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
-import java.util.Enumeration;
 
-import com.github.apetrelli.scafa.http.HostPort;
 import com.github.apetrelli.scafa.http.HttpRequest;
-import com.github.apetrelli.scafa.http.impl.AbstractHttpConnection;
 import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.http.util.HttpUtils;
+import com.github.apetrelli.scafa.proto.client.HostPort;
+import com.github.apetrelli.scafa.proto.client.impl.AbstractClientConnection;
 import com.github.apetrelli.scafa.proto.processor.Handler;
 import com.github.apetrelli.scafa.proto.processor.Input;
 import com.github.apetrelli.scafa.proto.processor.Processor;
@@ -40,7 +34,7 @@ import com.github.apetrelli.scafa.proto.processor.impl.DefaultProcessor;
 import com.github.apetrelli.scafa.proto.processor.impl.PassthroughInputProcessorFactory;
 import com.github.apetrelli.scafa.proto.processor.impl.SimpleInputFactory;
 
-public abstract class AbstractProxyHttpConnection extends AbstractHttpConnection implements ProxyHttpConnection {
+public abstract class AbstractProxyHttpConnection extends AbstractClientConnection implements ProxyHttpConnection {
 
     protected static final byte CR = 13;
 
@@ -52,19 +46,13 @@ public abstract class AbstractProxyHttpConnection extends AbstractHttpConnection
 
     protected AsynchronousSocketChannel sourceChannel;
 
-    private String interfaceName;
-
-    private boolean forceIpV4;
-
     private SimpleInputFactory inputFactory = new SimpleInputFactory();
 
     public AbstractProxyHttpConnection(MappedProxyHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
             HostPort socketAddress, String interfaceName, boolean forceIpV4) {
-        super(socketAddress);
+        super(socketAddress, interfaceName, forceIpV4);
         this.factory = factory;
         this.sourceChannel = sourceChannel;
-        this.interfaceName = interfaceName;
-        this.forceIpV4 = forceIpV4;
     }
 
     @Override
@@ -83,8 +71,6 @@ public abstract class AbstractProxyHttpConnection extends AbstractHttpConnection
         // Does nothing.
     }
 
-    protected abstract void establishConnection(CompletionHandler<Void, Void> handler);
-
     protected abstract HttpRequest createForwardedRequest(HttpRequest request) throws IOException;
 
     protected void doSendHeader(HttpRequest request, CompletionHandler<Void, Void> completionHandler) {
@@ -94,30 +80,5 @@ public abstract class AbstractProxyHttpConnection extends AbstractHttpConnection
     protected void prepareChannel() {
         Processor<Handler> processor = new DefaultProcessor<Input, Handler>(channel, new PassthroughInputProcessorFactory(sourceChannel), inputFactory);
         processor.process(new ChannelDisconnectorHandler(factory, sourceChannel, socketAddress));
-    }
-
-    @Override
-    protected void bindChannel() throws IOException {
-        if (interfaceName != null) {
-            NetworkInterface intf = NetworkInterface.getByName(interfaceName);
-            if (!intf.isUp()) {
-                throw new SocketException("The interface " + interfaceName + " is not connected");
-            }
-            Enumeration<InetAddress> addresses = intf.getInetAddresses();
-            if (!addresses.hasMoreElements()) {
-                throw new SocketException("The interface " + interfaceName + " has no addresses");
-            }
-            InetAddress address = null;
-            while (addresses.hasMoreElements() && address == null) {
-                InetAddress currentAddress = addresses.nextElement();
-                if (!forceIpV4 || currentAddress instanceof Inet4Address) {
-                    address = currentAddress;
-                }
-            }
-            if (address == null) {
-                throw new SocketException("Not able to find a feasible address for interface " + interfaceName);
-            }
-            channel.bind(new InetSocketAddress(address, 0));
-        }
     }
 }

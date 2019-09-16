@@ -1,27 +1,39 @@
-package com.github.apetrelli.scafa.http.impl;
+package com.github.apetrelli.scafa.proto.client.impl;
 
 import java.io.IOException;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
+import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.github.apetrelli.scafa.http.HostPort;
-import com.github.apetrelli.scafa.http.HttpConnection;
 import com.github.apetrelli.scafa.proto.aio.DelegateFailureCompletionHandler;
+import com.github.apetrelli.scafa.proto.client.ClientConnection;
+import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.util.AIOUtils;
 
-public abstract class AbstractHttpConnection implements HttpConnection {
+public abstract class AbstractClientConnection implements ClientConnection {
 
-	private static final Logger LOG = Logger.getLogger(AbstractHttpConnection.class.getName());
+	private static final Logger LOG = Logger.getLogger(AbstractClientConnection.class.getName());
 
 	protected AsynchronousSocketChannel channel;
 
 	protected HostPort socketAddress;
 
-    public AbstractHttpConnection(HostPort socketAddress) {
+    private String interfaceName;
+
+    private boolean forceIpV4;
+
+    public AbstractClientConnection(HostPort socketAddress, String interfaceName, boolean forceIpV4) {
 		this.socketAddress = socketAddress;
+		this.interfaceName = interfaceName;
+		this.forceIpV4 = forceIpV4;
 	}
 
 	@Override
@@ -69,10 +81,33 @@ public abstract class AbstractHttpConnection implements HttpConnection {
     }
 
 	protected void bindChannel() throws IOException {
-		// It does nothing here, but it can be overridden.
+        if (interfaceName != null) {
+            NetworkInterface intf = NetworkInterface.getByName(interfaceName);
+            if (!intf.isUp()) {
+                throw new SocketException("The interface " + interfaceName + " is not connected");
+            }
+            Enumeration<InetAddress> addresses = intf.getInetAddresses();
+            if (!addresses.hasMoreElements()) {
+                throw new SocketException("The interface " + interfaceName + " has no addresses");
+            }
+            InetAddress address = null;
+            while (addresses.hasMoreElements() && address == null) {
+                InetAddress currentAddress = addresses.nextElement();
+                if (!forceIpV4 || currentAddress instanceof Inet4Address) {
+                    address = currentAddress;
+                }
+            }
+            if (address == null) {
+                throw new SocketException("Not able to find a feasible address for interface " + interfaceName);
+            }
+            channel.bind(new InetSocketAddress(address, 0));
+        }
 	}
 
-	protected abstract void establishConnection(CompletionHandler<Void, Void> handler);
+    protected void establishConnection(CompletionHandler<Void, Void> handler) {
+        LOG.finest("Trying to connect to " + socketAddress.toString());
+        channel.connect(new InetSocketAddress(socketAddress.getHost(), socketAddress.getPort()), null, handler);
+    }
 
 	protected abstract void prepareChannel();
 

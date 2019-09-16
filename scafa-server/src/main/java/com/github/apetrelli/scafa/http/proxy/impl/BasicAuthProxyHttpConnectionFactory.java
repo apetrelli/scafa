@@ -22,9 +22,9 @@ import java.nio.channels.AsynchronousSocketChannel;
 import org.ini4j.Profile.Section;
 
 import com.github.apetrelli.scafa.config.Configuration;
-import com.github.apetrelli.scafa.http.HostPort;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnectionFactory;
+import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
 import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 
@@ -52,8 +52,8 @@ public class BasicAuthProxyHttpConnectionFactory implements ProxyHttpConnectionF
     @Override
     public ProxyHttpConnection create(MappedProxyHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
             HostPort socketAddress) {
-        return new BasicAuthProxyHttpConnection(factory, sourceChannel, socketAddress, interfaceName,
-                forceIpV4, proxySocketAddress, manipulator, username, password);
+        return new BasicAuthProxyHttpConnection(factory, sourceChannel, proxySocketAddress, interfaceName,
+                forceIpV4, manipulator, username, password);
     }
 
 }

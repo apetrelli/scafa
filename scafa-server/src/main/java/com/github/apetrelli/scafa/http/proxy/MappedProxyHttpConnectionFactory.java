@@ -21,8 +21,8 @@ import java.io.IOException;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 
-import com.github.apetrelli.scafa.http.HostPort;
 import com.github.apetrelli.scafa.http.HttpRequest;
+import com.github.apetrelli.scafa.proto.client.HostPort;
 
 public interface MappedProxyHttpConnectionFactory {
 

@@ -18,19 +18,18 @@
 package com.github.apetrelli.scafa.http.proxy.impl;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.github.apetrelli.scafa.http.HostPort;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
 import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
 import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.http.util.HttpUtils;
+import com.github.apetrelli.scafa.proto.client.HostPort;
 
 public abstract class AbstractUpstreamProxyHttpConnection extends AbstractProxyHttpConnection implements ProxyHttpConnection {
 
@@ -38,19 +37,10 @@ public abstract class AbstractUpstreamProxyHttpConnection extends AbstractProxyH
 
     protected HttpRequestManipulator manipulator;
 
-    private HostPort proxySocketAddress;
-
     public AbstractUpstreamProxyHttpConnection(MappedProxyHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
-            HostPort socketAddress, String interfaceName, boolean forceIpV4, HostPort proxySocketAddress, HttpRequestManipulator manipulator) {
+            HostPort socketAddress, String interfaceName, boolean forceIpV4, HttpRequestManipulator manipulator) {
         super(factory, sourceChannel, socketAddress, interfaceName, forceIpV4);
-        this.proxySocketAddress = proxySocketAddress;
         this.manipulator = manipulator;
-    }
-
-    @Override
-    protected void establishConnection(CompletionHandler<Void, Void> handler) {
-        LOG.finest("Trying to connect to " + socketAddress.toString());
-        channel.connect(new InetSocketAddress(proxySocketAddress.getHost(), proxySocketAddress.getPort()), null, handler);
     }
 
     @Override

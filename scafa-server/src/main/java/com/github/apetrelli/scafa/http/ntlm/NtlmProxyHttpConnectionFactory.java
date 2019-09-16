@@ -22,10 +22,10 @@ import java.nio.channels.AsynchronousSocketChannel;
 import org.ini4j.Profile.Section;
 
 import com.github.apetrelli.scafa.config.Configuration;
-import com.github.apetrelli.scafa.http.HostPort;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnectionFactory;
+import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
 import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 

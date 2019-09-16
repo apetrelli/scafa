@@ -22,7 +22,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 
-import com.github.apetrelli.scafa.http.HostPort;
 import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpProcessingContext;
 import com.github.apetrelli.scafa.http.HttpRequest;
@@ -35,6 +34,7 @@ import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.impl.AbstractUpstreamProxyHttpConnection;
 import com.github.apetrelli.scafa.http.util.HttpUtils;
 import com.github.apetrelli.scafa.proto.aio.DelegateFailureCompletionHandler;
+import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.processor.impl.StatefulInputProcessor;
 
 import jcifs.ntlmssp.NtlmFlags;
@@ -64,7 +64,7 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
     public NtlmProxyHttpConnection(MappedProxyHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
             HostPort calledAddress, String interfaceName, boolean forceIpV4, HostPort proxySocketAddress, String domain, String username, String password,
             HttpStateMachine stateMachine, HttpRequestManipulator manipulator) {
-        super(factory, sourceChannel, calledAddress, interfaceName, forceIpV4, proxySocketAddress, manipulator);
+        super(factory, sourceChannel, proxySocketAddress, interfaceName, forceIpV4, manipulator);
         this.domain = domain;
         this.username = username;
         this.password = password;
