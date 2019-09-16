@@ -36,6 +36,7 @@ import com.github.apetrelli.scafa.http.HttpProcessingContext;
 import com.github.apetrelli.scafa.http.HttpStatus;
 import com.github.apetrelli.scafa.http.impl.HttpProcessingContextFactory;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
+import com.github.apetrelli.scafa.http.proxy.impl.ConfigurationProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.impl.DefaultHttpConnectionFactoryFactory;
 import com.github.apetrelli.scafa.http.proxy.impl.ProxyHttpHandlerFactory;
 import com.github.apetrelli.scafa.proto.aio.ScafaListener;
@@ -114,7 +115,8 @@ public class ScafaLauncher {
             Integer port = configuration.getMainConfiguration().get("port", int.class);
             StatefulInputProcessorFactory<HttpHandler, HttpStatus, HttpProcessingContext> inputProcessorFactory = new StatefulInputProcessorFactory<>(stateMachine);
             HttpProcessingContextFactory processingContextFactory = new HttpProcessingContextFactory();
-            DefaultHttpConnectionFactoryFactory connectionFactoryFactory = new DefaultHttpConnectionFactoryFactory(configuration);
+            DefaultHttpConnectionFactoryFactory connectionFactoryFactory = new DefaultHttpConnectionFactoryFactory(
+                    new ConfigurationProxyHttpConnectionFactory(configuration));
             ProxyHttpHandlerFactory proxyHttpHandlerFactory = new ProxyHttpHandlerFactory(connectionFactoryFactory);
             DefaultProcessorFactory<HttpStatus, HttpProcessingContext, HttpHandler> defaultProcessorFactory = new DefaultProcessorFactory<>(
                     inputProcessorFactory, processingContextFactory);

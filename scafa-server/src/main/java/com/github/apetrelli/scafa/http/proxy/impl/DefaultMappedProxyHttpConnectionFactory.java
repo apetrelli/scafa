@@ -25,11 +25,11 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.github.apetrelli.scafa.config.Configuration;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
 import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
+import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.util.IOUtils;
 
@@ -39,10 +39,10 @@ public class DefaultMappedProxyHttpConnectionFactory implements MappedProxyHttpC
 
     private Map<HostPort, ProxyHttpConnection> connectionCache = new HashMap<>();
 
-    private Configuration configuration;
+    private ProxyHttpConnectionFactory connectionFactory;
 
-    public DefaultMappedProxyHttpConnectionFactory(Configuration configuration) {
-        this.configuration = configuration;
+    public DefaultMappedProxyHttpConnectionFactory(ProxyHttpConnectionFactory connectionFactory) {
+        this.connectionFactory = connectionFactory;
     }
 
     @Override
@@ -81,8 +81,7 @@ public class DefaultMappedProxyHttpConnectionFactory implements MappedProxyHttpC
                 LOG.log(Level.INFO, "Connecting thread {0} to address {1}",
                         new Object[] { Thread.currentThread().getName(), hostPort.toString() });
             }
-            ProxyHttpConnection newConnection = configuration.getHttpConnectionFactoryByHost(hostPort.getHost()).create(this, sourceChannel,
-                    hostPort);
+            ProxyHttpConnection newConnection = connectionFactory.create(this, sourceChannel, hostPort);
             newConnection.ensureConnected(new CompletionHandler<Void, Void>() {
 
                 @Override
