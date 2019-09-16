@@ -63,6 +63,7 @@
     <module>scafa-http</module>
     <module>scafa-http-client</module>
     <module>scafa-http-server</module>
+    <module>scafa-http-gateway</module>
   </modules>
   <build>
     <plugins>
