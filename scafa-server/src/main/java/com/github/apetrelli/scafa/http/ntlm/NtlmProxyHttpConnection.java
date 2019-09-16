@@ -62,9 +62,9 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
     private ByteBuffer readBuffer = ByteBuffer.allocate(16384);
 
     public NtlmProxyHttpConnection(MappedProxyHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
-            HostPort calledAddress, String interfaceName, boolean forceIpV4, HostPort proxySocketAddress, String domain, String username, String password,
+            HostPort proxySocketAddress, HostPort destinationSocketAddress, String interfaceName, boolean forceIpV4, String domain, String username, String password,
             HttpStateMachine stateMachine, HttpRequestManipulator manipulator) {
-        super(factory, sourceChannel, proxySocketAddress, interfaceName, forceIpV4, manipulator);
+        super(factory, sourceChannel, proxySocketAddress, destinationSocketAddress, interfaceName, forceIpV4, manipulator);
         this.domain = domain;
         this.username = username;
         this.password = password;

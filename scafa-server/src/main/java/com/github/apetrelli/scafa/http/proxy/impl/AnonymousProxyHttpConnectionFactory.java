@@ -48,7 +48,7 @@ public class AnonymousProxyHttpConnectionFactory implements ProxyHttpConnectionF
     @Override
     public ProxyHttpConnection create(MappedProxyHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
             HostPort socketAddress) {
-        return new AnonymousProxyHttpConnection(factory, sourceChannel, proxySocketAddress, interfaceName,
+        return new AnonymousProxyHttpConnection(factory, sourceChannel, proxySocketAddress, socketAddress, interfaceName,
                 forceIpV4, manipulator);
     }
 

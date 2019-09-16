@@ -18,7 +18,6 @@
 package com.github.apetrelli.scafa.http.proxy.impl;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
@@ -40,12 +39,7 @@ public class DirectProxyHttpConnection extends AbstractProxyHttpConnection {
 
     public DirectProxyHttpConnection(MappedProxyHttpConnectionFactory factory,
             AsynchronousSocketChannel sourceChannel, HostPort socketAddress, String interfaceName, boolean forceIpV4) {
-        super(factory, sourceChannel, socketAddress, interfaceName, forceIpV4);
-    }
-
-    @Override
-    protected void establishConnection(CompletionHandler<Void, Void> handler) {
-        channel.connect(new InetSocketAddress(socketAddress.getHost(), socketAddress.getPort()), null, handler);
+        super(factory, sourceChannel, socketAddress, socketAddress, interfaceName, forceIpV4);
     }
 
     @Override

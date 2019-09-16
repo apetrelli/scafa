@@ -48,11 +48,14 @@ public abstract class AbstractProxyHttpConnection extends AbstractClientConnecti
 
     private SimpleInputFactory inputFactory = new SimpleInputFactory();
 
+    private HostPort destinationSocketAddress;
+
     public AbstractProxyHttpConnection(MappedProxyHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
-            HostPort socketAddress, String interfaceName, boolean forceIpV4) {
+            HostPort socketAddress, HostPort destinationSocketAddress, String interfaceName, boolean forceIpV4) {
         super(socketAddress, interfaceName, forceIpV4);
         this.factory = factory;
         this.sourceChannel = sourceChannel;
+        this.destinationSocketAddress = destinationSocketAddress;
     }
 
     @Override
@@ -79,6 +82,6 @@ public abstract class AbstractProxyHttpConnection extends AbstractClientConnecti
 
     protected void prepareChannel() {
         Processor<Handler> processor = new DefaultProcessor<Input, Handler>(channel, new PassthroughInputProcessorFactory(sourceChannel), inputFactory);
-        processor.process(new ChannelDisconnectorHandler(factory, sourceChannel, socketAddress));
+        processor.process(new ChannelDisconnectorHandler(factory, sourceChannel, destinationSocketAddress));
     }
 }

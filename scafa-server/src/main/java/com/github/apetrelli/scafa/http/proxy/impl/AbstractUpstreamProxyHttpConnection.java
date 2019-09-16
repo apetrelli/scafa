@@ -38,8 +38,8 @@ public abstract class AbstractUpstreamProxyHttpConnection extends AbstractProxyH
     protected HttpRequestManipulator manipulator;
 
     public AbstractUpstreamProxyHttpConnection(MappedProxyHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
-            HostPort socketAddress, String interfaceName, boolean forceIpV4, HttpRequestManipulator manipulator) {
-        super(factory, sourceChannel, socketAddress, interfaceName, forceIpV4);
+            HostPort socketAddress, HostPort destinationSocketAddress, String interfaceName, boolean forceIpV4, HttpRequestManipulator manipulator) {
+        super(factory, sourceChannel, socketAddress, destinationSocketAddress, interfaceName, forceIpV4);
         this.manipulator = manipulator;
     }
 

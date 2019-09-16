@@ -57,7 +57,7 @@ public class NtlmProxyHttpConnectionFactory implements ProxyHttpConnectionFactor
     @Override
     public ProxyHttpConnection create(MappedProxyHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
             HostPort socketAddress) {
-        return new NtlmProxyHttpConnection(factory, sourceChannel, socketAddress, interfaceName, forceIpV4, proxySocketAddress,
+        return new NtlmProxyHttpConnection(factory, sourceChannel, proxySocketAddress, socketAddress, interfaceName, forceIpV4,
                 domain, username, password, stateMachine, manipulator);
     }
 
