@@ -6,6 +6,7 @@ import java.nio.channels.AsynchronousSocketChannel;
 import com.github.apetrelli.scafa.http.gateway.MappedGatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.processor.Handler;
+import com.github.apetrelli.scafa.proto.util.IOUtils;
 
 public class ChannelDisconnectorHandler implements Handler {
 
@@ -31,7 +32,7 @@ public class ChannelDisconnectorHandler implements Handler {
 	public void onDisconnect() throws IOException {
 		factory.dispose(socketAddress);
 		if (channel.isOpen()) {
-			channel.close();
+			IOUtils.closeQuietly(channel);
 		}
 	}
 

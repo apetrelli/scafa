@@ -32,6 +32,7 @@ import com.github.apetrelli.scafa.proto.processor.InputProcessor;
 import com.github.apetrelli.scafa.proto.processor.InputProcessorFactory;
 import com.github.apetrelli.scafa.proto.processor.ProcessingContextFactory;
 import com.github.apetrelli.scafa.proto.processor.Processor;
+import com.github.apetrelli.scafa.proto.util.IOUtils;
 
 public class DefaultProcessor<P extends Input, H extends Handler> implements Processor<H> {
 
@@ -77,7 +78,7 @@ public class DefaultProcessor<P extends Input, H extends Handler> implements Pro
             try {
             	handler.onDisconnect();
                 if (client.isOpen()) {
-                    client.close();
+                    IOUtils.closeQuietly(client);
                 }
             } catch (IOException e) {
                 LOG.log(Level.SEVERE, "Error when disposing client", e);

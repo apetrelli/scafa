@@ -17,7 +17,7 @@ public class IOUtils {
 			try {
 				closeable.close();
 			} catch (IOException e) {
-				LOG.log(Level.WARNING, "Error during closing", e);
+				LOG.log(Level.FINEST, "Error during closing", e);
 			}
 		}
 
