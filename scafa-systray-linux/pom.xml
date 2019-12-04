@@ -59,9 +59,9 @@
       <build>
         <plugins>
           <plugin>
-            <groupId>com.oracle.substratevm</groupId>
+            <groupId>org.graalvm.nativeimage</groupId>
             <artifactId>native-image-maven-plugin</artifactId>
-            <version>19.1.0</version>
+            <version>19.3.0</version>
             <executions>
               <execution>
                 <goals>
@@ -73,8 +73,10 @@
                     --verbose
                     --no-server
                     -H:EnableURLProtocols=http
-                    --initialize-at-build-time=org.eclipse.swt.internal.C,org.eclipse.swt.internal.Lock,org.eclipse.swt.internal.Library,org.eclipse.swt.internal.gtk.GTK,org.eclipse.swt.internal.gtk.GDK,org.eclipse.swt.widgets.Display,org.eclipse.swt.internal.Converter,org.eclipse.swt.internal.DPIUtil
+                    -H:+TraceClassInitialization
+                    --initialize-at-build-time=org.eclipse.swt.internal.DPIUtil
                   </buildArgs>
+                  <!--                     initialize-at-build-time=org.eclipse.swt.internal.C,org.eclipse.swt.internal.Lock,org.eclipse.swt.internal.Library,org.eclipse.swt.internal.gtk.GTK,org.eclipse.swt.internal.gtk.GDK,org.eclipse.swt.widgets.Display,org.eclipse.swt.internal.Converter,org.eclipse.swt.internal.DPIUtil,org.eclipse.swt.widgets.Display$$Lambda$94/0x00000008409a8040                   -->
                   <imageName>scafa</imageName>
                 </configuration>
               </execution>
