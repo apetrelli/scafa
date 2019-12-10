@@ -20,6 +20,27 @@
   <artifactId>scafa-systray</artifactId>
   <name>Scafa - SysTray management</name>
   <description>Management of profiles of Scafa inside SysTray.</description>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>2.6</version>
+        <configuration>
+          <archive>
+            <manifest>
+              <addClasspath>true</addClasspath>
+              <classpathPrefix>lib/</classpathPrefix>
+              <mainClass>com.github.apetrelli.scafa.systray.ScafaSystrayMain</mainClass>
+            </manifest>
+            <manifestEntries>
+              <Class-Path>ext/</Class-Path>
+            </manifestEntries>
+          </archive>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
   <dependencies>
     <dependency>
       <groupId>com.github.apetrelli.scafa</groupId>

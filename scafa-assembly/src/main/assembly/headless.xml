@@ -21,7 +21,7 @@
   xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
-  <id>bin</id>
+  <id>headless</id>
   <formats>
     <format>zip</format>
     <format>dir</format>
@@ -31,16 +31,16 @@
       <directory>src/etc/sh</directory>
       <outputDirectory>/</outputDirectory>
       <includes>
-        <include>**/*.sh</include>
+        <include>scafa.sh</include>
       </includes>
       <fileMode>0755</fileMode>
     </fileSet>
     <fileSet>
       <directory>src/etc/sh</directory>
       <outputDirectory>/</outputDirectory>
-      <excludes>
-        <exclude>**/*.sh</exclude>
-      </excludes>
+      <includes>
+        <include>scafa.bat</include>
+      </includes>
     </fileSet>
     <fileSet>
       <directory>src/etc/ext</directory>
@@ -62,14 +62,16 @@
       <outputFileNameMapping>${artifact.artifactId}.${artifact.extension}</outputFileNameMapping>
       <includes>
         <include>com.github.apetrelli.scafa:scafa-headless</include>
-        <include>com.github.apetrelli.scafa:scafa-systray</include>
       </includes>
     </dependencySet>
     <dependencySet>
       <outputDirectory>lib</outputDirectory>
       <excludes>
         <exclude>com.github.apetrelli.scafa:scafa-headless</exclude>
-        <exclude>com.github.apetrelli.scafa:scafa-systray</exclude>
+        <exclude>com.github.apetrelli.scafa:scafa-systray-linux</exclude>
+        <exclude>com.github.apetrelli.scafa:scafa-systray-windows</exclude>
+        <exclude>org.eclipse.platform:org.eclipse.swt.gtk.linux.x86_64</exclude>
+        <exclude>org.eclipse.platform:org.eclipse.swt.win32.win32.x86_64</exclude>
       </excludes>
     </dependencySet>
   </dependencySets>

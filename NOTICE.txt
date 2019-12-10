@@ -18,13 +18,10 @@
 
 Scafa: A universal non-caching proxy for the road warrior.
 
-Copyright (C) 2015 - Antonio Petrelli
-
-This software contains a modified library by SwingHelper:
-https://swinghelper.java.net/
-It was originally licensed as LGPL and the derived library is LGPL too.
+Copyright (C) 2015-2019 - Antonio Petrelli
 
 This software contains binary versions of the following libraries:
+SWT (EPL): https://www.eclipse.org/swt/
 jCIFS (LGPL): http://jcifs.samba.org
 ini4j (Apache License 2.0): http://ini4j.sourceforge.net/
 Apache Commons IO (Apache License 2.0): https://commons.apache.org/proper/commons-io/

@@ -100,7 +100,7 @@
           </excludes>
           <properties>
             <owner>Antonio Petrelli</owner>
-            <years>2015</years>
+            <years>2015-2019</years>
           </properties>
         </configuration>
       </plugin>

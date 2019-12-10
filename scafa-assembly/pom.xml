@@ -54,23 +54,6 @@
         <version>2.4.1</version>
         <executions>
           <execution>
-            <id>make-assembly-dir</id>
-            <phase>process-resources</phase>
-            <goals>
-              <goal>single</goal>
-            </goals>
-            <configuration>
-              <descriptors>
-                <descriptor>src/main/assembly/bin.xml</descriptor>
-              </descriptors>
-              <attach>false</attach>
-              <outputDirectory>${project.build.directory}/staging</outputDirectory>
-              <formats>
-                <format>dir</format>
-              </formats>
-            </configuration>
-          </execution>
-          <execution>
             <id>make-assembly</id>
             <phase>package</phase>
             <goals>
@@ -78,7 +61,9 @@
             </goals>
             <configuration>
               <descriptors>
-                <descriptor>src/main/assembly/bin.xml</descriptor>
+                <descriptor>src/main/assembly/headless.xml</descriptor>
+                <descriptor>src/main/assembly/linux.xml</descriptor>
+                <descriptor>src/main/assembly/windows.xml</descriptor>
               </descriptors>
               <formats>
                 <format>zip</format>
@@ -100,30 +85,6 @@
           </execution>
         </executions>
       </plugin>
-      <plugin>
-        <groupId>org.codehaus.izpack</groupId>
-        <artifactId>izpack-maven-plugin</artifactId>
-        <version>5.0.0-rc5</version>
-        <extensions>true</extensions>
-        <executions>
-          <execution>
-            <id>izpack</id>
-            <goals>
-              <goal>izpack</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <baseDir>${staging.dir}</baseDir>
-          <installFile>${izpack.dir.app}/install.xml</installFile>
-          <outputDirectory>${project.build.directory}</outputDirectory>
-          <finalName>${project.build.finalName}</finalName>
-          <enableOverrideArtifact>true</enableOverrideArtifact>
-          <mkdirs>true</mkdirs>
-          <autoIncludeUrl>false</autoIncludeUrl>
-          <autoIncludeDevelopers>false</autoIncludeDevelopers>
-        </configuration>
-      </plugin>
     </plugins>
   </build>
   <dependencies>
@@ -134,7 +95,12 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>scafa-systray</artifactId>
+      <artifactId>scafa-systray-linux</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>scafa-systray-windows</artifactId>
       <version>${project.version}</version>
     </dependency>
   </dependencies>
