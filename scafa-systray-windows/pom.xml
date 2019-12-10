@@ -35,7 +35,7 @@
             <manifest>
               <addClasspath>true</addClasspath>
               <classpathPrefix>lib/</classpathPrefix>
-              <mainClass>com.github.apetrelli.scafa.systray.ScafaSystrayMain</mainClass>
+              <mainClass>com.github.apetrelli.scafa.systray.windows.ScafaSystrayMain</mainClass>
             </manifest>
             <manifestEntries>
               <Class-Path>ext/</Class-Path>

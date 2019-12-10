@@ -37,7 +37,7 @@
             <manifest>
               <addClasspath>true</addClasspath>
               <classpathPrefix>lib/</classpathPrefix>
-              <mainClass>com.github.apetrelli.scafa.systray.ScafaSystrayMain</mainClass>
+              <mainClass>com.github.apetrelli.scafa.systray.linux.ScafaSystrayMain</mainClass>
             </manifest>
             <manifestEntries>
               <Class-Path>ext/</Class-Path>
@@ -74,9 +74,9 @@
                     --no-server
                     -H:EnableURLProtocols=http
                     -H:+TraceClassInitialization
+                    -H:+AllowVMInspection
                     --initialize-at-build-time=org.eclipse.swt.internal.DPIUtil
                   </buildArgs>
-                  <!--                     initialize-at-build-time=org.eclipse.swt.internal.C,org.eclipse.swt.internal.Lock,org.eclipse.swt.internal.Library,org.eclipse.swt.internal.gtk.GTK,org.eclipse.swt.internal.gtk.GDK,org.eclipse.swt.widgets.Display,org.eclipse.swt.internal.Converter,org.eclipse.swt.internal.DPIUtil,org.eclipse.swt.widgets.Display$$Lambda$94/0x00000008409a8040                   -->
                   <imageName>scafa</imageName>
                 </configuration>
               </execution>

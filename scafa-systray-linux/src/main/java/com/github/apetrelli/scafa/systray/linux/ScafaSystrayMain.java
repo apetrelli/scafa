@@ -15,9 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.apetrelli.scafa.systray;
+package com.github.apetrelli.scafa.systray.linux;
 
 import org.eclipse.swt.internal.Library;
+
+import com.github.apetrelli.scafa.systray.ScafaSystrayLauncher;
 
 public class ScafaSystrayMain {
 

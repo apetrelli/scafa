@@ -19,6 +19,7 @@ package com.github.apetrelli.scafa.config;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -157,8 +158,8 @@ public class Configuration {
         if (className != null) {
             try {
                 Class<? extends HttpRequestManipulator> clazz = Class.forName(className).asSubclass(HttpRequestManipulator.class);
-                manipulator = clazz.newInstance();
-            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+                manipulator = clazz.getConstructor().newInstance();
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
                 LOG.log(Level.SEVERE, "Cannot instantiate manipulator: " + className, e);
             }
         }
