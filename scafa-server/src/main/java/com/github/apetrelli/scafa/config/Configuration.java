@@ -83,6 +83,18 @@ public class Configuration {
         this.ini = ini;
         sectionName2factory = new LinkedHashMap<>();
         ini.keySet().stream().filter(t -> !"main".equals(t)).map(t -> ini.get(t)).forEach(t -> {
+            List<String> excludeRegexp = t.getAll("excludeRegexp");
+            if (excludeRegexp == null || excludeRegexp.isEmpty()) {
+                List<String> exclude = t.getAll("exclude");
+                if (exclude == null || exclude.isEmpty()) {
+                    t.put("excludeRegexp", "doesnotmatchathing");
+                    excludeRegexp = t.getAll("excludeRegexp");
+                } else {
+                    excludeRegexp = exclude.stream().map(u -> createRegexpFromWildcard(u))
+                            .collect(Collectors.toList());
+                    t.putAll("excludeRegexp", excludeRegexp);
+                }
+            }
             switch (t.get("type")) {
             case "ntlm":
                 sectionName2factory.put(t.getName(),
@@ -120,18 +132,6 @@ public class Configuration {
             section = ini.get(keyIt.next());
             if (!"main".equals(section.getName())) {
                 List<String> excludeRegexp = section.getAll("excludeRegexp");
-                if (excludeRegexp == null || excludeRegexp.isEmpty()) {
-                    List<String> exclude = section.getAll("exclude");
-                    if (exclude == null || exclude.isEmpty()) {
-                        // Just to avoid useless re-execution
-                        section.put("excludeRegexp", "doesnotmatchathing");
-                        excludeRegexp = section.getAll("excludeRegexp");
-                    } else {
-                        excludeRegexp = exclude.stream().map(t -> createRegexpFromWildcard(t))
-                                .collect(Collectors.toList());
-                        section.putAll("excludeRegexp", excludeRegexp);
-                    }
-                }
                 boolean excluded = excludeRegexp.stream().anyMatch(t -> host.matches(t));
                 found = !excluded;
             }
@@ -162,7 +162,7 @@ public class Configuration {
         return b.toString();
     }
 
-    public static HttpRequestManipulator createManipulator(Section section) {
+    private static HttpRequestManipulator createManipulator(Section section) {
         String className = section.get("manipulator");
         HttpRequestManipulator manipulator = null;
         if (className != null) {
@@ -176,7 +176,7 @@ public class Configuration {
         return manipulator;
     }
 
-    public static HostPort createProxySocketAddress(Section section) {
+    private static HostPort createProxySocketAddress(Section section) {
         String host = section.get("host");
         int port = section.get("port", int.class);
         HostPort proxySocketAddress = new HostPort(host, port);
