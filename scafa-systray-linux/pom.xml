@@ -98,6 +98,7 @@
        						<copy toDir="${project.build.directory}/deb" verbose="true">
        							<fileset dir="${project.basedir}/src/main/deb" />
        						</copy>
+       						<copy file="${project.basedir}/../scafa-systray/src/main/resources/scafa.png" toDir="${project.build.directory}/deb/usr/share/icons/hicolor/scalable/apps" />
           				</target>
           			</configuration>
           		</execution>

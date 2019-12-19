@@ -7,3 +7,4 @@ Type=Application
 StartupWMClass=scafa
 MimeType=application/sip;
 Categories=Network;
+Icon=scafa
