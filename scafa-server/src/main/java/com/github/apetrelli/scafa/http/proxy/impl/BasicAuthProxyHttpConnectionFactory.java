@@ -19,14 +19,11 @@ package com.github.apetrelli.scafa.http.proxy.impl;
 
 import java.nio.channels.AsynchronousSocketChannel;
 
-import org.ini4j.Profile.Section;
-
-import com.github.apetrelli.scafa.config.Configuration;
+import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
+import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
-import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
-import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 
 public class BasicAuthProxyHttpConnectionFactory implements ProxyHttpConnectionFactory {
 
@@ -40,13 +37,14 @@ public class BasicAuthProxyHttpConnectionFactory implements ProxyHttpConnectionF
 
     private HttpRequestManipulator manipulator;
 
-    public BasicAuthProxyHttpConnectionFactory(Section section) {
-        this.proxySocketAddress = Configuration.createProxySocketAddress(section);
-        this.interfaceName = section.get("interface");
-        this.forceIpV4 = section.get("forceIPV4", boolean.class, false);
-        this.username = section.get("username");
-        this.password = section.get("password");
-        manipulator = Configuration.createManipulator(section);
+    public BasicAuthProxyHttpConnectionFactory(HostPort proxySocketAddress, String interfaceName, boolean forceIpV4,
+            String username, String password, HttpRequestManipulator manipulator) {
+        this.proxySocketAddress = proxySocketAddress;
+        this.interfaceName = interfaceName;
+        this.forceIpV4 = forceIpV4;
+        this.username = username;
+        this.password = password;
+        this.manipulator = manipulator;
     }
 
     @Override

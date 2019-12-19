@@ -85,16 +85,26 @@ public class Configuration {
         ini.keySet().stream().filter(t -> !"main".equals(t)).map(t -> ini.get(t)).forEach(t -> {
             switch (t.get("type")) {
             case "ntlm":
-                sectionName2factory.put(t.getName(), new NtlmProxyHttpConnectionFactory(t, stateMachine));
+                sectionName2factory.put(t.getName(),
+                        new NtlmProxyHttpConnectionFactory(createProxySocketAddress(t), t.get("interface"),
+                                t.get("forceIPV4", boolean.class, false), t.get("domain"), t.get("username"),
+                                t.get("password"), createManipulator(t), stateMachine));
                 break;
             case "anon":
-                sectionName2factory.put(t.getName(), new AnonymousProxyHttpConnectionFactory(t));
+                sectionName2factory.put(t.getName(),
+                        new AnonymousProxyHttpConnectionFactory(createProxySocketAddress(t), t.get("interface"),
+                                t.get("forceIPV4", boolean.class, false), createManipulator(t)));
                 break;
             case "basic":
-                sectionName2factory.put(t.getName(), new BasicAuthProxyHttpConnectionFactory(t));
+                sectionName2factory.put(t.getName(),
+                        new BasicAuthProxyHttpConnectionFactory(createProxySocketAddress(t), t.get("interface"),
+                                t.get("forceIPV4", boolean.class, false), t.get("username"), t.get("password"),
+                                createManipulator(t)));
                 break;
             default:
-                sectionName2factory.put(t.getName(), new DirectHttpConnectionFactory(t));            }
+                sectionName2factory.put(t.getName(),
+                        new DirectHttpConnectionFactory(t.get("interface"), t.get("forceIPV4", boolean.class, false)));
+            }
         });
     }
 

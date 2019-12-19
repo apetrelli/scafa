@@ -19,12 +19,10 @@ package com.github.apetrelli.scafa.http.proxy.impl;
 
 import java.nio.channels.AsynchronousSocketChannel;
 
-import org.ini4j.Profile.Section;
-
+import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
-import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 
 public class DirectHttpConnectionFactory implements ProxyHttpConnectionFactory {
 
@@ -34,10 +32,10 @@ public class DirectHttpConnectionFactory implements ProxyHttpConnectionFactory {
 
     public DirectHttpConnectionFactory() {
     }
-
-    public DirectHttpConnectionFactory(Section section) {
-        this.interfaceName = section.get("interface");
-        this.forceIpV4 = section.get("forceIPV4", boolean.class, false);
+    
+    public DirectHttpConnectionFactory(String interfaceName, boolean forceIpV4) {
+        this.interfaceName = interfaceName;
+        this.forceIpV4 = forceIpV4;
     }
 
     @Override

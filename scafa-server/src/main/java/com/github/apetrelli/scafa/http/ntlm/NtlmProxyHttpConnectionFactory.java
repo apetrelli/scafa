@@ -19,21 +19,14 @@ package com.github.apetrelli.scafa.http.ntlm;
 
 import java.nio.channels.AsynchronousSocketChannel;
 
-import org.ini4j.Profile.Section;
-
-import com.github.apetrelli.scafa.config.Configuration;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
+import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
+import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
-import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
-import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 
 public class NtlmProxyHttpConnectionFactory implements ProxyHttpConnectionFactory {
-
-    private String domain, username, password;
-
-    private HttpRequestManipulator manipulator;
 
     private HostPort proxySocketAddress;
 
@@ -41,16 +34,22 @@ public class NtlmProxyHttpConnectionFactory implements ProxyHttpConnectionFactor
 
     private boolean forceIpV4;
 
+    private String domain, username, password;
+
+    private HttpRequestManipulator manipulator;
+
     private HttpStateMachine stateMachine;
 
-    public NtlmProxyHttpConnectionFactory(Section section, HttpStateMachine stateMachine) {
-        this.proxySocketAddress = Configuration.createProxySocketAddress(section);
-        this.interfaceName = section.get("interface");
-        this.forceIpV4 = section.get("forceIPV4", boolean.class, false);
-        this.domain = section.get("domain");
-        this.username = section.get("username");
-        this.password = section.get("password");
-        manipulator = Configuration.createManipulator(section);
+    public NtlmProxyHttpConnectionFactory(HostPort proxySocketAddress, String interfaceName, boolean forceIpV4,
+            String domain, String username, String password, HttpRequestManipulator manipulator,
+            HttpStateMachine stateMachine) {
+        this.proxySocketAddress = proxySocketAddress;
+        this.interfaceName = interfaceName;
+        this.forceIpV4 = forceIpV4;
+        this.domain = domain;
+        this.username = username;
+        this.password = password;
+        this.manipulator = manipulator;
         this.stateMachine = stateMachine;
     }
 
