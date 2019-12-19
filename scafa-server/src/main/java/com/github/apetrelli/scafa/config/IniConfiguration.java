@@ -43,9 +43,9 @@ import com.github.apetrelli.scafa.http.proxy.impl.BasicAuthProxyHttpConnectionFa
 import com.github.apetrelli.scafa.http.proxy.impl.DirectHttpConnectionFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 
-public class Configuration {
+public class IniConfiguration {
 
-    private static final Logger LOG = Logger.getLogger(Configuration.class.getName());
+    private static final Logger LOG = Logger.getLogger(IniConfiguration.class.getName());
 
     private Ini ini;
 
@@ -67,19 +67,19 @@ public class Configuration {
         getFile(profile).delete();
     }
 
-    public static Configuration create(String profile, HttpStateMachine stateMachine) throws InvalidFileFormatException, IOException {
+    public static IniConfiguration create(String profile, HttpStateMachine stateMachine) throws InvalidFileFormatException, IOException {
         if (profile == null) {
             profile = "direct";
         }
         Ini ini = loadIni(profile);
-        return new Configuration(ini, stateMachine);
+        return new IniConfiguration(ini, stateMachine);
     }
 
     private static File getFile(String profile) {
         return new File(System.getProperty("user.home") + "/.scafa/" + profile + ".ini");
     }
 
-    private Configuration(Ini ini, HttpStateMachine stateMachine) {
+    private IniConfiguration(Ini ini, HttpStateMachine stateMachine) {
         this.ini = ini;
         sectionName2factory = new LinkedHashMap<>();
         ini.keySet().stream().filter(t -> !"main".equals(t)).map(t -> ini.get(t)).forEach(t -> {

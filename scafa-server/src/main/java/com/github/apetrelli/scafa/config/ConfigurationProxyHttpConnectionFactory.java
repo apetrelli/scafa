@@ -9,9 +9,9 @@ import com.github.apetrelli.scafa.proto.client.HostPort;
 
 public class ConfigurationProxyHttpConnectionFactory implements ProxyHttpConnectionFactory {
 
-    private Configuration configuration;
+    private IniConfiguration configuration;
 
-    public ConfigurationProxyHttpConnectionFactory(Configuration configuration) {
+    public ConfigurationProxyHttpConnectionFactory(IniConfiguration configuration) {
         this.configuration = configuration;
     }
 

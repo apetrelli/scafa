@@ -23,7 +23,7 @@ import org.eclipse.wb.swt.SWTResourceManager;
 import org.ini4j.Ini;
 import org.ini4j.Profile.Section;
 
-import com.github.apetrelli.scafa.config.Configuration;
+import com.github.apetrelli.scafa.config.IniConfiguration;
 
 public class ConfigurationWindow {
 
@@ -91,7 +91,7 @@ public class ConfigurationWindow {
 
 	public void setConfiguration(String profile) {
 		try {
-			this.ini = Configuration.loadIni(profile);
+			this.ini = IniConfiguration.loadIni(profile);
 		} catch (IOException e) {
 			LOG.log(Level.WARNING, "Cannot load file for profile " + profile);
 			this.ini = new Ini();
@@ -179,7 +179,7 @@ public class ConfigurationWindow {
 				}
 				mainSection.put("port", serverPortNumber.getText());
 				try {
-					Configuration.saveIni(ini, profile);
+					IniConfiguration.saveIni(ini, profile);
 				} catch (IOException e1) {
 					LOG.log(Level.SEVERE, "Cannot save ini file", e1);
 				}
