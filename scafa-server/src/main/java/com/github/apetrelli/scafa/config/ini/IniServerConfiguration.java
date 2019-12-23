@@ -13,12 +13,12 @@ import org.ini4j.Profile.Section;
 
 import com.github.apetrelli.scafa.config.ServerConfiguration;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
-import com.github.apetrelli.scafa.http.ntlm.NtlmProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.impl.AnonymousProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.impl.BasicAuthProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.impl.DirectHttpConnectionFactory;
+import com.github.apetrelli.scafa.http.proxy.ntlm.NtlmProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 
 public class IniServerConfiguration implements ServerConfiguration {
