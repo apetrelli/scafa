@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 import org.ini4j.Profile.Section;
 
 import com.github.apetrelli.scafa.config.ServerConfiguration;
-import com.github.apetrelli.scafa.config.ServerType;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
 import com.github.apetrelli.scafa.http.ntlm.NtlmProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
@@ -25,37 +24,28 @@ import com.github.apetrelli.scafa.proto.client.HostPort;
 public class IniServerConfiguration implements ServerConfiguration {
     private static final Logger LOG = Logger.getLogger(IniServerConfiguration.class.getName());
 
-    private Section section;
-
     private ProxyHttpConnectionFactory connectionFactory;
-    
-    private ServerType type;
 
     private List<String> excludes;
 
     public IniServerConfiguration(Section section, HttpStateMachine stateMachine) {
-        this.section = section;
         String type = section.get("type");
         switch (type) {
         case "ntlm":
-            this.type = ServerType.NTLM;
             connectionFactory = new NtlmProxyHttpConnectionFactory(createProxySocketAddress(section), section.get("interface"),
                     section.get("forceIPV4", boolean.class, false), section.get("domain"), section.get("username"),
                     section.get("password"), createManipulator(section), stateMachine);
             break;
         case "anon":
-            this.type = ServerType.ANON;
             connectionFactory = new AnonymousProxyHttpConnectionFactory(createProxySocketAddress(section), section.get("interface"),
                     section.get("forceIPV4", boolean.class, false), createManipulator(section));
             break;
         case "basic":
-            this.type = ServerType.BASIC;
             connectionFactory = new BasicAuthProxyHttpConnectionFactory(createProxySocketAddress(section), section.get("interface"),
                     section.get("forceIPV4", boolean.class, false), section.get("username"), section.get("password"),
                     createManipulator(section));
             break;
         default:
-            this.type = ServerType.DIRECT;
             connectionFactory = new DirectHttpConnectionFactory(section.get("interface"), section.get("forceIPV4", boolean.class, false));
             break;
         }
@@ -65,56 +55,6 @@ public class IniServerConfiguration implements ServerConfiguration {
         } else {
             excludes = exclude.stream().map(u -> createRegexpFromWildcard(u)).collect(Collectors.toList());
         }
-    }
-
-    @Override
-    public String getName() {
-        return section.getName();
-    }
-
-    @Override
-    public ServerType getType() {
-        return type;
-    }
-
-    @Override
-    public String getInterfaceName() {
-        return section.get("interface");
-    }
-
-    @Override
-    public boolean isForceIPV4() {
-        return section.get("forceIPV4", boolean.class, false);
-    }
-
-    @Override
-    public String getHost() {
-        return section.get("host");
-    }
-
-    @Override
-    public int getPort() {
-        return section.get("port", int.class);
-    }
-
-    @Override
-    public String getDomain() {
-        return section.get("domain");
-    }
-
-    @Override
-    public String getUsername() {
-        return section.get("username");
-    }
-
-    @Override
-    public String getPassword() {
-        return section.get("password");
-    }
-
-    @Override
-    public String getManipulatorClassName() {
-        return section.get("manipulator");
     }
 
     @Override
