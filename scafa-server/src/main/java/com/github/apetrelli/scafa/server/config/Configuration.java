@@ -1,4 +1,4 @@
-package com.github.apetrelli.scafa.config;
+package com.github.apetrelli.scafa.server.config;
 
 import java.util.List;
 

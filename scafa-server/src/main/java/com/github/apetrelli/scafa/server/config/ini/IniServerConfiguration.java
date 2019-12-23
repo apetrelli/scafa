@@ -1,4 +1,4 @@
-package com.github.apetrelli.scafa.config.ini;
+package com.github.apetrelli.scafa.server.config.ini;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 
 import org.ini4j.Profile.Section;
 
-import com.github.apetrelli.scafa.config.ServerConfiguration;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
 import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnectionFactory;
@@ -20,6 +19,7 @@ import com.github.apetrelli.scafa.http.proxy.impl.BasicAuthProxyHttpConnectionFa
 import com.github.apetrelli.scafa.http.proxy.impl.DirectHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.ntlm.NtlmProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
+import com.github.apetrelli.scafa.server.config.ServerConfiguration;
 
 public class IniServerConfiguration implements ServerConfiguration {
     private static final Logger LOG = Logger.getLogger(IniServerConfiguration.class.getName());

@@ -1,9 +1,7 @@
-package com.github.apetrelli.scafa.impl;
+package com.github.apetrelli.scafa.server.config;
 
 import java.nio.channels.AsynchronousSocketChannel;
 
-import com.github.apetrelli.scafa.config.ServerConfiguration;
-import com.github.apetrelli.scafa.config.ini.IniConfiguration;
 import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnectionFactory;
@@ -12,11 +10,11 @@ import com.github.apetrelli.scafa.proto.client.HostPort;
 
 public class ConfigurationProxyHttpConnectionFactory implements ProxyHttpConnectionFactory {
 
-    private IniConfiguration configuration;
+    private Configuration configuration;
 
     private ProxyHttpConnectionFactory directHttpConnectionFactory = new DirectHttpConnectionFactory();
 
-    public ConfigurationProxyHttpConnectionFactory(IniConfiguration configuration) {
+    public ConfigurationProxyHttpConnectionFactory(Configuration configuration) {
         this.configuration = configuration;
     }
 

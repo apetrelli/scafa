@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.apetrelli.scafa.config.ini;
+package com.github.apetrelli.scafa.server.config.ini;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -25,10 +25,10 @@ import java.util.stream.Collectors;
 import org.ini4j.Ini;
 import org.ini4j.InvalidFileFormatException;
 
-import com.github.apetrelli.scafa.ConfigurationUtils;
-import com.github.apetrelli.scafa.config.Configuration;
-import com.github.apetrelli.scafa.config.ServerConfiguration;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
+import com.github.apetrelli.scafa.server.ConfigurationUtils;
+import com.github.apetrelli.scafa.server.config.Configuration;
+import com.github.apetrelli.scafa.server.config.ServerConfiguration;
 
 public class IniConfiguration implements Configuration {
 

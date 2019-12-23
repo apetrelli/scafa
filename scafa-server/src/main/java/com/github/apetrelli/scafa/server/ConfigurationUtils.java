@@ -1,4 +1,4 @@
-package com.github.apetrelli.scafa;
+package com.github.apetrelli.scafa.server;
 
 import java.io.File;
 import java.io.IOException;
