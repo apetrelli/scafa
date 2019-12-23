@@ -5,5 +5,4 @@ module com.github.apetrelli.scafa.server {
     requires transitive ini4j;
     requires jcifs;
     exports com.github.apetrelli.scafa;
-    exports com.github.apetrelli.scafa.config;
 }

@@ -18,8 +18,8 @@ import org.eclipse.swt.widgets.Tray;
 import org.eclipse.swt.widgets.TrayItem;
 import org.eclipse.wb.swt.SWTResourceManager;
 
+import com.github.apetrelli.scafa.ConfigurationUtils;
 import com.github.apetrelli.scafa.ScafaLauncher;
-import com.github.apetrelli.scafa.config.IniConfiguration;
 import com.github.apetrelli.scafa.systray.edit.ConfigurationWindow;
 import com.github.apetrelli.scafa.systray.edit.PromptWindow;
 
@@ -177,7 +177,7 @@ public class ScafaSystrayLauncher {
 
 		        @Override
 		        public void handleEvent(Event event) {
-		        	IniConfiguration.delete(profile);
+		        	ConfigurationUtils.delete(profile);
 		        	reload();
 		        }
 		    });
