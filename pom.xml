@@ -65,6 +65,7 @@
     <module>scafa-http-server</module>
     <module>scafa-http-gateway</module>
     <module>scafa-http-proxy</module>
+    <module>scafa-tls</module>
   </modules>
   <build>
     <plugins>
