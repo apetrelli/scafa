@@ -17,7 +17,7 @@
     <dependency>
       <groupId>org.eclipse.platform</groupId>
       <artifactId>org.eclipse.swt.gtk.linux.x86_64</artifactId>
-      <version>3.109.0</version>
+      <version>3.113.0</version>
       <exclusions>
         <exclusion>
           <groupId>org.eclipse.platform</groupId>
@@ -61,7 +61,7 @@
           <plugin>
             <groupId>org.graalvm.nativeimage</groupId>
             <artifactId>native-image-maven-plugin</artifactId>
-            <version>19.3.0</version>
+            <version>19.3.0.2</version>
             <executions>
               <execution>
                 <goals>

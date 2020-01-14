@@ -99,21 +99,6 @@
   ]
 },
 {
-  "name":"org.eclipse.swt.internal.gtk.GdkEventScroll",
-  "fields":[
-    {"name":"device"}, 
-    {"name":"direction"}, 
-    {"name":"send_event"}, 
-    {"name":"state"}, 
-    {"name":"time"}, 
-    {"name":"window"}, 
-    {"name":"x"}, 
-    {"name":"x_root"}, 
-    {"name":"y"}, 
-    {"name":"y_root"}
-  ]
-},
-{
   "name":"org.eclipse.swt.internal.gtk.GdkEventWindowState",
   "fields":[
     {"name":"changed_mask"}, 
@@ -197,12 +182,14 @@
     {"name":"allChildrenProc","parameterTypes":["long","long"] }, 
     {"name":"caretProc","parameterTypes":["long"] }, 
     {"name":"cellDataProc","parameterTypes":["long","long","long","long","long"] }, 
+    {"name":"changeValue","parameterTypes":["long","int","double","long"] }, 
     {"name":"checkIfEventProc","parameterTypes":["long","long","long"] }, 
     {"name":"emissionProc","parameterTypes":["long","long","long","long"] }, 
     {"name":"eventProc","parameterTypes":["long","long"] }, 
     {"name":"idleProc","parameterTypes":["long"] }, 
     {"name":"keysChangedProc","parameterTypes":["long","long"] }, 
     {"name":"mouseHoverProc","parameterTypes":["long"] }, 
+    {"name":"notifyProc","parameterTypes":["long","long","long"] }, 
     {"name":"rendererClassInitProc","parameterTypes":["long","long"] }, 
     {"name":"rendererGetPreferredWidthProc","parameterTypes":["long","long","long","long"] }, 
     {"name":"rendererRenderProc","parameterTypes":["long","long","long","long","long","long"] }, 

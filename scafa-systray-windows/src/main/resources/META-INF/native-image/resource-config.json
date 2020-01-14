@@ -1,11 +1,12 @@
 {
   "resources":[
-    {"pattern":"org/eclipse/swt/internal/gtk/swt_functional_gtk_320.css"},
-    {"pattern":"org/eclipse/swt/internal/gtk/swt_theming_fixes_gtk_320.css"},
-    {"pattern":"config/direct.ini"},
-    {"pattern":"config/work.ini"},
-    {"pattern":"config/logging.properties"},
-    {"pattern":"errorpages/generic-502.html"},
+    {"pattern":"libswt-atk-gtk-4930r7.so"}, 
+    {"pattern":"libswt-cairo-gtk-4930r7.so"}, 
+    {"pattern":"libswt-gtk-4930r7.so"}, 
+    {"pattern":"libswt-pi3-gtk-4930r7.so"}, 
+    {"pattern":"org/eclipse/swt/internal/gtk/swt_functional_gtk_3_20.css"}, 
+    {"pattern":"org/eclipse/swt/internal/gtk/swt_theming_fixes_gtk_3_20.css"}, 
+    {"pattern":"org/eclipse/swt/internal/gtk/swt_theming_fixes_gtk_3_24_5.css"}, 
     {"pattern":"scafa.png"}
   ]
 }

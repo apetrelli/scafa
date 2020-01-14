@@ -27,6 +27,7 @@ public class ScafaSystrayMain {
         Library.loadLibrary("swt");
         Library.loadLibrary("swt-pi3");
         Library.loadLibrary("swt-cairo");
+        Library.loadLibrary("swt-atk");
     	ScafaSystrayLauncher launcher = new ScafaSystrayLauncher();
     	launcher.launch();
     }
