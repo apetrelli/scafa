@@ -1,4 +1,4 @@
-package com.github.apetrelli.scafa.proto.util;
+package com.github.apetrelli.scafa.tls.util;
 
 import java.io.Closeable;
 import java.io.IOException;

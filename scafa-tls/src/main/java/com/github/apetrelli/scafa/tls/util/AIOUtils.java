@@ -1,4 +1,4 @@
-package com.github.apetrelli.scafa.proto.util;
+package com.github.apetrelli.scafa.tls.util;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;

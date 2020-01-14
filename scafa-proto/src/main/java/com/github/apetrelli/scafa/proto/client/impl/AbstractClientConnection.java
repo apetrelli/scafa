@@ -16,7 +16,7 @@ import java.util.logging.Logger;
 import com.github.apetrelli.scafa.proto.aio.DelegateFailureCompletionHandler;
 import com.github.apetrelli.scafa.proto.client.ClientConnection;
 import com.github.apetrelli.scafa.proto.client.HostPort;
-import com.github.apetrelli.scafa.proto.util.AIOUtils;
+import com.github.apetrelli.scafa.tls.util.AIOUtils;
 
 public abstract class AbstractClientConnection implements ClientConnection {
 

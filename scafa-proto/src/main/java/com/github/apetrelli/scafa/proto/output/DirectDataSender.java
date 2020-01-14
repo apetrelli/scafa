@@ -4,7 +4,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 
-import com.github.apetrelli.scafa.proto.util.AIOUtils;
+import com.github.apetrelli.scafa.tls.util.AIOUtils;
 
 public class DirectDataSender extends AbstractDataSender {
 

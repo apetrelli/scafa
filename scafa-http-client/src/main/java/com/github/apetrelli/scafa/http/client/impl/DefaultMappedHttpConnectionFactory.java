@@ -9,7 +9,7 @@ import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.client.HttpClientConnection;
 import com.github.apetrelli.scafa.http.output.DataSenderFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
-import com.github.apetrelli.scafa.proto.util.IOUtils;
+import com.github.apetrelli.scafa.tls.util.IOUtils;
 
 public class DefaultMappedHttpConnectionFactory implements MappedHttpConnectionFactory {
 

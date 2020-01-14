@@ -30,7 +30,7 @@ import com.github.apetrelli.scafa.http.gateway.GatewayHttpConnection;
 import com.github.apetrelli.scafa.http.gateway.GatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.gateway.MappedGatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
-import com.github.apetrelli.scafa.proto.util.IOUtils;
+import com.github.apetrelli.scafa.tls.util.IOUtils;
 
 public class DirectGatewayMappedHttpConnectionFactory implements MappedGatewayHttpConnectionFactory {
 

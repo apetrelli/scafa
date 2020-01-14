@@ -6,7 +6,7 @@ import java.nio.channels.AsynchronousSocketChannel;
 import com.github.apetrelli.scafa.http.gateway.MappedGatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.processor.Handler;
-import com.github.apetrelli.scafa.proto.util.IOUtils;
+import com.github.apetrelli.scafa.tls.util.IOUtils;
 
 public class ChannelDisconnectorHandler implements Handler {
 

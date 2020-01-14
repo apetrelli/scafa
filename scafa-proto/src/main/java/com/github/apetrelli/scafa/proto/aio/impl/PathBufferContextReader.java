@@ -6,7 +6,7 @@ import java.nio.channels.CompletionHandler;
 
 import com.github.apetrelli.scafa.proto.aio.BufferContext;
 import com.github.apetrelli.scafa.proto.aio.BufferContextReader;
-import com.github.apetrelli.scafa.proto.util.IOUtils;
+import com.github.apetrelli.scafa.tls.util.IOUtils;
 
 public class PathBufferContextReader implements BufferContextReader {
 

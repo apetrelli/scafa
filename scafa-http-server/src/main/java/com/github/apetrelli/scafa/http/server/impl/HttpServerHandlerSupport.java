@@ -10,7 +10,7 @@ import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.server.HttpServerHandler;
 import com.github.apetrelli.scafa.http.util.HttpUtils;
-import com.github.apetrelli.scafa.proto.util.AIOUtils;
+import com.github.apetrelli.scafa.tls.util.AIOUtils;
 
 public class HttpServerHandlerSupport implements HttpServerHandler {
 

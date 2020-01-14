@@ -29,7 +29,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.http.HeaderHolder;
-import com.github.apetrelli.scafa.proto.util.AIOUtils;
+import com.github.apetrelli.scafa.tls.util.AIOUtils;
 
 public class HttpUtils {
 
