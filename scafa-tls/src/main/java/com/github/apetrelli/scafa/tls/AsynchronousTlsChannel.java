@@ -7,8 +7,10 @@ import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -19,8 +21,13 @@ import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLSession;
 
 import com.github.apetrelli.scafa.tls.util.AIOUtils;
+import com.github.apetrelli.scafa.tls.util.CompletionHandlerFuture;
 
 public class AsynchronousTlsChannel extends AsynchronousSocketChannel {
+	
+	private interface Unwrapper {
+		SSLEngineResult unwrap() throws SSLException;
+	}
 	
 	private static final Logger LOG = Logger.getLogger(AsynchronousTlsChannel.class.getName());
 
@@ -28,15 +35,37 @@ public class AsynchronousTlsChannel extends AsynchronousSocketChannel {
 
 	private SSLEngine engine;
 
+	private ByteBuffer encryptedOutboundData;
+
+	private ByteBuffer encryptedIncomingData;
+
 	public AsynchronousTlsChannel(AsynchronousSocketChannel channel, SSLEngine engine) {
 		super(channel.provider());
 		this.wrapped = channel;
 		this.engine = engine;
+
+		// NioSslPeer's fields myAppData and peerAppData are supposed to be large enough to hold all message data the peer
+        // will send and expects to receive from the other peer respectively. Since the messages to be exchanged will usually be less
+        // than 16KB long the capacity of these fields should also be smaller. Here we initialize these two local buffers
+        // to be used for the handshake, while keeping client's buffers at the same size.
+        int appBufferSize = engine.getSession().getApplicationBufferSize();
+        encryptedOutboundData = ByteBuffer.allocate(appBufferSize);
+        encryptedIncomingData = ByteBuffer.allocate(appBufferSize);
 	}
 
 	@Override
 	public void close() throws IOException {
-		wrapped.close();
+		engine.closeOutbound();
+		CompletionHandlerFuture<Void, Void> handler = new CompletionHandlerFuture<>();
+		doHandshake(null, handler);
+		try {
+			handler.getFuture().get();
+		} catch (InterruptedException | ExecutionException e) {
+			throw new IOException("Cannot send close handshake", e);
+			
+		} finally {
+			wrapped.close();
+		}
 	}
 
 	@Override
@@ -87,6 +116,7 @@ public class AsynchronousTlsChannel extends AsynchronousSocketChannel {
 			public void completed(Void result, A attachment) {
 				try {
 					engine.beginHandshake();
+					doHandshake(attachment, handler);
 					
 				} catch (SSLException e) {
 					handler.failed(e, attachment);
@@ -103,48 +133,47 @@ public class AsynchronousTlsChannel extends AsynchronousSocketChannel {
 
 	@Override
 	public Future<Void> connect(SocketAddress remote) {
-		// TODO Auto-generated method stub
-		return null;
+		CompletionHandlerFuture<Void, Void> handler = new CompletionHandlerFuture<>();
+		connect(remote, null, handler);
+		return handler.getFuture();
 	}
 
 	@Override
 	public <A> void read(ByteBuffer dst, long timeout, TimeUnit unit, A attachment,
 			CompletionHandler<Integer, ? super A> handler) {
-		// TODO Auto-generated method stub
-
+		read(() -> engine.unwrap(encryptedIncomingData, dst), timeout, unit, attachment, handler, (x) -> x);
 	}
 
 	@Override
 	public Future<Integer> read(ByteBuffer dst) {
-		// TODO Auto-generated method stub
-		return null;
+		CompletionHandlerFuture<Integer, Void> handler = new CompletionHandlerFuture<>();
+		read(dst, null, handler);
+		return handler.getFuture();
 	}
 
 	@Override
 	public <A> void read(ByteBuffer[] dsts, int offset, int length, long timeout, TimeUnit unit, A attachment,
 			CompletionHandler<Long, ? super A> handler) {
-		// TODO Auto-generated method stub
-
+		read(() -> engine.unwrap(encryptedIncomingData, dsts), timeout, unit, attachment, handler, (x) -> x.longValue());
 	}
 
 	@Override
 	public <A> void write(ByteBuffer src, long timeout, TimeUnit unit, A attachment,
 			CompletionHandler<Integer, ? super A> handler) {
-		// TODO Auto-generated method stub
-
+		write(() -> engine.wrap(src, encryptedOutboundData), attachment, handler, (x) -> x);
 	}
 
 	@Override
 	public Future<Integer> write(ByteBuffer src) {
-		// TODO Auto-generated method stub
-		return null;
+		CompletionHandlerFuture<Integer, Void> handler = new CompletionHandlerFuture<>();
+		write(src, null, handler);
+		return handler.getFuture();
 	}
 
 	@Override
 	public <A> void write(ByteBuffer[] srcs, int offset, int length, long timeout, TimeUnit unit, A attachment,
 			CompletionHandler<Long, ? super A> handler) {
-		// TODO Auto-generated method stub
-
+		write(() -> engine.wrap(srcs, encryptedOutboundData), attachment, handler, (x) -> x.longValue());
 	}
 
 	@Override
@@ -188,23 +217,20 @@ public class AsynchronousTlsChannel extends AsynchronousSocketChannel {
         // than 16KB long the capacity of these fields should also be smaller. Here we initialize these two local buffers
         // to be used for the handshake, while keeping client's buffers at the same size.
         int appBufferSize = engine.getSession().getApplicationBufferSize();
-        ByteBuffer myAppData = ByteBuffer.allocate(appBufferSize);
-        ByteBuffer peerAppData = ByteBuffer.allocate(appBufferSize);
         ByteBuffer throwAwayData = ByteBuffer.allocate(appBufferSize);
 
-        doHandshake(attachment, handler, myAppData, peerAppData, throwAwayData);
+        doHandshake(attachment, handler, throwAwayData);
 
     }
 
-	private <A> void doHandshake(A attachment, CompletionHandler<Void, A> handler, ByteBuffer myAppData,
-			ByteBuffer peerAppData, ByteBuffer throwAwayData) {
+	private <A> void doHandshake(A attachment, CompletionHandler<Void, A> handler, ByteBuffer throwAwayData) {
 		HandshakeStatus handshakeStatus = engine.getHandshakeStatus();
         if (handshakeStatus != SSLEngineResult.HandshakeStatus.FINISHED && handshakeStatus != SSLEngineResult.HandshakeStatus.NOT_HANDSHAKING) {
         	handler.completed(null, attachment);
         }
         switch (handshakeStatus) {
         case NEED_UNWRAP:
-        	wrapped.read(peerAppData, attachment, new CompletionHandler<Integer, A>() {
+        	wrapped.read(encryptedIncomingData, attachment, new CompletionHandler<Integer, A>() {
 
 				@Override
 				public void completed(Integer count, A attachment) {
@@ -221,21 +247,20 @@ public class AsynchronousTlsChannel extends AsynchronousSocketChannel {
 		                    // After closeOutbound the engine will be set to WRAP state, in order to try to send a close message to the client.
 	                    }
 					} else {
-						peerAppData.flip();
+						encryptedIncomingData.flip();
 		                try {
-		                    SSLEngineResult result = engine.unwrap(peerAppData, throwAwayData);
-		                    peerAppData.compact();
-		                    ByteBuffer newPeerAppData = peerAppData;
+		                    SSLEngineResult result = engine.unwrap(encryptedIncomingData, throwAwayData);
+		                    encryptedIncomingData.compact();
 		                    switch (result.getStatus()) {
 		                    case OK:
 		                        break;
 		                    case BUFFER_OVERFLOW:
 		                        // Will occur when peerAppData's capacity is smaller than the data derived from peerNetData's unwrap.
-		                    	newPeerAppData = enlargeApplicationBuffer(engine, peerAppData);
+		                    	encryptedIncomingData = enlargeApplicationBuffer(engine, encryptedIncomingData);
 		                        break;
 		                    case BUFFER_UNDERFLOW:
 		                        // Will occur either when no data was read from the peer or when the peerNetData buffer was too small to hold all peer's data.
-		                    	newPeerAppData = handleBufferUnderflow(engine, peerAppData);
+		                    	encryptedIncomingData = handleBufferUnderflow(engine, encryptedIncomingData);
 		                        break;
 		                    case CLOSED:
 		                        if (engine.isOutboundDone()) {
@@ -247,7 +272,7 @@ public class AsynchronousTlsChannel extends AsynchronousSocketChannel {
 		                    default:
 		                        handler.failed(new TlsConnectionException("Invalid SSL status: " + result.getStatus()), attachment);
 		                    }
-		                    doHandshake(attachment, handler, myAppData, newPeerAppData, throwAwayData);
+		                    doHandshake(attachment, handler, throwAwayData);
 		                } catch (SSLException sslException) {
 		                    LOG.log(Level.SEVERE, "A problem was encountered while processing the data that caused the SSLEngine to abort. Will try to properly close connection...", sslException);
 		                    engine.closeOutbound();
@@ -261,19 +286,19 @@ public class AsynchronousTlsChannel extends AsynchronousSocketChannel {
 				}
 			});
         case NEED_WRAP:
-            myAppData.clear();
+            encryptedOutboundData.clear();
             try {
             	throwAwayData.clear();
-                SSLEngineResult result = engine.wrap(throwAwayData, myAppData);
+                SSLEngineResult result = engine.wrap(throwAwayData, encryptedOutboundData);
                 handshakeStatus = result.getHandshakeStatus();
                 switch (result.getStatus()) {
                 case OK :
-                    myAppData.flip();
-                    AIOUtils.flipAndFlushBuffer(myAppData, wrapped, new CompletionHandler<Void, Void>() {
+                    encryptedOutboundData.flip();
+                    AIOUtils.flipAndFlushBuffer(encryptedOutboundData, wrapped, new CompletionHandler<Void, Void>() {
 
 						@Override
 						public void completed(Void result, Void localAttachment) {
-		                    doHandshake(attachment, handler, myAppData, peerAppData, throwAwayData);
+		                    doHandshake(attachment, handler, throwAwayData);
 						}
 
 						@Override
@@ -286,18 +311,18 @@ public class AsynchronousTlsChannel extends AsynchronousSocketChannel {
                     // Will occur if there is not enough space in myNetData buffer to write all the data that would be generated by the method wrap.
                     // Since myNetData is set to session's packet size we should not get to this point because SSLEngine is supposed
                     // to produce messages smaller or equal to that, but a general handling would be the following:
-                    ByteBuffer newMyAppData = enlargePacketBuffer(engine, myAppData);
-                    doHandshake(attachment, handler, newMyAppData, peerAppData, throwAwayData);
+                    encryptedOutboundData = enlargePacketBuffer(engine, encryptedOutboundData);
+                    doHandshake(attachment, handler, throwAwayData);
                     break;
                 case BUFFER_UNDERFLOW:
                     handler.failed(new SSLException("Buffer underflow occured after a wrap. I don't think we should ever get here."), attachment);
                 case CLOSED:
-                	AIOUtils.flipAndFlushBuffer(myAppData, wrapped, new CompletionHandler<Void, Void>() {
+                	AIOUtils.flipAndFlushBuffer(encryptedOutboundData, wrapped, new CompletionHandler<Void, Void>() {
 
 						@Override
 						public void completed(Void result, Void localAttachment) {
 	                        handler.failed(new TlsConnectionException("SSL connection closed"), attachment);
-	                        peerAppData.clear();
+	                        encryptedIncomingData.clear();
 						}
 
 						@Override
@@ -379,4 +404,104 @@ public class AsynchronousTlsChannel extends AsynchronousSocketChannel {
             return replaceBuffer;
         }
     }
+
+	private <A, N> void read(Unwrapper unwrapper, long timeout, TimeUnit unit, A attachment,
+			CompletionHandler<N, ? super A> handler,
+			Function<Integer, N> countMapper) {
+		boolean needsRead = attemptDecrypt(unwrapper, attachment, handler, countMapper);
+		if (needsRead) {
+			wrapped.read(encryptedIncomingData, timeout, unit, attachment, new CompletionHandler<Integer, A>() {
+	
+				@Override
+				public void completed(Integer result, A attachment) {
+					if (result >= 0) {
+						encryptedIncomingData.flip();
+						boolean needsRead = attemptDecrypt(unwrapper, attachment, handler, countMapper);
+						if (needsRead) {
+							wrapped.read(encryptedIncomingData, timeout, unit, attachment, this);
+						}
+					} else {
+						try {
+							close();
+							handler.completed(countMapper.apply(result), attachment);
+						} catch (IOException e) {
+							handler.failed(e, attachment);
+						}
+					}
+				}
+	
+				@Override
+				public void failed(Throwable exc, A attachment) {
+					handler.failed(exc, attachment);
+				}
+			});
+		}
+	}
+
+	private <A, N> void write(Unwrapper wrapper, A attachment, CompletionHandler<N, ? super A> handler,
+			Function<Integer, N> countMapper) {
+		boolean doneWrap = true;
+		do {
+			try {
+				encryptedOutboundData.compact();
+				SSLEngineResult result = wrapper.unwrap();
+				switch (result.getStatus()) {
+				case OK:
+					AIOUtils.flipAndFlushBuffer(encryptedOutboundData, wrapped, new CompletionHandler<Void, Void>() {
+
+						@Override
+						public void completed(Void rs, Void att) {
+							handler.completed(countMapper.apply(result.bytesConsumed()), attachment);
+						}
+
+						@Override
+						public void failed(Throwable exc, Void att) {
+							handler.failed(exc, attachment);
+						}
+					});
+					break;
+				case BUFFER_OVERFLOW:
+					encryptedOutboundData = enlargePacketBuffer(engine, encryptedOutboundData);
+					doneWrap = false;
+					break;
+				case BUFFER_UNDERFLOW:
+					handler.failed(new TlsConnectionException("Buffer underflow when encrypting TLS message"), attachment);
+					break;
+				default:
+					break;
+				}
+			} catch (SSLException e) {
+				handler.failed(e, attachment);
+				return;
+			}
+		} while (!doneWrap);
+	}
+
+	private <A, N> boolean attemptDecrypt(Unwrapper unwrapper, A attachment, CompletionHandler<N, ? super A> handler,
+			Function<Integer, N> countMapper) {
+		boolean needsRead = true;
+		if (encryptedIncomingData.hasRemaining()) {
+			SSLEngineResult result;
+			try {
+				result = unwrapper.unwrap();
+				encryptedIncomingData.compact();
+				switch (result.getStatus()) {
+				case OK:
+					handler.completed(countMapper.apply(result.bytesProduced()), attachment);
+					needsRead = false;
+					break;
+				case BUFFER_OVERFLOW:
+					handler.failed(new TlsConnectionException("Buffer overflow when decrypting TLS message"), attachment);
+					needsRead = false;
+					break;
+				case BUFFER_UNDERFLOW:
+				default:
+					break;
+				}
+			} catch (SSLException e) {
+				handler.failed(e, attachment);
+			}
+		}
+		return needsRead;
+	}
 }
