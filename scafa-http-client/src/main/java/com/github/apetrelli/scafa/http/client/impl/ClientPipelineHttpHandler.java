@@ -39,7 +39,7 @@ public class ClientPipelineHttpHandler implements HttpHandler {
     }
 
     @Override
-    public void onDisconnect() throws IOException {
+    public void onDisconnect() {
         contexts.clear();
         currentContext = new HttpPipelineContext(null, NULL_HANDLER);
     }

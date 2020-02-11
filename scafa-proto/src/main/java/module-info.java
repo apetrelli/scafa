@@ -3,6 +3,7 @@ module com.github.apetrelli.scafa.proto {
 	requires java.logging;
 	exports com.github.apetrelli.scafa.proto.aio;
 	exports com.github.apetrelli.scafa.proto.aio.impl;
+	exports com.github.apetrelli.scafa.proto.aio.util;
 	exports com.github.apetrelli.scafa.proto.client;
 	exports com.github.apetrelli.scafa.proto.client.impl;
 	exports com.github.apetrelli.scafa.proto.output;

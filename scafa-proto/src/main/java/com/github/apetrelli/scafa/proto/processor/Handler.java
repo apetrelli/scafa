@@ -6,6 +6,6 @@ public interface Handler {
 
     void onConnect() throws IOException;
 
-    void onDisconnect() throws IOException;
+    void onDisconnect();
 
 }

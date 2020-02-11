@@ -1,15 +1,15 @@
 package com.github.apetrelli.scafa.http.output;
 
 import java.nio.ByteBuffer;
-import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 
 import com.github.apetrelli.scafa.http.util.HttpUtils;
+import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.output.AbstractDataSender;
 
 public class ChunkedDataSender extends AbstractDataSender {
 
-	public ChunkedDataSender(AsynchronousSocketChannel channel) {
+	public ChunkedDataSender(AsyncSocket channel) {
         super(channel);
     }
 

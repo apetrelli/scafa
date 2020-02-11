@@ -1,25 +1,25 @@
 package com.github.apetrelli.scafa.http.gateway.direct;
 
 import java.io.IOException;
-import java.nio.channels.AsynchronousSocketChannel;
 
 import com.github.apetrelli.scafa.http.gateway.MappedGatewayHttpConnectionFactory;
+import com.github.apetrelli.scafa.proto.aio.ClientAsyncSocket;
+import com.github.apetrelli.scafa.proto.aio.IgnoringCompletionHandler;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.processor.Handler;
-import com.github.apetrelli.scafa.tls.util.IOUtils;
 
 public class ChannelDisconnectorHandler implements Handler {
 
 	private MappedGatewayHttpConnectionFactory factory;
-
-	private AsynchronousSocketChannel channel;
+	
+	private ClientAsyncSocket socket;
 
 	private HostPort socketAddress;
 
-	public ChannelDisconnectorHandler(MappedGatewayHttpConnectionFactory factory, AsynchronousSocketChannel channel,
-            HostPort socketAddress) {
+	public ChannelDisconnectorHandler(MappedGatewayHttpConnectionFactory factory,
+			ClientAsyncSocket socket, HostPort socketAddress) {
 		this.factory = factory;
-		this.channel = channel;
+		this.socket = socket;
 		this.socketAddress = socketAddress;
 	}
 
@@ -29,11 +29,9 @@ public class ChannelDisconnectorHandler implements Handler {
 	}
 
 	@Override
-	public void onDisconnect() throws IOException {
+	public void onDisconnect() {
+		socket.disconnect(new IgnoringCompletionHandler<>());
 		factory.dispose(socketAddress);
-		if (channel.isOpen()) {
-			IOUtils.closeQuietly(channel);
-		}
 	}
 
 }

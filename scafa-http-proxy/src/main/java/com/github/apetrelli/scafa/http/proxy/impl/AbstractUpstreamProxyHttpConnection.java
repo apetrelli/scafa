@@ -18,7 +18,6 @@
 package com.github.apetrelli.scafa.http.proxy.impl;
 
 import java.io.IOException;
-import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -29,6 +28,8 @@ import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
 import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.http.util.HttpUtils;
+import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
+import com.github.apetrelli.scafa.proto.aio.ClientAsyncSocket;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 
 public abstract class AbstractUpstreamProxyHttpConnection extends AbstractProxyHttpConnection implements ProxyHttpConnection {
@@ -37,27 +38,23 @@ public abstract class AbstractUpstreamProxyHttpConnection extends AbstractProxyH
 
     protected HttpRequestManipulator manipulator;
 
-    public AbstractUpstreamProxyHttpConnection(MappedProxyHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
-            HostPort socketAddress, HostPort destinationSocketAddress, String interfaceName, boolean forceIpV4, HttpRequestManipulator manipulator) {
-        super(factory, sourceChannel, socketAddress, destinationSocketAddress, interfaceName, forceIpV4);
+    public AbstractUpstreamProxyHttpConnection(MappedProxyHttpConnectionFactory factory, AsyncSocket sourceChannel,
+            ClientAsyncSocket socket, HostPort destinationSocketAddress, HttpRequestManipulator manipulator) {
+        super(factory, sourceChannel, socket, destinationSocketAddress);
         this.manipulator = manipulator;
     }
 
     @Override
     public void connect(HttpConnectRequest request, CompletionHandler<Void, Void> completionHandler) {
         if (LOG.isLoggable(Level.INFO)) {
-            try {
-                LOG.log(Level.INFO, "Connected thread {0} to port {1} and host {2}:{3}", new Object[] {
-                        Thread.currentThread().getName(), channel.getLocalAddress().toString(), request.getHost(), request.getPort()});
-            } catch (IOException e) {
-                LOG.log(Level.SEVERE, "Cannot understand local address", e);
-            }
+            LOG.log(Level.INFO, "Connected thread {0} to port {1} and host {2}:{3}", new Object[] {
+                    Thread.currentThread().getName(), socket.getAddress().toString(), request.getHost(), request.getPort()});
         }
         doConnect(request, completionHandler);
     }
 
     protected void doConnect(HttpConnectRequest request, CompletionHandler<Void, Void> completionHandler) {
-        HttpUtils.sendHeader(request, channel, completionHandler);
+        HttpUtils.sendHeader(request, socket, completionHandler);
     }
 
     @Override
@@ -68,7 +65,7 @@ public abstract class AbstractUpstreamProxyHttpConnection extends AbstractProxyH
         }
         if (LOG.isLoggable(Level.INFO)) {
             LOG.log(Level.INFO, "Connected thread {0} to port {1} and URL {2}",
-                    new Object[] { Thread.currentThread().getName(), channel.getLocalAddress().toString(), request.getResource() });
+                    new Object[] { Thread.currentThread().getName(), socket.getAddress().toString(), request.getResource() });
         }
         return request;
     }

@@ -19,7 +19,6 @@ package com.github.apetrelli.scafa.http.proxy.impl;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 import java.nio.charset.StandardCharsets;
 
@@ -29,6 +28,8 @@ import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
 import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpHandler;
+import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
+import com.github.apetrelli.scafa.proto.aio.IgnoringCompletionHandler;
 
 public class DefaultProxyHttpHandler implements ProxyHttpHandler {
 
@@ -40,11 +41,11 @@ public class DefaultProxyHttpHandler implements ProxyHttpHandler {
 
     private MappedProxyHttpConnectionFactory connectionFactory;
 
-    private AsynchronousSocketChannel sourceChannel;
+    private AsyncSocket sourceChannel;
 
     private ProxyHttpConnection connection;
 
-    public DefaultProxyHttpHandler(MappedProxyHttpConnectionFactory connectionFactory, AsynchronousSocketChannel sourceChannel) {
+    public DefaultProxyHttpHandler(MappedProxyHttpConnectionFactory connectionFactory, AsyncSocket sourceChannel) {
         this.connectionFactory = connectionFactory;
         this.sourceChannel = sourceChannel;
     }
@@ -151,9 +152,9 @@ public class DefaultProxyHttpHandler implements ProxyHttpHandler {
     }
 
     @Override
-    public void onDisconnect() throws IOException {
-        if (connection != null) {
-            connection.close();
-        }
+    public void onDisconnect() {
+    	if (connection != null) {
+    		connection.disconnect(new IgnoringCompletionHandler<>());
+    	}
     }
 }

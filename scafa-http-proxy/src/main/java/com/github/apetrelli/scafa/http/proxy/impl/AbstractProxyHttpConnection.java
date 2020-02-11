@@ -18,13 +18,16 @@
 package com.github.apetrelli.scafa.http.proxy.impl;
 
 import java.io.IOException;
-import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.http.util.HttpUtils;
+import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
+import com.github.apetrelli.scafa.proto.aio.ClientAsyncSocket;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.client.impl.AbstractClientConnection;
 import com.github.apetrelli.scafa.proto.processor.Handler;
@@ -35,6 +38,8 @@ import com.github.apetrelli.scafa.proto.processor.impl.PassthroughInputProcessor
 import com.github.apetrelli.scafa.proto.processor.impl.SimpleInputFactory;
 
 public abstract class AbstractProxyHttpConnection extends AbstractClientConnection implements ProxyHttpConnection {
+	
+	private static final Logger LOG = Logger.getLogger(AbstractProxyHttpConnection.class.getName());
 
     protected static final byte CR = 13;
 
@@ -44,15 +49,15 @@ public abstract class AbstractProxyHttpConnection extends AbstractClientConnecti
 
     protected MappedProxyHttpConnectionFactory factory;
 
-    protected AsynchronousSocketChannel sourceChannel;
+    protected AsyncSocket sourceChannel;
 
     private SimpleInputFactory inputFactory = new SimpleInputFactory();
 
     private HostPort destinationSocketAddress;
 
-    public AbstractProxyHttpConnection(MappedProxyHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
-            HostPort socketAddress, HostPort destinationSocketAddress, String interfaceName, boolean forceIpV4) {
-        super(socketAddress, interfaceName, forceIpV4);
+	public AbstractProxyHttpConnection(MappedProxyHttpConnectionFactory factory, AsyncSocket sourceChannel,
+			ClientAsyncSocket socket, HostPort destinationSocketAddress) {
+        super(socket);
         this.factory = factory;
         this.sourceChannel = sourceChannel;
         this.destinationSocketAddress = destinationSocketAddress;
@@ -75,13 +80,30 @@ public abstract class AbstractProxyHttpConnection extends AbstractClientConnecti
     }
 
     protected abstract HttpRequest createForwardedRequest(HttpRequest request) throws IOException;
+    
+    @Override
+    public void disconnect(CompletionHandler<Void, Void> handler) {
+    	super.disconnect(new CompletionHandler<Void, Void>() {
+
+			@Override
+			public void completed(Void result, Void attachment) {
+				sourceChannel.disconnect(handler);
+			}
+
+			@Override
+			public void failed(Throwable exc, Void attachment) {
+				LOG.log(Level.SEVERE, "Cannot disconnect proxied client channel", exc);
+				sourceChannel.disconnect(handler);
+			}
+		});
+    }
 
     protected void doSendHeader(HttpRequest request, CompletionHandler<Void, Void> completionHandler) {
-        HttpUtils.sendHeader(request, channel, completionHandler);
+        HttpUtils.sendHeader(request, socket, completionHandler);
     }
 
     protected void prepareChannel() {
-        Processor<Handler> processor = new DefaultProcessor<Input, Handler>(channel, new PassthroughInputProcessorFactory(sourceChannel), inputFactory);
-        processor.process(new ChannelDisconnectorHandler(factory, sourceChannel, destinationSocketAddress));
+        Processor<Handler> processor = new DefaultProcessor<Input, Handler>(socket, new PassthroughInputProcessorFactory(sourceChannel), inputFactory);
+        processor.process(new ChannelDisconnectorHandler(factory, socket, destinationSocketAddress));
     }
 }

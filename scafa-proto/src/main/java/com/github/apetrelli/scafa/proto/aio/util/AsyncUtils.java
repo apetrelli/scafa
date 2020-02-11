@@ -1,17 +1,18 @@
-package com.github.apetrelli.scafa.tls.util;
+package com.github.apetrelli.scafa.proto.aio.util;
 
 import java.nio.ByteBuffer;
-import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 
-public class AIOUtils {
+import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
+
+public class AsyncUtils {
 
 	public static class BufferFlusherCompletionHandler implements CompletionHandler<Integer, ByteBuffer> {
 	    private final CompletionHandler<Void, Void> completionHandler;
 	
-	    private AsynchronousSocketChannel channel;
+	    private AsyncSocket channel;
 	
-	    public BufferFlusherCompletionHandler(AsynchronousSocketChannel channel, CompletionHandler<Void, Void> completionHandler) {
+	    public BufferFlusherCompletionHandler(AsyncSocket channel, CompletionHandler<Void, Void> completionHandler) {
 	        this.channel = channel;
 	        this.completionHandler = completionHandler;
 	    }
@@ -31,13 +32,13 @@ public class AIOUtils {
 	    }
 	}
 
-	private AIOUtils() { }
+	private AsyncUtils() { }
 
-	public static void flushBuffer(ByteBuffer buffer, AsynchronousSocketChannel channelToSend, CompletionHandler<Void, Void> completionHandler) {
+	public static void flushBuffer(ByteBuffer buffer, AsyncSocket channelToSend, CompletionHandler<Void, Void> completionHandler) {
 	    channelToSend.write(buffer, buffer, new BufferFlusherCompletionHandler(channelToSend, completionHandler));
 	}
 
-	public static void flipAndFlushBuffer(ByteBuffer buffer, AsynchronousSocketChannel channelToSend, CompletionHandler<Void, Void> completionHandler) {
+	public static void flipAndFlushBuffer(ByteBuffer buffer, AsyncSocket channelToSend, CompletionHandler<Void, Void> completionHandler) {
 	    buffer.flip();
 	    flushBuffer(buffer, channelToSend, completionHandler);
 	}

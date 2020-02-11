@@ -17,11 +17,9 @@
  */
 package com.github.apetrelli.scafa.proto.aio;
 
-import java.nio.channels.AsynchronousSocketChannel;
-
 import com.github.apetrelli.scafa.proto.processor.Processor;
 
 public interface ProcessorFactory<H> {
 
-    Processor<H> create(AsynchronousSocketChannel client);
+    Processor<H> create(AsyncSocket socket);
 }

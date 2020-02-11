@@ -17,8 +17,7 @@
  */
 package com.github.apetrelli.scafa.proto.aio.impl;
 
-import java.nio.channels.AsynchronousSocketChannel;
-
+import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.ProcessorFactory;
 import com.github.apetrelli.scafa.proto.processor.Handler;
 import com.github.apetrelli.scafa.proto.processor.InputProcessorFactory;
@@ -41,7 +40,7 @@ public class DefaultProcessorFactory<ST, P extends ProcessingContext<ST>, H exte
 	}
 
 	@Override
-	public Processor<H> create(AsynchronousSocketChannel client) {
+	public Processor<H> create(AsyncSocket client) {
 		return new DefaultProcessor<>(client, inputProcessorFactory, processingContextFactory);
 	}
 

@@ -61,6 +61,11 @@ public class ThrowableHttpConnection implements HttpClientConnection {
     public void close() throws IOException {
         // Does nothing
     }
+    
+    @Override
+    public void disconnect(CompletionHandler<Void, Void> handler) {
+        handler.completed(null, null);
+    }
 
     @Override
     public DataSender createDataSender(HttpRequest request) {

@@ -7,6 +7,8 @@ import java.nio.channels.CompletionHandler;
 public interface ClientConnection extends Closeable {
 
     void ensureConnected(CompletionHandler<Void, Void> handler);
+    
+    void disconnect(CompletionHandler<Void, Void> handler);
 
     void send(ByteBuffer buffer, CompletionHandler<Void, Void> completionHandler);
 

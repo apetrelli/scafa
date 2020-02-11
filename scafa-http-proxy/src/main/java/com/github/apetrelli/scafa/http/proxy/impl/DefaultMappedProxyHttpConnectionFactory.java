@@ -18,7 +18,6 @@
 package com.github.apetrelli.scafa.http.proxy.impl;
 
 import java.io.IOException;
-import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,6 +29,7 @@ import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
 import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnectionFactory;
+import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.tls.util.IOUtils;
 
@@ -46,7 +46,7 @@ public class DefaultMappedProxyHttpConnectionFactory implements MappedProxyHttpC
     }
 
     @Override
-    public void create(AsynchronousSocketChannel sourceChannel, HttpRequest request, CompletionHandler<ProxyHttpConnection, Void> handler) {
+    public void create(AsyncSocket sourceChannel, HttpRequest request, CompletionHandler<ProxyHttpConnection, Void> handler) {
         try {
             create(sourceChannel, request.getHostPort(), handler);
         } catch (IOException e) {
@@ -56,7 +56,7 @@ public class DefaultMappedProxyHttpConnectionFactory implements MappedProxyHttpC
     }
 
     @Override
-    public void create(AsynchronousSocketChannel sourceChannel, HttpConnectRequest request, CompletionHandler<ProxyHttpConnection, Void> handler) {
+    public void create(AsyncSocket sourceChannel, HttpConnectRequest request, CompletionHandler<ProxyHttpConnection, Void> handler) {
         create(sourceChannel, new HostPort(request.getHost(), request.getPort()), handler);
     }
 
@@ -74,7 +74,7 @@ public class DefaultMappedProxyHttpConnectionFactory implements MappedProxyHttpC
         }
     }
 
-    private void create(AsynchronousSocketChannel sourceChannel, HostPort hostPort, CompletionHandler<ProxyHttpConnection, Void> handler) {
+    private void create(AsyncSocket sourceChannel, HostPort hostPort, CompletionHandler<ProxyHttpConnection, Void> handler) {
         ProxyHttpConnection connection = connectionCache.get(hostPort);
         if (connection == null) {
             if (LOG.isLoggable(Level.INFO)) {

@@ -17,9 +17,7 @@
  */
 package com.github.apetrelli.scafa.proto.aio;
 
-import java.nio.channels.AsynchronousSocketChannel;
-
 public interface HandlerFactory<H> {
 
-    H create(AsynchronousSocketChannel sourceChannel);
+    H create(AsyncSocket sourceChannel);
 }

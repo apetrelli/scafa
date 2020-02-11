@@ -19,7 +19,6 @@ package com.github.apetrelli.scafa.http.gateway.impl;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 import java.nio.charset.StandardCharsets;
 
@@ -28,6 +27,8 @@ import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.gateway.GatewayHttpConnection;
 import com.github.apetrelli.scafa.http.gateway.MappedGatewayHttpConnectionFactory;
+import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
+import com.github.apetrelli.scafa.proto.aio.IgnoringCompletionHandler;
 
 public class DefaultGatewayHttpHandler implements HttpHandler {
 
@@ -39,11 +40,11 @@ public class DefaultGatewayHttpHandler implements HttpHandler {
 
     private MappedGatewayHttpConnectionFactory connectionFactory;
 
-    private AsynchronousSocketChannel sourceChannel;
+    private AsyncSocket sourceChannel;
 
     private GatewayHttpConnection connection;
 
-    public DefaultGatewayHttpHandler(MappedGatewayHttpConnectionFactory connectionFactory, AsynchronousSocketChannel sourceChannel) {
+    public DefaultGatewayHttpHandler(MappedGatewayHttpConnectionFactory connectionFactory, AsyncSocket sourceChannel) {
         this.connectionFactory = connectionFactory;
         this.sourceChannel = sourceChannel;
     }
@@ -122,9 +123,9 @@ public class DefaultGatewayHttpHandler implements HttpHandler {
     }
 
     @Override
-    public void onDisconnect() throws IOException {
+    public void onDisconnect() {
         if (connection != null) {
-            connection.close();
+            connection.disconnect(IgnoringCompletionHandler.INSTANCE);
         }
     }
 }

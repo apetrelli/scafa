@@ -18,22 +18,25 @@
 package com.github.apetrelli.scafa.http.gateway.impl;
 
 import java.io.IOException;
-import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.gateway.GatewayHttpConnection;
 import com.github.apetrelli.scafa.http.util.HttpUtils;
-import com.github.apetrelli.scafa.proto.client.HostPort;
+import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
+import com.github.apetrelli.scafa.proto.aio.ClientAsyncSocket;
 import com.github.apetrelli.scafa.proto.client.impl.AbstractClientConnection;
 
 public abstract class AbstractGatewayHttpConnection extends AbstractClientConnection implements GatewayHttpConnection {
+	
+	private static final Logger LOG = Logger.getLogger(AbstractGatewayHttpConnection.class.getName());
 
-    protected AsynchronousSocketChannel sourceChannel;
+    protected AsyncSocket sourceChannel;
 
-    public AbstractGatewayHttpConnection(AsynchronousSocketChannel sourceChannel,
-            HostPort socketAddress, String interfaceName, boolean forceIpV4) {
-        super(socketAddress, interfaceName, forceIpV4);
+	public AbstractGatewayHttpConnection(AsyncSocket sourceChannel, ClientAsyncSocket socket) {
+        super(socket);
         this.sourceChannel = sourceChannel;
     }
 
@@ -52,10 +55,27 @@ public abstract class AbstractGatewayHttpConnection extends AbstractClientConnec
     public void end() {
         // Does nothing.
     }
+    
+    @Override
+    public void disconnect(CompletionHandler<Void, Void> handler) {
+    	super.disconnect(new CompletionHandler<Void, Void>() {
+
+			@Override
+			public void completed(Void result, Void attachment) {
+				sourceChannel.disconnect(handler);
+			}
+
+			@Override
+			public void failed(Throwable exc, Void attachment) {
+				LOG.log(Level.SEVERE, "Cannot disconnect gateway client channel", exc);
+				sourceChannel.disconnect(handler);
+			}
+		});
+    }
 
     protected abstract HttpRequest createForwardedRequest(HttpRequest request) throws IOException;
 
     protected void doSendHeader(HttpRequest request, CompletionHandler<Void, Void> completionHandler) {
-        HttpUtils.sendHeader(request, channel, completionHandler);
+        HttpUtils.sendHeader(request, socket, completionHandler);
     }
 }

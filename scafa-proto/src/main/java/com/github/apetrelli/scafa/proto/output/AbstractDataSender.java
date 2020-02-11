@@ -1,12 +1,12 @@
 package com.github.apetrelli.scafa.proto.output;
 
-import java.nio.channels.AsynchronousSocketChannel;
+import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 
 public abstract class AbstractDataSender implements DataSender {
 
-    protected AsynchronousSocketChannel channel;
+    protected AsyncSocket channel;
 
-    public AbstractDataSender(AsynchronousSocketChannel channel) {
+    public AbstractDataSender(AsyncSocket channel) {
         this.channel = channel;
     }
 

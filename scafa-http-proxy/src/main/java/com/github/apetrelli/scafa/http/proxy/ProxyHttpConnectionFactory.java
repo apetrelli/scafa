@@ -17,12 +17,11 @@
  */
 package com.github.apetrelli.scafa.http.proxy;
 
-import java.nio.channels.AsynchronousSocketChannel;
-
+import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 
 public interface ProxyHttpConnectionFactory {
 
-    ProxyHttpConnection create(MappedProxyHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
+    ProxyHttpConnection create(MappedProxyHttpConnectionFactory factory, AsyncSocket sourceChannel,
             HostPort socketAddress);
 }

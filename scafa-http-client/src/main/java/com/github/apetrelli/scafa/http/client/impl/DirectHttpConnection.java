@@ -13,7 +13,7 @@ import com.github.apetrelli.scafa.http.impl.HttpProcessingContextFactory;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
 import com.github.apetrelli.scafa.http.output.DataSenderFactory;
 import com.github.apetrelli.scafa.http.util.HttpUtils;
-import com.github.apetrelli.scafa.proto.client.HostPort;
+import com.github.apetrelli.scafa.proto.aio.ClientAsyncSocket;
 import com.github.apetrelli.scafa.proto.client.impl.AbstractClientConnection;
 import com.github.apetrelli.scafa.proto.output.DataSender;
 import com.github.apetrelli.scafa.proto.processor.Processor;
@@ -28,8 +28,8 @@ public class DirectHttpConnection extends AbstractClientConnection implements Ht
 
     private DataSenderFactory dataSenderFactory;
 
-	public DirectHttpConnection(HostPort socketAddress, MappedHttpConnectionFactory connectionFactory, DataSenderFactory dataSenderFactory) {
-		super(socketAddress, null, false); // No binding ATM.
+	public DirectHttpConnection(ClientAsyncSocket socket, MappedHttpConnectionFactory connectionFactory, DataSenderFactory dataSenderFactory) {
+		super(socket); // No binding ATM.
 		this.connectionFactory = connectionFactory;
 		this.dataSenderFactory = dataSenderFactory;
 		responseHandler = new ClientPipelineHttpHandler(this);
@@ -38,7 +38,7 @@ public class DirectHttpConnection extends AbstractClientConnection implements Ht
 	@Override
 	public void sendHeader(HttpRequest request, HttpClientHandler clientHandler, CompletionHandler<Void, Void> completionHandler) {
 		responseHandler.add(request, clientHandler, this);
-        HttpUtils.sendHeader(request, channel, completionHandler);
+        HttpUtils.sendHeader(request, socket, completionHandler);
 	}
 
 	@Override
@@ -48,12 +48,12 @@ public class DirectHttpConnection extends AbstractClientConnection implements Ht
 
 	@Override
 	public DataSender createDataSender(HttpRequest request) {
-	    return dataSenderFactory.create(request, channel);
+	    return dataSenderFactory.create(request, socket);
 	}
 
 	@Override
 	public void close() throws IOException {
-		connectionFactory.dispose(socketAddress);
+		connectionFactory.dispose(socket.getAddress());
 		super.close();
 	}
 
@@ -62,7 +62,7 @@ public class DirectHttpConnection extends AbstractClientConnection implements Ht
 		HttpProcessingContextFactory contextFactory = new HttpProcessingContextFactory();
 		StatefulInputProcessorFactory<HttpHandler, HttpStatus, HttpProcessingContext> inputProcessorFactory = new StatefulInputProcessorFactory<>(
 				new HttpStateMachine());
-		Processor<HttpHandler> processor = new DefaultProcessor<>(channel, inputProcessorFactory, contextFactory);
+		Processor<HttpHandler> processor = new DefaultProcessor<>(socket, inputProcessorFactory, contextFactory);
 		processor.process(responseHandler);
 	}
 }

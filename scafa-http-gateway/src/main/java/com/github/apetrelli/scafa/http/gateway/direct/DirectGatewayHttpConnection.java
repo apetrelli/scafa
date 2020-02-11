@@ -1,17 +1,17 @@
 package com.github.apetrelli.scafa.http.gateway.direct;
 
 import java.io.IOException;
-import java.nio.channels.AsynchronousSocketChannel;
 
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.gateway.MappedGatewayHttpConnectionFactory;
-import com.github.apetrelli.scafa.proto.client.HostPort;
+import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
+import com.github.apetrelli.scafa.proto.aio.ClientAsyncSocket;
 
 public class DirectGatewayHttpConnection extends AbstractDirectGatewayHttpConnection {
 
-	public DirectGatewayHttpConnection(AsynchronousSocketChannel sourceChannel, HostPort socketAddress,
-			String interfaceName, boolean forceIpV4, MappedGatewayHttpConnectionFactory factory) {
-		super(sourceChannel, socketAddress, socketAddress, interfaceName, forceIpV4, factory);
+	public DirectGatewayHttpConnection(AsyncSocket sourceChannel, ClientAsyncSocket socket,
+			MappedGatewayHttpConnectionFactory factory) {
+		super(sourceChannel, socket, factory);
 	}
 
 	@Override

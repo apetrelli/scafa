@@ -17,31 +17,38 @@
  */
 package com.github.apetrelli.scafa.http.proxy.impl;
 
-import java.nio.channels.AsynchronousSocketChannel;
-
 import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnectionFactory;
+import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
+import com.github.apetrelli.scafa.proto.aio.AsynchronousSocketChannelFactory;
+import com.github.apetrelli.scafa.proto.aio.ClientAsyncSocket;
+import com.github.apetrelli.scafa.proto.aio.impl.DirectClientAsyncSocket;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 
 public class DirectHttpConnectionFactory implements ProxyHttpConnectionFactory {
+
+	private AsynchronousSocketChannelFactory channelFactory;
 
     private String interfaceName;
 
     private boolean forceIpV4;
 
-    public DirectHttpConnectionFactory() {
+    public DirectHttpConnectionFactory(AsynchronousSocketChannelFactory channelFactory) {
+    	this(channelFactory, null, false);
     }
     
-    public DirectHttpConnectionFactory(String interfaceName, boolean forceIpV4) {
+    public DirectHttpConnectionFactory(AsynchronousSocketChannelFactory channelFactory, String interfaceName, boolean forceIpV4) {
+    	this.channelFactory = channelFactory;
         this.interfaceName = interfaceName;
         this.forceIpV4 = forceIpV4;
     }
 
     @Override
-    public ProxyHttpConnection create(MappedProxyHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
+    public ProxyHttpConnection create(MappedProxyHttpConnectionFactory factory, AsyncSocket sourceChannel,
             HostPort socketAddress) {
-        return new DirectProxyHttpConnection(factory, sourceChannel, socketAddress, interfaceName, forceIpV4);
+    	ClientAsyncSocket socket = new DirectClientAsyncSocket(channelFactory, socketAddress, interfaceName, forceIpV4);
+        return new DirectProxyHttpConnection(factory, sourceChannel, socket);
     }
 
 }

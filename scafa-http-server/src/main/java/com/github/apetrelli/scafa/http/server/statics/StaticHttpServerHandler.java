@@ -1,6 +1,5 @@
 package com.github.apetrelli.scafa.http.server.statics;
 
-import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -12,6 +11,7 @@ import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.server.HttpServer;
 import com.github.apetrelli.scafa.http.server.impl.HttpServerHandlerSupport;
 import com.github.apetrelli.scafa.http.util.HttpUtils;
+import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 
 public class StaticHttpServerHandler extends HttpServerHandlerSupport {
 
@@ -25,7 +25,7 @@ public class StaticHttpServerHandler extends HttpServerHandlerSupport {
 
 	private HttpServer server;
 
-	public StaticHttpServerHandler(AsynchronousSocketChannel channel, String basePath, String baseFilesystemPath,
+	public StaticHttpServerHandler(AsyncSocket channel, String basePath, String baseFilesystemPath,
 			String indexResource, Map<String, String> mimeTypeConfig, HttpServer server) {
 		super(channel);
 		this.basePath = basePath;

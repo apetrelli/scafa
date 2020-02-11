@@ -18,6 +18,7 @@ import com.github.apetrelli.scafa.http.proxy.impl.AnonymousProxyHttpConnectionFa
 import com.github.apetrelli.scafa.http.proxy.impl.BasicAuthProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.impl.DirectHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.ntlm.NtlmProxyHttpConnectionFactory;
+import com.github.apetrelli.scafa.proto.aio.AsynchronousSocketChannelFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.server.config.ServerConfiguration;
 
@@ -28,25 +29,28 @@ public class IniServerConfiguration implements ServerConfiguration {
 
     private List<String> excludes;
 
-    public IniServerConfiguration(Section section, HttpStateMachine stateMachine) {
+    public IniServerConfiguration(Section section, AsynchronousSocketChannelFactory channelFactory, HttpStateMachine stateMachine) {
         String type = section.get("type");
         switch (type) {
         case "ntlm":
-            connectionFactory = new NtlmProxyHttpConnectionFactory(createProxySocketAddress(section), section.get("interface"),
-                    section.get("forceIPV4", boolean.class, false), section.get("domain"), section.get("username"),
-                    section.get("password"), createManipulator(section), stateMachine);
+            connectionFactory = new NtlmProxyHttpConnectionFactory(channelFactory, createProxySocketAddress(section),
+                    section.get("interface"), section.get("forceIPV4", boolean.class, false), section.get("domain"),
+                    section.get("username"), section.get("password"), createManipulator(section), stateMachine);
             break;
         case "anon":
-            connectionFactory = new AnonymousProxyHttpConnectionFactory(createProxySocketAddress(section), section.get("interface"),
+            connectionFactory = new AnonymousProxyHttpConnectionFactory(channelFactory,
+                    createProxySocketAddress(section), section.get("interface"),
                     section.get("forceIPV4", boolean.class, false), createManipulator(section));
             break;
         case "basic":
-            connectionFactory = new BasicAuthProxyHttpConnectionFactory(createProxySocketAddress(section), section.get("interface"),
+            connectionFactory = new BasicAuthProxyHttpConnectionFactory(channelFactory,
+                    createProxySocketAddress(section), section.get("interface"),
                     section.get("forceIPV4", boolean.class, false), section.get("username"), section.get("password"),
                     createManipulator(section));
             break;
         default:
-            connectionFactory = new DirectHttpConnectionFactory(section.get("interface"), section.get("forceIPV4", boolean.class, false));
+            connectionFactory = new DirectHttpConnectionFactory(channelFactory, section.get("interface"),
+                    section.get("forceIPV4", boolean.class, false));
             break;
         }
         List<String> exclude = section.getAll("exclude");

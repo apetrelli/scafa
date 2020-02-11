@@ -26,6 +26,7 @@ import org.ini4j.Ini;
 import org.ini4j.InvalidFileFormatException;
 
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
+import com.github.apetrelli.scafa.proto.aio.AsynchronousSocketChannelFactory;
 import com.github.apetrelli.scafa.server.ConfigurationUtils;
 import com.github.apetrelli.scafa.server.config.Configuration;
 import com.github.apetrelli.scafa.server.config.ServerConfiguration;
@@ -36,18 +37,19 @@ public class IniConfiguration implements Configuration {
     
     private List<ServerConfiguration> serverConfigurations;
 
-    public static IniConfiguration create(String profile, HttpStateMachine stateMachine) throws InvalidFileFormatException, IOException {
+    public static IniConfiguration create(String profile, AsynchronousSocketChannelFactory channelFactory,
+            HttpStateMachine stateMachine) throws InvalidFileFormatException, IOException {
         if (profile == null) {
             profile = "direct";
         }
         Ini ini = ConfigurationUtils.loadIni(profile);
-        return new IniConfiguration(ini, stateMachine);
+        return new IniConfiguration(ini, channelFactory, stateMachine);
     }
 
-    private IniConfiguration(Ini ini, HttpStateMachine stateMachine) {
+    private IniConfiguration(Ini ini, AsynchronousSocketChannelFactory channelFactory, HttpStateMachine stateMachine) {
         this.ini = ini;
         serverConfigurations = ini.keySet().stream().filter(t -> !"main".equals(t))
-                .map(t -> new IniServerConfiguration(ini.get(t), stateMachine)).collect(Collectors.toList());
+                .map(t -> new IniServerConfiguration(ini.get(t), channelFactory, stateMachine)).collect(Collectors.toList());
     }
     
     @Override

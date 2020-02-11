@@ -18,7 +18,6 @@
 package com.github.apetrelli.scafa.http.gateway.direct;
 
 import java.io.IOException;
-import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,6 +28,7 @@ import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.gateway.GatewayHttpConnection;
 import com.github.apetrelli.scafa.http.gateway.GatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.gateway.MappedGatewayHttpConnectionFactory;
+import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.tls.util.IOUtils;
 
@@ -45,7 +45,7 @@ public class DirectGatewayMappedHttpConnectionFactory implements MappedGatewayHt
     }
 
     @Override
-    public void create(AsynchronousSocketChannel sourceChannel, HttpRequest request, CompletionHandler<GatewayHttpConnection, Void> handler) {
+    public void create(AsyncSocket sourceChannel, HttpRequest request, CompletionHandler<GatewayHttpConnection, Void> handler) {
         try {
             create(sourceChannel, request.getHostPort(), handler);
         } catch (IOException e) {
@@ -68,7 +68,7 @@ public class DirectGatewayMappedHttpConnectionFactory implements MappedGatewayHt
         }
     }
 
-    private void create(AsynchronousSocketChannel sourceChannel, HostPort hostPort, CompletionHandler<GatewayHttpConnection, Void> handler) {
+    private void create(AsyncSocket sourceChannel, HostPort hostPort, CompletionHandler<GatewayHttpConnection, Void> handler) {
     	GatewayHttpConnection connection = connectionCache.get(hostPort);
         if (connection == null) {
             if (LOG.isLoggable(Level.INFO)) {

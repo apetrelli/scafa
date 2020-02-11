@@ -1,20 +1,20 @@
 package com.github.apetrelli.scafa.proto.output;
 
 import java.nio.ByteBuffer;
-import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 
-import com.github.apetrelli.scafa.tls.util.AIOUtils;
+import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
+import com.github.apetrelli.scafa.proto.aio.util.AsyncUtils;
 
 public class DirectDataSender extends AbstractDataSender {
 
-    public DirectDataSender(AsynchronousSocketChannel channel) {
+    public DirectDataSender(AsyncSocket channel) {
         super(channel);
     }
 
     @Override
     public void send(ByteBuffer buffer, CompletionHandler<Void, Void> completionHandler) {
-        AIOUtils.flushBuffer(buffer, channel, completionHandler);
+        AsyncUtils.flushBuffer(buffer, channel, completionHandler);
     }
 
     @Override

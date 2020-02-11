@@ -2,9 +2,9 @@ package com.github.apetrelli.scafa.proto.processor.impl;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 
+import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.processor.Input;
 import com.github.apetrelli.scafa.proto.processor.InputProcessor;
 
@@ -38,9 +38,9 @@ public class PassthroughInputProcessor<P extends Input> implements InputProcesso
         }
     }
 
-	private AsynchronousSocketChannel channel;
+	private AsyncSocket channel;
 
-	public PassthroughInputProcessor(AsynchronousSocketChannel channel) {
+	public PassthroughInputProcessor(AsyncSocket channel) {
 		this.channel = channel;
 	}
 

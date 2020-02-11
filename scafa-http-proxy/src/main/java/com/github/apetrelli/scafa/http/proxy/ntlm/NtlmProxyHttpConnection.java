@@ -19,7 +19,6 @@ package com.github.apetrelli.scafa.http.proxy.ntlm;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 
 import com.github.apetrelli.scafa.http.HttpHandler;
@@ -33,6 +32,8 @@ import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
 import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.impl.AbstractUpstreamProxyHttpConnection;
 import com.github.apetrelli.scafa.http.util.HttpUtils;
+import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
+import com.github.apetrelli.scafa.proto.aio.ClientAsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.DelegateFailureCompletionHandler;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.processor.impl.StatefulInputProcessor;
@@ -61,10 +62,10 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
 
     private ByteBuffer readBuffer = ByteBuffer.allocate(16384);
 
-    public NtlmProxyHttpConnection(MappedProxyHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
-            HostPort proxySocketAddress, HostPort destinationSocketAddress, String interfaceName, boolean forceIpV4, String domain, String username, String password,
+    public NtlmProxyHttpConnection(MappedProxyHttpConnectionFactory factory, AsyncSocket sourceChannel,
+            ClientAsyncSocket socket, HostPort destinationSocketAddress, String domain, String username, String password,
             HttpStateMachine stateMachine, HttpRequestManipulator manipulator) {
-        super(factory, sourceChannel, proxySocketAddress, destinationSocketAddress, interfaceName, forceIpV4, manipulator);
+        super(factory, sourceChannel, socket, destinationSocketAddress, manipulator);
         this.domain = domain;
         this.username = username;
         this.password = password;
@@ -78,7 +79,7 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
         if (!authenticated) {
             authenticate(request, completionHandler);
         } else {
-            HttpUtils.sendHeader(request, channel, completionHandler);
+            HttpUtils.sendHeader(request, socket, completionHandler);
         }
     }
 
@@ -87,7 +88,7 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
         if (!authenticated) {
             authenticateOnConnect(request, completionHandler);
         } else {
-            HttpUtils.sendHeader(request, channel, completionHandler);
+            HttpUtils.sendHeader(request, socket, completionHandler);
         }
     }
 
@@ -106,7 +107,7 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
         if (length != null) {
             modifiedRequest.setHeader("Content-Length", "0");
         }
-        HttpUtils.sendHeader(modifiedRequest, channel, new DelegateFailureCompletionHandler<Void, Void>(completionHandler) {
+        HttpUtils.sendHeader(modifiedRequest, socket, new DelegateFailureCompletionHandler<Void, Void>(completionHandler) {
 
             @Override
             public void completed(Void result, Void attachment) {
@@ -140,7 +141,7 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
             StatefulInputProcessor<HttpHandler, HttpStatus, HttpProcessingContext> processor, CompletionHandler<Void, Void> completionHandler) {
         Type1Message message1 = new Type1Message(TYPE_1_FLAGS, null, null);
         modifiedRequest.setHeader("PROXY-AUTHORIZATION", "NTLM " + Base64.encode(message1.toByteArray()));
-        HttpUtils.sendHeader(modifiedRequest, channel, new DelegateFailureCompletionHandler<Void, Void>(completionHandler) {
+        HttpUtils.sendHeader(modifiedRequest, socket, new DelegateFailureCompletionHandler<Void, Void>(completionHandler) {
 
             @Override
             public void completed(Void result, Void attachment) {
@@ -161,7 +162,7 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
                                                     message2.getFlags());
                                             finalRequest.setHeader("Proxy-Authorization",
                                                     "NTLM " + Base64.encode(message3.toByteArray()));
-                                            HttpUtils.sendHeader(finalRequest, channel, new DelegateFailureCompletionHandler<Void, Void>(completionHandler) {
+                                            HttpUtils.sendHeader(finalRequest, socket, new DelegateFailureCompletionHandler<Void, Void>(completionHandler) {
 
                                                 @Override
                                                 public void completed(Void result, Void attachment) {
@@ -184,8 +185,7 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
                                     break;
                                 default:
                                     // this happens only in HTTP with disallowed connections.
-                                    channel.close();
-                                    completionHandler.completed(null, null);
+                                    socket.disconnect(completionHandler);
                                 }
                             } catch (IOException e) {
                                 completionHandler.failed(e, null);
@@ -212,7 +212,7 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
             Integer byteRead) {
         if (!handler.isFinished()) {
             readBuffer.clear();
-            channel.read(readBuffer, byteRead, new DelegateFailureCompletionHandler<Integer, Integer>(completionHandler) {
+            socket.read(readBuffer, byteRead, new DelegateFailureCompletionHandler<Integer, Integer>(completionHandler) {
 
                 @Override
                 public void completed(Integer result, Integer attachment) {

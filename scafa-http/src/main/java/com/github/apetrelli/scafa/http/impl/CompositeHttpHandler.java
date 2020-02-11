@@ -63,7 +63,7 @@ public class CompositeHttpHandler implements HttpHandler {
 	}
 
 	@Override
-	public void onDisconnect() throws IOException {
+	public void onDisconnect() {
 	}
 
 	@Override

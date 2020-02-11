@@ -85,7 +85,7 @@ public class HttpHandlerSupport implements HttpHandler {
     }
 
     @Override
-    public void onDisconnect() throws IOException {
+    public void onDisconnect() {
     }
 
 }

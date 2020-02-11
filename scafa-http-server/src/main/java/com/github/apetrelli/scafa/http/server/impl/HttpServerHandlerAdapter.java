@@ -24,7 +24,7 @@ public class HttpServerHandlerAdapter implements HttpHandler {
 	}
 
 	@Override
-	public void onDisconnect() throws IOException {
+	public void onDisconnect() {
 	}
 
 	@Override

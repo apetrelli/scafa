@@ -17,12 +17,11 @@
  */
 package com.github.apetrelli.scafa.http.gateway;
 
-import java.nio.channels.AsynchronousSocketChannel;
-
+import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 
 public interface GatewayHttpConnectionFactory {
 
-	GatewayHttpConnection create(MappedGatewayHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
+	GatewayHttpConnection create(MappedGatewayHttpConnectionFactory factory, AsyncSocket sourceChannel,
 			HostPort socketAddress);
 }

@@ -20,7 +20,6 @@ package com.github.apetrelli.scafa.http.proxy.impl;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.ByteBuffer;
-import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -30,16 +29,17 @@ import java.util.logging.Logger;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
 import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
+import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
+import com.github.apetrelli.scafa.proto.aio.ClientAsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.DelegateFailureCompletionHandler;
-import com.github.apetrelli.scafa.proto.client.HostPort;
 
 public class DirectProxyHttpConnection extends AbstractProxyHttpConnection {
 
     private static final Logger LOG = Logger.getLogger(DirectProxyHttpConnection.class.getName());
 
     public DirectProxyHttpConnection(MappedProxyHttpConnectionFactory factory,
-            AsynchronousSocketChannel sourceChannel, HostPort socketAddress, String interfaceName, boolean forceIpV4) {
-        super(factory, sourceChannel, socketAddress, socketAddress, interfaceName, forceIpV4);
+            AsyncSocket sourceChannel, ClientAsyncSocket socket) {
+        super(factory, sourceChannel, socket, socket.getAddress());
     }
 
     @Override
@@ -67,7 +67,7 @@ public class DirectProxyHttpConnection extends AbstractProxyHttpConnection {
         modifiedRequest.setResource(realurl.getFile());
         if (LOG.isLoggable(Level.INFO)) {
             LOG.log(Level.INFO, "Direct connection: connected thread {0} to port {1} and URL {2}",
-                    new Object[] { Thread.currentThread().getName(), channel.getLocalAddress().toString(), request.getResource() });
+                    new Object[] { Thread.currentThread().getName(), socket.getAddress().toString(), request.getResource() });
         }
         return modifiedRequest;
     }

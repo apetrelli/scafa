@@ -17,17 +17,17 @@
  */
 package com.github.apetrelli.scafa.http.proxy.impl;
 
-import java.nio.channels.AsynchronousSocketChannel;
-
 import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
 import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
+import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
+import com.github.apetrelli.scafa.proto.aio.ClientAsyncSocket;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 
 public class AnonymousProxyHttpConnection extends AbstractUpstreamProxyHttpConnection {
 
-    public AnonymousProxyHttpConnection(MappedProxyHttpConnectionFactory factory, AsynchronousSocketChannel sourceChannel,
-            HostPort socketAddress, HostPort destinationSocketAddress, String interfaceName, boolean forceIpV4, HttpRequestManipulator manipulator) {
-        super(factory, sourceChannel, socketAddress, destinationSocketAddress, interfaceName, forceIpV4, manipulator);
+    public AnonymousProxyHttpConnection(MappedProxyHttpConnectionFactory factory, AsyncSocket sourceChannel,
+            ClientAsyncSocket socket, HostPort destinationSocketAddress, HttpRequestManipulator manipulator) {
+        super(factory, sourceChannel, socket, destinationSocketAddress, manipulator);
     }
 
 }

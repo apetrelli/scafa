@@ -37,8 +37,10 @@ import com.github.apetrelli.scafa.http.impl.HttpProcessingContextFactory;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
 import com.github.apetrelli.scafa.http.proxy.impl.DefaultHttpConnectionFactoryFactory;
 import com.github.apetrelli.scafa.http.proxy.impl.ProxyHttpHandlerFactory;
+import com.github.apetrelli.scafa.proto.aio.AsynchronousSocketChannelFactory;
 import com.github.apetrelli.scafa.proto.aio.ScafaListener;
 import com.github.apetrelli.scafa.proto.aio.impl.DefaultProcessorFactory;
+import com.github.apetrelli.scafa.proto.aio.impl.SimpleAsynchronousSocketChannelFactory;
 import com.github.apetrelli.scafa.proto.processor.impl.StatefulInputProcessorFactory;
 import com.github.apetrelli.scafa.server.config.ConfigurationProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.server.config.ini.IniConfiguration;
@@ -111,12 +113,13 @@ public class ScafaLauncher {
         }
         try {
         	HttpStateMachine stateMachine = new HttpStateMachine();
-            IniConfiguration configuration = IniConfiguration.create(profile, stateMachine);
+        	AsynchronousSocketChannelFactory channelFactory = new SimpleAsynchronousSocketChannelFactory();
+            IniConfiguration configuration = IniConfiguration.create(profile, channelFactory, stateMachine);
             Integer port = configuration.getPort();
             StatefulInputProcessorFactory<HttpHandler, HttpStatus, HttpProcessingContext> inputProcessorFactory = new StatefulInputProcessorFactory<>(stateMachine);
             HttpProcessingContextFactory processingContextFactory = new HttpProcessingContextFactory();
             DefaultHttpConnectionFactoryFactory connectionFactoryFactory = new DefaultHttpConnectionFactoryFactory(
-                    new ConfigurationProxyHttpConnectionFactory(configuration));
+                    new ConfigurationProxyHttpConnectionFactory(configuration, channelFactory));
             ProxyHttpHandlerFactory proxyHttpHandlerFactory = new ProxyHttpHandlerFactory(connectionFactoryFactory);
             DefaultProcessorFactory<HttpStatus, HttpProcessingContext, HttpHandler> defaultProcessorFactory = new DefaultProcessorFactory<>(
                     inputProcessorFactory, processingContextFactory);

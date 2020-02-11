@@ -1,24 +1,24 @@
 package com.github.apetrelli.scafa.http.proxy.impl;
 
 import java.io.IOException;
-import java.nio.channels.AsynchronousSocketChannel;
 
 import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
+import com.github.apetrelli.scafa.proto.aio.ClientAsyncSocket;
+import com.github.apetrelli.scafa.proto.aio.IgnoringCompletionHandler;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.processor.Handler;
 
 public class ChannelDisconnectorHandler implements Handler {
 
 	private MappedProxyHttpConnectionFactory factory;
-
-	private AsynchronousSocketChannel channel;
+	
+	private ClientAsyncSocket socket;
 
 	private HostPort socketAddress;
 
-	public ChannelDisconnectorHandler(MappedProxyHttpConnectionFactory factory, AsynchronousSocketChannel channel,
-            HostPort socketAddress) {
+	public ChannelDisconnectorHandler(MappedProxyHttpConnectionFactory factory, ClientAsyncSocket socket, HostPort socketAddress) {
 		this.factory = factory;
-		this.channel = channel;
+		this.socket = socket;
 		this.socketAddress = socketAddress;
 	}
 
@@ -28,11 +28,9 @@ public class ChannelDisconnectorHandler implements Handler {
 	}
 
 	@Override
-	public void onDisconnect() throws IOException {
+	public void onDisconnect() {
+		socket.disconnect(new IgnoringCompletionHandler<Void, Void>());
 		factory.dispose(socketAddress);
-		if (channel.isOpen()) {
-			channel.close();
-		}
 	}
 
 }

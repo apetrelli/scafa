@@ -1,9 +1,9 @@
 package com.github.apetrelli.scafa.http.gateway.direct;
 
-import java.nio.channels.AsynchronousSocketChannel;
-
 import com.github.apetrelli.scafa.http.gateway.MappedGatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.gateway.impl.AbstractGatewayHttpConnection;
+import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
+import com.github.apetrelli.scafa.proto.aio.ClientAsyncSocket;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.processor.Handler;
 import com.github.apetrelli.scafa.proto.processor.Input;
@@ -21,17 +21,15 @@ public abstract class AbstractDirectGatewayHttpConnection extends AbstractGatewa
 
     protected MappedGatewayHttpConnectionFactory factory;
 
-	public AbstractDirectGatewayHttpConnection(AsynchronousSocketChannel sourceChannel, HostPort socketAddress, HostPort destinationSocketAddress,
-			String interfaceName, boolean forceIpV4, MappedGatewayHttpConnectionFactory factory) {
-		super(sourceChannel, socketAddress, interfaceName, forceIpV4);
-		this.destinationSocketAddress = destinationSocketAddress;
+	public AbstractDirectGatewayHttpConnection(AsyncSocket sourceChannel, ClientAsyncSocket socket, MappedGatewayHttpConnectionFactory factory) {
+		super(sourceChannel, socket);
 		this.factory = factory;
 	}
 
 	@Override
 	protected void prepareChannel() {
-        Processor<Handler> processor = new DefaultProcessor<Input, Handler>(channel, new PassthroughInputProcessorFactory(sourceChannel), inputFactory);
-        processor.process(new ChannelDisconnectorHandler(factory, sourceChannel, destinationSocketAddress));
+        Processor<Handler> processor = new DefaultProcessor<Input, Handler>(socket, new PassthroughInputProcessorFactory(sourceChannel), inputFactory);
+        processor.process(new ChannelDisconnectorHandler(factory, socket, destinationSocketAddress));
 	}
 
 }

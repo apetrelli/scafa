@@ -30,6 +30,7 @@ import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.github.apetrelli.scafa.proto.aio.impl.DirectAsyncSocket;
 import com.github.apetrelli.scafa.proto.processor.Processor;
 
 public class ScafaListener<H> {
@@ -68,8 +69,9 @@ public class ScafaListener<H> {
             @Override
             public void completed(AsynchronousSocketChannel client,
                     Void attachment) {
-                Processor<H> processor = processorFactory.create(client);
-                H handler = handlerFactory.create(client);
+                DirectAsyncSocket socket = new DirectAsyncSocket(client);
+				Processor<H> processor = processorFactory.create(socket);
+                H handler = handlerFactory.create(socket);
                 processor.process(handler);
                 server.accept(null, this);
             }

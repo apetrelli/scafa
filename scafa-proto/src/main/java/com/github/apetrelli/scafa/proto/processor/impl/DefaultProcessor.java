@@ -20,19 +20,18 @@ package com.github.apetrelli.scafa.proto.processor.impl;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousCloseException;
-import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.CompletionHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.processor.Handler;
 import com.github.apetrelli.scafa.proto.processor.Input;
 import com.github.apetrelli.scafa.proto.processor.InputProcessor;
 import com.github.apetrelli.scafa.proto.processor.InputProcessorFactory;
 import com.github.apetrelli.scafa.proto.processor.ProcessingContextFactory;
 import com.github.apetrelli.scafa.proto.processor.Processor;
-import com.github.apetrelli.scafa.tls.util.IOUtils;
 
 public class DefaultProcessor<P extends Input, H extends Handler> implements Processor<H> {
 
@@ -75,14 +74,19 @@ public class DefaultProcessor<P extends Input, H extends Handler> implements Pro
         }
 
         private void disconnect() {
-            try {
-            	handler.onDisconnect();
-                if (client.isOpen()) {
-                    IOUtils.closeQuietly(client);
-                }
-            } catch (IOException e) {
-                LOG.log(Level.SEVERE, "Error when disposing client", e);
-            }
+        	client.disconnect(new CompletionHandler<Void, Void>() {
+
+				@Override
+				public void completed(Void result, Void attachment) {
+	            	handler.onDisconnect();
+				}
+
+				@Override
+				public void failed(Throwable exc, Void attachment) {
+	            	handler.onDisconnect();
+	                LOG.log(Level.SEVERE, "Error when disposing client", exc);
+				}
+			});
         }
     }
 
@@ -111,14 +115,14 @@ public class DefaultProcessor<P extends Input, H extends Handler> implements Pro
 
     private static final Logger LOG = Logger.getLogger(DefaultProcessor.class.getName());
 
-    private AsynchronousSocketChannel client;
+    private AsyncSocket client;
 
     private InputProcessorFactory<H, P> inputProcessorFactory;
 
     private ProcessingContextFactory<P> processingContextFactory;
 
-    public DefaultProcessor(AsynchronousSocketChannel client,
-            InputProcessorFactory<H, P> inputProcessorFactory, ProcessingContextFactory<P> processingContextFactory) {
+	public DefaultProcessor(AsyncSocket client, InputProcessorFactory<H, P> inputProcessorFactory,
+			ProcessingContextFactory<P> processingContextFactory) {
         this.client = client;
         this.inputProcessorFactory = inputProcessorFactory;
         this.processingContextFactory = processingContextFactory;
