@@ -5,11 +5,10 @@ import java.io.IOException;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.gateway.MappedGatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
-import com.github.apetrelli.scafa.proto.aio.ClientAsyncSocket;
 
 public class DirectGatewayHttpConnection extends AbstractDirectGatewayHttpConnection {
 
-	public DirectGatewayHttpConnection(AsyncSocket sourceChannel, ClientAsyncSocket socket,
+	public DirectGatewayHttpConnection(AsyncSocket sourceChannel, AsyncSocket socket,
 			MappedGatewayHttpConnectionFactory factory) {
 		super(sourceChannel, socket, factory);
 	}

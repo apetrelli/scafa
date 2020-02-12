@@ -23,7 +23,6 @@ import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.AsynchronousSocketChannelFactory;
-import com.github.apetrelli.scafa.proto.aio.ClientAsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.impl.DirectClientAsyncSocket;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 
@@ -51,7 +50,7 @@ public class AnonymousProxyHttpConnectionFactory implements ProxyHttpConnectionF
     @Override
     public ProxyHttpConnection create(MappedProxyHttpConnectionFactory factory, AsyncSocket sourceChannel,
             HostPort socketAddress) {
-    	ClientAsyncSocket socket = new DirectClientAsyncSocket(channelFactory, proxySocketAddress, interfaceName, forceIpV4);
+    	AsyncSocket socket = new DirectClientAsyncSocket(channelFactory, proxySocketAddress, interfaceName, forceIpV4);
         return new AnonymousProxyHttpConnection(factory, sourceChannel, socket, socketAddress	, manipulator);
     }
 

@@ -5,7 +5,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.CompletionHandler;
 import java.util.concurrent.ExecutionException;
 
-import com.github.apetrelli.scafa.proto.aio.ClientAsyncSocket;
+import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.DelegateFailureCompletionHandler;
 import com.github.apetrelli.scafa.proto.aio.util.AsyncUtils;
 import com.github.apetrelli.scafa.proto.client.ClientConnection;
@@ -13,9 +13,9 @@ import com.github.apetrelli.scafa.tls.util.CompletionHandlerFuture;
 
 public abstract class AbstractClientConnection implements ClientConnection {
     
-    protected ClientAsyncSocket socket;
+    protected AsyncSocket socket;
 
-    public AbstractClientConnection(ClientAsyncSocket socket) {
+    public AbstractClientConnection(AsyncSocket socket) {
     	this.socket = socket;
 	}
 

@@ -18,7 +18,6 @@
 package com.github.apetrelli.scafa.http.util;
 
 import java.nio.ByteBuffer;
-import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
@@ -31,7 +30,6 @@ import java.util.logging.Logger;
 import com.github.apetrelli.scafa.http.HeaderHolder;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.util.AsyncUtils;
-import com.github.apetrelli.scafa.tls.util.AIOUtils;
 
 public class HttpUtils {
 
@@ -46,18 +44,6 @@ public class HttpUtils {
 	private HttpUtils() {
 	}
 
-	public static void sendHeader(HeaderHolder holder, AsynchronousSocketChannel channelToSend,
-			CompletionHandler<Void, Void> completionHandler) {
-		ByteBuffer buffer = holder.toHeapByteBuffer();
-		if (LOG.isLoggable(Level.FINEST)) {
-			String request = new String(buffer.array(), 0, buffer.limit());
-			LOG.finest("-- Raw request/response header");
-			LOG.finest(request);
-			LOG.finest("-- End of header --");
-		}
-		AIOUtils.flipAndFlushBuffer(buffer, channelToSend, completionHandler);
-	}
-
 	public static void sendHeader(HeaderHolder holder, AsyncSocket channelToSend,
 			CompletionHandler<Void, Void> completionHandler) {
 		ByteBuffer buffer = holder.toHeapByteBuffer();
@@ -70,14 +56,6 @@ public class HttpUtils {
 		AsyncUtils.flipAndFlushBuffer(buffer, channelToSend, completionHandler);
 	}
 
-	public static void sendChunkSize(long size, AsynchronousSocketChannel channelToSend,
-			CompletionHandler<Void, Void> completionHandler) {
-		String sizeString = Long.toString(size, 16);
-		ByteBuffer buffer = ByteBuffer.allocate(sizeString.length() + 2);
-		buffer.put(sizeString.getBytes(StandardCharsets.US_ASCII)).put(CR).put(LF);
-		AIOUtils.flipAndFlushBuffer(buffer, channelToSend, completionHandler);
-	}
-
 	public static void sendChunkSize(long size, AsyncSocket channelToSend,
 			CompletionHandler<Void, Void> completionHandler) {
 		String sizeString = Long.toString(size, 16);
@@ -86,53 +64,11 @@ public class HttpUtils {
 		AsyncUtils.flipAndFlushBuffer(buffer, channelToSend, completionHandler);
 	}
 
-	public static void sendNewline(AsynchronousSocketChannel channelToSend,
-			CompletionHandler<Void, Void> completionHandler) {
-		ByteBuffer buffer = ByteBuffer.allocate(2);
-		buffer.put(CR).put(LF);
-		AIOUtils.flipAndFlushBuffer(buffer, channelToSend, completionHandler);
-	}
-
 	public static void sendNewline(AsyncSocket channelToSend,
 			CompletionHandler<Void, Void> completionHandler) {
 		ByteBuffer buffer = ByteBuffer.allocate(2);
 		buffer.put(CR).put(LF);
 		AsyncUtils.flipAndFlushBuffer(buffer, channelToSend, completionHandler);
-	}
-
-	public static void sendAsChunk(ByteBuffer buffer, AsynchronousSocketChannel channel,
-			CompletionHandler<Void, Void> completionHandler) {
-		HttpUtils.sendChunkSize(buffer.remaining(), channel, new CompletionHandler<Void, Void>() {
-
-			@Override
-			public void completed(Void result, Void attachment) {
-				AIOUtils.flushBuffer(buffer, channel, new CompletionHandler<Void, Void>() {
-
-					@Override
-					public void completed(Void result, Void attachment) {
-						HttpUtils.sendNewline(channel, completionHandler);
-					}
-
-					@Override
-					public void failed(Throwable exc, Void attachment) {
-						completionHandler.failed(exc, attachment);
-					}
-				});
-			}
-
-			@Override
-			public void failed(Throwable exc, Void attachment) {
-				completionHandler.failed(exc, attachment);
-			}
-		});
-	}
-
-	public static void sendEndOfChunkedTransfer(AsynchronousSocketChannel channelToSend,
-			CompletionHandler<Void, Void> completionHandler) {
-		ByteBuffer buffer = ByteBuffer.allocate(END_OF_CHUNKED_TRANSFER_SIZE_STRING.length() + 4);
-		buffer.put(END_OF_CHUNKED_TRANSFER_SIZE_STRING.getBytes(StandardCharsets.US_ASCII)).put(CR).put(LF).put(CR)
-				.put(LF);
-		AIOUtils.flipAndFlushBuffer(buffer, channelToSend, completionHandler);
 	}
 
 	public static void sendAsChunk(ByteBuffer buffer, AsyncSocket channel,

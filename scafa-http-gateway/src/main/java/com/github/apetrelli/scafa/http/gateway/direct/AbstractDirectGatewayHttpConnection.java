@@ -3,7 +3,6 @@ package com.github.apetrelli.scafa.http.gateway.direct;
 import com.github.apetrelli.scafa.http.gateway.MappedGatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.gateway.impl.AbstractGatewayHttpConnection;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
-import com.github.apetrelli.scafa.proto.aio.ClientAsyncSocket;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.processor.Handler;
 import com.github.apetrelli.scafa.proto.processor.Input;
@@ -21,7 +20,7 @@ public abstract class AbstractDirectGatewayHttpConnection extends AbstractGatewa
 
     protected MappedGatewayHttpConnectionFactory factory;
 
-	public AbstractDirectGatewayHttpConnection(AsyncSocket sourceChannel, ClientAsyncSocket socket, MappedGatewayHttpConnectionFactory factory) {
+	public AbstractDirectGatewayHttpConnection(AsyncSocket sourceChannel, AsyncSocket socket, MappedGatewayHttpConnectionFactory factory) {
 		super(sourceChannel, socket);
 		this.factory = factory;
 	}

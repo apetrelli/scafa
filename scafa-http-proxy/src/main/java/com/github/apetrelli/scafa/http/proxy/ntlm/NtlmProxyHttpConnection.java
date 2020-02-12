@@ -33,7 +33,6 @@ import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.impl.AbstractUpstreamProxyHttpConnection;
 import com.github.apetrelli.scafa.http.util.HttpUtils;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
-import com.github.apetrelli.scafa.proto.aio.ClientAsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.DelegateFailureCompletionHandler;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.processor.impl.StatefulInputProcessor;
@@ -63,7 +62,7 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
     private ByteBuffer readBuffer = ByteBuffer.allocate(16384);
 
     public NtlmProxyHttpConnection(MappedProxyHttpConnectionFactory factory, AsyncSocket sourceChannel,
-            ClientAsyncSocket socket, HostPort destinationSocketAddress, String domain, String username, String password,
+            AsyncSocket socket, HostPort destinationSocketAddress, String domain, String username, String password,
             HttpStateMachine stateMachine, HttpRequestManipulator manipulator) {
         super(factory, sourceChannel, socket, destinationSocketAddress, manipulator);
         this.domain = domain;

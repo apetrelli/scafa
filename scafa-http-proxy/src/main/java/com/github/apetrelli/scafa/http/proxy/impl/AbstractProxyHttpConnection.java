@@ -27,7 +27,6 @@ import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.http.util.HttpUtils;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
-import com.github.apetrelli.scafa.proto.aio.ClientAsyncSocket;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.client.impl.AbstractClientConnection;
 import com.github.apetrelli.scafa.proto.processor.Handler;
@@ -56,7 +55,7 @@ public abstract class AbstractProxyHttpConnection extends AbstractClientConnecti
     private HostPort destinationSocketAddress;
 
 	public AbstractProxyHttpConnection(MappedProxyHttpConnectionFactory factory, AsyncSocket sourceChannel,
-			ClientAsyncSocket socket, HostPort destinationSocketAddress) {
+			AsyncSocket socket, HostPort destinationSocketAddress) {
         super(socket);
         this.factory = factory;
         this.sourceChannel = sourceChannel;

@@ -11,12 +11,12 @@ import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.AsynchronousSocketChannelFactory;
-import com.github.apetrelli.scafa.proto.aio.ClientAsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.DelegateFailureCompletionHandler;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 
-public class DirectClientAsyncSocket extends DirectAsyncSocket implements ClientAsyncSocket {
+public class DirectClientAsyncSocket extends DirectAsyncSocket implements AsyncSocket {
 	
 	private static final Logger LOG = Logger.getLogger(DirectClientAsyncSocket.class.getName());
 

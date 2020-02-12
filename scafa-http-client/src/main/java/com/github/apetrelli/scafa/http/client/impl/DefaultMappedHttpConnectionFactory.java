@@ -8,8 +8,8 @@ import java.util.Map;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.client.HttpClientConnection;
 import com.github.apetrelli.scafa.http.output.DataSenderFactory;
+import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.AsynchronousSocketChannelFactory;
-import com.github.apetrelli.scafa.proto.aio.ClientAsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.impl.DirectClientAsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.impl.SimpleAsynchronousSocketChannelFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
@@ -33,7 +33,7 @@ public class DefaultMappedHttpConnectionFactory implements MappedHttpConnectionF
 			HostPort hostPort = request.getHostPort();
 			HttpClientConnection cachedConnection = connectionCache.get(hostPort);
 			if (cachedConnection == null) {
-			    ClientAsyncSocket socket = new DirectClientAsyncSocket(channelFactory, hostPort, null, false);
+			    AsyncSocket socket = new DirectClientAsyncSocket(channelFactory, hostPort, null, false);
 				HttpClientConnection connection = new DirectHttpConnection(socket, this, dataSenderFactory);
 				connectionCache.put(hostPort, connection);
 				connection.ensureConnected(new CompletionHandler<Void, Void>() {

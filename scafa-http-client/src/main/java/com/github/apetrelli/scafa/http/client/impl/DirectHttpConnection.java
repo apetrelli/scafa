@@ -13,7 +13,7 @@ import com.github.apetrelli.scafa.http.impl.HttpProcessingContextFactory;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
 import com.github.apetrelli.scafa.http.output.DataSenderFactory;
 import com.github.apetrelli.scafa.http.util.HttpUtils;
-import com.github.apetrelli.scafa.proto.aio.ClientAsyncSocket;
+import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.client.impl.AbstractClientConnection;
 import com.github.apetrelli.scafa.proto.output.DataSender;
 import com.github.apetrelli.scafa.proto.processor.Processor;
@@ -28,7 +28,7 @@ public class DirectHttpConnection extends AbstractClientConnection implements Ht
 
     private DataSenderFactory dataSenderFactory;
 
-	public DirectHttpConnection(ClientAsyncSocket socket, MappedHttpConnectionFactory connectionFactory, DataSenderFactory dataSenderFactory) {
+	public DirectHttpConnection(AsyncSocket socket, MappedHttpConnectionFactory connectionFactory, DataSenderFactory dataSenderFactory) {
 		super(socket); // No binding ATM.
 		this.connectionFactory = connectionFactory;
 		this.dataSenderFactory = dataSenderFactory;

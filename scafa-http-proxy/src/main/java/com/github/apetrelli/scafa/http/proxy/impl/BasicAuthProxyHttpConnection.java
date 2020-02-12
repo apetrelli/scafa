@@ -9,7 +9,6 @@ import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
 import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
 import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
-import com.github.apetrelli.scafa.proto.aio.ClientAsyncSocket;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 
 public class BasicAuthProxyHttpConnection extends AbstractUpstreamProxyHttpConnection {
@@ -17,7 +16,7 @@ public class BasicAuthProxyHttpConnection extends AbstractUpstreamProxyHttpConne
     private String authString;
 
     public BasicAuthProxyHttpConnection(MappedProxyHttpConnectionFactory factory, AsyncSocket sourceChannel,
-            ClientAsyncSocket socket, HostPort destinationSocketAddress, HttpRequestManipulator manipulator, String username, String password) {
+            AsyncSocket socket, HostPort destinationSocketAddress, HttpRequestManipulator manipulator, String username, String password) {
         super(factory, sourceChannel, socket, destinationSocketAddress, manipulator);
         String auth = username + ":" + password;
         authString = "Basic " + Base64.getEncoder().encodeToString(auth.getBytes(StandardCharsets.ISO_8859_1));

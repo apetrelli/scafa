@@ -26,7 +26,6 @@ import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.gateway.GatewayHttpConnection;
 import com.github.apetrelli.scafa.http.util.HttpUtils;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
-import com.github.apetrelli.scafa.proto.aio.ClientAsyncSocket;
 import com.github.apetrelli.scafa.proto.client.impl.AbstractClientConnection;
 
 public abstract class AbstractGatewayHttpConnection extends AbstractClientConnection implements GatewayHttpConnection {
@@ -35,7 +34,7 @@ public abstract class AbstractGatewayHttpConnection extends AbstractClientConnec
 
     protected AsyncSocket sourceChannel;
 
-	public AbstractGatewayHttpConnection(AsyncSocket sourceChannel, ClientAsyncSocket socket) {
+	public AbstractGatewayHttpConnection(AsyncSocket sourceChannel, AsyncSocket socket) {
         super(socket);
         this.sourceChannel = sourceChannel;
     }
