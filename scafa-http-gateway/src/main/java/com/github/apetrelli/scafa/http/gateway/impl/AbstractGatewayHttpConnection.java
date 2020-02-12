@@ -22,19 +22,19 @@ import java.nio.channels.CompletionHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.gateway.GatewayHttpConnection;
-import com.github.apetrelli.scafa.http.util.HttpUtils;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.client.impl.AbstractClientConnection;
 
-public abstract class AbstractGatewayHttpConnection extends AbstractClientConnection implements GatewayHttpConnection {
+public abstract class AbstractGatewayHttpConnection extends AbstractClientConnection<HttpAsyncSocket> implements GatewayHttpConnection {
 	
 	private static final Logger LOG = Logger.getLogger(AbstractGatewayHttpConnection.class.getName());
 
     protected AsyncSocket sourceChannel;
 
-	public AbstractGatewayHttpConnection(AsyncSocket sourceChannel, AsyncSocket socket) {
+	public AbstractGatewayHttpConnection(AsyncSocket sourceChannel, HttpAsyncSocket socket) {
         super(socket);
         this.sourceChannel = sourceChannel;
     }
@@ -75,6 +75,6 @@ public abstract class AbstractGatewayHttpConnection extends AbstractClientConnec
     protected abstract HttpRequest createForwardedRequest(HttpRequest request) throws IOException;
 
     protected void doSendHeader(HttpRequest request, CompletionHandler<Void, Void> completionHandler) {
-        HttpUtils.sendHeader(request, socket, completionHandler);
+        socket.sendHeader(request, completionHandler);
     }
 }

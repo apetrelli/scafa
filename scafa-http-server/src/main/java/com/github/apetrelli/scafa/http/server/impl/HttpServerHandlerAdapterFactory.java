@@ -1,11 +1,11 @@
 package com.github.apetrelli.scafa.http.server.impl;
 
+import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.server.HttpServerHandlerFactory;
-import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.HandlerFactory;
 
-public class HttpServerHandlerAdapterFactory implements HandlerFactory<HttpHandler> {
+public class HttpServerHandlerAdapterFactory implements HandlerFactory<HttpHandler, HttpAsyncSocket> {
 
 	private HttpServerHandlerFactory factory;
 
@@ -14,7 +14,7 @@ public class HttpServerHandlerAdapterFactory implements HandlerFactory<HttpHandl
 	}
 
 	@Override
-	public HttpHandler create(AsyncSocket sourceChannel) {
+	public HttpHandler create(HttpAsyncSocket sourceChannel) {
 		return new HttpServerHandlerAdapter(factory.create(sourceChannel));
 	}
 

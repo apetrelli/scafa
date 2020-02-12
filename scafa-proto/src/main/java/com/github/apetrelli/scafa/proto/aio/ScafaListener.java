@@ -30,16 +30,17 @@ import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.github.apetrelli.scafa.proto.aio.impl.DirectAsyncSocket;
 import com.github.apetrelli.scafa.proto.processor.Processor;
 
-public class ScafaListener<H> {
+public class ScafaListener<H, S extends AsyncSocket> {
 
     private static final Logger LOG = Logger.getLogger(ScafaListener.class.getName());
 
+    private AsyncSocketFactory<S> asyncSocketFactory;
+    
     private ProcessorFactory<H> processorFactory;
 
-    private HandlerFactory<H> handlerFactory;
+    private HandlerFactory<H, S> handlerFactory;
 
     private int portNumber;
 
@@ -49,7 +50,9 @@ public class ScafaListener<H> {
 
     private AsynchronousServerSocketChannel server;
 
-    public ScafaListener(ProcessorFactory<H> processorFactory, HandlerFactory<H> handlerFactory, int portNumber, String interfaceName, boolean forceIpV4) {
+	public ScafaListener(AsyncSocketFactory<S> asyncSocketFactory, ProcessorFactory<H> processorFactory,
+			HandlerFactory<H, S> handlerFactory, int portNumber, String interfaceName, boolean forceIpV4) {
+		this.asyncSocketFactory = asyncSocketFactory;
         this.processorFactory = processorFactory;
         this.handlerFactory = handlerFactory;
         this.portNumber = portNumber;
@@ -57,8 +60,9 @@ public class ScafaListener<H> {
         this.forceIpV4 = forceIpV4;
     }
 
-    public ScafaListener(ProcessorFactory<H> processorFactory, HandlerFactory<H> handlerFactory, int portNumber) {
-    	this(processorFactory, handlerFactory, portNumber, null, false);
+	public ScafaListener(AsyncSocketFactory<S> asyncSocketFactory, ProcessorFactory<H> processorFactory,
+			HandlerFactory<H, S> handlerFactory, int portNumber) {
+    	this(asyncSocketFactory, processorFactory, handlerFactory, portNumber, null, false);
     }
 
     public void listen() throws IOException {
@@ -69,7 +73,7 @@ public class ScafaListener<H> {
             @Override
             public void completed(AsynchronousSocketChannel client,
                     Void attachment) {
-                DirectAsyncSocket socket = new DirectAsyncSocket(client);
+                S socket = asyncSocketFactory.create(client);
 				Processor<H> processor = processorFactory.create(socket);
                 H handler = handlerFactory.create(socket);
                 processor.process(handler);

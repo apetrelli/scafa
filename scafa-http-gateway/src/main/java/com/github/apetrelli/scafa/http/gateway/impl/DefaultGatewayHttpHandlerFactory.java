@@ -5,7 +5,7 @@ import com.github.apetrelli.scafa.http.gateway.GatewayHttpConnectionFactoryFacto
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.HandlerFactory;
 
-public class DefaultGatewayHttpHandlerFactory implements HandlerFactory<HttpHandler> {
+public class DefaultGatewayHttpHandlerFactory implements HandlerFactory<HttpHandler, AsyncSocket> {
 
 	private GatewayHttpConnectionFactoryFactory factory;
 

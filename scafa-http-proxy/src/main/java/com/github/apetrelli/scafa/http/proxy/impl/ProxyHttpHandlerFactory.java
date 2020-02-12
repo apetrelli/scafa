@@ -22,7 +22,7 @@ import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnectionFactoryFactory;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.HandlerFactory;
 
-public class ProxyHttpHandlerFactory implements HandlerFactory<HttpHandler> {
+public class ProxyHttpHandlerFactory implements HandlerFactory<HttpHandler, AsyncSocket> {
 
     private ProxyHttpConnectionFactoryFactory connectionFactoryFactory;
 

@@ -17,7 +17,10 @@
  */
 package com.github.apetrelli.scafa.http.proxy.ntlm;
 
+import com.github.apetrelli.scafa.http.HttpAsyncSocket;
+import com.github.apetrelli.scafa.http.impl.DirectHttpAsyncSocket;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
+import com.github.apetrelli.scafa.http.output.DataSenderFactory;
 import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
 import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
@@ -31,37 +34,44 @@ public class NtlmProxyHttpConnectionFactory implements ProxyHttpConnectionFactor
 
 	private AsynchronousSocketChannelFactory channelFactory;
 
-    private HostPort proxySocketAddress;
+	private DataSenderFactory dataSenderFactory;
 
-    private String interfaceName;
+	private HostPort proxySocketAddress;
 
-    private boolean forceIpV4;
+	private String interfaceName;
 
-    private String domain, username, password;
+	private boolean forceIpV4;
 
-    private HttpRequestManipulator manipulator;
+	private String domain, username, password;
 
-    private HttpStateMachine stateMachine;
+	private HttpRequestManipulator manipulator;
 
-	public NtlmProxyHttpConnectionFactory(AsynchronousSocketChannelFactory channelFactory, HostPort proxySocketAddress,
-			String interfaceName, boolean forceIpV4, String domain, String username, String password,
-			HttpRequestManipulator manipulator, HttpStateMachine stateMachine) {
-        this.proxySocketAddress = proxySocketAddress;
-        this.interfaceName = interfaceName;
-        this.forceIpV4 = forceIpV4;
-        this.domain = domain;
-        this.username = username;
-        this.password = password;
-        this.manipulator = manipulator;
-        this.stateMachine = stateMachine;
-    }
+	private HttpStateMachine stateMachine;
 
-    @Override
-    public ProxyHttpConnection create(MappedProxyHttpConnectionFactory factory, AsyncSocket sourceChannel,
-            HostPort socketAddress) {
-    	AsyncSocket socket = new DirectClientAsyncSocket(channelFactory, proxySocketAddress, interfaceName, forceIpV4);
-        return new NtlmProxyHttpConnection(factory, sourceChannel, socket, socketAddress,
-                domain, username, password, stateMachine, manipulator);
-    }
+	public NtlmProxyHttpConnectionFactory(AsynchronousSocketChannelFactory channelFactory,
+			DataSenderFactory dataSenderFactory, HostPort proxySocketAddress, String interfaceName, boolean forceIpV4,
+			String domain, String username, String password, HttpRequestManipulator manipulator,
+			HttpStateMachine stateMachine) {
+		this.channelFactory = channelFactory;
+		this.dataSenderFactory = dataSenderFactory;
+		this.proxySocketAddress = proxySocketAddress;
+		this.interfaceName = interfaceName;
+		this.forceIpV4 = forceIpV4;
+		this.domain = domain;
+		this.username = username;
+		this.password = password;
+		this.manipulator = manipulator;
+		this.stateMachine = stateMachine;
+	}
+
+	@Override
+	public ProxyHttpConnection create(MappedProxyHttpConnectionFactory factory, AsyncSocket sourceChannel,
+			HostPort socketAddress) {
+		AsyncSocket socket = new DirectClientAsyncSocket(channelFactory, proxySocketAddress, interfaceName, forceIpV4);
+		HttpAsyncSocket httpSocket = new DirectHttpAsyncSocket(socket, dataSenderFactory);
+		HttpAsyncSocket httpSourceSocket = new DirectHttpAsyncSocket(sourceChannel, dataSenderFactory);
+		return new NtlmProxyHttpConnection(factory, httpSourceSocket, httpSocket, socketAddress, domain, username,
+				password, stateMachine, manipulator);
+	}
 
 }

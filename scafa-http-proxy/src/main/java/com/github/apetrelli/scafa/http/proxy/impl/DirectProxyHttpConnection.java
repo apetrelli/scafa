@@ -26,6 +26,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
 import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
@@ -37,7 +38,7 @@ public class DirectProxyHttpConnection extends AbstractProxyHttpConnection {
     private static final Logger LOG = Logger.getLogger(DirectProxyHttpConnection.class.getName());
 
     public DirectProxyHttpConnection(MappedProxyHttpConnectionFactory factory,
-            AsyncSocket sourceChannel, AsyncSocket socket) {
+            AsyncSocket sourceChannel, HttpAsyncSocket socket) {
         super(factory, sourceChannel, socket, socket.getAddress());
     }
 

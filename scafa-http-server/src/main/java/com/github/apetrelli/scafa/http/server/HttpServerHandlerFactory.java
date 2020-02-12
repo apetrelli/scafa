@@ -1,8 +1,8 @@
 package com.github.apetrelli.scafa.http.server;
 
-import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
+import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 
 public interface HttpServerHandlerFactory {
 
-	HttpServerHandler create(AsyncSocket channel);
+	HttpServerHandler create(HttpAsyncSocket channel);
 }

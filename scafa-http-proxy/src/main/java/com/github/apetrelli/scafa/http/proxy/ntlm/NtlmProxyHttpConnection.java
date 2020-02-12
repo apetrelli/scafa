@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.CompletionHandler;
 
+import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpProcessingContext;
 import com.github.apetrelli.scafa.http.HttpRequest;
@@ -31,8 +32,6 @@ import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
 import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
 import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.impl.AbstractUpstreamProxyHttpConnection;
-import com.github.apetrelli.scafa.http.util.HttpUtils;
-import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.DelegateFailureCompletionHandler;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.processor.impl.StatefulInputProcessor;
@@ -61,8 +60,8 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
 
     private ByteBuffer readBuffer = ByteBuffer.allocate(16384);
 
-    public NtlmProxyHttpConnection(MappedProxyHttpConnectionFactory factory, AsyncSocket sourceChannel,
-            AsyncSocket socket, HostPort destinationSocketAddress, String domain, String username, String password,
+    public NtlmProxyHttpConnection(MappedProxyHttpConnectionFactory factory, HttpAsyncSocket sourceChannel,
+            HttpAsyncSocket socket, HostPort destinationSocketAddress, String domain, String username, String password,
             HttpStateMachine stateMachine, HttpRequestManipulator manipulator) {
         super(factory, sourceChannel, socket, destinationSocketAddress, manipulator);
         this.domain = domain;
@@ -78,7 +77,7 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
         if (!authenticated) {
             authenticate(request, completionHandler);
         } else {
-            HttpUtils.sendHeader(request, socket, completionHandler);
+            socket.sendHeader(request, completionHandler);
         }
     }
 
@@ -87,7 +86,7 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
         if (!authenticated) {
             authenticateOnConnect(request, completionHandler);
         } else {
-            HttpUtils.sendHeader(request, socket, completionHandler);
+            socket.sendHeader(request, completionHandler);
         }
     }
 
@@ -106,7 +105,7 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
         if (length != null) {
             modifiedRequest.setHeader("Content-Length", "0");
         }
-        HttpUtils.sendHeader(modifiedRequest, socket, new DelegateFailureCompletionHandler<Void, Void>(completionHandler) {
+        socket.sendHeader(modifiedRequest, new DelegateFailureCompletionHandler<Void, Void>(completionHandler) {
 
             @Override
             public void completed(Void result, Void attachment) {
@@ -140,7 +139,7 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
             StatefulInputProcessor<HttpHandler, HttpStatus, HttpProcessingContext> processor, CompletionHandler<Void, Void> completionHandler) {
         Type1Message message1 = new Type1Message(TYPE_1_FLAGS, null, null);
         modifiedRequest.setHeader("PROXY-AUTHORIZATION", "NTLM " + Base64.encode(message1.toByteArray()));
-        HttpUtils.sendHeader(modifiedRequest, socket, new DelegateFailureCompletionHandler<Void, Void>(completionHandler) {
+        socket.sendHeader(modifiedRequest, new DelegateFailureCompletionHandler<Void, Void>(completionHandler) {
 
             @Override
             public void completed(Void result, Void attachment) {
@@ -161,7 +160,7 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
                                                     message2.getFlags());
                                             finalRequest.setHeader("Proxy-Authorization",
                                                     "NTLM " + Base64.encode(message3.toByteArray()));
-                                            HttpUtils.sendHeader(finalRequest, socket, new DelegateFailureCompletionHandler<Void, Void>(completionHandler) {
+                                            socket.sendHeader(finalRequest, new DelegateFailureCompletionHandler<Void, Void>(completionHandler) {
 
                                                 @Override
                                                 public void completed(Void result, Void attachment) {

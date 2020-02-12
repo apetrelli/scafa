@@ -22,10 +22,10 @@ import java.nio.channels.CompletionHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
-import com.github.apetrelli.scafa.http.util.HttpUtils;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.client.impl.AbstractClientConnection;
@@ -36,7 +36,7 @@ import com.github.apetrelli.scafa.proto.processor.impl.DefaultProcessor;
 import com.github.apetrelli.scafa.proto.processor.impl.PassthroughInputProcessorFactory;
 import com.github.apetrelli.scafa.proto.processor.impl.SimpleInputFactory;
 
-public abstract class AbstractProxyHttpConnection extends AbstractClientConnection implements ProxyHttpConnection {
+public abstract class AbstractProxyHttpConnection extends AbstractClientConnection<HttpAsyncSocket> implements ProxyHttpConnection {
 	
 	private static final Logger LOG = Logger.getLogger(AbstractProxyHttpConnection.class.getName());
 
@@ -55,7 +55,7 @@ public abstract class AbstractProxyHttpConnection extends AbstractClientConnecti
     private HostPort destinationSocketAddress;
 
 	public AbstractProxyHttpConnection(MappedProxyHttpConnectionFactory factory, AsyncSocket sourceChannel,
-			AsyncSocket socket, HostPort destinationSocketAddress) {
+			HttpAsyncSocket socket, HostPort destinationSocketAddress) {
         super(socket);
         this.factory = factory;
         this.sourceChannel = sourceChannel;
@@ -98,7 +98,7 @@ public abstract class AbstractProxyHttpConnection extends AbstractClientConnecti
     }
 
     protected void doSendHeader(HttpRequest request, CompletionHandler<Void, Void> completionHandler) {
-        HttpUtils.sendHeader(request, socket, completionHandler);
+        socket.sendHeader(request, completionHandler);
     }
 
     protected void prepareChannel() {

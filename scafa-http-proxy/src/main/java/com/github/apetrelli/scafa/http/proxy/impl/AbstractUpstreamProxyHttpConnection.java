@@ -22,12 +22,12 @@ import java.nio.channels.CompletionHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
 import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
 import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
-import com.github.apetrelli.scafa.http.util.HttpUtils;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 
@@ -38,7 +38,7 @@ public abstract class AbstractUpstreamProxyHttpConnection extends AbstractProxyH
     protected HttpRequestManipulator manipulator;
 
     public AbstractUpstreamProxyHttpConnection(MappedProxyHttpConnectionFactory factory, AsyncSocket sourceChannel,
-            AsyncSocket socket, HostPort destinationSocketAddress, HttpRequestManipulator manipulator) {
+            HttpAsyncSocket socket, HostPort destinationSocketAddress, HttpRequestManipulator manipulator) {
         super(factory, sourceChannel, socket, destinationSocketAddress);
         this.manipulator = manipulator;
     }
@@ -53,7 +53,7 @@ public abstract class AbstractUpstreamProxyHttpConnection extends AbstractProxyH
     }
 
     protected void doConnect(HttpConnectRequest request, CompletionHandler<Void, Void> completionHandler) {
-        HttpUtils.sendHeader(request, socket, completionHandler);
+        socket.sendHeader(request, completionHandler);
     }
 
     @Override

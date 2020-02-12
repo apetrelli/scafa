@@ -35,11 +35,16 @@ import com.github.apetrelli.scafa.http.HttpProcessingContext;
 import com.github.apetrelli.scafa.http.HttpStatus;
 import com.github.apetrelli.scafa.http.impl.HttpProcessingContextFactory;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
+import com.github.apetrelli.scafa.http.output.DataSenderFactory;
+import com.github.apetrelli.scafa.http.output.DefaultDataSenderFactory;
 import com.github.apetrelli.scafa.http.proxy.impl.DefaultHttpConnectionFactoryFactory;
 import com.github.apetrelli.scafa.http.proxy.impl.ProxyHttpHandlerFactory;
+import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
+import com.github.apetrelli.scafa.proto.aio.AsyncSocketFactory;
 import com.github.apetrelli.scafa.proto.aio.AsynchronousSocketChannelFactory;
 import com.github.apetrelli.scafa.proto.aio.ScafaListener;
 import com.github.apetrelli.scafa.proto.aio.impl.DefaultProcessorFactory;
+import com.github.apetrelli.scafa.proto.aio.impl.SimpleAsyncSocketFactory;
 import com.github.apetrelli.scafa.proto.aio.impl.SimpleAsynchronousSocketChannelFactory;
 import com.github.apetrelli.scafa.proto.processor.impl.StatefulInputProcessorFactory;
 import com.github.apetrelli.scafa.server.config.ConfigurationProxyHttpConnectionFactory;
@@ -48,7 +53,7 @@ import com.github.apetrelli.scafa.server.config.ini.IniConfiguration;
 public class ScafaLauncher {
 
     private static final Logger LOG = Logger.getLogger(ScafaLauncher.class.getName());
-    private ScafaListener<HttpHandler> proxy;
+    private ScafaListener<HttpHandler, AsyncSocket> proxy;
     private File scafaDirectory;
 
     public void initialize() {
@@ -114,16 +119,18 @@ public class ScafaLauncher {
         try {
         	HttpStateMachine stateMachine = new HttpStateMachine();
         	AsynchronousSocketChannelFactory channelFactory = new SimpleAsynchronousSocketChannelFactory();
-            IniConfiguration configuration = IniConfiguration.create(profile, channelFactory, stateMachine);
+            DataSenderFactory dataSenderFactory = new DefaultDataSenderFactory();
+            IniConfiguration configuration = IniConfiguration.create(profile, channelFactory, dataSenderFactory, stateMachine);
             Integer port = configuration.getPort();
             StatefulInputProcessorFactory<HttpHandler, HttpStatus, HttpProcessingContext> inputProcessorFactory = new StatefulInputProcessorFactory<>(stateMachine);
-            HttpProcessingContextFactory processingContextFactory = new HttpProcessingContextFactory();
             DefaultHttpConnectionFactoryFactory connectionFactoryFactory = new DefaultHttpConnectionFactoryFactory(
-                    new ConfigurationProxyHttpConnectionFactory(configuration, channelFactory));
+                    new ConfigurationProxyHttpConnectionFactory(configuration, channelFactory, dataSenderFactory));
+            HttpProcessingContextFactory processingContextFactory = new HttpProcessingContextFactory();
             ProxyHttpHandlerFactory proxyHttpHandlerFactory = new ProxyHttpHandlerFactory(connectionFactoryFactory);
+            AsyncSocketFactory<AsyncSocket> asyncSocketFactory = new SimpleAsyncSocketFactory();
             DefaultProcessorFactory<HttpStatus, HttpProcessingContext, HttpHandler> defaultProcessorFactory = new DefaultProcessorFactory<>(
                     inputProcessorFactory, processingContextFactory);
-            proxy = new ScafaListener<HttpHandler>(defaultProcessorFactory, proxyHttpHandlerFactory, port);
+            proxy = new ScafaListener<HttpHandler, AsyncSocket>(asyncSocketFactory, defaultProcessorFactory, proxyHttpHandlerFactory, port);
             proxy.listen();
         } catch (IOException e) {
             LOG.log(Level.SEVERE, "Cannot start proxy", e);

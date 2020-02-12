@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import org.ini4j.Profile.Section;
 
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
+import com.github.apetrelli.scafa.http.output.DataSenderFactory;
 import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.impl.AnonymousProxyHttpConnectionFactory;
@@ -29,28 +30,30 @@ public class IniServerConfiguration implements ServerConfiguration {
 
     private List<String> excludes;
 
-    public IniServerConfiguration(Section section, AsynchronousSocketChannelFactory channelFactory, HttpStateMachine stateMachine) {
+    public IniServerConfiguration(Section section, AsynchronousSocketChannelFactory channelFactory,
+            DataSenderFactory dataSenderFactory, HttpStateMachine stateMachine) {
         String type = section.get("type");
         switch (type) {
         case "ntlm":
-            connectionFactory = new NtlmProxyHttpConnectionFactory(channelFactory, createProxySocketAddress(section),
-                    section.get("interface"), section.get("forceIPV4", boolean.class, false), section.get("domain"),
-                    section.get("username"), section.get("password"), createManipulator(section), stateMachine);
+            connectionFactory = new NtlmProxyHttpConnectionFactory(channelFactory, dataSenderFactory,
+                    createProxySocketAddress(section), section.get("interface"),
+                    section.get("forceIPV4", boolean.class, false), section.get("domain"), section.get("username"),
+                    section.get("password"), createManipulator(section), stateMachine);
             break;
         case "anon":
-            connectionFactory = new AnonymousProxyHttpConnectionFactory(channelFactory,
+            connectionFactory = new AnonymousProxyHttpConnectionFactory(channelFactory, dataSenderFactory,
                     createProxySocketAddress(section), section.get("interface"),
                     section.get("forceIPV4", boolean.class, false), createManipulator(section));
             break;
         case "basic":
-            connectionFactory = new BasicAuthProxyHttpConnectionFactory(channelFactory,
+            connectionFactory = new BasicAuthProxyHttpConnectionFactory(channelFactory, dataSenderFactory,
                     createProxySocketAddress(section), section.get("interface"),
                     section.get("forceIPV4", boolean.class, false), section.get("username"), section.get("password"),
                     createManipulator(section));
             break;
         default:
-            connectionFactory = new DirectHttpConnectionFactory(channelFactory, section.get("interface"),
-                    section.get("forceIPV4", boolean.class, false));
+            connectionFactory = new DirectHttpConnectionFactory(channelFactory, dataSenderFactory,
+                    section.get("interface"), section.get("forceIPV4", boolean.class, false));
             break;
         }
         List<String> exclude = section.getAll("exclude");
@@ -65,7 +68,7 @@ public class IniServerConfiguration implements ServerConfiguration {
     public List<String> getExcludes() {
         return excludes;
     }
-    
+
     @Override
     public ProxyHttpConnectionFactory getProxyHttpConnectionFactory() {
         return connectionFactory;
@@ -90,9 +93,11 @@ public class IniServerConfiguration implements ServerConfiguration {
         HttpRequestManipulator manipulator = null;
         if (className != null) {
             try {
-                Class<? extends HttpRequestManipulator> clazz = Class.forName(className).asSubclass(HttpRequestManipulator.class);
+                Class<? extends HttpRequestManipulator> clazz = Class.forName(className)
+                        .asSubclass(HttpRequestManipulator.class);
                 manipulator = clazz.getConstructor().newInstance();
-            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
+                    | InvocationTargetException | NoSuchMethodException | SecurityException e) {
                 LOG.log(Level.SEVERE, "Cannot instantiate manipulator: " + className, e);
             }
         }

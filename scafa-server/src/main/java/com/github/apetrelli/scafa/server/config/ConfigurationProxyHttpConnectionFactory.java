@@ -1,5 +1,6 @@
 package com.github.apetrelli.scafa.server.config;
 
+import com.github.apetrelli.scafa.http.output.DataSenderFactory;
 import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnectionFactory;
@@ -11,12 +12,13 @@ import com.github.apetrelli.scafa.proto.client.HostPort;
 public class ConfigurationProxyHttpConnectionFactory implements ProxyHttpConnectionFactory {
 
     private Configuration configuration;
-    
+
     private ProxyHttpConnectionFactory directHttpConnectionFactory;
 
-    public ConfigurationProxyHttpConnectionFactory(Configuration configuration, AsynchronousSocketChannelFactory channelFactory) {
+    public ConfigurationProxyHttpConnectionFactory(Configuration configuration,
+            AsynchronousSocketChannelFactory channelFactory, DataSenderFactory dataSenderFactory) {
         this.configuration = configuration;
-        directHttpConnectionFactory = new DirectHttpConnectionFactory(channelFactory);
+        directHttpConnectionFactory = new DirectHttpConnectionFactory(channelFactory, dataSenderFactory);
     }
 
     @Override

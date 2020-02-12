@@ -17,6 +17,9 @@
  */
 package com.github.apetrelli.scafa.http.proxy.impl;
 
+import com.github.apetrelli.scafa.http.HttpAsyncSocket;
+import com.github.apetrelli.scafa.http.impl.DirectHttpAsyncSocket;
+import com.github.apetrelli.scafa.http.output.DataSenderFactory;
 import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
 import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
@@ -30,32 +33,38 @@ public class BasicAuthProxyHttpConnectionFactory implements ProxyHttpConnectionF
 
 	private AsynchronousSocketChannelFactory channelFactory;
 
-    private HostPort proxySocketAddress;
+	private DataSenderFactory dataSenderFactory;
 
-    private String interfaceName;
+	private HostPort proxySocketAddress;
 
-    private boolean forceIpV4;
+	private String interfaceName;
 
-    private String username, password;
+	private boolean forceIpV4;
 
-    private HttpRequestManipulator manipulator;
+	private String username, password;
 
-    public BasicAuthProxyHttpConnectionFactory(AsynchronousSocketChannelFactory channelFactory, HostPort proxySocketAddress, String interfaceName, boolean forceIpV4,
-            String username, String password, HttpRequestManipulator manipulator) {
-    	this.channelFactory = channelFactory;
-        this.proxySocketAddress = proxySocketAddress;
-        this.interfaceName = interfaceName;
-        this.forceIpV4 = forceIpV4;
-        this.username = username;
-        this.password = password;
-        this.manipulator = manipulator;
-    }
+	private HttpRequestManipulator manipulator;
 
-    @Override
-    public ProxyHttpConnection create(MappedProxyHttpConnectionFactory factory, AsyncSocket sourceChannel,
-            HostPort socketAddress) {
-    	AsyncSocket socket = new DirectClientAsyncSocket(channelFactory, proxySocketAddress, interfaceName, forceIpV4);
-        return new BasicAuthProxyHttpConnection(factory, sourceChannel, socket, socketAddress, manipulator, username, password);
-    }
+	public BasicAuthProxyHttpConnectionFactory(AsynchronousSocketChannelFactory channelFactory,
+			DataSenderFactory dataSenderFactory, HostPort proxySocketAddress, String interfaceName, boolean forceIpV4,
+			String username, String password, HttpRequestManipulator manipulator) {
+		this.channelFactory = channelFactory;
+		this.dataSenderFactory = dataSenderFactory;
+		this.proxySocketAddress = proxySocketAddress;
+		this.interfaceName = interfaceName;
+		this.forceIpV4 = forceIpV4;
+		this.username = username;
+		this.password = password;
+		this.manipulator = manipulator;
+	}
+
+	@Override
+	public ProxyHttpConnection create(MappedProxyHttpConnectionFactory factory, AsyncSocket sourceChannel,
+			HostPort socketAddress) {
+		AsyncSocket socket = new DirectClientAsyncSocket(channelFactory, proxySocketAddress, interfaceName, forceIpV4);
+		HttpAsyncSocket httpSocket = new DirectHttpAsyncSocket(socket, dataSenderFactory);
+		return new BasicAuthProxyHttpConnection(factory, sourceChannel, httpSocket, socketAddress, manipulator, username,
+				password);
+	}
 
 }

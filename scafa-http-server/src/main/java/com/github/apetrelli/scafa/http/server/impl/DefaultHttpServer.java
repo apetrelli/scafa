@@ -6,11 +6,10 @@ import java.nio.channels.CompletionHandler;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
+import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.output.DataSenderFactory;
 import com.github.apetrelli.scafa.http.server.HttpServer;
-import com.github.apetrelli.scafa.http.util.HttpUtils;
-import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.BufferContext;
 import com.github.apetrelli.scafa.proto.aio.BufferContextReader;
 import com.github.apetrelli.scafa.proto.aio.impl.PathBufferContextReader;
@@ -114,13 +113,13 @@ public class DefaultHttpServer implements HttpServer {
 	}
 
 	@Override
-	public void response(AsyncSocket channel, HttpResponse response,
+	public void response(HttpAsyncSocket channel, HttpResponse response,
 			CompletionHandler<Void, Void> completionHandler) {
-		HttpUtils.sendHeader(response, channel, completionHandler);
+		channel.sendHeader(response, completionHandler);
 	}
 
 	@Override
-	public void response(AsyncSocket channel, HttpResponse response, BufferContextReader payloadReader,
+	public void response(HttpAsyncSocket channel, HttpResponse response, BufferContextReader payloadReader,
 			CompletionHandler<Void, Void> completionHandler) {
 		HttpResponse realResponse = new HttpResponse(response);
 		realResponse.setHeader("Transfer-Encoding", "chunked");
@@ -129,7 +128,7 @@ public class DefaultHttpServer implements HttpServer {
 	}
 
 	@Override
-	public void response(AsyncSocket channel, HttpResponse response, BufferContextReader payloadReader,
+	public void response(HttpAsyncSocket channel, HttpResponse response, BufferContextReader payloadReader,
 			long size, CompletionHandler<Void, Void> completionHandler) {
 		HttpResponse realResponse = new HttpResponse(response);
 		realResponse.setHeader("Content-Length", Long.toString(size));
@@ -137,7 +136,7 @@ public class DefaultHttpServer implements HttpServer {
 	}
 
 	@Override
-	public void response(AsyncSocket channel, HttpResponse response, Path payload,
+	public void response(HttpAsyncSocket channel, HttpResponse response, Path payload,
 			CompletionHandler<Void, Void> completionHandler) {
 		AsynchronousFileChannel fileChannel = null;
 		try {
@@ -150,10 +149,10 @@ public class DefaultHttpServer implements HttpServer {
 		}
 	}
 
-	private void responseWithPayload(AsyncSocket channel, HttpResponse realResponse,
+	private void responseWithPayload(HttpAsyncSocket channel, HttpResponse realResponse,
 			BufferContextReader payloadReader, CompletionHandler<Void, Void> completionHandler) {
 		DataSender sender = dataSenderFactory.create(realResponse, channel);
-		HttpUtils.sendHeader(realResponse, channel,
+		channel.sendHeader(realResponse,
 				new ResponseWithPayloadCompletionHandler(sender, payloadReader, completionHandler));
 	}
 }

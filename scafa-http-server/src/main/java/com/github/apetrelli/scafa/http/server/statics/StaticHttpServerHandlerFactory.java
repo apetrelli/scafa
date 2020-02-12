@@ -2,10 +2,10 @@ package com.github.apetrelli.scafa.http.server.statics;
 
 import java.util.Map;
 
+import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.server.HttpServer;
 import com.github.apetrelli.scafa.http.server.HttpServerHandler;
 import com.github.apetrelli.scafa.http.server.HttpServerHandlerFactory;
-import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 
 public class StaticHttpServerHandlerFactory implements HttpServerHandlerFactory {
 
@@ -29,7 +29,7 @@ public class StaticHttpServerHandlerFactory implements HttpServerHandlerFactory 
 	}
 
 	@Override
-	public HttpServerHandler create(AsyncSocket channel) {
+	public HttpServerHandler create(HttpAsyncSocket channel) {
 		return new StaticHttpServerHandler(channel, basePath, baseFilesystemPath, indexResource, mimeTypeConfig,
 				server);
 	}

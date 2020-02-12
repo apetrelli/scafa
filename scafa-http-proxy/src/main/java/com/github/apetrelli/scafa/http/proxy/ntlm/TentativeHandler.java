@@ -20,9 +20,9 @@ package com.github.apetrelli.scafa.http.proxy.ntlm;
 import java.nio.ByteBuffer;
 import java.nio.channels.CompletionHandler;
 
+import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.util.HttpUtils;
-import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.DelegateCompletionHandler;
 
 public class TentativeHandler extends CapturingHandler {
@@ -31,9 +31,9 @@ public class TentativeHandler extends CapturingHandler {
 
     private boolean onlyCaptureMode = false;
 
-    private AsyncSocket sourceChannel;
+    private HttpAsyncSocket sourceChannel;
 
-    public TentativeHandler(AsyncSocket sourceChannel) {
+    public TentativeHandler(HttpAsyncSocket sourceChannel) {
         this.sourceChannel = sourceChannel;
     }
 
@@ -58,7 +58,7 @@ public class TentativeHandler extends CapturingHandler {
             needsAuthorizing = true;
             completionHandler.completed(null, null);
         } else {
-            HttpUtils.sendHeader(response, sourceChannel, completionHandler);
+            sourceChannel.sendHeader(response, completionHandler);
         }
     }
 

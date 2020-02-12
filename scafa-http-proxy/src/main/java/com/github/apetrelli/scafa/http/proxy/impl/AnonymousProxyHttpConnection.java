@@ -17,6 +17,7 @@
  */
 package com.github.apetrelli.scafa.http.proxy.impl;
 
+import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
 import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
@@ -25,7 +26,7 @@ import com.github.apetrelli.scafa.proto.client.HostPort;
 public class AnonymousProxyHttpConnection extends AbstractUpstreamProxyHttpConnection {
 
     public AnonymousProxyHttpConnection(MappedProxyHttpConnectionFactory factory, AsyncSocket sourceChannel,
-            AsyncSocket socket, HostPort destinationSocketAddress, HttpRequestManipulator manipulator) {
+            HttpAsyncSocket socket, HostPort destinationSocketAddress, HttpRequestManipulator manipulator) {
         super(factory, sourceChannel, socket, destinationSocketAddress, manipulator);
     }
 

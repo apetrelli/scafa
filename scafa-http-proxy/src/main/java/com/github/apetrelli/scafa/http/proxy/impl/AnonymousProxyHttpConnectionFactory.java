@@ -17,6 +17,9 @@
  */
 package com.github.apetrelli.scafa.http.proxy.impl;
 
+import com.github.apetrelli.scafa.http.HttpAsyncSocket;
+import com.github.apetrelli.scafa.http.impl.DirectHttpAsyncSocket;
+import com.github.apetrelli.scafa.http.output.DataSenderFactory;
 import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
 import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
@@ -29,29 +32,34 @@ import com.github.apetrelli.scafa.proto.client.HostPort;
 public class AnonymousProxyHttpConnectionFactory implements ProxyHttpConnectionFactory {
 
 	private AsynchronousSocketChannelFactory channelFactory;
-	
-    private HostPort proxySocketAddress;
 
-    private String interfaceName;
+	private DataSenderFactory dataSenderFactory;
 
-    private boolean forceIpV4;
+	private HostPort proxySocketAddress;
 
-    private HttpRequestManipulator manipulator;
-    
+	private String interfaceName;
+
+	private boolean forceIpV4;
+
+	private HttpRequestManipulator manipulator;
+
 	public AnonymousProxyHttpConnectionFactory(AsynchronousSocketChannelFactory channelFactory,
-			HostPort proxySocketAddress, String interfaceName, boolean forceIpV4, HttpRequestManipulator manipulator) {
+			DataSenderFactory dataSenderFactory, HostPort proxySocketAddress, String interfaceName, boolean forceIpV4,
+			HttpRequestManipulator manipulator) {
 		this.channelFactory = channelFactory;
-        this.proxySocketAddress = proxySocketAddress;
-        this.interfaceName = interfaceName;
-        this.forceIpV4 = forceIpV4;
-        this.manipulator = manipulator;
-    }
+		this.dataSenderFactory = dataSenderFactory;
+		this.proxySocketAddress = proxySocketAddress;
+		this.interfaceName = interfaceName;
+		this.forceIpV4 = forceIpV4;
+		this.manipulator = manipulator;
+	}
 
-    @Override
-    public ProxyHttpConnection create(MappedProxyHttpConnectionFactory factory, AsyncSocket sourceChannel,
-            HostPort socketAddress) {
-    	AsyncSocket socket = new DirectClientAsyncSocket(channelFactory, proxySocketAddress, interfaceName, forceIpV4);
-        return new AnonymousProxyHttpConnection(factory, sourceChannel, socket, socketAddress	, manipulator);
-    }
+	@Override
+	public ProxyHttpConnection create(MappedProxyHttpConnectionFactory factory, AsyncSocket sourceChannel,
+			HostPort socketAddress) {
+		AsyncSocket socket = new DirectClientAsyncSocket(channelFactory, proxySocketAddress, interfaceName, forceIpV4);
+		HttpAsyncSocket httpSocket = new DirectHttpAsyncSocket(socket, dataSenderFactory);
+		return new AnonymousProxyHttpConnection(factory, sourceChannel, httpSocket, socketAddress, manipulator);
+	}
 
 }

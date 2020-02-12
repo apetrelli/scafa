@@ -3,6 +3,7 @@ package com.github.apetrelli.scafa.http.client.impl;
 import java.io.IOException;
 import java.nio.channels.CompletionHandler;
 
+import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpProcessingContext;
 import com.github.apetrelli.scafa.http.HttpRequest;
@@ -12,15 +13,13 @@ import com.github.apetrelli.scafa.http.client.HttpClientHandler;
 import com.github.apetrelli.scafa.http.impl.HttpProcessingContextFactory;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
 import com.github.apetrelli.scafa.http.output.DataSenderFactory;
-import com.github.apetrelli.scafa.http.util.HttpUtils;
-import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.client.impl.AbstractClientConnection;
 import com.github.apetrelli.scafa.proto.output.DataSender;
 import com.github.apetrelli.scafa.proto.processor.Processor;
 import com.github.apetrelli.scafa.proto.processor.impl.DefaultProcessor;
 import com.github.apetrelli.scafa.proto.processor.impl.StatefulInputProcessorFactory;
 
-public class DirectHttpConnection extends AbstractClientConnection implements HttpClientConnection {
+public class DirectHttpConnection extends AbstractClientConnection<HttpAsyncSocket> implements HttpClientConnection {
 
     private ClientPipelineHttpHandler responseHandler;
 
@@ -28,7 +27,7 @@ public class DirectHttpConnection extends AbstractClientConnection implements Ht
 
     private DataSenderFactory dataSenderFactory;
 
-	public DirectHttpConnection(AsyncSocket socket, MappedHttpConnectionFactory connectionFactory, DataSenderFactory dataSenderFactory) {
+	public DirectHttpConnection(HttpAsyncSocket socket, MappedHttpConnectionFactory connectionFactory, DataSenderFactory dataSenderFactory) {
 		super(socket); // No binding ATM.
 		this.connectionFactory = connectionFactory;
 		this.dataSenderFactory = dataSenderFactory;
@@ -38,7 +37,7 @@ public class DirectHttpConnection extends AbstractClientConnection implements Ht
 	@Override
 	public void sendHeader(HttpRequest request, HttpClientHandler clientHandler, CompletionHandler<Void, Void> completionHandler) {
 		responseHandler.add(request, clientHandler, this);
-        HttpUtils.sendHeader(request, socket, completionHandler);
+        socket.sendHeader(request, completionHandler);
 	}
 
 	@Override

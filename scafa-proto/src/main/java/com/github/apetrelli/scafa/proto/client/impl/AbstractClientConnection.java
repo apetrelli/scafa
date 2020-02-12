@@ -11,11 +11,11 @@ import com.github.apetrelli.scafa.proto.aio.util.AsyncUtils;
 import com.github.apetrelli.scafa.proto.client.ClientConnection;
 import com.github.apetrelli.scafa.tls.util.CompletionHandlerFuture;
 
-public abstract class AbstractClientConnection implements ClientConnection {
+public abstract class AbstractClientConnection<T extends AsyncSocket> implements ClientConnection {
     
-    protected AsyncSocket socket;
+    protected T socket;
 
-    public AbstractClientConnection(AsyncSocket socket) {
+    public AbstractClientConnection(T socket) {
     	this.socket = socket;
 	}
 

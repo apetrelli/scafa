@@ -5,18 +5,17 @@ import java.io.PrintStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.CompletionHandler;
 
+import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.server.HttpServerHandler;
-import com.github.apetrelli.scafa.http.util.HttpUtils;
-import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.util.AsyncUtils;
 
 public class HttpServerHandlerSupport implements HttpServerHandler {
 
-	protected AsyncSocket channel;
+	protected HttpAsyncSocket channel;
 
-	public HttpServerHandlerSupport(AsyncSocket channel) {
+	public HttpServerHandlerSupport(HttpAsyncSocket channel) {
 		this.channel = channel;
 	}
 
@@ -52,7 +51,7 @@ public class HttpServerHandlerSupport implements HttpServerHandler {
 		}
 		byte[] bytes = baos.toByteArray();
 		response.addHeader("Content-Length", Integer.toString(bytes.length));
-		HttpUtils.sendHeader(response, channel, new CompletionHandler<Void, Void>() {
+		channel.sendHeader(response, new CompletionHandler<Void, Void>() {
 
 			@Override
 			public void completed(Void result, Void attachment) {

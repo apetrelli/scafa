@@ -5,8 +5,10 @@ import java.nio.channels.CompletionHandler;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.client.HttpClientConnection;
+import com.github.apetrelli.scafa.http.impl.DirectHttpAsyncSocket;
 import com.github.apetrelli.scafa.http.output.DataSenderFactory;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.AsynchronousSocketChannelFactory;
@@ -34,7 +36,8 @@ public class DefaultMappedHttpConnectionFactory implements MappedHttpConnectionF
 			HttpClientConnection cachedConnection = connectionCache.get(hostPort);
 			if (cachedConnection == null) {
 			    AsyncSocket socket = new DirectClientAsyncSocket(channelFactory, hostPort, null, false);
-				HttpClientConnection connection = new DirectHttpConnection(socket, this, dataSenderFactory);
+			    HttpAsyncSocket httpSocket = new DirectHttpAsyncSocket(socket, dataSenderFactory);
+				HttpClientConnection connection = new DirectHttpConnection(httpSocket, this, dataSenderFactory);
 				connectionCache.put(hostPort, connection);
 				connection.ensureConnected(new CompletionHandler<Void, Void>() {
 
