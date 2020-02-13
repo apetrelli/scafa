@@ -11,4 +11,6 @@ public interface HttpConnection extends ClientConnection {
     void sendHeader(HttpRequest request, CompletionHandler<Void, Void> completionHandler);
     
     void sendData(ByteBuffer buffer, CompletionHandler<Void, Void> completionHandler);
+
+    void end(CompletionHandler<Void, Void> completionHandler);
 }

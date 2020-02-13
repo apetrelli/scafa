@@ -10,6 +10,4 @@ public interface ClientConnection {
     void disconnect(CompletionHandler<Void, Void> handler);
 
     void send(ByteBuffer buffer, CompletionHandler<Void, Void> completionHandler);
-
-    void end(CompletionHandler<Void, Void> completionHandler);
 }
