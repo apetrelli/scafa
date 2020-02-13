@@ -30,8 +30,8 @@ import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
+import com.github.apetrelli.scafa.proto.aio.IgnoringCompletionHandler;
 import com.github.apetrelli.scafa.proto.client.HostPort;
-import com.github.apetrelli.scafa.tls.util.IOUtils;
 
 public class DefaultMappedProxyHttpConnectionFactory implements MappedProxyHttpConnectionFactory {
 
@@ -62,7 +62,8 @@ public class DefaultMappedProxyHttpConnectionFactory implements MappedProxyHttpC
 
     @Override
     public void disconnectAll() throws IOException {
-        connectionCache.values().stream().forEach(t -> IOUtils.closeQuietly(t));
+		IgnoringCompletionHandler<Void, Void> handler = new IgnoringCompletionHandler<>();
+		connectionCache.values().stream().forEach(t -> t.disconnect(handler));
         connectionCache.clear();
     }
 

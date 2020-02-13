@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.CompletionHandler;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpRequest;
@@ -15,8 +13,6 @@ import com.github.apetrelli.scafa.http.client.HttpClientHandler;
 import com.github.apetrelli.scafa.proto.aio.DelegateFailureCompletionHandler;
 
 public class ClientPipelineHttpHandler implements HttpHandler {
-
-    private static final Logger LOG = Logger.getLogger(ClientPipelineHttpHandler.class.getName());
 
     private static final HttpClientHandler NULL_HANDLER = new NullHttpClientHandler();
 
@@ -103,13 +99,10 @@ public class ClientPipelineHttpHandler implements HttpHandler {
             @Override
             public void completed(Void result, Void attachment) {
                 if (response != null && "close".equals(response.getHeader("Connection"))) {
-                    try {
-                        connection.close();
-                    } catch (IOException e) {
-                        LOG.log(Level.SEVERE, "Cannot close connection because the request has an invalid host:port", e);
-                    }
+                    connection.disconnect(handler);
+                } else {
+                    handler.completed(null, null);
                 }
-                handler.completed(null, null);
             }
         });
     }

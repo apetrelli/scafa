@@ -1,14 +1,11 @@
 package com.github.apetrelli.scafa.proto.client.impl;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.CompletionHandler;
-import java.util.concurrent.ExecutionException;
 
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.DelegateFailureCompletionHandler;
 import com.github.apetrelli.scafa.proto.client.ClientConnection;
-import com.github.apetrelli.scafa.tls.util.CompletionHandlerFuture;
 
 public abstract class AbstractClientConnection<T extends AsyncSocket> implements ClientConnection {
     
@@ -39,17 +36,6 @@ public abstract class AbstractClientConnection<T extends AsyncSocket> implements
 	public void send(ByteBuffer buffer, CompletionHandler<Void, Void> completionHandler) {
 		socket.flushBuffer(buffer, completionHandler);
 	}
-
-    @Override
-    public void close() throws IOException {
-    	CompletionHandlerFuture<Void, Void> handler = new CompletionHandlerFuture<>();
-    	socket.disconnect(handler);
-    	try {
-			handler.getFuture().get();
-		} catch (InterruptedException | ExecutionException e) {
-			throw new IOException(e);
-		}
-    }
 
 	protected abstract void prepareChannel();
 

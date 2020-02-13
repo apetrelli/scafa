@@ -1,6 +1,5 @@
 package com.github.apetrelli.scafa.http.client.impl;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.CompletionHandler;
 
@@ -49,11 +48,11 @@ public class DirectHttpConnection extends AbstractClientConnection<HttpAsyncSock
 	public void end(CompletionHandler<Void, Void> completionHandler) {
 	    socket.endData(completionHandler);
 	}
-
+	
 	@Override
-	public void close() throws IOException {
-		connectionFactory.dispose(socket.getAddress());
-		super.close();
+	public void disconnect(CompletionHandler<Void, Void> handler) {
+        connectionFactory.dispose(socket.getAddress());
+	    super.disconnect(handler);
 	}
 
 	@Override

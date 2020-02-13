@@ -1,10 +1,9 @@
 package com.github.apetrelli.scafa.proto.client;
 
-import java.io.Closeable;
 import java.nio.ByteBuffer;
 import java.nio.channels.CompletionHandler;
 
-public interface ClientConnection extends Closeable {
+public interface ClientConnection {
 
     void ensureConnected(CompletionHandler<Void, Void> handler);
     

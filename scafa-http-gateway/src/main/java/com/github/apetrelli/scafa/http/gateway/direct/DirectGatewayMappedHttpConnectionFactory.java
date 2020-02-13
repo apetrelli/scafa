@@ -29,8 +29,8 @@ import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.gateway.GatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.gateway.MappedGatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
+import com.github.apetrelli.scafa.proto.aio.IgnoringCompletionHandler;
 import com.github.apetrelli.scafa.proto.client.HostPort;
-import com.github.apetrelli.scafa.tls.util.IOUtils;
 
 public class DirectGatewayMappedHttpConnectionFactory implements MappedGatewayHttpConnectionFactory {
 
@@ -56,7 +56,8 @@ public class DirectGatewayMappedHttpConnectionFactory implements MappedGatewayHt
 
     @Override
     public void disconnectAll() throws IOException {
-        connectionCache.values().stream().forEach(t -> IOUtils.closeQuietly(t));
+    	CompletionHandler<Void, Void> handler = new IgnoringCompletionHandler<>();
+        connectionCache.values().stream().forEach(t -> t.disconnect(handler));
         connectionCache.clear();
     }
 

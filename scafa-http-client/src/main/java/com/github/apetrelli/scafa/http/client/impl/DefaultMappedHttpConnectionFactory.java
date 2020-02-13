@@ -12,10 +12,10 @@ import com.github.apetrelli.scafa.http.impl.DirectHttpAsyncSocket;
 import com.github.apetrelli.scafa.http.output.DataSenderFactory;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.AsynchronousSocketChannelFactory;
+import com.github.apetrelli.scafa.proto.aio.IgnoringCompletionHandler;
 import com.github.apetrelli.scafa.proto.aio.impl.DirectClientAsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.impl.SimpleAsynchronousSocketChannelFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
-import com.github.apetrelli.scafa.tls.util.IOUtils;
 
 public class DefaultMappedHttpConnectionFactory implements MappedHttpConnectionFactory {
 
@@ -61,7 +61,8 @@ public class DefaultMappedHttpConnectionFactory implements MappedHttpConnectionF
 
 	@Override
 	public void disconnectAll() {
-        connectionCache.values().stream().forEach(t -> IOUtils.closeQuietly(t));
+	    CompletionHandler<Void, Void> handler = new IgnoringCompletionHandler<>();
+        connectionCache.values().stream().forEach(t -> t.disconnect(handler));
         connectionCache.clear();
 	}
 
