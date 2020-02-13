@@ -20,29 +20,22 @@ package com.github.apetrelli.scafa.http.gateway.impl;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.CompletionHandler;
-import java.nio.charset.StandardCharsets;
 
+import com.github.apetrelli.scafa.http.HttpConnection;
 import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
-import com.github.apetrelli.scafa.http.gateway.GatewayHttpConnection;
 import com.github.apetrelli.scafa.http.gateway.MappedGatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.IgnoringCompletionHandler;
 
 public class DefaultGatewayHttpHandler implements HttpHandler {
 
-    private static final byte CR = 13;
-
-    private static final byte LF = 10;
-
-    private static final byte[] CRLF = new byte[] {CR, LF};
-
     private MappedGatewayHttpConnectionFactory connectionFactory;
 
     private AsyncSocket sourceChannel;
 
-    private GatewayHttpConnection connection;
+    private HttpConnection connection;
 
     public DefaultGatewayHttpHandler(MappedGatewayHttpConnectionFactory connectionFactory, AsyncSocket sourceChannel) {
         this.connectionFactory = connectionFactory;
@@ -66,10 +59,10 @@ public class DefaultGatewayHttpHandler implements HttpHandler {
 
     @Override
     public void onRequestHeader(HttpRequest request, CompletionHandler<Void, Void> handler) {
-        connectionFactory.create(sourceChannel, request, new CompletionHandler<GatewayHttpConnection, Void>() {
+        connectionFactory.create(sourceChannel, request, new CompletionHandler<HttpConnection, Void>() {
 
             @Override
-            public void completed(GatewayHttpConnection result, Void attachment) {
+            public void completed(HttpConnection result, Void attachment) {
                 connection = result;
                 connection.sendHeader(request, handler);
             }
@@ -83,32 +76,28 @@ public class DefaultGatewayHttpHandler implements HttpHandler {
 
     @Override
     public void onBody(ByteBuffer buffer, long offset, long length, CompletionHandler<Void, Void> handler) {
-        connection.send(buffer, handler);
+        connection.sendData(buffer, handler);
     }
 
     @Override
     public void onChunkStart(long totalOffset, long chunkLength, CompletionHandler<Void, Void> handler) {
-        String hexString = Long.toHexString(chunkLength);
-        ByteBuffer countBuffer = ByteBuffer.allocate(hexString.length() + 2);
-        countBuffer.put(hexString.getBytes(StandardCharsets.US_ASCII)).put(CR).put(LF);
-        countBuffer.flip();
-        connection.send(countBuffer, handler);
+    	// Do nothing
     }
 
     @Override
     public void onChunk(ByteBuffer buffer, long totalOffset, long chunkOffset, long chunkLength,
             CompletionHandler<Void, Void> handler) {
-        connection.send(buffer, handler);
+        connection.sendData(buffer, handler);
     }
 
     @Override
     public void onChunkEnd(CompletionHandler<Void, Void> handler) {
-        connection.send(ByteBuffer.wrap(CRLF), handler);
+    	// Do nothing
     }
 
     @Override
     public void onChunkedTransferEnd(CompletionHandler<Void, Void> handler) {
-        connection.send(ByteBuffer.wrap(CRLF), handler);
+    	// Do nothing
     }
 
     @Override
@@ -118,8 +107,7 @@ public class DefaultGatewayHttpHandler implements HttpHandler {
 
     @Override
     public void onEnd(CompletionHandler<Void, Void> handler) {
-        connection.end();
-        handler.completed(null, null);
+        connection.end(handler);
     }
 
     @Override

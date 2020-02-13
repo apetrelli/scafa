@@ -20,7 +20,6 @@ package com.github.apetrelli.scafa.http.proxy.impl;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.CompletionHandler;
-import java.nio.charset.StandardCharsets;
 
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
@@ -32,12 +31,6 @@ import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.IgnoringCompletionHandler;
 
 public class DefaultProxyHttpHandler implements ProxyHttpHandler {
-
-    private static final byte CR = 13;
-
-    private static final byte LF = 10;
-
-    private static final byte[] CRLF = new byte[] {CR, LF};
 
     private MappedProxyHttpConnectionFactory connectionFactory;
 
@@ -94,32 +87,28 @@ public class DefaultProxyHttpHandler implements ProxyHttpHandler {
 
     @Override
     public void onBody(ByteBuffer buffer, long offset, long length, CompletionHandler<Void, Void> handler) {
-        connection.send(buffer, handler);
+        connection.sendData(buffer, handler);
     }
 
     @Override
     public void onChunkStart(long totalOffset, long chunkLength, CompletionHandler<Void, Void> handler) {
-        String hexString = Long.toHexString(chunkLength);
-        ByteBuffer countBuffer = ByteBuffer.allocate(hexString.length() + 2);
-        countBuffer.put(hexString.getBytes(StandardCharsets.US_ASCII)).put(CR).put(LF);
-        countBuffer.flip();
-        connection.send(countBuffer, handler);
+    	// Does nothing
     }
 
     @Override
     public void onChunk(ByteBuffer buffer, long totalOffset, long chunkOffset, long chunkLength,
             CompletionHandler<Void, Void> handler) {
-        connection.send(buffer, handler);
+        connection.sendData(buffer, handler);
     }
 
     @Override
     public void onChunkEnd(CompletionHandler<Void, Void> handler) {
-        connection.send(ByteBuffer.wrap(CRLF), handler);
+    	// Does nothing
     }
 
     @Override
     public void onChunkedTransferEnd(CompletionHandler<Void, Void> handler) {
-        connection.send(ByteBuffer.wrap(CRLF), handler);
+        // Does nothing
     }
 
     @Override
@@ -147,8 +136,7 @@ public class DefaultProxyHttpHandler implements ProxyHttpHandler {
 
     @Override
     public void onEnd(CompletionHandler<Void, Void> handler) {
-        connection.end();
-        handler.completed(null, null);
+        connection.end(handler);
     }
 
     @Override

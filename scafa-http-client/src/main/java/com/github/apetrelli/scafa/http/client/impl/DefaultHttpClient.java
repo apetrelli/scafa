@@ -15,23 +15,22 @@ import com.github.apetrelli.scafa.http.output.DefaultDataSenderFactory;
 import com.github.apetrelli.scafa.proto.aio.BufferContext;
 import com.github.apetrelli.scafa.proto.aio.BufferContextReader;
 import com.github.apetrelli.scafa.proto.aio.impl.PathBufferContextReader;
-import com.github.apetrelli.scafa.proto.output.DataSender;
 import com.github.apetrelli.scafa.tls.util.IOUtils;
 
 public class DefaultHttpClient implements HttpClient {
 
 	private class RequestWithPayloadCompletionHandler implements CompletionHandler<Void, Void> {
-		private final DataSender sender;
 		private final HttpRequest realRequest;
 		private final BufferContextReader payloadReader;
 		private final HttpClientHandler handler;
+		private final HttpClientConnection connection;
 
-		private RequestWithPayloadCompletionHandler(DataSender sender, HttpRequest realRequest,
-				BufferContextReader payloadReader, HttpClientHandler handler) {
-			this.sender = sender;
+		private RequestWithPayloadCompletionHandler(HttpRequest realRequest,
+				BufferContextReader payloadReader, HttpClientHandler handler, HttpClientConnection connection) {
 			this.realRequest = realRequest;
 			this.payloadReader = payloadReader;
 			this.handler = handler;
+			this.connection = connection;
 		}
 
 		@Override
@@ -40,8 +39,8 @@ public class DefaultHttpClient implements HttpClient {
 			BufferContext fileContext = new BufferContext();
 			RequestBodySentCompletionHandler requestBodySentCompletionHandler = new RequestBodySentCompletionHandler(
 					realRequest, payloadReader, handler, fileContext);
-			ReadFileHandler readFileHandler = new ReadFileHandler(realRequest,
-					requestBodySentCompletionHandler, handler, sender);
+            ReadFileHandler readFileHandler = new ReadFileHandler(realRequest, requestBodySentCompletionHandler,
+                    handler, connection);
 			requestBodySentCompletionHandler.setReadFileHandler(readFileHandler);
 			payloadReader.read(fileContext, readFileHandler);
 		}
@@ -68,22 +67,22 @@ public class DefaultHttpClient implements HttpClient {
 		private final HttpRequest request;
 		private final CompletionHandler<Void, Void> requestBodySentCompletionHandler;
 		private final HttpClientHandler handler;
-		private final DataSender sender;
+		private final HttpClientConnection connection;
 
 		private ReadFileHandler(HttpRequest request, CompletionHandler<Void, Void> requestBodySentCompletionHandler,
-				HttpClientHandler handler, DataSender sender) {
+				HttpClientHandler handler, HttpClientConnection connection) {
 			this.request = request;
 			this.requestBodySentCompletionHandler = requestBodySentCompletionHandler;
 			this.handler = handler;
-			this.sender = sender;
+			this.connection = connection;
 		}
 
 		@Override
 		public void completed(Integer result, BufferContext fileContext) {
 			if (result >= 0) {
-				sender.send(fileContext.getBuffer(), requestBodySentCompletionHandler);
+				connection.sendData(fileContext.getBuffer(), requestBodySentCompletionHandler);
 			} else {
-				sender.end(new AfterPayloadSentCompletionHandler());
+				connection.end(new AfterPayloadSentCompletionHandler());
 			}
 		}
 
@@ -140,7 +139,8 @@ public class DefaultHttpClient implements HttpClient {
 
             @Override
             public void completed(HttpClientConnection result, Void attachment) {
-                result.sendHeader(request, handler, new CompletionHandler<Void, Void>() {
+            	result.prepare(request, handler);
+                result.sendHeader(request, new CompletionHandler<Void, Void>() {
 
                     @Override
                     public void completed(Void result, Void attachment) {
@@ -194,8 +194,8 @@ public class DefaultHttpClient implements HttpClient {
 
             @Override
             public void completed(HttpClientConnection connection, Void attachment) {
-                DataSender sender = connection.createDataSender(realRequest);
-                connection.sendHeader(realRequest, handler, new RequestWithPayloadCompletionHandler(sender, realRequest, payloadReader, handler));
+            	connection.prepare(realRequest, handler);
+                connection.sendHeader(realRequest, new RequestWithPayloadCompletionHandler(realRequest, payloadReader, handler, connection));
             }
 
             @Override

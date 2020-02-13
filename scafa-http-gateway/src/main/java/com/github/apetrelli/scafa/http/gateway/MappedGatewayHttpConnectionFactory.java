@@ -20,13 +20,14 @@ package com.github.apetrelli.scafa.http.gateway;
 import java.io.IOException;
 import java.nio.channels.CompletionHandler;
 
+import com.github.apetrelli.scafa.http.HttpConnection;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 
 public interface MappedGatewayHttpConnectionFactory {
 
-    void create(AsyncSocket sourceChannel, HttpRequest request, CompletionHandler<GatewayHttpConnection, Void> handler);
+    void create(AsyncSocket sourceChannel, HttpRequest request, CompletionHandler<HttpConnection, Void> handler);
 
     void disconnectAll() throws IOException;
 

@@ -56,7 +56,8 @@ public class DirectHttpConnectionFactory implements ProxyHttpConnectionFactory {
 			HostPort socketAddress) {
 		AsyncSocket socket = new DirectClientAsyncSocket(channelFactory, socketAddress, interfaceName, forceIpV4);
 		HttpAsyncSocket httpSocket = new DirectHttpAsyncSocket(socket, dataSenderFactory);
-		return new DirectProxyHttpConnection(factory, sourceChannel, httpSocket);
+		return new DirectProxyHttpConnection(factory, new DirectHttpAsyncSocket(sourceChannel, dataSenderFactory),
+				httpSocket);
 	}
 
 }

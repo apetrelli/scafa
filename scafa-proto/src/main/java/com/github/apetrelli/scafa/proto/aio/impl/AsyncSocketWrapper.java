@@ -37,4 +37,14 @@ public class AsyncSocketWrapper implements AsyncSocket {
 	public boolean isOpen() {
 		return socket.isOpen();
 	}
+	
+	@Override
+	public void flushBuffer(ByteBuffer buffer, CompletionHandler<Void, Void> completionHandler) {
+		socket.flushBuffer(buffer, completionHandler);
+	}
+	
+	@Override
+	public void flipAndFlushBuffer(ByteBuffer buffer, CompletionHandler<Void, Void> completionHandler) {
+		socket.flipAndFlushBuffer(buffer, completionHandler);
+	}
 }

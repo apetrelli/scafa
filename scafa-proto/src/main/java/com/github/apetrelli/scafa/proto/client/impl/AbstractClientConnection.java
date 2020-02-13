@@ -7,7 +7,6 @@ import java.util.concurrent.ExecutionException;
 
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.DelegateFailureCompletionHandler;
-import com.github.apetrelli.scafa.proto.aio.util.AsyncUtils;
 import com.github.apetrelli.scafa.proto.client.ClientConnection;
 import com.github.apetrelli.scafa.tls.util.CompletionHandlerFuture;
 
@@ -38,7 +37,7 @@ public abstract class AbstractClientConnection<T extends AsyncSocket> implements
 
 	@Override
 	public void send(ByteBuffer buffer, CompletionHandler<Void, Void> completionHandler) {
-		AsyncUtils.flushBuffer(buffer, socket, completionHandler);
+		socket.flushBuffer(buffer, completionHandler);
 	}
 
     @Override

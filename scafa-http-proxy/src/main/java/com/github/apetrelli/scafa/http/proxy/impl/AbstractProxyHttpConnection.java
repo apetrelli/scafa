@@ -18,6 +18,7 @@
 package com.github.apetrelli.scafa.http.proxy.impl;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.channels.CompletionHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -36,25 +37,19 @@ import com.github.apetrelli.scafa.proto.processor.impl.DefaultProcessor;
 import com.github.apetrelli.scafa.proto.processor.impl.PassthroughInputProcessorFactory;
 import com.github.apetrelli.scafa.proto.processor.impl.SimpleInputFactory;
 
-public abstract class AbstractProxyHttpConnection extends AbstractClientConnection<HttpAsyncSocket> implements ProxyHttpConnection {
+public abstract class AbstractProxyHttpConnection<T extends AsyncSocket> extends AbstractClientConnection<HttpAsyncSocket> implements ProxyHttpConnection {
 	
 	private static final Logger LOG = Logger.getLogger(AbstractProxyHttpConnection.class.getName());
 
-    protected static final byte CR = 13;
-
-    protected static final byte LF = 10;
-
-    protected static final byte SPACE = 32;
-
     protected MappedProxyHttpConnectionFactory factory;
 
-    protected AsyncSocket sourceChannel;
+    protected T sourceChannel;
 
     private SimpleInputFactory inputFactory = new SimpleInputFactory();
 
     private HostPort destinationSocketAddress;
 
-	public AbstractProxyHttpConnection(MappedProxyHttpConnectionFactory factory, AsyncSocket sourceChannel,
+	public AbstractProxyHttpConnection(MappedProxyHttpConnectionFactory factory, T sourceChannel,
 			HttpAsyncSocket socket, HostPort destinationSocketAddress) {
         super(socket);
         this.factory = factory;
@@ -72,10 +67,15 @@ public abstract class AbstractProxyHttpConnection extends AbstractClientConnecti
             completionHandler.failed(e, null);
         }
     }
+    
+    @Override
+    public void sendData(ByteBuffer buffer, CompletionHandler<Void, Void> completionHandler) {
+    	socket.sendData(buffer, completionHandler);
+    }
 
     @Override
-    public void end() {
-        // Does nothing.
+    public void end(CompletionHandler<Void, Void> completionHandler) {
+    	socket.endData(completionHandler);
     }
 
     protected abstract HttpRequest createForwardedRequest(HttpRequest request) throws IOException;
@@ -103,6 +103,6 @@ public abstract class AbstractProxyHttpConnection extends AbstractClientConnecti
 
     protected void prepareChannel() {
         Processor<Handler> processor = new DefaultProcessor<Input, Handler>(socket, new PassthroughInputProcessorFactory(sourceChannel), inputFactory);
-        processor.process(new ChannelDisconnectorHandler(factory, socket, destinationSocketAddress));
+        processor.process(new ChannelDisconnectorHandler(factory, sourceChannel, destinationSocketAddress));
     }
 }

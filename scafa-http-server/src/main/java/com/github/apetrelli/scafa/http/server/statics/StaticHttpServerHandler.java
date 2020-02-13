@@ -4,16 +4,26 @@ import java.nio.channels.CompletionHandler;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 
 import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.server.HttpServer;
 import com.github.apetrelli.scafa.http.server.impl.HttpServerHandlerSupport;
-import com.github.apetrelli.scafa.http.util.HttpUtils;
 
 public class StaticHttpServerHandler extends HttpServerHandlerSupport {
+
+	private static String getCurrentDateString() {
+		Calendar calendar = Calendar.getInstance();
+		SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.US);
+		dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+		return dateFormat.format(calendar.getTime());
+	}
 
 	private String basePath;
 
@@ -51,7 +61,7 @@ public class StaticHttpServerHandler extends HttpServerHandlerSupport {
 					if (Files.exists(path)) {
 						HttpResponse response = new HttpResponse("HTTP/1.1", 200, "Found");
 						response.setHeader("Server", "Scafa");
-						response.setHeader("Date", HttpUtils.getCurrentDateString());
+						response.setHeader("Date", getCurrentDateString());
 						String connection = request.getHeader("Connection");
 						if (!"close".equals(connection)) {
 							connection = "keep-alive";

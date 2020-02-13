@@ -12,5 +12,5 @@ public interface ClientConnection extends Closeable {
 
     void send(ByteBuffer buffer, CompletionHandler<Void, Void> completionHandler);
 
-    void end();
+    void end(CompletionHandler<Void, Void> completionHandler);
 }

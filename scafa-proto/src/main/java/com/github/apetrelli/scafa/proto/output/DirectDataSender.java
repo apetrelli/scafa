@@ -4,7 +4,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.CompletionHandler;
 
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
-import com.github.apetrelli.scafa.proto.aio.util.AsyncUtils;
 
 public class DirectDataSender extends AbstractDataSender {
 
@@ -14,7 +13,7 @@ public class DirectDataSender extends AbstractDataSender {
 
     @Override
     public void send(ByteBuffer buffer, CompletionHandler<Void, Void> completionHandler) {
-        AsyncUtils.flushBuffer(buffer, channel, completionHandler);
+        channel.flushBuffer(buffer, completionHandler);
     }
 
     @Override

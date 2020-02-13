@@ -24,12 +24,12 @@ import java.nio.channels.CompletionHandler;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.client.HttpClientConnection;
 import com.github.apetrelli.scafa.http.client.HttpClientHandler;
-import com.github.apetrelli.scafa.proto.output.DataSender;
-import com.github.apetrelli.scafa.proto.output.NullDataSender;
 
 public class ThrowableHttpConnection implements HttpClientConnection {
 
 	private Throwable throwable;
+	
+	private HttpClientHandler clientHandler;
 
     public ThrowableHttpConnection(Throwable throwable) {
 		this.throwable = throwable;
@@ -39,12 +39,23 @@ public class ThrowableHttpConnection implements HttpClientConnection {
     public void ensureConnected(CompletionHandler<Void, Void> handler) {
         handler.completed(null, null);
     }
+	
+	@Override
+	public void prepare(HttpRequest request, HttpClientHandler clientHandler) {
+	    this.clientHandler = clientHandler;
+	}
 
 	@Override
-	public void sendHeader(HttpRequest request, HttpClientHandler clientHandler, CompletionHandler<Void, Void> completionHandler) {
+	public void sendHeader(HttpRequest request, CompletionHandler<Void, Void> completionHandler) {
         clientHandler.onRequestError(request, throwable);
         completionHandler.failed(throwable, null);
     }
+	
+	@Override
+	public void sendData(ByteBuffer buffer, CompletionHandler<Void, Void> completionHandler) {
+        buffer.clear();
+        completionHandler.completed(null, null);
+	}
 
     @Override
     public void send(ByteBuffer buffer, CompletionHandler<Void, Void> completionHandler) {
@@ -53,8 +64,8 @@ public class ThrowableHttpConnection implements HttpClientConnection {
     }
 
     @Override
-    public void end() {
-        // Does nothing
+    public void end(CompletionHandler<Void, Void> completionHandler) {
+        completionHandler.completed(null, null);
     }
 
     @Override
@@ -65,11 +76,6 @@ public class ThrowableHttpConnection implements HttpClientConnection {
     @Override
     public void disconnect(CompletionHandler<Void, Void> handler) {
         handler.completed(null, null);
-    }
-
-    @Override
-    public DataSender createDataSender(HttpRequest request) {
-        return new NullDataSender();
     }
 
 }

@@ -22,8 +22,6 @@ import java.nio.channels.CompletionHandler;
 
 import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpResponse;
-import com.github.apetrelli.scafa.http.util.HttpUtils;
-import com.github.apetrelli.scafa.proto.aio.DelegateCompletionHandler;
 
 public class TentativeHandler extends CapturingHandler {
 
@@ -67,16 +65,7 @@ public class TentativeHandler extends CapturingHandler {
         if (needsAuthorizing) {
             super.onBody(buffer, offset, length, handler);
         } else {
-            sourceChannel.write(buffer, null, new DelegateCompletionHandler<Integer, Void>(handler));
-        }
-    }
-
-    @Override
-    public void onChunkStart(long totalOffset, long chunkLength, CompletionHandler<Void, Void> handler) {
-        if (needsAuthorizing) {
-            super.onChunkStart(totalOffset, chunkLength, handler);
-        } else {
-            HttpUtils.sendChunkSize(chunkLength, sourceChannel, handler);
+        	sourceChannel.sendData(buffer, handler);
         }
     }
 
@@ -86,25 +75,17 @@ public class TentativeHandler extends CapturingHandler {
         if (needsAuthorizing) {
             super.onChunk(buffer, totalOffset, chunkOffset, chunkLength, handler);
         } else {
-            sourceChannel.write(buffer, null, new DelegateCompletionHandler<Integer, Void>(handler));
+        	sourceChannel.sendData(buffer, handler);
         }
     }
-
+    
     @Override
-    public void onChunkEnd(CompletionHandler<Void, Void> handler) {
-        if (needsAuthorizing) {
-            super.onChunkEnd(handler);
-        } else {
-            HttpUtils.sendNewline(sourceChannel, handler);
-        }
-    }
-
-    @Override
-    public void onChunkedTransferEnd(CompletionHandler<Void, Void> handler) {
-        if (needsAuthorizing) {
-            super.onChunkedTransferEnd(handler);
-        } else {
-            HttpUtils.sendNewline(sourceChannel, handler);
-        }
+    public void onEnd(CompletionHandler<Void, Void> handler) {
+    	if (needsAuthorizing) {
+    		super.onEnd(handler);
+    	} else {
+    		finished = true;
+    		sourceChannel.endData(handler);
+    	}
     }
 }

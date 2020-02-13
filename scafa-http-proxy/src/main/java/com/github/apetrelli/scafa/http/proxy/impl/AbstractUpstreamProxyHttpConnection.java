@@ -31,7 +31,7 @@ import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 
-public abstract class AbstractUpstreamProxyHttpConnection extends AbstractProxyHttpConnection implements ProxyHttpConnection {
+public abstract class AbstractUpstreamProxyHttpConnection extends AbstractProxyHttpConnection<AsyncSocket> implements ProxyHttpConnection {
 
     private static final Logger LOG = Logger.getLogger(AnonymousProxyHttpConnection.class.getName());
 

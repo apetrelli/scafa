@@ -18,17 +18,18 @@
 package com.github.apetrelli.scafa.http.gateway.impl;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.channels.CompletionHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.http.HttpAsyncSocket;
+import com.github.apetrelli.scafa.http.HttpConnection;
 import com.github.apetrelli.scafa.http.HttpRequest;
-import com.github.apetrelli.scafa.http.gateway.GatewayHttpConnection;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.client.impl.AbstractClientConnection;
 
-public abstract class AbstractGatewayHttpConnection extends AbstractClientConnection<HttpAsyncSocket> implements GatewayHttpConnection {
+public abstract class AbstractGatewayHttpConnection extends AbstractClientConnection<HttpAsyncSocket> implements HttpConnection {
 	
 	private static final Logger LOG = Logger.getLogger(AbstractGatewayHttpConnection.class.getName());
 
@@ -49,10 +50,15 @@ public abstract class AbstractGatewayHttpConnection extends AbstractClientConnec
             completionHandler.failed(e, null);
         }
     }
+    
+    @Override
+    public void sendData(ByteBuffer buffer, CompletionHandler<Void, Void> completionHandler) {
+    	socket.sendData(buffer, completionHandler);
+    }
 
     @Override
-    public void end() {
-        // Does nothing.
+    public void end(CompletionHandler<Void, Void> completionHandler) {
+    	socket.endData(completionHandler);
     }
     
     @Override

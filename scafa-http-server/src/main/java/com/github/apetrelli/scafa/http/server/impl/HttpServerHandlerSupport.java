@@ -9,7 +9,7 @@ import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.server.HttpServerHandler;
-import com.github.apetrelli.scafa.proto.aio.util.AsyncUtils;
+import com.github.apetrelli.scafa.proto.aio.IgnoringCompletionHandler;
 
 public class HttpServerHandlerSupport implements HttpServerHandler {
 
@@ -56,18 +56,7 @@ public class HttpServerHandlerSupport implements HttpServerHandler {
 			@Override
 			public void completed(Void result, Void attachment) {
 				ByteBuffer buffer = ByteBuffer.wrap(bytes);
-				AsyncUtils.flushBuffer(buffer, channel, new CompletionHandler<Void, Void>() {
-
-					@Override
-					public void completed(Void result, Void attachment) {
-						// Ignore
-					}
-
-					@Override
-					public void failed(Throwable exc, Void attachment) {
-						// Ignore
-					}
-				});
+				channel.sendData(buffer, new IgnoringCompletionHandler<>());
 			}
 
 			@Override

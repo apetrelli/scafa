@@ -19,46 +19,38 @@ package com.github.apetrelli.scafa.http.proxy.impl;
 
 import java.io.IOException;
 import java.net.URL;
-import java.nio.ByteBuffer;
 import java.nio.channels.CompletionHandler;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpRequest;
+import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
 import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
-import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.DelegateFailureCompletionHandler;
 
-public class DirectProxyHttpConnection extends AbstractProxyHttpConnection {
+public class DirectProxyHttpConnection extends AbstractProxyHttpConnection<HttpAsyncSocket> {
 
     private static final Logger LOG = Logger.getLogger(DirectProxyHttpConnection.class.getName());
 
     public DirectProxyHttpConnection(MappedProxyHttpConnectionFactory factory,
-            AsyncSocket sourceChannel, HttpAsyncSocket socket) {
+            HttpAsyncSocket sourceChannel, HttpAsyncSocket socket) {
         super(factory, sourceChannel, socket, socket.getAddress());
     }
 
     @Override
     public void connect(HttpConnectRequest request, CompletionHandler<Void, Void> completionHandler) {
-        Charset charset = StandardCharsets.US_ASCII;
         // Already connected, need only to send a 200.
         String httpVersion = request.getHttpVersion();
-        ByteBuffer buffer = ByteBuffer.allocate(httpVersion.length() + 11);
-        buffer.put(httpVersion.getBytes(charset)).put(SPACE).put("200".getBytes(charset)).put(SPACE)
-                .put("OK".getBytes(charset)).put(CR).put(LF).put(CR).put(LF);
-        buffer.flip();
-        sourceChannel.write(buffer, null, new DelegateFailureCompletionHandler<Integer, Void>(completionHandler) {
+        HttpResponse response = new HttpResponse(httpVersion, 200, "OK");
+        sourceChannel.sendHeader(response, new DelegateFailureCompletionHandler<Void, Void>(completionHandler) {
 
-            @Override
-            public void completed(Integer result, Void attachment) {
-                buffer.clear();
-                completionHandler.completed(null, attachment);
-            }
-        });
+			@Override
+			public void completed(Void result, Void attachment) {
+				sourceChannel.endData(completionHandler);
+			}
+		});
     }
 
     protected HttpRequest createForwardedRequest(HttpRequest request) throws IOException {

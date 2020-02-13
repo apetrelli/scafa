@@ -26,7 +26,7 @@ public class CapturingHandler extends HttpHandlerSupport {
 
     protected HttpResponse response;
 
-    private boolean finished = false;
+    protected boolean finished = false;
 
     @Override
     public void onResponseHeader(HttpResponse response, CompletionHandler<Void, Void> handler) {
