@@ -17,7 +17,7 @@ public class BasicAuthProxyHttpConnection extends AbstractUpstreamProxyHttpConne
     private String authString;
 
     public BasicAuthProxyHttpConnection(MappedProxyHttpConnectionFactory factory, AsyncSocket sourceChannel,
-            HttpAsyncSocket socket, HostPort destinationSocketAddress, HttpRequestManipulator manipulator, String username, String password) {
+            HttpAsyncSocket<HttpRequest> socket, HostPort destinationSocketAddress, HttpRequestManipulator manipulator, String username, String password) {
         super(factory, sourceChannel, socket, destinationSocketAddress, manipulator);
         String auth = username + ":" + password;
         authString = "Basic " + Base64.getEncoder().encodeToString(auth.getBytes(StandardCharsets.ISO_8859_1));

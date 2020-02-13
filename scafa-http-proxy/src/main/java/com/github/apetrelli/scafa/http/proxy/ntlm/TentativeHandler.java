@@ -29,9 +29,9 @@ public class TentativeHandler extends CapturingHandler {
 
     private boolean onlyCaptureMode = false;
 
-    private HttpAsyncSocket sourceChannel;
+    private HttpAsyncSocket<HttpResponse> sourceChannel;
 
-    public TentativeHandler(HttpAsyncSocket sourceChannel) {
+    public TentativeHandler(HttpAsyncSocket<HttpResponse> sourceChannel) {
         this.sourceChannel = sourceChannel;
     }
 

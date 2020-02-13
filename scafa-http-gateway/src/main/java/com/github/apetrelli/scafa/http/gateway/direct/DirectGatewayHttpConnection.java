@@ -9,7 +9,7 @@ import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 
 public class DirectGatewayHttpConnection extends AbstractDirectGatewayHttpConnection {
 
-	public DirectGatewayHttpConnection(AsyncSocket sourceChannel, HttpAsyncSocket socket,
+	public DirectGatewayHttpConnection(AsyncSocket sourceChannel, HttpAsyncSocket<HttpRequest> socket,
 			MappedGatewayHttpConnectionFactory factory) {
 		super(sourceChannel, socket, factory);
 	}

@@ -29,13 +29,13 @@ import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.client.impl.AbstractClientConnection;
 
-public abstract class AbstractGatewayHttpConnection extends AbstractClientConnection<HttpAsyncSocket> implements HttpConnection {
+public abstract class AbstractGatewayHttpConnection extends AbstractClientConnection<HttpAsyncSocket<HttpRequest>> implements HttpConnection {
 	
 	private static final Logger LOG = Logger.getLogger(AbstractGatewayHttpConnection.class.getName());
 
     protected AsyncSocket sourceChannel;
 
-	public AbstractGatewayHttpConnection(AsyncSocket sourceChannel, HttpAsyncSocket socket) {
+	public AbstractGatewayHttpConnection(AsyncSocket sourceChannel, HttpAsyncSocket<HttpRequest> socket) {
         super(socket);
         this.sourceChannel = sourceChannel;
     }

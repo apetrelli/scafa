@@ -13,9 +13,9 @@ import com.github.apetrelli.scafa.proto.aio.IgnoringCompletionHandler;
 
 public class HttpServerHandlerSupport implements HttpServerHandler {
 
-	protected HttpAsyncSocket channel;
+	protected HttpAsyncSocket<HttpResponse> channel;
 
-	public HttpServerHandlerSupport(HttpAsyncSocket channel) {
+	public HttpServerHandlerSupport(HttpAsyncSocket<HttpResponse> channel) {
 		this.channel = channel;
 	}
 

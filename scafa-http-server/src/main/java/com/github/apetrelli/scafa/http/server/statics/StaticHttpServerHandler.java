@@ -35,7 +35,7 @@ public class StaticHttpServerHandler extends HttpServerHandlerSupport {
 
 	private HttpServer server;
 
-	public StaticHttpServerHandler(HttpAsyncSocket channel, String basePath, String baseFilesystemPath,
+	public StaticHttpServerHandler(HttpAsyncSocket<HttpResponse> channel, String basePath, String baseFilesystemPath,
 			String indexResource, Map<String, String> mimeTypeConfig, HttpServer server) {
 		super(channel);
 		this.basePath = basePath;

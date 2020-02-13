@@ -113,13 +113,13 @@ public class DefaultHttpServer implements HttpServer {
 	}
 
 	@Override
-	public void response(HttpAsyncSocket channel, HttpResponse response,
+	public void response(HttpAsyncSocket<HttpResponse> channel, HttpResponse response,
 			CompletionHandler<Void, Void> completionHandler) {
 		channel.sendHeader(response, completionHandler);
 	}
 
 	@Override
-	public void response(HttpAsyncSocket channel, HttpResponse response, BufferContextReader payloadReader,
+	public void response(HttpAsyncSocket<HttpResponse> channel, HttpResponse response, BufferContextReader payloadReader,
 			CompletionHandler<Void, Void> completionHandler) {
 		HttpResponse realResponse = new HttpResponse(response);
 		realResponse.setHeader("Transfer-Encoding", "chunked");
@@ -128,7 +128,7 @@ public class DefaultHttpServer implements HttpServer {
 	}
 
 	@Override
-	public void response(HttpAsyncSocket channel, HttpResponse response, BufferContextReader payloadReader,
+	public void response(HttpAsyncSocket<HttpResponse> channel, HttpResponse response, BufferContextReader payloadReader,
 			long size, CompletionHandler<Void, Void> completionHandler) {
 		HttpResponse realResponse = new HttpResponse(response);
 		realResponse.setHeader("Content-Length", Long.toString(size));
@@ -136,7 +136,7 @@ public class DefaultHttpServer implements HttpServer {
 	}
 
 	@Override
-	public void response(HttpAsyncSocket channel, HttpResponse response, Path payload,
+	public void response(HttpAsyncSocket<HttpResponse> channel, HttpResponse response, Path payload,
 			CompletionHandler<Void, Void> completionHandler) {
 		AsynchronousFileChannel fileChannel = null;
 		try {
@@ -149,7 +149,7 @@ public class DefaultHttpServer implements HttpServer {
 		}
 	}
 
-	private void responseWithPayload(HttpAsyncSocket channel, HttpResponse realResponse,
+	private void responseWithPayload(HttpAsyncSocket<HttpResponse> channel, HttpResponse realResponse,
 			BufferContextReader payloadReader, CompletionHandler<Void, Void> completionHandler) {
 		DataSender sender = dataSenderFactory.create(realResponse, channel);
 		channel.sendHeader(realResponse,

@@ -1,6 +1,7 @@
 package com.github.apetrelli.scafa.http.gateway.direct;
 
 import com.github.apetrelli.scafa.http.HttpAsyncSocket;
+import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.gateway.MappedGatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.gateway.impl.AbstractGatewayHttpConnection;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
@@ -21,7 +22,7 @@ public abstract class AbstractDirectGatewayHttpConnection extends AbstractGatewa
 
     protected MappedGatewayHttpConnectionFactory factory;
 
-	public AbstractDirectGatewayHttpConnection(AsyncSocket sourceChannel, HttpAsyncSocket socket, MappedGatewayHttpConnectionFactory factory) {
+	public AbstractDirectGatewayHttpConnection(AsyncSocket sourceChannel, HttpAsyncSocket<HttpRequest> socket, MappedGatewayHttpConnectionFactory factory) {
 		super(sourceChannel, socket);
 		this.factory = factory;
 	}

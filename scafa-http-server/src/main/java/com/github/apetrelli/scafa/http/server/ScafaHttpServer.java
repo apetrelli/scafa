@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpProcessingContext;
+import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.HttpStatus;
 import com.github.apetrelli.scafa.http.impl.DirectHttpAsyncSocketFactory;
 import com.github.apetrelli.scafa.http.impl.HttpProcessingContextFactory;
@@ -31,7 +32,7 @@ public class ScafaHttpServer {
 
 	private boolean forceIpV4;
 
-	private ScafaListener<HttpHandler, HttpAsyncSocket> listener;
+	private ScafaListener<HttpHandler, HttpAsyncSocket<HttpResponse>> listener;
 
 	public ScafaHttpServer(HttpServerHandlerFactory factory, int port, String interfaceName, boolean forceIpV4) {
 		this.factory = factory;
@@ -46,10 +47,10 @@ public class ScafaHttpServer {
         HttpProcessingContextFactory processingContextFactory = new HttpProcessingContextFactory();
         HttpServerHandlerAdapterFactory handlerFactory = new HttpServerHandlerAdapterFactory(factory);
         DataSenderFactory dataSenderFactory = new DefaultDataSenderFactory();
-        AsyncSocketFactory<HttpAsyncSocket> asyncSocketFactory = new DirectHttpAsyncSocketFactory(dataSenderFactory);
+        AsyncSocketFactory<HttpAsyncSocket<HttpResponse>> asyncSocketFactory = new DirectHttpAsyncSocketFactory<>(dataSenderFactory);
         DefaultProcessorFactory<HttpStatus, HttpProcessingContext, HttpHandler> defaultProcessorFactory = new DefaultProcessorFactory<>(
                 inputProcessorFactory, processingContextFactory);
-		listener = new ScafaListener<HttpHandler, HttpAsyncSocket>(asyncSocketFactory, defaultProcessorFactory,
+		listener = new ScafaListener<HttpHandler, HttpAsyncSocket<HttpResponse>>(asyncSocketFactory, defaultProcessorFactory,
 				handlerFactory, port, interfaceName, forceIpV4);
         try {
 			listener.listen();

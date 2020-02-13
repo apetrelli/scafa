@@ -18,6 +18,8 @@
 package com.github.apetrelli.scafa.http.proxy.ntlm;
 
 import com.github.apetrelli.scafa.http.HttpAsyncSocket;
+import com.github.apetrelli.scafa.http.HttpRequest;
+import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.impl.DirectHttpAsyncSocket;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
 import com.github.apetrelli.scafa.http.output.DataSenderFactory;
@@ -68,8 +70,8 @@ public class NtlmProxyHttpConnectionFactory implements ProxyHttpConnectionFactor
 	public ProxyHttpConnection create(MappedProxyHttpConnectionFactory factory, AsyncSocket sourceChannel,
 			HostPort socketAddress) {
 		AsyncSocket socket = new DirectClientAsyncSocket(channelFactory, proxySocketAddress, interfaceName, forceIpV4);
-		HttpAsyncSocket httpSocket = new DirectHttpAsyncSocket(socket, dataSenderFactory);
-		HttpAsyncSocket httpSourceSocket = new DirectHttpAsyncSocket(sourceChannel, dataSenderFactory);
+		HttpAsyncSocket<HttpRequest> httpSocket = new DirectHttpAsyncSocket<>(socket, dataSenderFactory);
+		HttpAsyncSocket<HttpResponse> httpSourceSocket = new DirectHttpAsyncSocket<>(sourceChannel, dataSenderFactory);
 		return new NtlmProxyHttpConnection(factory, httpSourceSocket, httpSocket, socketAddress, domain, username,
 				password, stateMachine, manipulator);
 	}

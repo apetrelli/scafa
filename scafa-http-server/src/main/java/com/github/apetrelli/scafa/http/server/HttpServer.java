@@ -9,11 +9,11 @@ import com.github.apetrelli.scafa.proto.aio.BufferContextReader;
 
 public interface HttpServer {
 
-	void response(HttpAsyncSocket channel, HttpResponse response, CompletionHandler<Void, Void> completionHandler);
+	void response(HttpAsyncSocket<HttpResponse> channel, HttpResponse response, CompletionHandler<Void, Void> completionHandler);
 
-	void response(HttpAsyncSocket channel, HttpResponse response, BufferContextReader payloadReader, CompletionHandler<Void, Void> completionHandler);
+	void response(HttpAsyncSocket<HttpResponse> channel, HttpResponse response, BufferContextReader payloadReader, CompletionHandler<Void, Void> completionHandler);
 
-	void response(HttpAsyncSocket channel, HttpResponse response, BufferContextReader payloadReader, long size, CompletionHandler<Void, Void> completionHandler);
+	void response(HttpAsyncSocket<HttpResponse> channel, HttpResponse response, BufferContextReader payloadReader, long size, CompletionHandler<Void, Void> completionHandler);
 
-	void response(HttpAsyncSocket channel, HttpResponse response, Path payload, CompletionHandler<Void, Void> completionHandler);
+	void response(HttpAsyncSocket<HttpResponse> channel, HttpResponse response, Path payload, CompletionHandler<Void, Void> completionHandler);
 }

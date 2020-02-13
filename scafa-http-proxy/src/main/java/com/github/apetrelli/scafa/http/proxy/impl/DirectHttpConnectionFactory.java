@@ -18,6 +18,8 @@
 package com.github.apetrelli.scafa.http.proxy.impl;
 
 import com.github.apetrelli.scafa.http.HttpAsyncSocket;
+import com.github.apetrelli.scafa.http.HttpRequest;
+import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.impl.DirectHttpAsyncSocket;
 import com.github.apetrelli.scafa.http.output.DataSenderFactory;
 import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
@@ -55,8 +57,8 @@ public class DirectHttpConnectionFactory implements ProxyHttpConnectionFactory {
 	public ProxyHttpConnection create(MappedProxyHttpConnectionFactory factory, AsyncSocket sourceChannel,
 			HostPort socketAddress) {
 		AsyncSocket socket = new DirectClientAsyncSocket(channelFactory, socketAddress, interfaceName, forceIpV4);
-		HttpAsyncSocket httpSocket = new DirectHttpAsyncSocket(socket, dataSenderFactory);
-		return new DirectProxyHttpConnection(factory, new DirectHttpAsyncSocket(sourceChannel, dataSenderFactory),
+		HttpAsyncSocket<HttpRequest> httpSocket = new DirectHttpAsyncSocket<>(socket, dataSenderFactory);
+		return new DirectProxyHttpConnection(factory, new DirectHttpAsyncSocket<HttpResponse>(sourceChannel, dataSenderFactory),
 				httpSocket);
 	}
 

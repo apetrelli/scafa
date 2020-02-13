@@ -37,7 +37,7 @@ import com.github.apetrelli.scafa.proto.processor.impl.DefaultProcessor;
 import com.github.apetrelli.scafa.proto.processor.impl.PassthroughInputProcessorFactory;
 import com.github.apetrelli.scafa.proto.processor.impl.SimpleInputFactory;
 
-public abstract class AbstractProxyHttpConnection<T extends AsyncSocket> extends AbstractClientConnection<HttpAsyncSocket> implements ProxyHttpConnection {
+public abstract class AbstractProxyHttpConnection<T extends AsyncSocket> extends AbstractClientConnection<HttpAsyncSocket<HttpRequest>> implements ProxyHttpConnection {
 	
 	private static final Logger LOG = Logger.getLogger(AbstractProxyHttpConnection.class.getName());
 
@@ -50,7 +50,7 @@ public abstract class AbstractProxyHttpConnection<T extends AsyncSocket> extends
     private HostPort destinationSocketAddress;
 
 	public AbstractProxyHttpConnection(MappedProxyHttpConnectionFactory factory, T sourceChannel,
-			HttpAsyncSocket socket, HostPort destinationSocketAddress) {
+			HttpAsyncSocket<HttpRequest> socket, HostPort destinationSocketAddress) {
         super(socket);
         this.factory = factory;
         this.sourceChannel = sourceChannel;

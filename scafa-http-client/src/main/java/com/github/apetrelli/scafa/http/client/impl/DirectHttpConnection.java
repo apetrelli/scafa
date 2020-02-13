@@ -17,13 +17,13 @@ import com.github.apetrelli.scafa.proto.processor.Processor;
 import com.github.apetrelli.scafa.proto.processor.impl.DefaultProcessor;
 import com.github.apetrelli.scafa.proto.processor.impl.StatefulInputProcessorFactory;
 
-public class DirectHttpConnection extends AbstractClientConnection<HttpAsyncSocket> implements HttpClientConnection {
+public class DirectHttpConnection extends AbstractClientConnection<HttpAsyncSocket<HttpRequest>> implements HttpClientConnection {
 
     private ClientPipelineHttpHandler responseHandler;
 
     private MappedHttpConnectionFactory connectionFactory;
 
-	public DirectHttpConnection(HttpAsyncSocket socket, MappedHttpConnectionFactory connectionFactory) {
+	public DirectHttpConnection(HttpAsyncSocket<HttpRequest> socket, MappedHttpConnectionFactory connectionFactory) {
 		super(socket); // No binding ATM.
 		this.connectionFactory = connectionFactory;
 		responseHandler = new ClientPipelineHttpHandler(this);

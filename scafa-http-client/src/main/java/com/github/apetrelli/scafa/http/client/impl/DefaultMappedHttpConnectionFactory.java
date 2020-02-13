@@ -36,7 +36,7 @@ public class DefaultMappedHttpConnectionFactory implements MappedHttpConnectionF
 			HttpClientConnection cachedConnection = connectionCache.get(hostPort);
 			if (cachedConnection == null) {
 			    AsyncSocket socket = new DirectClientAsyncSocket(channelFactory, hostPort, null, false);
-			    HttpAsyncSocket httpSocket = new DirectHttpAsyncSocket(socket, dataSenderFactory);
+			    HttpAsyncSocket<HttpRequest> httpSocket = new DirectHttpAsyncSocket<>(socket, dataSenderFactory);
 				HttpClientConnection connection = new DirectHttpConnection(httpSocket, this);
 				connectionCache.put(hostPort, connection);
 				connection.ensureConnected(new CompletionHandler<Void, Void>() {

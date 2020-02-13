@@ -5,9 +5,9 @@ import java.nio.channels.CompletionHandler;
 
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 
-public interface HttpAsyncSocket extends AsyncSocket {
+public interface HttpAsyncSocket<H extends HeaderHolder> extends AsyncSocket {
 
-	void sendHeader(HeaderHolder holder, CompletionHandler<Void, Void> completionHandler);
+	void sendHeader(H header, CompletionHandler<Void, Void> completionHandler);
 	
 	void sendData(ByteBuffer buffer, CompletionHandler<Void, Void> completionHandler);
 

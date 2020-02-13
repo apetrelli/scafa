@@ -30,12 +30,12 @@ import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
 import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.proto.aio.DelegateFailureCompletionHandler;
 
-public class DirectProxyHttpConnection extends AbstractProxyHttpConnection<HttpAsyncSocket> {
+public class DirectProxyHttpConnection extends AbstractProxyHttpConnection<HttpAsyncSocket<HttpResponse>> {
 
     private static final Logger LOG = Logger.getLogger(DirectProxyHttpConnection.class.getName());
 
     public DirectProxyHttpConnection(MappedProxyHttpConnectionFactory factory,
-            HttpAsyncSocket sourceChannel, HttpAsyncSocket socket) {
+            HttpAsyncSocket<HttpResponse> sourceChannel, HttpAsyncSocket<HttpRequest> socket) {
         super(factory, sourceChannel, socket, socket.getAddress());
     }
 
