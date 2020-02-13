@@ -8,10 +8,10 @@ import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.http.HeaderHolder;
 import com.github.apetrelli.scafa.http.HttpAsyncSocket;
+import com.github.apetrelli.scafa.http.output.DataSender;
 import com.github.apetrelli.scafa.http.output.DataSenderFactory;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.impl.AsyncSocketWrapper;
-import com.github.apetrelli.scafa.proto.output.DataSender;
 
 public class DirectHttpAsyncSocket extends AsyncSocketWrapper implements HttpAsyncSocket {
 

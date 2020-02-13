@@ -8,12 +8,12 @@ import java.nio.file.StandardOpenOption;
 
 import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpResponse;
+import com.github.apetrelli.scafa.http.output.DataSender;
 import com.github.apetrelli.scafa.http.output.DataSenderFactory;
 import com.github.apetrelli.scafa.http.server.HttpServer;
 import com.github.apetrelli.scafa.proto.aio.BufferContext;
 import com.github.apetrelli.scafa.proto.aio.BufferContextReader;
 import com.github.apetrelli.scafa.proto.aio.impl.PathBufferContextReader;
-import com.github.apetrelli.scafa.proto.output.DataSender;
 import com.github.apetrelli.scafa.tls.util.IOUtils;
 
 public class DefaultHttpServer implements HttpServer {

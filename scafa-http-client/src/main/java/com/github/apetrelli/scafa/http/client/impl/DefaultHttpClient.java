@@ -11,7 +11,7 @@ import com.github.apetrelli.scafa.http.client.HttpClient;
 import com.github.apetrelli.scafa.http.client.HttpClientConnection;
 import com.github.apetrelli.scafa.http.client.HttpClientHandler;
 import com.github.apetrelli.scafa.http.output.DataSenderFactory;
-import com.github.apetrelli.scafa.http.output.DefaultDataSenderFactory;
+import com.github.apetrelli.scafa.http.output.impl.DefaultDataSenderFactory;
 import com.github.apetrelli.scafa.proto.aio.BufferContext;
 import com.github.apetrelli.scafa.proto.aio.BufferContextReader;
 import com.github.apetrelli.scafa.proto.aio.impl.PathBufferContextReader;

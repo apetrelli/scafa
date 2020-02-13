@@ -1,11 +1,10 @@
-package com.github.apetrelli.scafa.http.output;
+package com.github.apetrelli.scafa.http.output.impl;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.CompletionHandler;
 import java.nio.charset.StandardCharsets;
 
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
-import com.github.apetrelli.scafa.proto.output.AbstractDataSender;
 
 public class ChunkedDataSender extends AbstractDataSender {
 

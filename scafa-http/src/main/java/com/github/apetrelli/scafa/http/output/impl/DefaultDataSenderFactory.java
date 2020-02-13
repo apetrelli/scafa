@@ -1,9 +1,9 @@
-package com.github.apetrelli.scafa.http.output;
+package com.github.apetrelli.scafa.http.output.impl;
 
 import com.github.apetrelli.scafa.http.HeaderHolder;
+import com.github.apetrelli.scafa.http.output.DataSender;
+import com.github.apetrelli.scafa.http.output.DataSenderFactory;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
-import com.github.apetrelli.scafa.proto.output.DataSender;
-import com.github.apetrelli.scafa.proto.output.DirectDataSender;
 
 public class DefaultDataSenderFactory implements DataSenderFactory {
 
