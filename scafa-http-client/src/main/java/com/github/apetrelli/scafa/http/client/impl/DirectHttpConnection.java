@@ -45,7 +45,7 @@ public class DirectHttpConnection extends AbstractClientConnection<HttpAsyncSock
 	}
 
 	@Override
-	public void end(CompletionHandler<Void, Void> completionHandler) {
+	public void endData(CompletionHandler<Void, Void> completionHandler) {
 	    socket.endData(completionHandler);
 	}
 	

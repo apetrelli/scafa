@@ -131,12 +131,12 @@ public class DefaultProxyHttpHandler implements ProxyHttpHandler {
 
     @Override
     public void onDataToPassAlong(ByteBuffer buffer, CompletionHandler<Void, Void> handler) {
-        connection.send(buffer, handler);
+        connection.flushBuffer(buffer, handler);
     }
 
     @Override
     public void onEnd(CompletionHandler<Void, Void> handler) {
-        connection.end(handler);
+        connection.endData(handler);
     }
 
     @Override

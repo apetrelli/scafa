@@ -83,7 +83,7 @@ public class DefaultMappedProxyHttpConnectionFactory implements MappedProxyHttpC
                         new Object[] { Thread.currentThread().getName(), hostPort.toString() });
             }
             ProxyHttpConnection newConnection = connectionFactory.create(this, sourceChannel, hostPort);
-            newConnection.ensureConnected(new CompletionHandler<Void, Void>() {
+            newConnection.connect(new CompletionHandler<Void, Void>() {
 
                 @Override
                 public void completed(Void result, Void attachment) {

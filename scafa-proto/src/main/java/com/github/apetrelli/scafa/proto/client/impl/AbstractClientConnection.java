@@ -1,22 +1,19 @@
 package com.github.apetrelli.scafa.proto.client.impl;
 
-import java.nio.ByteBuffer;
 import java.nio.channels.CompletionHandler;
 
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.DelegateFailureCompletionHandler;
-import com.github.apetrelli.scafa.proto.client.ClientConnection;
+import com.github.apetrelli.scafa.proto.aio.impl.AsyncSocketWrapper;
 
-public abstract class AbstractClientConnection<T extends AsyncSocket> implements ClientConnection {
-    
-    protected T socket;
+public abstract class AbstractClientConnection<T extends AsyncSocket> extends AsyncSocketWrapper<T> implements AsyncSocket {
 
     public AbstractClientConnection(T socket) {
-    	this.socket = socket;
+    	super(socket);
 	}
 
 	@Override
-    public void ensureConnected(CompletionHandler<Void, Void> handler) {
+    public void connect(CompletionHandler<Void, Void> handler) {
 		socket.connect(new DelegateFailureCompletionHandler<Void, Void>(handler) {
 
 			@Override
@@ -26,16 +23,6 @@ public abstract class AbstractClientConnection<T extends AsyncSocket> implements
 			}
 		});
     }
-	
-	@Override
-	public void disconnect(CompletionHandler<Void, Void> handler) {
-		socket.disconnect(handler);
-	}
-
-	@Override
-	public void send(ByteBuffer buffer, CompletionHandler<Void, Void> completionHandler) {
-		socket.flushBuffer(buffer, completionHandler);
-	}
 
 	protected abstract void prepareChannel();
 

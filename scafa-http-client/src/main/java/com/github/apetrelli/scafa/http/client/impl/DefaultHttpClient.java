@@ -82,7 +82,7 @@ public class DefaultHttpClient implements HttpClient {
 			if (result >= 0) {
 				connection.sendData(fileContext.getBuffer(), requestBodySentCompletionHandler);
 			} else {
-				connection.end(new AfterPayloadSentCompletionHandler());
+				connection.endData(new AfterPayloadSentCompletionHandler());
 			}
 		}
 

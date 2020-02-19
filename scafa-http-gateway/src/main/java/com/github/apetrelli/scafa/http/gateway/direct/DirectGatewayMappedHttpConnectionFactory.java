@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.github.apetrelli.scafa.http.HttpConnection;
+import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.gateway.GatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.gateway.MappedGatewayHttpConnectionFactory;
@@ -36,7 +36,7 @@ public class DirectGatewayMappedHttpConnectionFactory implements MappedGatewayHt
 
     private static final Logger LOG = Logger.getLogger(DirectGatewayMappedHttpConnectionFactory.class.getName());
 
-    private Map<HostPort, HttpConnection> connectionCache = new HashMap<>();
+    private Map<HostPort, HttpAsyncSocket<HttpRequest>> connectionCache = new HashMap<>();
 
     private GatewayHttpConnectionFactory connectionFactory;
 
@@ -45,7 +45,7 @@ public class DirectGatewayMappedHttpConnectionFactory implements MappedGatewayHt
     }
 
     @Override
-    public void create(AsyncSocket sourceChannel, HttpRequest request, CompletionHandler<HttpConnection, Void> handler) {
+    public void create(AsyncSocket sourceChannel, HttpRequest request, CompletionHandler<HttpAsyncSocket<HttpRequest>, Void> handler) {
         try {
             create(sourceChannel, request.getHostPort(), handler);
         } catch (IOException e) {
@@ -63,21 +63,21 @@ public class DirectGatewayMappedHttpConnectionFactory implements MappedGatewayHt
 
     @Override
     public void dispose(HostPort target) {
-        HttpConnection connection = connectionCache.get(target);
+    	HttpAsyncSocket<HttpRequest> connection = connectionCache.get(target);
         if (connection != null) {
             connectionCache.remove(target);
         }
     }
 
-    private void create(AsyncSocket sourceChannel, HostPort hostPort, CompletionHandler<HttpConnection, Void> handler) {
-    	HttpConnection connection = connectionCache.get(hostPort);
+    private void create(AsyncSocket sourceChannel, HostPort hostPort, CompletionHandler<HttpAsyncSocket<HttpRequest>, Void> handler) {
+    	HttpAsyncSocket<HttpRequest> connection = connectionCache.get(hostPort);
         if (connection == null) {
             if (LOG.isLoggable(Level.INFO)) {
                 LOG.log(Level.INFO, "Connecting thread {0} to address {1}",
                         new Object[] { Thread.currentThread().getName(), hostPort.toString() });
             }
-			HttpConnection newConnection = connectionFactory.create(this, sourceChannel, hostPort);
-            newConnection.ensureConnected(new CompletionHandler<Void, Void>() {
+            HttpAsyncSocket<HttpRequest> newConnection = connectionFactory.create(this, sourceChannel, hostPort);
+            newConnection.connect(new CompletionHandler<Void, Void>() {
 
                 @Override
                 public void completed(Void result, Void attachment) {

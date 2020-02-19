@@ -5,9 +5,9 @@ import java.nio.channels.CompletionHandler;
 
 public interface ClientConnection {
 
-    void ensureConnected(CompletionHandler<Void, Void> handler);
+    void connect(CompletionHandler<Void, Void> handler);
     
     void disconnect(CompletionHandler<Void, Void> handler);
 
-    void send(ByteBuffer buffer, CompletionHandler<Void, Void> completionHandler);
+    void flushBuffer(ByteBuffer buffer, CompletionHandler<Void, Void> completionHandler);
 }

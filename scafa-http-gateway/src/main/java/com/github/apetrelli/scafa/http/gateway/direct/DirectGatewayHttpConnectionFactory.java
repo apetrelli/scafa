@@ -1,7 +1,6 @@
 package com.github.apetrelli.scafa.http.gateway.direct;
 
 import com.github.apetrelli.scafa.http.HttpAsyncSocket;
-import com.github.apetrelli.scafa.http.HttpConnection;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.gateway.GatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.gateway.MappedGatewayHttpConnectionFactory;
@@ -28,7 +27,7 @@ public class DirectGatewayHttpConnectionFactory implements GatewayHttpConnection
 	}
 
 	@Override
-	public HttpConnection create(MappedGatewayHttpConnectionFactory factory,
+	public HttpAsyncSocket<HttpRequest> create(MappedGatewayHttpConnectionFactory factory,
 			AsyncSocket sourceChannel, HostPort socketAddress) {
 		AsyncSocket socket = new DirectClientAsyncSocket(channelFactory, destinationSocketAddress, null, false);
 		HttpAsyncSocket<HttpRequest> httpSocket = new DirectHttpAsyncSocket<>(socket, dataSenderFactory);

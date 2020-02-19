@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.CompletionHandler;
 
-import com.github.apetrelli.scafa.http.HttpConnection;
+import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
@@ -35,7 +35,7 @@ public class DefaultGatewayHttpHandler implements HttpHandler {
 
     private AsyncSocket sourceChannel;
 
-    private HttpConnection connection;
+    private HttpAsyncSocket<HttpRequest> connection;
 
     public DefaultGatewayHttpHandler(MappedGatewayHttpConnectionFactory connectionFactory, AsyncSocket sourceChannel) {
         this.connectionFactory = connectionFactory;
@@ -59,10 +59,10 @@ public class DefaultGatewayHttpHandler implements HttpHandler {
 
     @Override
     public void onRequestHeader(HttpRequest request, CompletionHandler<Void, Void> handler) {
-        connectionFactory.create(sourceChannel, request, new CompletionHandler<HttpConnection, Void>() {
+        connectionFactory.create(sourceChannel, request, new CompletionHandler<HttpAsyncSocket<HttpRequest>, Void>() {
 
             @Override
-            public void completed(HttpConnection result, Void attachment) {
+            public void completed(HttpAsyncSocket<HttpRequest> result, Void attachment) {
                 connection = result;
                 connection.sendHeader(request, handler);
             }
@@ -102,12 +102,12 @@ public class DefaultGatewayHttpHandler implements HttpHandler {
 
     @Override
     public void onDataToPassAlong(ByteBuffer buffer, CompletionHandler<Void, Void> handler) {
-        connection.send(buffer, handler);
+        connection.flushBuffer(buffer, handler);
     }
 
     @Override
     public void onEnd(CompletionHandler<Void, Void> handler) {
-        connection.end(handler);
+        connection.endData(handler);
     }
 
     @Override

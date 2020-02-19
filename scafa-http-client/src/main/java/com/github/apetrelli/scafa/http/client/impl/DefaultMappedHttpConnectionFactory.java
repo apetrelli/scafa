@@ -39,7 +39,7 @@ public class DefaultMappedHttpConnectionFactory implements MappedHttpConnectionF
 			    HttpAsyncSocket<HttpRequest> httpSocket = new DirectHttpAsyncSocket<>(socket, dataSenderFactory);
 				HttpClientConnection connection = new DirectHttpConnection(httpSocket, this);
 				connectionCache.put(hostPort, connection);
-				connection.ensureConnected(new CompletionHandler<Void, Void>() {
+				connection.connect(new CompletionHandler<Void, Void>() {
 
 					@Override
 					public void completed(Void result, Void attachment) {

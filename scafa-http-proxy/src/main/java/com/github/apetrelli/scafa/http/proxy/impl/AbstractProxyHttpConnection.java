@@ -74,7 +74,7 @@ public abstract class AbstractProxyHttpConnection<T extends AsyncSocket> extends
     }
 
     @Override
-    public void end(CompletionHandler<Void, Void> completionHandler) {
+    public void endData(CompletionHandler<Void, Void> completionHandler) {
     	socket.endData(completionHandler);
     }
 

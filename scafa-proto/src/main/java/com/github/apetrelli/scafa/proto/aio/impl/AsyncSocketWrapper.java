@@ -6,11 +6,11 @@ import java.nio.channels.CompletionHandler;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 
-public class AsyncSocketWrapper implements AsyncSocket {
+public class AsyncSocketWrapper<T extends AsyncSocket> implements AsyncSocket {
 
-	protected AsyncSocket socket;
+	protected T socket;
 	
-	public AsyncSocketWrapper(AsyncSocket socket) {
+	public AsyncSocketWrapper(T socket) {
 		this.socket = socket;
 	}
 

@@ -24,12 +24,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.http.HttpAsyncSocket;
-import com.github.apetrelli.scafa.http.HttpConnection;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.client.impl.AbstractClientConnection;
 
-public abstract class AbstractGatewayHttpConnection extends AbstractClientConnection<HttpAsyncSocket<HttpRequest>> implements HttpConnection {
+public abstract class AbstractGatewayHttpConnection extends AbstractClientConnection<HttpAsyncSocket<HttpRequest>> implements HttpAsyncSocket<HttpRequest> {
 	
 	private static final Logger LOG = Logger.getLogger(AbstractGatewayHttpConnection.class.getName());
 
@@ -57,7 +56,7 @@ public abstract class AbstractGatewayHttpConnection extends AbstractClientConnec
     }
 
     @Override
-    public void end(CompletionHandler<Void, Void> completionHandler) {
+    public void endData(CompletionHandler<Void, Void> completionHandler) {
     	socket.endData(completionHandler);
     }
     

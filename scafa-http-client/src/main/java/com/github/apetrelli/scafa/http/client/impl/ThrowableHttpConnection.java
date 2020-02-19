@@ -23,6 +23,7 @@ import java.nio.channels.CompletionHandler;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.client.HttpClientConnection;
 import com.github.apetrelli.scafa.http.client.HttpClientHandler;
+import com.github.apetrelli.scafa.proto.client.HostPort;
 
 public class ThrowableHttpConnection implements HttpClientConnection {
 
@@ -35,7 +36,7 @@ public class ThrowableHttpConnection implements HttpClientConnection {
 	}
 
 	@Override
-    public void ensureConnected(CompletionHandler<Void, Void> handler) {
+    public void connect(CompletionHandler<Void, Void> handler) {
         handler.completed(null, null);
     }
 	
@@ -57,19 +58,39 @@ public class ThrowableHttpConnection implements HttpClientConnection {
 	}
 
     @Override
-    public void send(ByteBuffer buffer, CompletionHandler<Void, Void> completionHandler) {
+    public void flushBuffer(ByteBuffer buffer, CompletionHandler<Void, Void> completionHandler) {
         buffer.clear();
         completionHandler.completed(null, null);
     }
 
     @Override
-    public void end(CompletionHandler<Void, Void> completionHandler) {
+    public void endData(CompletionHandler<Void, Void> completionHandler) {
         completionHandler.completed(null, null);
     }
     
     @Override
     public void disconnect(CompletionHandler<Void, Void> handler) {
         handler.completed(null, null);
+    }
+
+    @Override
+    public HostPort getAddress() {
+        return null;
+    }
+
+    @Override
+    public <A> void read(ByteBuffer buffer, A attachment, CompletionHandler<Integer, ? super A> handler) {
+        handler.completed(null, null);
+    }
+
+    @Override
+    public <A> void write(ByteBuffer buffer, A attachment, CompletionHandler<Integer, ? super A> handler) {
+        handler.completed(null, null);
+    }
+
+    @Override
+    public boolean isOpen() {
+        return false;
     }
 
 }
