@@ -13,7 +13,7 @@ import com.github.apetrelli.scafa.http.output.DataSenderFactory;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.impl.AsyncSocketWrapper;
 
-public class DirectHttpAsyncSocket<H extends HeaderHolder> extends AsyncSocketWrapper implements HttpAsyncSocket<H> {
+public class DirectHttpAsyncSocket<H extends HeaderHolder> extends AsyncSocketWrapper<AsyncSocket> implements HttpAsyncSocket<H> {
 
 	private static final Logger LOG = Logger.getLogger(DirectHttpAsyncSocket.class.getName());
 	
