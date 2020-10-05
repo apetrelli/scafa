@@ -77,7 +77,7 @@ public class ScafaLauncher {
                 if (profileFile.exists()) {
                     return profile;
                 } else {
-                    LOG.severe("The file " + profile + ".ini does not exist, defaulting to direct");
+                    LOG.log(Level.SEVERE, "The file {0}.ini does not exist, defaulting to direct", profile);
                 }
             } catch (IOException e) {
                 LOG.log(Level.SEVERE, "Cannot load current profile configuration", e);
@@ -97,7 +97,7 @@ public class ScafaLauncher {
     }
 
     public String[] getProfiles() {
-        File[] files = scafaDirectory.listFiles((File d, String n ) -> { return n.endsWith(".ini");});
+        File[] files = scafaDirectory.listFiles((File d, String n ) -> n.endsWith(".ini"));
         String[] profiles = new String[files.length];
         for (int i = 0; i < files.length; i++) {
             String filename = files[i].getName();
@@ -107,15 +107,6 @@ public class ScafaLauncher {
     }
 
     public void launch(String profile) {
-        File home = new File(System.getProperty("user.home"));
-        File scafaDirectory = new File(home, ".scafa");
-        ensureConfigDirectoryPresent(scafaDirectory);
-        try (InputStream stream = new FileInputStream(new File(scafaDirectory, "logging.properties"))) {
-            LogManager.getLogManager().readConfiguration(stream);
-        } catch (IOException e) {
-            LOG.log(Level.SEVERE, "Cannot load logging configuration, exiting", e);
-            System.exit(1);
-        }
         try {
         	HttpStateMachine stateMachine = new HttpStateMachine();
         	AsynchronousSocketChannelFactory channelFactory = new SimpleAsynchronousSocketChannelFactory();
@@ -130,7 +121,7 @@ public class ScafaLauncher {
             AsyncSocketFactory<AsyncSocket> asyncSocketFactory = new SimpleAsyncSocketFactory();
             DefaultProcessorFactory<HttpStatus, HttpProcessingContext, HttpHandler> defaultProcessorFactory = new DefaultProcessorFactory<>(
                     inputProcessorFactory, processingContextFactory);
-            proxy = new ScafaListener<HttpHandler, AsyncSocket>(asyncSocketFactory, defaultProcessorFactory, proxyHttpHandlerFactory, port);
+            proxy = new ScafaListener<>(asyncSocketFactory, defaultProcessorFactory, proxyHttpHandlerFactory, port);
             proxy.listen();
         } catch (IOException e) {
             LOG.log(Level.SEVERE, "Cannot start proxy", e);
