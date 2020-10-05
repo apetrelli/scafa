@@ -10,6 +10,7 @@ import com.github.apetrelli.scafa.http.HeaderHolder;
 import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.output.DataSender;
 import com.github.apetrelli.scafa.http.output.DataSenderFactory;
+import com.github.apetrelli.scafa.http.output.impl.DirectDataSender;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.impl.AsyncSocketWrapper;
 
@@ -23,6 +24,7 @@ public class DirectHttpAsyncSocket<H extends HeaderHolder> extends AsyncSocketWr
 	
 	public DirectHttpAsyncSocket(AsyncSocket socket, DataSenderFactory dataSenderFactory) {
 		super(socket);
+		dataSender = new DirectDataSender(socket);
 		this.dataSenderFactory = dataSenderFactory;
 	}
 
