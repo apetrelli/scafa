@@ -1,6 +1,6 @@
 package com.github.apetrelli.scafa.proto.processor.impl;
 
-import java.nio.ByteBuffer;
+import java.io.InputStream;
 
 import com.github.apetrelli.scafa.proto.processor.Input;
 import com.github.apetrelli.scafa.proto.processor.ProcessingContextFactory;
@@ -8,10 +8,9 @@ import com.github.apetrelli.scafa.proto.processor.SimpleInput;
 
 public class SimpleInputFactory implements ProcessingContextFactory<Input> {
     @Override
-    public Input create() {
+    public Input create(InputStream stream) {
         SimpleInput input = new SimpleInput();
-        ByteBuffer buffer = ByteBuffer.allocate(16384);
-        input.setBuffer(buffer);
+        input.setStream(stream);
         return input;
     }
 }

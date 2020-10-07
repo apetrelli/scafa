@@ -17,7 +17,20 @@
  */
 package com.github.apetrelli.scafa.proto.client;
 
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+
+import com.github.apetrelli.scafa.proto.aio.impl.IORuntimeException;
+
 public class HostPort {
+	
+	public static HostPort fromSocketAddress(SocketAddress address) {
+		if (address instanceof InetSocketAddress) {
+			return new HostPort(((InetSocketAddress) address).getHostName(), ((InetSocketAddress) address).getPort());
+		}
+		throw new IORuntimeException("Not an InetSocketAddress");
+	}
+	
     private String host;
 
     private int port;
@@ -33,6 +46,10 @@ public class HostPort {
 
     public int getPort() {
         return port;
+    }
+    
+    public SocketAddress toSocketAddress() {
+    	return new InetSocketAddress(host, port);
     }
 
     @Override

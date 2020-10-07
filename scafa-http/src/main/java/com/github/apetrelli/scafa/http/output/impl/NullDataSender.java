@@ -1,20 +1,17 @@
 package com.github.apetrelli.scafa.http.output.impl;
 
-import java.nio.ByteBuffer;
-import java.nio.channels.CompletionHandler;
-
 import com.github.apetrelli.scafa.http.output.DataSender;
 
 public class NullDataSender implements DataSender {
 
     @Override
-    public void send(ByteBuffer buffer, CompletionHandler<Void, Void> completionHandler) {
-        completionHandler.completed(null, null);
+    public void send(byte[] b, int off, int len) {
+    	// Does nothing
     }
 
     @Override
-    public void end(CompletionHandler<Void, Void> completionHandler) {
-        completionHandler.completed(null, null);
+    public void end() {
+    	// Does nothing
     }
 
 }
