@@ -43,7 +43,9 @@ import jcifs.util.Base64;
 
 public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection {
 
-    private static final int TYPE_1_FLAGS = NtlmFlags.NTLMSSP_NEGOTIATE_128 | NtlmFlags.NTLMSSP_NEGOTIATE_ALWAYS_SIGN
+    private static final String NTLM = "NTLM ";
+
+	private static final int TYPE_1_FLAGS = NtlmFlags.NTLMSSP_NEGOTIATE_128 | NtlmFlags.NTLMSSP_NEGOTIATE_ALWAYS_SIGN
             | NtlmFlags.NTLMSSP_NEGOTIATE_LM_KEY | NtlmFlags.NTLMSSP_NEGOTIATE_TARGET_INFO
             | NtlmFlags.NTLMSSP_NEGOTIATE_OEM | NtlmFlags.NTLMSSP_NEGOTIATE_UNICODE;
 
@@ -105,32 +107,31 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
         }
         StatefulInputProcessor<HttpHandler, HttpStatus, NtlmHttpProcessingContext> processor = new StatefulInputProcessor<>(
                 tentativeHandler, stateMachine);
-        return socket.sendHeader(modifiedRequest).thenCompose(x -> {
-        	return readResponse(tentativeHandler, processor);
-        }).thenCompose(x -> {
-            if (x >= 0) {
-                if (tentativeHandler.isNeedsAuthorizing()) {
-                    tentativeHandler.setOnlyCaptureMode(true);
-                    if (tentativeHandler.getResponse().getHeaders("PROXY-AUTHENTICATE").contains("NTLM")) {
-                        return ntlmAuthenticate(modifiedRequest, finalRequest, tentativeHandler, processor);
-                    } else {
-                        return CompletionHandlerFuture.completeEmpty();
-                    }
-                } else {
-                    authenticated = true;
-                    prepareChannel();
-                    return CompletionHandlerFuture.completeEmpty();
-                }
-            } else {
-                return CompletableFuture.failedFuture(new IOException("Connection closed"));
-            }
-        });
+		return socket.sendHeader(modifiedRequest).thenCompose(x -> readResponse(tentativeHandler, processor))
+				.thenCompose(x -> {
+					if (x >= 0) {
+						if (tentativeHandler.isNeedsAuthorizing()) {
+							tentativeHandler.setOnlyCaptureMode(true);
+							if (tentativeHandler.getResponse().getHeaders("PROXY-AUTHENTICATE").contains("NTLM")) {
+								return ntlmAuthenticate(modifiedRequest, finalRequest, tentativeHandler, processor);
+							} else {
+								return CompletionHandlerFuture.completeEmpty();
+							}
+						} else {
+							authenticated = true;
+							prepareChannel();
+							return CompletionHandlerFuture.completeEmpty();
+						}
+					} else {
+						return CompletableFuture.failedFuture(new IOException("Connection closed"));
+					}
+				});
     }
 
     private CompletableFuture<Void> ntlmAuthenticate(HttpRequest modifiedRequest, HttpRequest finalRequest, CapturingHandler handler,
             StatefulInputProcessor<HttpHandler, HttpStatus, NtlmHttpProcessingContext> processor) {
         Type1Message message1 = new Type1Message(TYPE_1_FLAGS, null, null);
-        modifiedRequest.setHeader("PROXY-AUTHORIZATION", "NTLM " + Base64.encode(message1.toByteArray()));
+        modifiedRequest.setHeader("PROXY-AUTHORIZATION", NTLM + Base64.encode(message1.toByteArray()));
         return socket.sendHeader(modifiedRequest).thenCompose(x -> readResponse(handler, processor))
         		.thenCompose(result -> {
         			CompletableFuture<Void> retValue = null;
@@ -140,13 +141,13 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
         					case 407:
         						String authenticate = handler.getResponse().getHeader("PROXY-AUTHENTICATE");
         						if (authenticate != null) {
-        							if (authenticate.startsWith("NTLM ")) {
+        							if (authenticate.startsWith(NTLM)) {
                                         String base64 = authenticate.substring(5);
                                         Type2Message message2 = new Type2Message(Base64.decode(base64));
                                         Type3Message message3 = new Type3Message(message2, password, domain, username, null,
                                                 message2.getFlags());
                                         finalRequest.setHeader("Proxy-Authorization",
-                                                "NTLM " + Base64.encode(message3.toByteArray()));
+                                                NTLM + Base64.encode(message3.toByteArray()));
                                         return socket.sendHeader(finalRequest).thenAccept(x -> {
                                         	authenticated = true;
                                         	prepareChannel();
