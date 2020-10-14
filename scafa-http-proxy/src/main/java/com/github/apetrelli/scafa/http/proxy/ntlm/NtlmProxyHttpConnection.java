@@ -178,62 +178,6 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
             	return CompletableFuture.failedFuture(new IOException("Connection closed"));
             }
         });
-        socket.sendHeader(modifiedRequest, new DelegateFailureCompletionHandler<Void, Void>(completionHandler) {
-
-            @Override
-            public void completed(Void result, Void attachment) {
-                readResponse(handler, processor, new DelegateFailureCompletionHandler<Integer, Void>(completionHandler) {
-
-                    @Override
-                    public void completed(Integer result, Void attachment) {
-                        if (result >= 0) {
-                            try {
-                                switch (handler.getResponse().getCode()) {
-                                case 407:
-                                    String authenticate = handler.getResponse().getHeader("PROXY-AUTHENTICATE");
-                                    if (authenticate != null) {
-                                        if (authenticate.startsWith("NTLM ")) {
-                                            String base64 = authenticate.substring(5);
-                                            Type2Message message2 = new Type2Message(Base64.decode(base64));
-                                            Type3Message message3 = new Type3Message(message2, password, domain, username, null,
-                                                    message2.getFlags());
-                                            finalRequest.setHeader("Proxy-Authorization",
-                                                    "NTLM " + Base64.encode(message3.toByteArray()));
-                                            socket.sendHeader(finalRequest, new DelegateFailureCompletionHandler<Void, Void>(completionHandler) {
-
-                                                @Override
-                                                public void completed(Void result, Void attachment) {
-                                                    authenticated = true;
-                                                    prepareChannel();
-                                                    completionHandler.completed(null, null);
-                                                }
-                                            });
-                                        } else {
-                                            completionHandler.completed(null, null);
-                                        }
-                                    } else {
-                                        completionHandler.completed(null, null);
-                                    }
-                                    break;
-                                case 200:
-                                    authenticated = true;
-                                    prepareChannel();
-                                    completionHandler.completed(null, null);
-                                    break;
-                                default:
-                                    // this happens only in HTTP with disallowed connections.
-                                    socket.disconnect(completionHandler);
-                                }
-                            } catch (IOException e) {
-                                completionHandler.failed(e, null);
-                            }
-                        } else {
-                            completionHandler.failed(new IOException("Connection closed"), null);
-                        }
-                    }
-                });
-            }
-        });
     }
 
     private CompletableFuture<Integer> readResponse(CapturingHandler handler,
