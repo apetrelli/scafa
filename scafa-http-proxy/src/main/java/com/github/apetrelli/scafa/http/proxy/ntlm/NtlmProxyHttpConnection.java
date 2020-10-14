@@ -19,12 +19,10 @@ package com.github.apetrelli.scafa.http.proxy.ntlm;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.CompletionHandler;
 import java.util.concurrent.CompletableFuture;
 
 import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpHandler;
-import com.github.apetrelli.scafa.http.HttpProcessingContext;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.HttpStatus;
@@ -34,7 +32,6 @@ import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
 import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.impl.AbstractUpstreamProxyHttpConnection;
 import com.github.apetrelli.scafa.proto.aio.CompletionHandlerFuture;
-import com.github.apetrelli.scafa.proto.aio.DelegateFailureCompletionHandler;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.processor.impl.StatefulInputProcessor;
 
@@ -130,66 +127,54 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
         });
     }
 
-    private void ntlmAuthenticate(HttpRequest modifiedRequest, HttpRequest finalRequest, CapturingHandler handler,
-            StatefulInputProcessor<HttpHandler, HttpStatus, HttpProcessingContext> processor, CompletionHandler<Void, Void> completionHandler) {
+    private CompletableFuture<Void> ntlmAuthenticate(HttpRequest modifiedRequest, HttpRequest finalRequest, CapturingHandler handler,
+            StatefulInputProcessor<HttpHandler, HttpStatus, NtlmHttpProcessingContext> processor) {
         Type1Message message1 = new Type1Message(TYPE_1_FLAGS, null, null);
         modifiedRequest.setHeader("PROXY-AUTHORIZATION", "NTLM " + Base64.encode(message1.toByteArray()));
-        socket.sendHeader(modifiedRequest, new DelegateFailureCompletionHandler<Void, Void>(completionHandler) {
-
-            @Override
-            public void completed(Void result, Void attachment) {
-                readResponse(handler, processor, new DelegateFailureCompletionHandler<Integer, Void>(completionHandler) {
-
-                    @Override
-                    public void completed(Integer result, Void attachment) {
-                        if (result >= 0) {
-                            try {
-                                switch (handler.getResponse().getCode()) {
-                                case 407:
-                                    String authenticate = handler.getResponse().getHeader("PROXY-AUTHENTICATE");
-                                    if (authenticate != null) {
-                                        if (authenticate.startsWith("NTLM ")) {
-                                            String base64 = authenticate.substring(5);
-                                            Type2Message message2 = new Type2Message(Base64.decode(base64));
-                                            Type3Message message3 = new Type3Message(message2, password, domain, username, null,
-                                                    message2.getFlags());
-                                            finalRequest.setHeader("Proxy-Authorization",
-                                                    "NTLM " + Base64.encode(message3.toByteArray()));
-                                            socket.sendHeader(finalRequest, new DelegateFailureCompletionHandler<Void, Void>(completionHandler) {
-
-                                                @Override
-                                                public void completed(Void result, Void attachment) {
-                                                    authenticated = true;
-                                                    prepareChannel();
-                                                    completionHandler.completed(null, null);
-                                                }
-                                            });
-                                        } else {
-                                            completionHandler.completed(null, null);
-                                        }
-                                    } else {
-                                        completionHandler.completed(null, null);
-                                    }
-                                    break;
-                                case 200:
-                                    authenticated = true;
-                                    prepareChannel();
-                                    completionHandler.completed(null, null);
-                                    break;
-                                default:
-                                    // this happens only in HTTP with disallowed connections.
-                                    socket.disconnect(completionHandler);
-                                }
-                            } catch (IOException e) {
-                                completionHandler.failed(e, null);
-                            }
-                        } else {
-                            completionHandler.failed(new IOException("Connection closed"), null);
+        return socket.sendHeader(modifiedRequest).thenCompose(x -> readResponse(handler, processor))
+        		.thenCompose(result -> {
+        			CompletableFuture<Void> retValue = null;
+        			if (result >= 0) {
+        				try {
+        					switch (handler.getResponse().getCode()) {
+        					case 407:
+        						String authenticate = handler.getResponse().getHeader("PROXY-AUTHENTICATE");
+        						if (authenticate != null) {
+        							if (authenticate.startsWith("NTLM ")) {
+                                        String base64 = authenticate.substring(5);
+                                        Type2Message message2 = new Type2Message(Base64.decode(base64));
+                                        Type3Message message3 = new Type3Message(message2, password, domain, username, null,
+                                                message2.getFlags());
+                                        finalRequest.setHeader("Proxy-Authorization",
+                                                "NTLM " + Base64.encode(message3.toByteArray()));
+                                        return socket.sendHeader(finalRequest).thenAccept(x -> {
+                                        	authenticated = true;
+                                        	prepareChannel();
+                                        });
+        							} else {
+        								retValue = CompletableFuture.failedFuture(new IOException("Unrecognized proxy authentication protocol: " + authenticate));        								
+        							}
+        						} else {
+        							retValue = CompletionHandlerFuture.completeEmpty();
+        						}
+        						break;
+                            case 200:
+                                authenticated = true;
+                                prepareChannel();
+                                retValue = CompletionHandlerFuture.completeEmpty();
+                                break;
+                            default:
+                                // this happens only in HTTP with disallowed connections.
+                                retValue = socket.disconnect();
+        					}
+                        } catch (IOException e) {
+                            retValue = CompletableFuture.failedFuture(e);
                         }
-                    }
-                });
-            }
-        });
+        			} else {
+                        retValue = CompletableFuture.failedFuture(new IOException("Connection Closed"));
+        			}
+        			return retValue;
+        		});
     }
 
     private CompletableFuture<Integer> readResponse(CapturingHandler handler,
