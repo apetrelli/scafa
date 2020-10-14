@@ -18,10 +18,11 @@
 package com.github.apetrelli.scafa.http.proxy.ntlm;
 
 import java.nio.ByteBuffer;
-import java.nio.channels.CompletionHandler;
+import java.util.concurrent.CompletableFuture;
 
 import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpResponse;
+import com.github.apetrelli.scafa.proto.aio.CompletionHandlerFuture;
 
 public class TentativeHandler extends CapturingHandler {
 
@@ -35,6 +36,7 @@ public class TentativeHandler extends CapturingHandler {
         this.sourceChannel = sourceChannel;
     }
 
+    @Override
     public void reset() {
         needsAuthorizing = false;
         onlyCaptureMode = false;
@@ -48,44 +50,43 @@ public class TentativeHandler extends CapturingHandler {
     public void setOnlyCaptureMode(boolean onlyCaptureMode) {
         this.onlyCaptureMode = onlyCaptureMode;
     }
-
+    
     @Override
-    public void onResponseHeader(HttpResponse response, CompletionHandler<Void, Void> completionHandler) {
+    public CompletableFuture<Void> onResponseHeader(HttpResponse response) {
         this.response = response;
         if (onlyCaptureMode || response.getCode() == 407) {
             needsAuthorizing = true;
-            completionHandler.completed(null, null);
+            return CompletionHandlerFuture.completeEmpty();
         } else {
-            sourceChannel.sendHeader(response, completionHandler);
-        }
-    }
-
-    @Override
-    public void onBody(ByteBuffer buffer, long offset, long length, CompletionHandler<Void, Void> handler) {
-        if (needsAuthorizing) {
-            super.onBody(buffer, offset, length, handler);
-        } else {
-        	sourceChannel.sendData(buffer, handler);
-        }
-    }
-
-    @Override
-    public void onChunk(ByteBuffer buffer, long totalOffset, long chunkOffset, long chunkLength,
-            CompletionHandler<Void, Void> handler) {
-        if (needsAuthorizing) {
-            super.onChunk(buffer, totalOffset, chunkOffset, chunkLength, handler);
-        } else {
-        	sourceChannel.sendData(buffer, handler);
+            return sourceChannel.sendHeader(response);
         }
     }
     
     @Override
-    public void onEnd(CompletionHandler<Void, Void> handler) {
+    public CompletableFuture<Void> onBody(ByteBuffer buffer, long offset, long length) {
+        if (needsAuthorizing) {
+            return super.onBody(buffer, offset, length);
+        } else {
+        	return sourceChannel.sendData(buffer);
+        }
+    }
+
+    @Override
+    public CompletableFuture<Void> onChunk(ByteBuffer buffer, long totalOffset, long chunkOffset, long chunkLength) {
+        if (needsAuthorizing) {
+            return super.onChunk(buffer, totalOffset, chunkOffset, chunkLength);
+        } else {
+        	return sourceChannel.sendData(buffer);
+        }
+    }
+    
+    @Override
+    public CompletableFuture<Void> onEnd() {
     	if (needsAuthorizing) {
-    		super.onEnd(handler);
+    		return super.onEnd();
     	} else {
     		finished = true;
-    		sourceChannel.endData(handler);
+    		return sourceChannel.endData();
     	}
     }
 }

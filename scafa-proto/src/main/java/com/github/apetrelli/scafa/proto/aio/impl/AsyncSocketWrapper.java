@@ -1,9 +1,10 @@
 package com.github.apetrelli.scafa.proto.aio.impl;
 
 import java.nio.ByteBuffer;
-import java.nio.channels.CompletionHandler;
+import java.util.concurrent.CompletableFuture;
 
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
+import com.github.apetrelli.scafa.proto.aio.CompletionHandlerResult;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 
 public class AsyncSocketWrapper<T extends AsyncSocket> implements AsyncSocket {
@@ -18,20 +19,24 @@ public class AsyncSocketWrapper<T extends AsyncSocket> implements AsyncSocket {
 		return socket.getAddress();
 	}
 
-	public void connect(CompletionHandler<Void, Void> handler) {
-		socket.connect(handler);
+	@Override
+	public CompletableFuture<Void> connect() {
+		return socket.connect();
 	}
-
-	public void disconnect(CompletionHandler<Void, Void> handler) {
-		socket.disconnect(handler);
+	
+	@Override
+	public CompletableFuture<Void> disconnect() {
+		return socket.disconnect();
 	}
-
-	public <A> void read(ByteBuffer buffer, A attachment, CompletionHandler<Integer, ? super A> handler) {
-		socket.read(buffer, attachment, handler);
+	
+	@Override
+	public <A> CompletableFuture<CompletionHandlerResult<Integer, A>> read(ByteBuffer buffer, A attachment) {
+		return socket.read(buffer, attachment);
 	}
-
-	public <A> void write(ByteBuffer buffer, A attachment, CompletionHandler<Integer, ? super A> handler) {
-		socket.write(buffer, attachment, handler);
+	
+	@Override
+	public <A> CompletableFuture<CompletionHandlerResult<Integer, A>> write(ByteBuffer buffer, A attachment) {
+		return socket.write(buffer, attachment);
 	}
 
 	public boolean isOpen() {
@@ -39,12 +44,12 @@ public class AsyncSocketWrapper<T extends AsyncSocket> implements AsyncSocket {
 	}
 	
 	@Override
-	public void flushBuffer(ByteBuffer buffer, CompletionHandler<Void, Void> completionHandler) {
-		socket.flushBuffer(buffer, completionHandler);
+	public CompletableFuture<Void> flushBuffer(ByteBuffer buffer) {
+		return socket.flushBuffer(buffer);
 	}
 	
 	@Override
-	public void flipAndFlushBuffer(ByteBuffer buffer, CompletionHandler<Void, Void> completionHandler) {
-		socket.flipAndFlushBuffer(buffer, completionHandler);
+	public CompletableFuture<Void> flipAndFlushBuffer(ByteBuffer buffer) {
+		return flipAndFlushBuffer(buffer);
 	}
 }

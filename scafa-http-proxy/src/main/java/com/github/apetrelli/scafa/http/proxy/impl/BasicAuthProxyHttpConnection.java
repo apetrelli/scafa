@@ -1,8 +1,8 @@
 package com.github.apetrelli.scafa.http.proxy.impl;
 
-import java.nio.channels.CompletionHandler;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.concurrent.CompletableFuture;
 
 import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpRequest;
@@ -24,14 +24,14 @@ public class BasicAuthProxyHttpConnection extends AbstractUpstreamProxyHttpConne
     }
 
     @Override
-    protected void doConnect(HttpConnectRequest request, CompletionHandler<Void, Void> completionHandler) {
+    protected CompletableFuture<Void> doConnect(HttpConnectRequest request) {
         request.addHeader("Proxy-Authorization", authString);
-        super.doConnect(request, completionHandler);
+        return super.doConnect(request);
     }
-
+    
     @Override
-    protected void doSendHeader(HttpRequest request, CompletionHandler<Void, Void> completionHandler) {
+    protected CompletableFuture<Void> doSendHeader(HttpRequest request) {
         request.addHeader("Proxy-Authorization", authString);
-        super.doSendHeader(request, completionHandler);
+        return super.doSendHeader(request);
     }
 }

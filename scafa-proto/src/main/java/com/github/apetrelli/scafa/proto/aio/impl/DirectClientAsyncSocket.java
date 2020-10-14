@@ -6,14 +6,13 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
-import java.nio.channels.CompletionHandler;
 import java.util.Enumeration;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.AsynchronousSocketChannelFactory;
-import com.github.apetrelli.scafa.proto.aio.DelegateFailureCompletionHandler;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 
 public class DirectClientAsyncSocket extends DirectAsyncSocket implements AsyncSocket {
@@ -40,32 +39,17 @@ public class DirectClientAsyncSocket extends DirectAsyncSocket implements AsyncS
 	}
 	
 	@Override
-	public void connect(CompletionHandler<Void, Void> handler) {
+	public CompletableFuture<Void> connect() {
         if (LOG.isLoggable(Level.INFO)) {
             LOG.log(Level.INFO, "Connected thread {0} to address {1}",
-                    new Object[] { Thread.currentThread().getName(), socketAddress.toString() });
+                    new Object[] { Thread.currentThread().getName(), socketAddress});
         }
         try {
             bindChannel();
         } catch (IOException e1) {
-            handler.failed(e1, null);
+            return CompletableFuture.failedFuture(e1);
         }
-        establishConnection(new DelegateFailureCompletionHandler<Void, Void>(handler) {
-
-            @Override
-            public void completed(Void result, Void attachment) {
-                if (LOG.isLoggable(Level.INFO)) {
-                    try {
-                        LOG.log(Level.INFO, "Connected thread {0} to port {1}",
-                                new Object[] { Thread.currentThread().getName(), channel.getLocalAddress().toString() });
-                    } catch (IOException e) {
-                        LOG.log(Level.SEVERE, "Cannot obtain local address", e);
-                    }
-                }
-
-                handler.completed(result, attachment);
-            }
-        });
+        return establishConnection();
 	}
 
 	private void bindChannel() throws IOException {
@@ -92,9 +76,11 @@ public class DirectClientAsyncSocket extends DirectAsyncSocket implements AsyncS
         }
 	}
 
-    protected void establishConnection(CompletionHandler<Void, Void> handler) {
-        LOG.finest("Trying to connect to " + socketAddress.toString());
-        channel.connect(new InetSocketAddress(socketAddress.getHost(), socketAddress.getPort()), null, handler);
+    protected CompletableFuture<Void> establishConnection() {
+        LOG.log(Level.FINEST, "Trying to connect to {0}", socketAddress);
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        channel.connect(new InetSocketAddress(socketAddress.getHost(), socketAddress.getPort()), future, CompleterCompletionHandler.INSTANCE);
+        return future;
     }
 
 }

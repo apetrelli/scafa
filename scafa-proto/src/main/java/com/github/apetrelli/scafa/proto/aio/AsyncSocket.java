@@ -1,56 +1,36 @@
 package com.github.apetrelli.scafa.proto.aio;
 
 import java.nio.ByteBuffer;
-import java.nio.channels.CompletionHandler;
+import java.util.concurrent.CompletableFuture;
 
 import com.github.apetrelli.scafa.proto.client.HostPort;
 
 public interface AsyncSocket {
 
-	public static class BufferFlusherCompletionHandler implements CompletionHandler<Integer, ByteBuffer> {
-	    private final CompletionHandler<Void, Void> completionHandler;
-	
-	    private AsyncSocket channel;
-	
-	    public BufferFlusherCompletionHandler(AsyncSocket channel, CompletionHandler<Void, Void> completionHandler) {
-	        this.channel = channel;
-	        this.completionHandler = completionHandler;
-	    }
-	
-	    @Override
-	    public void completed(Integer result, ByteBuffer attachment) {
-	        if (attachment.hasRemaining()) {
-	            channel.write(attachment, attachment, this);
-	        } else {
-	            completionHandler.completed(null, null);
-	        }
-	    }
-	
-	    @Override
-	    public void failed(Throwable exc, ByteBuffer attachment) {
-	        completionHandler.failed(exc, null);
-	    }
-	}
-
 	HostPort getAddress();
 	
-	void connect(CompletionHandler<Void, Void> handler);
+	CompletableFuture<Void> connect();
 	
-	void disconnect(CompletionHandler<Void, Void> handler);
+	CompletableFuture<Void> disconnect();
 	
-	<A> void read(ByteBuffer buffer, A attachment, CompletionHandler<Integer, ? super A> handler);
+	<A> CompletableFuture<CompletionHandlerResult<Integer, A>> read(ByteBuffer buffer, A attachment);
 	
-	<A> void write(ByteBuffer buffer, A attachment, CompletionHandler<Integer, ? super A> handler);
+	<A> CompletableFuture<CompletionHandlerResult<Integer, A>> write(ByteBuffer buffer, A attachment);
 	
-	default void flushBuffer(ByteBuffer buffer, CompletionHandler<Void, Void> completionHandler) {
-	    write(buffer, buffer, new BufferFlusherCompletionHandler(this, completionHandler));
+	default CompletableFuture<Void> flushBuffer(ByteBuffer buffer) {
+		return write(buffer, buffer).thenCompose(x -> {
+			ByteBuffer attachment = x.getAttachment();
+			if (attachment.hasRemaining()) {
+				return flushBuffer(attachment);
+			}
+			return CompletionHandlerFuture.completeEmpty();
+		});
 	}
 	
-	default void flipAndFlushBuffer(ByteBuffer buffer, CompletionHandler<Void, Void> completionHandler) {
+	default CompletableFuture<Void> flipAndFlushBuffer(ByteBuffer buffer) {
 	    buffer.flip();
-	    flushBuffer(buffer, completionHandler);
+	    return flushBuffer(buffer);
 	}
-
 
 	boolean isOpen();
 }

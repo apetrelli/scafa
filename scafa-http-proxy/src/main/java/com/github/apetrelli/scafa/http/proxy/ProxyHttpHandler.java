@@ -17,11 +17,11 @@
  */
 package com.github.apetrelli.scafa.http.proxy;
 
-import java.nio.channels.CompletionHandler;
+import java.util.concurrent.CompletableFuture;
 
 import com.github.apetrelli.scafa.http.HttpHandler;
 
 public interface ProxyHttpHandler extends HttpHandler {
 
-    void onConnectMethod(HttpConnectRequest connectRequest, CompletionHandler<Void, Void> handler);
+    CompletableFuture<Void> onConnectMethod(HttpConnectRequest connectRequest);
 }

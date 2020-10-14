@@ -19,7 +19,7 @@ package com.github.apetrelli.scafa.http.proxy.impl;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.CompletionHandler;
+import java.util.concurrent.CompletableFuture;
 
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
@@ -28,7 +28,7 @@ import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpHandler;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
-import com.github.apetrelli.scafa.proto.aio.IgnoringCompletionHandler;
+import com.github.apetrelli.scafa.proto.aio.CompletionHandlerFuture;
 
 public class DefaultProxyHttpHandler implements ProxyHttpHandler {
 
@@ -54,95 +54,71 @@ public class DefaultProxyHttpHandler implements ProxyHttpHandler {
     }
 
     @Override
-    public void onResponseHeader(HttpResponse response, CompletionHandler<Void, Void> handler) {
-        handler.failed(new UnsupportedOperationException("Not expected a response header"), null);
+    public CompletableFuture<Void> onResponseHeader(HttpResponse response) {
+    	return CompletableFuture.failedFuture(new UnsupportedOperationException("Not expected a response header"));
     }
 
     @Override
-    public void onRequestHeader(HttpRequest request, CompletionHandler<Void, Void> handler) {
+    public CompletableFuture<Void> onRequestHeader(HttpRequest request) {
         if ("CONNECT".equalsIgnoreCase(request.getMethod())) {
             HttpConnectRequest connectRequest;
             try {
                 connectRequest = new HttpConnectRequest(request);
-                onConnectMethod(connectRequest, handler);
+                return onConnectMethod(connectRequest);
             } catch (IOException e) {
-                handler.failed(e, null);
+            	return CompletableFuture.failedFuture(e);
             }
         } else {
-            connectionFactory.create(sourceChannel, request, new CompletionHandler<ProxyHttpConnection, Void>() {
-
-                @Override
-                public void completed(ProxyHttpConnection result, Void attachment) {
-                    connection = result;
-                    connection.sendHeader(request, handler);
-                }
-
-                @Override
-                public void failed(Throwable exc, Void attachment) {
-                    handler.failed(exc, attachment);
-                }
-            });
+			return connectionFactory.create(sourceChannel, request).thenAccept(x -> connection = x)
+					.thenCompose(x -> connection.sendHeader(request));
         }
     }
-
+    
     @Override
-    public void onBody(ByteBuffer buffer, long offset, long length, CompletionHandler<Void, Void> handler) {
-        connection.sendData(buffer, handler);
+    public CompletableFuture<Void> onBody(ByteBuffer buffer, long offset, long length) {
+        return connection.sendData(buffer);
+    }
+    
+    @Override
+    public CompletableFuture<Void> onChunkStart(long totalOffset, long chunkLength) {
+    	return CompletionHandlerFuture.completeEmpty();
+    }
+    
+    @Override
+    public CompletableFuture<Void> onChunk(ByteBuffer buffer, long totalOffset, long chunkOffset, long chunkLength) {
+        return connection.sendData(buffer);
     }
 
     @Override
-    public void onChunkStart(long totalOffset, long chunkLength, CompletionHandler<Void, Void> handler) {
-    	// Does nothing
+    public CompletableFuture<Void> onChunkEnd() {
+    	return CompletionHandlerFuture.completeEmpty();
     }
 
     @Override
-    public void onChunk(ByteBuffer buffer, long totalOffset, long chunkOffset, long chunkLength,
-            CompletionHandler<Void, Void> handler) {
-        connection.sendData(buffer, handler);
+    public CompletableFuture<Void> onChunkedTransferEnd() {
+    	return CompletionHandlerFuture.completeEmpty();
     }
-
+    
     @Override
-    public void onChunkEnd(CompletionHandler<Void, Void> handler) {
-    	// Does nothing
+    public CompletableFuture<Void> onConnectMethod(HttpConnectRequest connectRequest) {
+		return connectionFactory.create(sourceChannel, connectRequest).thenAccept(x -> connection = x)
+				.thenCompose(x -> connection.connect(connectRequest));
     }
-
+    
     @Override
-    public void onChunkedTransferEnd(CompletionHandler<Void, Void> handler) {
-        // Does nothing
+    public CompletableFuture<Void> onDataToPassAlong(ByteBuffer buffer) {
+        return connection.flushBuffer(buffer);
     }
-
+    
     @Override
-    public void onConnectMethod(HttpConnectRequest connectRequest, CompletionHandler<Void, Void> handler) {
-        connectionFactory.create(sourceChannel, connectRequest, new CompletionHandler<ProxyHttpConnection, Void>() {
-
-            @Override
-            public void completed(ProxyHttpConnection result, Void attachment) {
-                connection = result;
-                connection.connect(connectRequest, handler);
-            }
-
-            @Override
-            public void failed(Throwable exc, Void attachment) {
-                handler.failed(exc, attachment);
-            }
-        });
-
-    }
-
-    @Override
-    public void onDataToPassAlong(ByteBuffer buffer, CompletionHandler<Void, Void> handler) {
-        connection.flushBuffer(buffer, handler);
-    }
-
-    @Override
-    public void onEnd(CompletionHandler<Void, Void> handler) {
-        connection.endData(handler);
+    public CompletableFuture<Void> onEnd() {
+        return connection.endData();
     }
 
     @Override
     public void onDisconnect() {
     	if (connection != null) {
-    		connection.disconnect(new IgnoringCompletionHandler<>());
+    		connection.disconnect(); // Ignore the outcome
     	}
     }
 }

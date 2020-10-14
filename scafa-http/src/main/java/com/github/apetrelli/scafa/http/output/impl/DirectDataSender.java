@@ -1,23 +1,24 @@
 package com.github.apetrelli.scafa.http.output.impl;
 
 import java.nio.ByteBuffer;
-import java.nio.channels.CompletionHandler;
+import java.util.concurrent.CompletableFuture;
 
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
+import com.github.apetrelli.scafa.proto.aio.CompletionHandlerFuture;
 
 public class DirectDataSender extends AbstractDataSender {
 
     public DirectDataSender(AsyncSocket channel) {
         super(channel);
     }
-
+    
     @Override
-    public void send(ByteBuffer buffer, CompletionHandler<Void, Void> completionHandler) {
-        channel.flushBuffer(buffer, completionHandler);
+    public CompletableFuture<Void> send(ByteBuffer buffer) {
+        return channel.flushBuffer(buffer);
     }
-
+    
     @Override
-    public void end(CompletionHandler<Void, Void> completionHandler) {
-        completionHandler.completed(null, null);
+    public CompletableFuture<Void> end() {
+		return CompletionHandlerFuture.completeEmpty();
     }
 }

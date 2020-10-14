@@ -1,9 +1,8 @@
 package com.github.apetrelli.scafa.proto.client.impl;
 
-import java.nio.channels.CompletionHandler;
+import java.util.concurrent.CompletableFuture;
 
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
-import com.github.apetrelli.scafa.proto.aio.DelegateFailureCompletionHandler;
 import com.github.apetrelli.scafa.proto.aio.impl.AsyncSocketWrapper;
 
 public abstract class AbstractClientConnection<T extends AsyncSocket> extends AsyncSocketWrapper<T> implements AsyncSocket {
@@ -11,17 +10,13 @@ public abstract class AbstractClientConnection<T extends AsyncSocket> extends As
     public AbstractClientConnection(T socket) {
     	super(socket);
 	}
-
-	@Override
-    public void connect(CompletionHandler<Void, Void> handler) {
-		socket.connect(new DelegateFailureCompletionHandler<Void, Void>(handler) {
-
-			@Override
-			public void completed(Void result, Void attachment) {
-                prepareChannel();
-                handler.completed(result, attachment);
-			}
-		});
+    
+    @Override
+    public CompletableFuture<Void> connect() {
+    	return super.connect().thenApply(x -> {
+    		prepareChannel();
+    		return x;
+    	});
     }
 
 	protected abstract void prepareChannel();

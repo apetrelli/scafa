@@ -18,7 +18,7 @@
 package com.github.apetrelli.scafa.http.proxy.impl;
 
 import java.io.IOException;
-import java.nio.channels.CompletionHandler;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -33,7 +33,7 @@ import com.github.apetrelli.scafa.proto.client.HostPort;
 
 public abstract class AbstractUpstreamProxyHttpConnection extends AbstractProxyHttpConnection<AsyncSocket> implements ProxyHttpConnection {
 
-    private static final Logger LOG = Logger.getLogger(AnonymousProxyHttpConnection.class.getName());
+    private static final Logger LOG = Logger.getLogger(AbstractUpstreamProxyHttpConnection.class.getName());
 
     protected HttpRequestManipulator manipulator;
 
@@ -42,18 +42,18 @@ public abstract class AbstractUpstreamProxyHttpConnection extends AbstractProxyH
         super(factory, sourceChannel, socket, destinationSocketAddress);
         this.manipulator = manipulator;
     }
-
+    
     @Override
-    public void connect(HttpConnectRequest request, CompletionHandler<Void, Void> completionHandler) {
+    public CompletableFuture<Void> connect(HttpConnectRequest request) {
         if (LOG.isLoggable(Level.INFO)) {
             LOG.log(Level.INFO, "Connected thread {0} to port {1} and host {2}:{3}", new Object[] {
-                    Thread.currentThread().getName(), socket.getAddress().toString(), request.getHost(), request.getPort()});
+                    Thread.currentThread().getName(), socket.getAddress(), request.getHost(), request.getPort()});
         }
-        doConnect(request, completionHandler);
+        return doConnect(request);
     }
 
-    protected void doConnect(HttpConnectRequest request, CompletionHandler<Void, Void> completionHandler) {
-        socket.sendHeader(request, completionHandler);
+    protected CompletableFuture<Void> doConnect(HttpConnectRequest request) {
+        return socket.sendHeader(request);
     }
 
     @Override
@@ -64,7 +64,7 @@ public abstract class AbstractUpstreamProxyHttpConnection extends AbstractProxyH
         }
         if (LOG.isLoggable(Level.INFO)) {
             LOG.log(Level.INFO, "Connected thread {0} to port {1} and URL {2}",
-                    new Object[] { Thread.currentThread().getName(), socket.getAddress().toString(), request.getResource() });
+                    new Object[] { Thread.currentThread().getName(), socket.getAddress(), request.getResource() });
         }
         return request;
     }

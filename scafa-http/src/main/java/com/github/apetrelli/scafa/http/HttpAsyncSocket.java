@@ -1,15 +1,15 @@
 package com.github.apetrelli.scafa.http;
 
 import java.nio.ByteBuffer;
-import java.nio.channels.CompletionHandler;
+import java.util.concurrent.CompletableFuture;
 
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 
 public interface HttpAsyncSocket<H extends HeaderHolder> extends AsyncSocket {
 
-	void sendHeader(H header, CompletionHandler<Void, Void> completionHandler);
+	CompletableFuture<Void> sendHeader(H holder);
 	
-	void sendData(ByteBuffer buffer, CompletionHandler<Void, Void> completionHandler);
+	CompletableFuture<Void> sendData(ByteBuffer buffer);
 
-	void endData(CompletionHandler<Void, Void> completionHandler);
+	CompletableFuture<Void> endData();
 }

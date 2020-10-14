@@ -19,7 +19,7 @@ package com.github.apetrelli.scafa.http.proxy.impl;
 
 import java.io.IOException;
 import java.net.URL;
-import java.nio.channels.CompletionHandler;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -28,7 +28,6 @@ import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
 import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
-import com.github.apetrelli.scafa.proto.aio.DelegateFailureCompletionHandler;
 
 public class DirectProxyHttpConnection extends AbstractProxyHttpConnection<HttpAsyncSocket<HttpResponse>> {
 
@@ -38,19 +37,13 @@ public class DirectProxyHttpConnection extends AbstractProxyHttpConnection<HttpA
             HttpAsyncSocket<HttpResponse> sourceChannel, HttpAsyncSocket<HttpRequest> socket) {
         super(factory, sourceChannel, socket, socket.getAddress());
     }
-
+    
     @Override
-    public void connect(HttpConnectRequest request, CompletionHandler<Void, Void> completionHandler) {
+    public CompletableFuture<Void> connect(HttpConnectRequest request) {
         // Already connected, need only to send a 200.
         String httpVersion = request.getHttpVersion();
         HttpResponse response = new HttpResponse(httpVersion, 200, "OK");
-        sourceChannel.sendHeader(response, new DelegateFailureCompletionHandler<Void, Void>(completionHandler) {
-
-			@Override
-			public void completed(Void result, Void attachment) {
-				sourceChannel.endData(completionHandler);
-			}
-		});
+        return sourceChannel.sendHeader(response).thenCompose(x -> sourceChannel.endData());
     }
 
     protected HttpRequest createForwardedRequest(HttpRequest request) throws IOException {
@@ -59,7 +52,7 @@ public class DirectProxyHttpConnection extends AbstractProxyHttpConnection<HttpA
         modifiedRequest.setResource(realurl.getFile());
         if (LOG.isLoggable(Level.INFO)) {
             LOG.log(Level.INFO, "Direct connection: connected thread {0} to port {1} and URL {2}",
-                    new Object[] { Thread.currentThread().getName(), socket.getAddress().toString(), request.getResource() });
+                    new Object[] { Thread.currentThread().getName(), socket.getAddress(), request.getResource() });
         }
         return modifiedRequest;
     }

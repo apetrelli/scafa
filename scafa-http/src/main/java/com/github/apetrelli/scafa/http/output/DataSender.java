@@ -1,11 +1,11 @@
 package com.github.apetrelli.scafa.http.output;
 
 import java.nio.ByteBuffer;
-import java.nio.channels.CompletionHandler;
+import java.util.concurrent.CompletableFuture;
 
 public interface DataSender {
 
-	void send(ByteBuffer buffer, CompletionHandler<Void, Void> completionHandler);
+	CompletableFuture<Void> send(ByteBuffer buffer);
 
-	void end(CompletionHandler<Void, Void> completionHandler);
+	CompletableFuture<Void> end();
 }
