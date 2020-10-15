@@ -81,8 +81,7 @@ public abstract class AbstractProxyHttpConnection<T extends AsyncSocket> extends
     
     @Override
     public CompletableFuture<Void> disconnect() {
-    	CompletableFuture<Void> disconnectFuture = super.disconnect();
-    	return disconnectFuture.handle((r, e) -> {
+    	return super.disconnect().handle((r, e) -> {
     		if (e != null) {
 				LOG.log(Level.SEVERE, "Cannot disconnect proxied client channel", e);
     		}

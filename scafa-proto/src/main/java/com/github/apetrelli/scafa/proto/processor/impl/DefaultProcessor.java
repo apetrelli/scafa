@@ -26,8 +26,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
-import com.github.apetrelli.scafa.proto.aio.CompletionHandlerFuture;
-import com.github.apetrelli.scafa.proto.aio.CompletionHandlerResult;
 import com.github.apetrelli.scafa.proto.processor.Handler;
 import com.github.apetrelli.scafa.proto.processor.Input;
 import com.github.apetrelli.scafa.proto.processor.InputProcessor;
@@ -59,22 +57,24 @@ public class DefaultProcessor<P extends Input, H extends Handler> implements Pro
             P context = processingContextFactory.create();
             InputProcessor<P> processor = inputProcessorFactory.create(handler);
             read(context, handler, processor).handle((x, exc) -> {
-                if (exc instanceof AsynchronousCloseException || exc instanceof ClosedChannelException) {
-                    LOG.log(Level.INFO, "Channel closed", exc);
-                } else if (exc instanceof IOException) {
-                    LOG.log(Level.INFO, "I/O exception, closing", exc);
-                    disconnect(handler);
-                } else {
-                    LOG.log(Level.SEVERE, "Unrecognized exception, don''t know what to do...", exc);
-                }
-            	return CompletionHandlerFuture.completeEmpty();
+            	if (exc != null) {
+	                if (exc instanceof AsynchronousCloseException || exc instanceof ClosedChannelException) {
+	                    LOG.log(Level.INFO, "Channel closed", exc);
+	                } else if (exc instanceof IOException) {
+	                    LOG.log(Level.INFO, "I/O exception, closing", exc);
+	                    disconnect(handler);
+	                } else {
+	                    LOG.log(Level.SEVERE, "Unrecognized exception, don''t know what to do...", exc);
+	                }
+            	}
+            	return x;
             });
         } catch (IOException e) {
             LOG.log(Level.INFO, "Error when establishing a connection", e);
         }
     }
 
-	private CompletableFuture<CompletionHandlerResult<Void, Void>> read(P context, H handler, InputProcessor<P> processor) {
+	private CompletableFuture<Void> read(P context, H handler, InputProcessor<P> processor) {
 		return client.read(context.getBuffer(), context).thenCompose(x -> {
 		    if (x.getResult() >= 0) {
 		        ByteBuffer buffer = x.getAttachment().getBuffer();
@@ -82,15 +82,13 @@ public class DefaultProcessor<P extends Input, H extends Handler> implements Pro
 				return processor.process(x.getAttachment())
 						.thenCompose(y -> read(x.getAttachment(), handler, processor));
 		    } else {
-		        disconnect(handler);
-                return CompletionHandlerFuture.complete(null, null);
+		        return disconnect(handler);
 		    }
 		});
 	}
     
-    private void disconnect(H handler) {
-    	CompletableFuture<Void> disconnect = client.disconnect();
-		disconnect.handle((x, y) -> {
+    private CompletableFuture<Void> disconnect(H handler) {
+    	return client.disconnect().handle((x, y) -> {
             LOG.log(Level.SEVERE, "Error when disposing client", y);
             return x;
 		}).thenRun(handler::onDisconnect);
