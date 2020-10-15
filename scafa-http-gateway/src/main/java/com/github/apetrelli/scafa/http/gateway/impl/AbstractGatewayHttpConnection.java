@@ -19,13 +19,14 @@ package com.github.apetrelli.scafa.http.gateway.impl;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.CompletionHandler;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
+import com.github.apetrelli.scafa.proto.aio.CompletionHandlerFuture;
 import com.github.apetrelli.scafa.proto.client.impl.AbstractClientConnection;
 
 public abstract class AbstractGatewayHttpConnection extends AbstractClientConnection<HttpAsyncSocket<HttpRequest>> implements HttpAsyncSocket<HttpRequest> {
@@ -38,48 +39,39 @@ public abstract class AbstractGatewayHttpConnection extends AbstractClientConnec
         super(socket);
         this.sourceChannel = sourceChannel;
     }
-
-    @Override
-    public void sendHeader(HttpRequest request, CompletionHandler<Void, Void> completionHandler) {
+	
+	@Override
+	public CompletableFuture<Void> sendHeader(HttpRequest request) {
         HttpRequest modifiedRequest;
         try {
             modifiedRequest = createForwardedRequest(request);
-            doSendHeader(modifiedRequest, completionHandler);
+            return doSendHeader(modifiedRequest);
         } catch (IOException e) {
-            completionHandler.failed(e, null);
+            return CompletableFuture.failedFuture(e);
         }
     }
-    
-    @Override
-    public void sendData(ByteBuffer buffer, CompletionHandler<Void, Void> completionHandler) {
-    	socket.sendData(buffer, completionHandler);
+	
+	@Override
+	public CompletableFuture<Void> sendData(ByteBuffer buffer) {
+    	return socket.sendData(buffer);
     }
-
-    @Override
-    public void endData(CompletionHandler<Void, Void> completionHandler) {
-    	socket.endData(completionHandler);
+	
+	@Override
+	public CompletableFuture<Void> endData() {
+    	return socket.endData();
     }
-    
-    @Override
-    public void disconnect(CompletionHandler<Void, Void> handler) {
-    	super.disconnect(new CompletionHandler<Void, Void>() {
-
-			@Override
-			public void completed(Void result, Void attachment) {
-				sourceChannel.disconnect(handler);
-			}
-
-			@Override
-			public void failed(Throwable exc, Void attachment) {
-				LOG.log(Level.SEVERE, "Cannot disconnect gateway client channel", exc);
-				sourceChannel.disconnect(handler);
-			}
-		});
+	
+	@Override
+	public CompletableFuture<Void> disconnect() {
+		return super.disconnect().handle((r, e) -> {
+			LOG.log(Level.SEVERE, "Cannot disconnect gateway client channel", e);
+			return CompletionHandlerFuture.completeEmpty();
+		}).thenCompose(x -> sourceChannel.disconnect());
     }
 
     protected abstract HttpRequest createForwardedRequest(HttpRequest request) throws IOException;
 
-    protected void doSendHeader(HttpRequest request, CompletionHandler<Void, Void> completionHandler) {
-        socket.sendHeader(request, completionHandler);
+    protected CompletableFuture<Void> doSendHeader(HttpRequest request) {
+        return socket.sendHeader(request);
     }
 }

@@ -18,11 +18,13 @@
 package com.github.apetrelli.scafa.http.client.impl;
 
 import java.nio.ByteBuffer;
-import java.nio.channels.CompletionHandler;
+import java.util.concurrent.CompletableFuture;
 
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.client.HttpClientConnection;
 import com.github.apetrelli.scafa.http.client.HttpClientHandler;
+import com.github.apetrelli.scafa.proto.aio.CompletionHandlerFuture;
+import com.github.apetrelli.scafa.proto.aio.CompletionHandlerResult;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 
 public class ThrowableHttpConnection implements HttpClientConnection {
@@ -34,58 +36,58 @@ public class ThrowableHttpConnection implements HttpClientConnection {
     public ThrowableHttpConnection(Throwable throwable) {
 		this.throwable = throwable;
 	}
-
-	@Override
-    public void connect(CompletionHandler<Void, Void> handler) {
-        handler.completed(null, null);
+    
+    @Override
+    public CompletableFuture<Void> connect() {
+		return CompletionHandlerFuture.completeEmpty();
     }
 	
 	@Override
 	public void prepare(HttpRequest request, HttpClientHandler clientHandler) {
 	    this.clientHandler = clientHandler;
 	}
-
+	
 	@Override
-	public void sendHeader(HttpRequest request, CompletionHandler<Void, Void> completionHandler) {
+	public CompletableFuture<Void> sendHeader(HttpRequest request) {
         clientHandler.onRequestError(request, throwable);
-        completionHandler.failed(throwable, null);
+        return CompletableFuture.failedFuture(throwable);
     }
 	
 	@Override
-	public void sendData(ByteBuffer buffer, CompletionHandler<Void, Void> completionHandler) {
+	public CompletableFuture<Void> sendData(ByteBuffer buffer) {
         buffer.clear();
-        completionHandler.completed(null, null);
+		return CompletionHandlerFuture.completeEmpty();
 	}
 
-    @Override
-    public void flushBuffer(ByteBuffer buffer, CompletionHandler<Void, Void> completionHandler) {
+	@Override
+	public CompletableFuture<Void> flushBuffer(ByteBuffer buffer) {
         buffer.clear();
-        completionHandler.completed(null, null);
+		return CompletionHandlerFuture.completeEmpty();
     }
-
-    @Override
-    public void endData(CompletionHandler<Void, Void> completionHandler) {
-        completionHandler.completed(null, null);
-    }
-    
-    @Override
-    public void disconnect(CompletionHandler<Void, Void> handler) {
-        handler.completed(null, null);
-    }
+	
+	@Override
+	public CompletableFuture<Void> endData() {
+		return CompletionHandlerFuture.completeEmpty();
+	}
+	
+	@Override
+	public CompletableFuture<Void> disconnect() {
+		return CompletionHandlerFuture.completeEmpty();
+	}
 
     @Override
     public HostPort getAddress() {
         return null;
     }
-
+    
     @Override
-    public <A> void read(ByteBuffer buffer, A attachment, CompletionHandler<Integer, ? super A> handler) {
-        handler.completed(null, null);
+    public <A> CompletableFuture<CompletionHandlerResult<Integer, A>> read(ByteBuffer buffer, A attachment) {
+		return CompletionHandlerFuture.complete(-1, attachment);
     }
 
     @Override
-    public <A> void write(ByteBuffer buffer, A attachment, CompletionHandler<Integer, ? super A> handler) {
-        handler.completed(null, null);
+    public <A> CompletableFuture<CompletionHandlerResult<Integer, A>> write(ByteBuffer buffer, A attachment) {
+		return CompletionHandlerFuture.complete(-1, attachment);
     }
 
     @Override

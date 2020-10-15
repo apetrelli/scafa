@@ -1,7 +1,7 @@
 package com.github.apetrelli.scafa.http.server;
 
-import java.nio.channels.CompletionHandler;
 import java.nio.file.Path;
+import java.util.concurrent.CompletableFuture;
 
 import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpResponse;
@@ -9,11 +9,11 @@ import com.github.apetrelli.scafa.proto.aio.BufferContextReader;
 
 public interface HttpServer {
 
-	void response(HttpAsyncSocket<HttpResponse> channel, HttpResponse response, CompletionHandler<Void, Void> completionHandler);
+	CompletableFuture<Void> response(HttpAsyncSocket<HttpResponse> channel, HttpResponse response);
 
-	void response(HttpAsyncSocket<HttpResponse> channel, HttpResponse response, BufferContextReader payloadReader, CompletionHandler<Void, Void> completionHandler);
+	CompletableFuture<Void> response(HttpAsyncSocket<HttpResponse> channel, HttpResponse response, BufferContextReader payloadReader);
 
-	void response(HttpAsyncSocket<HttpResponse> channel, HttpResponse response, BufferContextReader payloadReader, long size, CompletionHandler<Void, Void> completionHandler);
+	CompletableFuture<Void> response(HttpAsyncSocket<HttpResponse> channel, HttpResponse response, BufferContextReader payloadReader, long size);
 
-	void response(HttpAsyncSocket<HttpResponse> channel, HttpResponse response, Path payload, CompletionHandler<Void, Void> completionHandler);
+	CompletableFuture<Void> response(HttpAsyncSocket<HttpResponse> channel, HttpResponse response, Path payload);
 }

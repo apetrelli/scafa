@@ -2,12 +2,13 @@ package com.github.apetrelli.scafa.http.server.impl;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.CompletionHandler;
+import java.util.concurrent.CompletableFuture;
 
 import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.server.HttpServerHandler;
+import com.github.apetrelli.scafa.proto.aio.CompletionHandlerFuture;
 
 public class HttpServerHandlerAdapter implements HttpHandler {
 
@@ -21,64 +22,64 @@ public class HttpServerHandlerAdapter implements HttpHandler {
 
 	@Override
 	public void onConnect() throws IOException {
+		// Does nothing
 	}
 
 	@Override
 	public void onDisconnect() {
+		// Does nothing
 	}
 
 	@Override
 	public void onStart() {
 		handler.onStart();
 	}
-
+	
 	@Override
-	public void onResponseHeader(HttpResponse response, CompletionHandler<Void, Void> handler) {
-        handler.failed(new UnsupportedOperationException("This is for requests only"), null);
+	public CompletableFuture<Void> onResponseHeader(HttpResponse response) {
+        return CompletableFuture.failedFuture(new UnsupportedOperationException("This is for requests only"));
 	}
-
+	
 	@Override
-	public void onRequestHeader(HttpRequest request, CompletionHandler<Void, Void> handler) {
+	public CompletableFuture<Void> onRequestHeader(HttpRequest request) {
 		currentRequest = request;
-		this.handler.onRequestHeader(request, handler);
+		return this.handler.onRequestHeader(request);
+	}
+	
+	@Override
+	public CompletableFuture<Void> onBody(ByteBuffer buffer, long offset, long length) {
+		return this.handler.onBody(currentRequest, buffer, offset, length);
+	}
+	
+	@Override
+	public CompletableFuture<Void> onChunkStart(long totalOffset, long chunkLength) {
+		return CompletionHandlerFuture.completeEmpty();
 	}
 
 	@Override
-	public void onBody(ByteBuffer buffer, long offset, long length, CompletionHandler<Void, Void> handler) {
-		this.handler.onBody(currentRequest, buffer, offset, length, handler);
+	public CompletableFuture<Void> onChunk(ByteBuffer buffer, long totalOffset, long chunkOffset, long chunkLength) {
+		return this.handler.onBody(currentRequest, buffer, totalOffset, -1);
+	}
+	
+	@Override
+	public CompletableFuture<Void> onChunkEnd() {
+		return CompletionHandlerFuture.completeEmpty();
+	}
+	
+	@Override
+	public CompletableFuture<Void> onChunkedTransferEnd() {
+		return CompletionHandlerFuture.completeEmpty();
+	}
+	
+	@Override
+	public CompletableFuture<Void> onDataToPassAlong(ByteBuffer buffer) {
+        return CompletableFuture.failedFuture(new UnsupportedOperationException("CONNECT method not supported"));
 	}
 
 	@Override
-	public void onChunkStart(long totalOffset, long chunkLength, CompletionHandler<Void, Void> handler) {
-        handler.completed(null, null); // Go on, nothing to call here.
-	}
-
-	@Override
-	public void onChunk(ByteBuffer buffer, long totalOffset, long chunkOffset, long chunkLength,
-			CompletionHandler<Void, Void> handler) {
-		this.handler.onBody(currentRequest, buffer, totalOffset, -1, handler);
-	}
-
-	@Override
-	public void onChunkEnd(CompletionHandler<Void, Void> handler) {
-        handler.completed(null, null); // Go on, nothing to call here.
-	}
-
-	@Override
-	public void onChunkedTransferEnd(CompletionHandler<Void, Void> handler) {
-        handler.completed(null, null); // Go on, nothing to call here.
-	}
-
-	@Override
-	public void onDataToPassAlong(ByteBuffer buffer, CompletionHandler<Void, Void> handler) {
-        handler.failed(new UnsupportedOperationException("CONNECT method not supported"), null);
-	}
-
-	@Override
-	public void onEnd(CompletionHandler<Void, Void> handler) {
+	public CompletableFuture<Void> onEnd() {
 		// The response has to be served yet, and it should happen with this call.
-		this.handler.onRequestEnd(currentRequest, handler);
-		currentRequest = null;
+		return this.handler.onRequestEnd(currentRequest).thenAccept(x -> currentRequest = null);
 	}
 
 }

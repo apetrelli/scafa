@@ -1,13 +1,14 @@
 package com.github.apetrelli.scafa.http.client.impl;
 
 import java.nio.ByteBuffer;
-import java.nio.channels.CompletionHandler;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.client.HttpClientHandler;
+import com.github.apetrelli.scafa.proto.aio.CompletionHandlerFuture;
 
 public class NullHttpClientHandler implements HttpClientHandler {
 
@@ -19,19 +20,20 @@ public class NullHttpClientHandler implements HttpClientHandler {
 	}
 
 	@Override
-	public void onResponseHeader(HttpRequest request, HttpResponse response, CompletionHandler<Void, Void> handler) {
-		handler.completed(null, null);
+	public CompletableFuture<Void> onResponseHeader(HttpRequest request, HttpResponse response) {
+		return CompletionHandlerFuture.completeEmpty();
 	}
-
+	
 	@Override
-	public void onBody(HttpRequest request, HttpResponse response, ByteBuffer buffer, long offset, long length, CompletionHandler<Void, Void> handler) {
+	public CompletableFuture<Void> onBody(HttpRequest request, HttpResponse response, ByteBuffer buffer, long offset,
+			long length) {
 		buffer.clear();
-		handler.completed(null, null);
+		return CompletionHandlerFuture.completeEmpty();
 	}
-
+	
 	@Override
-	public void onEnd(HttpRequest request, HttpResponse response, CompletionHandler<Void, Void> handler) {
-        handler.completed(null, null);
+	public CompletableFuture<Void> onEnd(HttpRequest request, HttpResponse response) {
+		return CompletionHandlerFuture.completeEmpty();
 	}
 
 	@Override

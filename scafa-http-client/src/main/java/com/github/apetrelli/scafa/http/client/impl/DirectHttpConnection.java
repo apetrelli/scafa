@@ -1,7 +1,7 @@
 package com.github.apetrelli.scafa.http.client.impl;
 
 import java.nio.ByteBuffer;
-import java.nio.channels.CompletionHandler;
+import java.util.concurrent.CompletableFuture;
 
 import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpHandler;
@@ -33,26 +33,26 @@ public class DirectHttpConnection extends AbstractClientConnection<HttpAsyncSock
 	public void prepare(HttpRequest request, HttpClientHandler clientHandler) {
         responseHandler.add(request, clientHandler, this);
 	}
-
+	
 	@Override
-	public void sendHeader(HttpRequest request, CompletionHandler<Void, Void> completionHandler) {
-        socket.sendHeader(request, completionHandler);
+	public CompletableFuture<Void> sendHeader(HttpRequest request) {
+        return socket.sendHeader(request);
 	}
 	
 	@Override
-	public void sendData(ByteBuffer buffer, CompletionHandler<Void, Void> completionHandler) {
-	    socket.sendData(buffer, completionHandler);
-	}
-
-	@Override
-	public void endData(CompletionHandler<Void, Void> completionHandler) {
-	    socket.endData(completionHandler);
+	public CompletableFuture<Void> sendData(ByteBuffer buffer) {
+	    return socket.sendData(buffer);
 	}
 	
 	@Override
-	public void disconnect(CompletionHandler<Void, Void> handler) {
+	public CompletableFuture<Void> endData() {
+	    return socket.endData();
+	}
+	
+	@Override
+	public CompletableFuture<Void> disconnect() {
         connectionFactory.dispose(socket.getAddress());
-	    super.disconnect(handler);
+	    return super.disconnect();
 	}
 
 	@Override

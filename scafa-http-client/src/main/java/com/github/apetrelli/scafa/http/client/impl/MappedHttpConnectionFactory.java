@@ -17,7 +17,7 @@
  */
 package com.github.apetrelli.scafa.http.client.impl;
 
-import java.nio.channels.CompletionHandler;
+import java.util.concurrent.CompletableFuture;
 
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.client.HttpClientConnection;
@@ -25,7 +25,7 @@ import com.github.apetrelli.scafa.proto.client.HostPort;
 
 public interface MappedHttpConnectionFactory {
 
-    void create(HttpRequest request, CompletionHandler<HttpClientConnection, Void> handler);
+    CompletableFuture<HttpClientConnection> create(HttpRequest request);
 
     void disconnectAll();
 
