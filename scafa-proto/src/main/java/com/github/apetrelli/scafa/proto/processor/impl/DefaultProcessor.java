@@ -22,6 +22,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousCloseException;
 import java.nio.channels.ClosedChannelException;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -58,6 +59,9 @@ public class DefaultProcessor<P extends Input, H extends Handler> implements Pro
             InputProcessor<P> processor = inputProcessorFactory.create(handler);
             read(context, handler, processor).handle((x, exc) -> {
             	if (exc != null) {
+            		if (exc instanceof CompletionException) {
+            			exc = ((CompletionException) exc).getCause();
+            		}
 	                if (exc instanceof AsynchronousCloseException || exc instanceof ClosedChannelException) {
 	                    LOG.log(Level.INFO, "Channel closed", exc);
 	                } else if (exc instanceof IOException) {

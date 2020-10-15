@@ -25,7 +25,7 @@ public class CompletableFutureAttachmentPairCompletionHandler<V, A>
 
 	@Override
 	public void failed(Throwable exc, CompletableFutureAttachmentPair<V, A> attachment) {
-		attachment.getFuture().completeExceptionally(new CompletionHandlerException(attachment.getAttachment(), exc));
+		attachment.getFuture().completeExceptionally(exc);
 	}
 
 }

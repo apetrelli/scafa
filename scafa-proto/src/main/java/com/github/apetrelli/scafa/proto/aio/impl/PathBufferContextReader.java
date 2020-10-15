@@ -38,7 +38,7 @@ public class PathBufferContextReader implements BufferContextReader {
 			@Override
 			public void failed(Throwable exc, CompletableFutureAttachmentPair<Integer, BufferContext> attachment) {
 				IOUtils.closeQuietly(channel);
-				attachment.getFuture().completeExceptionally(new CompletionHandlerException(attachment.getAttachment(), exc));
+				attachment.getFuture().completeExceptionally(exc);
 			}
 		});
 
