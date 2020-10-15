@@ -2,7 +2,7 @@ package com.github.apetrelli.scafa.http.impl;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.CompletionHandler;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -12,7 +12,7 @@ import com.github.apetrelli.scafa.http.HttpProcessingContext;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.HttpStatus;
-import com.github.apetrelli.scafa.proto.aio.DelegateFailureCompletionHandler;
+import com.github.apetrelli.scafa.proto.aio.CompletionHandlerFuture;
 import com.github.apetrelli.scafa.proto.processor.ProtocolStateMachine;
 
 public class HttpStateMachine implements ProtocolStateMachine<HttpHandler, HttpStatus, HttpProcessingContext> {
@@ -129,93 +129,81 @@ public class HttpStateMachine implements ProtocolStateMachine<HttpHandler, HttpS
 		context.setStatus(newStatus);
 		return newStatus;
 	}
-
+	
 	@Override
-	public void out(HttpProcessingContext context, HttpHandler handler, CompletionHandler<Void, Void> completionHandler) {
+	public CompletableFuture<Void> out(HttpProcessingContext context,
+			HttpHandler handler) {
+		CompletableFuture<Void> retValue = null;
 		switch (context.getStatus()) {
 		case IDLE:
-			// This is useful only to start the process.
+			retValue = CompletionHandlerFuture.completeEmpty();
 			break;
 		case START_REQUEST_LINE:
 	        context.reset();
 	        context.appendToLine(context.getBuffer().get());
 			handler.onStart();
-            completionHandler.completed(null, null);
+			retValue = CompletionHandlerFuture.completeEmpty();
 			break;
 		case REQUEST_LINE:
-            onRequestLine(handler, completionHandler, context);
+            retValue = onRequestLine(context);
 			break;
 		case REQUEST_LINE_CR:
-			endRequestLine(completionHandler, context);
+			retValue = endRequestLine(context);
 			break;
 		case REQUEST_LINE_LF:
+		case HEADER_LF:
+		case PENULTIMATE_BYTE:
+		case LAST_BYTE:
+		case CHUNK_COUNT_CR:
+		case CHUNK_LF:
             context.getBuffer().get(); // discard LF.
-            completionHandler.completed(null, null);
+			retValue = CompletionHandlerFuture.completeEmpty();
 			break;
 		case POSSIBLE_HEADER_CR:
             context.getBuffer().get(); // discard CR.
             context.evaluateBodyMode();
-            completionHandler.completed(null, null);
+			retValue = CompletionHandlerFuture.completeEmpty();
 			break;
 		case SEND_HEADER_AND_END:
             context.getBuffer().get(); // discard LF.
-            endHeaderAndRequest(context, handler, completionHandler);
+            retValue = endHeaderAndRequest(context, handler);
 			break;
 		case POSSIBLE_HEADER_LF:
             context.getBuffer().get(); // discard LF.
-            endHeader(context, handler, completionHandler);
+            retValue = endHeader(context, handler);
 			break;
 		case HEADER:
-            onHeader(context, completionHandler);
+			retValue = onHeader(context);
 			break;
 		case HEADER_CR:
             context.getBuffer().get(); // discard CR
             context.addHeaderLine();
-            completionHandler.completed(null, null);
-			break;
-		case HEADER_LF:
-            context.getBuffer().get(); // discard LF
-            completionHandler.completed(null, null);
+			retValue = CompletionHandlerFuture.completeEmpty();
 			break;
 		case BODY:
-            data(context, handler, completionHandler);
-			break;
-		case PENULTIMATE_BYTE:
-			context.getBuffer().get(); // discard CR
-            completionHandler.completed(null, null);
-			break;
-		case LAST_BYTE:
-			context.getBuffer().get(); // discard LF
-            completionHandler.completed(null, null);
+            retValue = data(context, handler);
 			break;
 		case CHUNK_COUNT:
-            onChunkCount(context, handler, completionHandler);
-			break;
-		case CHUNK_COUNT_CR:
-            context.getBuffer().get(); // discard CR.
-            completionHandler.completed(null, null);
+            retValue = onChunkCount(context);
 			break;
 		case CHUNK_COUNT_LF:
             context.getBuffer().get(); // discard LF.
-            endChunkCount(context, handler, completionHandler);
+            retValue = endChunkCount(context, handler);
 			break;
 		case CHUNK:
-            chunkData(context, handler, completionHandler);
+            retValue = chunkData(context, handler);
 			break;
 		case CHUNK_CR:
 			context.getBuffer().get(); // discard CR
-			handler.onChunkEnd(completionHandler);
-			break;
-		case CHUNK_LF:
-            context.getBuffer().get(); // discard LF.
-            completionHandler.completed(null, null);
+			retValue = handler.onChunkEnd();
 			break;
 		case CONNECT:
-			handler.onDataToPassAlong(context.getBuffer(), completionHandler);
+			retValue = handler.onDataToPassAlong(context.getBuffer());
 		}
+		return retValue;
 	}
 
-	private void onChunkCount(HttpProcessingContext context, HttpHandler handler, CompletionHandler<Void, Void> completionHandler) {
+	private CompletableFuture<Void> onChunkCount(HttpProcessingContext context) {
 		ByteBuffer buffer = context.getBuffer();
 		byte currentByte;
 		currentByte = buffer.get();
@@ -224,10 +212,10 @@ public class HttpStateMachine implements ProtocolStateMachine<HttpHandler, HttpS
 		    currentByte = buffer.get();
 		}
 		// Evaluating of CR is not necessary since chunk count is treated when LF arrives, at the next state.
-		completionHandler.completed(null, null);
+		return CompletionHandlerFuture.completeEmpty();
 	}
 
-	private void onHeader(HttpProcessingContext context, CompletionHandler<Void, Void> completionHandler) {
+	private CompletableFuture<Void> onHeader(HttpProcessingContext context) {
 		ByteBuffer buffer = context.getBuffer();
 		byte currentByte;
 		currentByte = buffer.get();
@@ -238,10 +226,10 @@ public class HttpStateMachine implements ProtocolStateMachine<HttpHandler, HttpS
 		if (currentByte == CR) {
 		    context.addHeaderLine();
 		}
-		completionHandler.completed(null, null);
+		return CompletionHandlerFuture.completeEmpty();
 	}
 
-	private void onRequestLine(HttpHandler handler, CompletionHandler<Void, Void> completionHandler, HttpProcessingContext context) {
+	private CompletableFuture<Void> onRequestLine(HttpProcessingContext context) {
 		ByteBuffer buffer = context.getBuffer();
 		byte currentByte;
 		currentByte = buffer.get();
@@ -250,118 +238,89 @@ public class HttpStateMachine implements ProtocolStateMachine<HttpHandler, HttpS
 		    currentByte = buffer.get();
 		}
 		if (currentByte == CR) {
-			endRequestLine(completionHandler, context);
+			return endRequestLine(context);
 		} else {
-			completionHandler.completed(null, null);
+			return CompletionHandlerFuture.completeEmpty();
 		}
 	}
 
-	private void endRequestLine(CompletionHandler<Void, Void> completionHandler, HttpProcessingContext context) {
+	private CompletableFuture<Void> endRequestLine(HttpProcessingContext context) {
 		try {
 			context.evaluateRequestLine();
-		    completionHandler.completed(null, null);
+			return CompletionHandlerFuture.completeEmpty();
 		} catch (IOException e) {
-			completionHandler.failed(e, null);
+			return CompletableFuture.failedFuture(e);
 		}
 	}
 
-    private void endHeader(HttpProcessingContext context, HttpHandler handler, CompletionHandler<Void, Void> completionHandler) {
+    private CompletableFuture<Void> endHeader(HttpProcessingContext context, HttpHandler handler) {
     	HttpRequest request = context.getRequest();
     	HttpResponse response = context.getResponse();
         if (request != null) {
             if ("CONNECT".equalsIgnoreCase(request.getMethod())) {
                 context.setHttpConnected(true);
             }
-            handler.onRequestHeader(new HttpRequest(request), completionHandler);
+            return handler.onRequestHeader(new HttpRequest(request));
         } else if (response != null) {
-            handler.onResponseHeader(new HttpResponse(response), completionHandler);
+            return handler.onResponseHeader(new HttpResponse(response));
         } else {
-            completionHandler.completed(null, null);
+            return CompletionHandlerFuture.completeEmpty();
         }
     }
 
-    private void endHeaderAndRequest(HttpProcessingContext context, HttpHandler handler, CompletionHandler<Void, Void> completionHandler) {
-        endHeader(context, handler, new DelegateFailureCompletionHandler<Void, Void>(completionHandler) {
-
-            @Override
-            public void completed(Void result, Void attachment) {
-                handler.onEnd(completionHandler);
-            }
-        });
-
+    private CompletableFuture<Void> endHeaderAndRequest(HttpProcessingContext context, HttpHandler handler) {
+    	return endHeader(context, handler).thenCompose(x -> handler.onEnd());
     }
 
-    private void data(HttpProcessingContext context, HttpHandler handler, CompletionHandler<Void, Void> completionHandler) {
+    private CompletableFuture<Void> data(HttpProcessingContext context, HttpHandler handler) {
     	ByteBuffer buffer = context.getBuffer();
         int oldLimit = buffer.limit();
         int size = oldLimit - buffer.position();
         int sizeToSend = (int) Math.min(size, context.getCountdown());
         buffer.limit(buffer.position() + sizeToSend);
-        handler.onBody(buffer, context.getBodyOffset(), context.getBodySize(), new DelegateFailureCompletionHandler<Void, Void>(completionHandler) {
-
-            @Override
-            public void completed(Void result, Void attachment) {
-                context.reduceBody(sizeToSend);
-                buffer.limit(oldLimit);
-                if (context.getCountdown() <= 0L) {
-                    handler.onEnd(completionHandler);
-                }
+        return handler.onBody(buffer, context.getBodyOffset(), context.getBodySize()).thenCompose(x -> {
+            context.reduceBody(sizeToSend);
+            buffer.limit(oldLimit);
+            if (context.getCountdown() <= 0L) {
+                return handler.onEnd();
+            } else {
+            	return CompletionHandlerFuture.completeEmpty();
             }
         });
     }
 
-    private void chunkData(HttpProcessingContext context, HttpHandler handler, CompletionHandler<Void, Void> completionHandler) {
-    	ByteBuffer buffer = context.getBuffer();
-        int oldLimit = buffer.limit();
-        int size = oldLimit - buffer.position();
-        int sizeToSend = (int) Math.min(size, context.getCountdown());
-        buffer.limit(buffer.position() + sizeToSend);
-        handler.onChunk(buffer,
-                context.getTotalChunkedTransferLength() - context.getChunkLength(), context.getChunkOffset(),
-                context.getChunkLength(), new DelegateFailureCompletionHandler<Void, Void>(completionHandler) {
-
-                    @Override
-                    public void completed(Void result, Void attachment) {
-                        context.reduceChunk(sizeToSend);
-                        buffer.limit(oldLimit);
-                        if (LOG.isLoggable(Level.FINEST)) {
-                            LOG.log(Level.FINEST, "Handling chunk from {0} to {1}",
-                                    new Object[] { context.getChunkOffset(), context.getChunkOffset() + sizeToSend });
-                        }
-                        completionHandler.completed(result, attachment);
-                    }
-                });
+    private CompletableFuture<Void> chunkData(HttpProcessingContext context, HttpHandler handler) {
+		ByteBuffer buffer = context.getBuffer();
+		int oldLimit = buffer.limit();
+		int size = oldLimit - buffer.position();
+		int sizeToSend = (int) Math.min(size, context.getCountdown());
+		buffer.limit(buffer.position() + sizeToSend);
+		return handler.onChunk(buffer, context.getTotalChunkedTransferLength() - context.getChunkLength(),
+				context.getChunkOffset(), context.getChunkLength()).thenCompose(x -> {
+					context.reduceChunk(sizeToSend);
+					buffer.limit(oldLimit);
+					if (LOG.isLoggable(Level.FINEST)) {
+						LOG.log(Level.FINEST, "Handling chunk from {0} to {1}",
+								new Object[] { context.getChunkOffset(), context.getChunkOffset() + sizeToSend });
+					}
+					return CompletionHandlerFuture.completeEmpty();
+				});
     }
 
-    private void endChunkCount(HttpProcessingContext context, HttpHandler handler, CompletionHandler<Void, Void> completionHandler) {
+    private CompletableFuture<Void> endChunkCount(HttpProcessingContext context, HttpHandler handler) {
     	try {
 			context.evaluateChunkLength();
 			long chunkCount = context.getChunkLength();
-	        handler.onChunkStart(context.getTotalChunkedTransferLength(), chunkCount, new DelegateFailureCompletionHandler<Void, Void>(completionHandler) {
-
-	            @Override
-	            public void completed(Void result, Void attachment) {
-	                if (chunkCount == 0L) {
-	                    handler.onChunkEnd(new DelegateFailureCompletionHandler<Void, Void>(completionHandler) {
-
-	                        @Override
-	                        public void completed(Void result, Void attachment) {
-	                            handler.onChunkedTransferEnd(new DelegateFailureCompletionHandler<Void, Void>(completionHandler) {
-
-	                                @Override
-	                                public void completed(Void result, Void attachment) {
-	                                    handler.onEnd(completionHandler);
-	                                }
-	                            });
-	                        }
-	                    });
-	                } else {
-	                    completionHandler.completed(result, attachment);
-	                }
-	            }
-	        });
+			return handler.onChunkStart(context.getTotalChunkedTransferLength(), chunkCount).thenCompose(x -> {
+                if (chunkCount == 0L) {
+                	return handler.onChunkEnd().thenCompose(y -> handler.onChunkedTransferEnd()).thenCompose(z -> handler.onEnd());
+                } else {
+                	return CompletionHandlerFuture.completeEmpty();
+                }
+				
+			});
 		} catch (IOException e) {
-			completionHandler.failed(e, null);
+			return CompletableFuture.failedFuture(e);
 		}
     }
 }

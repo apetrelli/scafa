@@ -2,9 +2,9 @@ package com.github.apetrelli.scafa.http.impl;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.CompletionHandler;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpRequest;
@@ -60,24 +60,26 @@ public class CompositeHttpHandler implements HttpHandler {
 
 	@Override
 	public void onConnect() throws IOException {
+		// Does nothing
 	}
 
 	@Override
 	public void onDisconnect() {
+		// Does nothing
 	}
 
 	@Override
 	public void onStart() {
 		currentHandler = defaultHandler;
 	}
-
+	
 	@Override
-	public void onResponseHeader(HttpResponse response, CompletionHandler<Void, Void> handler) {
-        handler.failed(new UnsupportedOperationException("This is for requests only"), null);
+	public CompletableFuture<Void> onResponseHeader(HttpResponse response) {
+        return CompletableFuture.failedFuture(new UnsupportedOperationException("This is for requests only"));
 	}
-
+	
 	@Override
-	public void onRequestHeader(HttpRequest request, CompletionHandler<Void, Void> handler) {
+	public CompletableFuture<Void> onRequestHeader(HttpRequest request) {
 		HttpHandler foundHandler = defaultHandler;
 		boolean found = false;
 		for (int i = 0; i < pairs.length && !found; i++) {
@@ -87,44 +89,42 @@ public class CompositeHttpHandler implements HttpHandler {
 			}
 		}
 		currentHandler = foundHandler;
-		currentHandler.onRequestHeader(request, handler);
+		return currentHandler.onRequestHeader(request);
 	}
 
 	@Override
-	public void onBody(ByteBuffer buffer, long offset, long length, CompletionHandler<Void, Void> handler) {
-		currentHandler.onBody(buffer, offset, length, handler);
+	public CompletableFuture<Void> onBody(ByteBuffer buffer, long offset, long length) {
+		return currentHandler.onBody(buffer, offset, length);
+	}
+	
+	@Override
+	public CompletableFuture<Void> onChunkStart(long totalOffset, long chunkLength) {
+		return currentHandler.onChunkStart(totalOffset, chunkLength);
 	}
 
 	@Override
-	public void onChunkStart(long totalOffset, long chunkLength, CompletionHandler<Void, Void> handler) {
-		currentHandler.onChunkStart(totalOffset, chunkLength, handler);
+	public CompletableFuture<Void> onChunk(ByteBuffer buffer, long totalOffset, long chunkOffset, long chunkLength) {
+		return currentHandler.onChunk(buffer, totalOffset, chunkOffset, chunkLength);
 	}
 
 	@Override
-	public void onChunk(ByteBuffer buffer, long totalOffset, long chunkOffset, long chunkLength,
-			CompletionHandler<Void, Void> handler) {
-		currentHandler.onChunk(buffer, totalOffset, chunkOffset, chunkLength, handler);
+	public CompletableFuture<Void> onChunkEnd() {
+		return currentHandler.onChunkEnd();
 	}
 
 	@Override
-	public void onChunkEnd(CompletionHandler<Void, Void> handler) {
-		currentHandler.onChunkEnd(handler);
+	public CompletableFuture<Void> onChunkedTransferEnd() {
+		return currentHandler.onChunkedTransferEnd();
 	}
 
 	@Override
-	public void onChunkedTransferEnd(CompletionHandler<Void, Void> handler) {
-		currentHandler.onChunkedTransferEnd(handler);
+	public CompletableFuture<Void> onDataToPassAlong(ByteBuffer buffer) {
+		return currentHandler.onDataToPassAlong(buffer);
 	}
 
 	@Override
-	public void onDataToPassAlong(ByteBuffer buffer, CompletionHandler<Void, Void> handler) {
-		currentHandler.onDataToPassAlong(buffer, handler);
-	}
-
-	@Override
-	public void onEnd(CompletionHandler<Void, Void> handler) {
-		currentHandler.onEnd(handler);
-		currentHandler = defaultHandler;
+	public CompletableFuture<Void> onEnd() {
+		return currentHandler.onEnd().thenRun(() -> currentHandler = defaultHandler);
 	}
 
 }

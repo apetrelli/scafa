@@ -2,11 +2,11 @@ package com.github.apetrelli.scafa.proto.aio;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.nio.channels.CompletionHandler;
+import java.util.concurrent.CompletableFuture;
 
 public interface BufferContextReader extends Closeable {
 
-	void read(BufferContext context, CompletionHandler<Integer, BufferContext> completionHandler);
+	CompletableFuture<CompletionHandlerResult<Integer, BufferContext>> read(BufferContext context);
 
 	void close() throws IOException;
 }

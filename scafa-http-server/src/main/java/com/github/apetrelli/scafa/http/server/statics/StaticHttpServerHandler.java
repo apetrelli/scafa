@@ -1,6 +1,5 @@
 package com.github.apetrelli.scafa.http.server.statics;
 
-import java.nio.channels.CompletionHandler;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -9,6 +8,7 @@ import java.util.Calendar;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.concurrent.CompletableFuture;
 
 import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpRequest;
@@ -44,9 +44,9 @@ public class StaticHttpServerHandler extends HttpServerHandlerSupport {
 		this.mimeTypeConfig = mimeTypeConfig;
 		this.server = server;
 	}
-
+	
 	@Override
-	public void onRequestEnd(HttpRequest request, CompletionHandler<Void, Void> handler) {
+	public CompletableFuture<Void> onRequestEnd(HttpRequest request) {
 		if ("GET".equals(request.getMethod())) {
 			if (request.getResource().startsWith(basePath)) {
 				String localResource = request.getParsedResource().getResource().substring(basePath.length());
@@ -74,25 +74,25 @@ public class StaticHttpServerHandler extends HttpServerHandlerSupport {
 								response.setHeader("Content-Type", contentType);
 							}
 						}
-						server.response(channel, response, path, handler);
+						return server.response(channel, response, path);
 					} else {
-						sendSimpleMessage(404, "The resource " + localResource + " does not exist", handler);
+						return sendSimpleMessage(404, "The resource " + localResource + " does not exist");
 					}
 				} else {
-					sendSimpleMessage(404, "No path traversal", handler);
+					return sendSimpleMessage(400, "No path traversal");
 				}
 			} else {
-				sendSimpleMessage(404, "Resource " + request.getResource() +  " not found", handler);
+				return sendSimpleMessage(404, "Resource " + request.getResource() +  " not found");
 			}
 		} else {
-			sendSimpleMessage(405, "Only GET allowed", handler);
+			return sendSimpleMessage(405, "Only GET allowed");
 		}
 	}
 
-	private void sendSimpleMessage(int httpCode, String message, CompletionHandler<Void, Void> handler) {
+	private CompletableFuture<Void> sendSimpleMessage(int httpCode, String message) {
 		HttpResponse response = new HttpResponse("HTTP/1.1", httpCode, message);
 		response.setHeader("Server", "Scafa");
 		response.setHeader("Content-Length", "0");
-		server.response(channel, response, handler);
+		return server.response(channel, response);
 	}
 }

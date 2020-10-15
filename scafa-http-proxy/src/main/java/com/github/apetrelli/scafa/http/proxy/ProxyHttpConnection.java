@@ -17,12 +17,12 @@
  */
 package com.github.apetrelli.scafa.http.proxy;
 
-import java.nio.channels.CompletionHandler;
+import java.util.concurrent.CompletableFuture;
 
 import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpRequest;
 
 public interface ProxyHttpConnection extends HttpAsyncSocket<HttpRequest> {
 
-    void connect(HttpConnectRequest request, CompletionHandler<Void, Void> completionHandler);
+    CompletableFuture<Void> connect(HttpConnectRequest request);
 }

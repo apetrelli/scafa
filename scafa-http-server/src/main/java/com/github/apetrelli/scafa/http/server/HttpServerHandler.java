@@ -1,7 +1,7 @@
 package com.github.apetrelli.scafa.http.server;
 
 import java.nio.ByteBuffer;
-import java.nio.channels.CompletionHandler;
+import java.util.concurrent.CompletableFuture;
 
 import com.github.apetrelli.scafa.http.HttpRequest;
 
@@ -9,11 +9,11 @@ public interface HttpServerHandler {
 
 	void onStart();
 
-	void onRequestHeader(HttpRequest request, CompletionHandler<Void, Void> handler);
+	CompletableFuture<Void> onRequestHeader(HttpRequest request);
 
-    void onBody(HttpRequest request, ByteBuffer buffer, long offset, long length, CompletionHandler<Void, Void> handler);
+	CompletableFuture<Void> onBody(HttpRequest request, ByteBuffer buffer, long offset, long length);
 
-	void onRequestEnd(HttpRequest request, CompletionHandler<Void, Void> handler);
+	CompletableFuture<Void> onRequestEnd(HttpRequest request);
 
 	void onRequestError(HttpRequest request, Throwable exc);
 

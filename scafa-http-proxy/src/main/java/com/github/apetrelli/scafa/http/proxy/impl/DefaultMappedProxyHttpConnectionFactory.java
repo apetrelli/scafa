@@ -18,9 +18,9 @@
 package com.github.apetrelli.scafa.http.proxy.impl;
 
 import java.io.IOException;
-import java.nio.channels.CompletionHandler;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -30,7 +30,6 @@ import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
-import com.github.apetrelli.scafa.proto.aio.IgnoringCompletionHandler;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 
 public class DefaultMappedProxyHttpConnectionFactory implements MappedProxyHttpConnectionFactory {
@@ -44,26 +43,25 @@ public class DefaultMappedProxyHttpConnectionFactory implements MappedProxyHttpC
     public DefaultMappedProxyHttpConnectionFactory(ProxyHttpConnectionFactory connectionFactory) {
         this.connectionFactory = connectionFactory;
     }
-
+    
     @Override
-    public void create(AsyncSocket sourceChannel, HttpRequest request, CompletionHandler<ProxyHttpConnection, Void> handler) {
+    public CompletableFuture<ProxyHttpConnection> create(AsyncSocket sourceChannel, HttpRequest request) {
         try {
-            create(sourceChannel, request.getHostPort(), handler);
+            return create(sourceChannel, request.getHostPort());
         } catch (IOException e) {
             LOG.log(Level.SEVERE, "Problem with determining the host to connect to.", e);
-            handler.failed(e, null);
+            return CompletableFuture.failedFuture(e);
         }
     }
 
     @Override
-    public void create(AsyncSocket sourceChannel, HttpConnectRequest request, CompletionHandler<ProxyHttpConnection, Void> handler) {
-        create(sourceChannel, new HostPort(request.getHost(), request.getPort()), handler);
+    public CompletableFuture<ProxyHttpConnection> create(AsyncSocket sourceChannel, HttpConnectRequest request) {
+        return create(sourceChannel, new HostPort(request.getHost(), request.getPort()));
     }
 
     @Override
     public void disconnectAll() throws IOException {
-		IgnoringCompletionHandler<Void, Void> handler = new IgnoringCompletionHandler<>();
-		connectionCache.values().stream().forEach(t -> t.disconnect(handler));
+		connectionCache.values().stream().forEach(AsyncSocket::disconnect); // Ignore the outcome.
         connectionCache.clear();
     }
 
@@ -75,30 +73,20 @@ public class DefaultMappedProxyHttpConnectionFactory implements MappedProxyHttpC
         }
     }
 
-    private void create(AsyncSocket sourceChannel, HostPort hostPort, CompletionHandler<ProxyHttpConnection, Void> handler) {
+    private CompletableFuture<ProxyHttpConnection> create(AsyncSocket sourceChannel, HostPort hostPort) {
         ProxyHttpConnection connection = connectionCache.get(hostPort);
         if (connection == null) {
             if (LOG.isLoggable(Level.INFO)) {
                 LOG.log(Level.INFO, "Connecting thread {0} to address {1}",
-                        new Object[] { Thread.currentThread().getName(), hostPort.toString() });
+                        new Object[] { Thread.currentThread().getName(), hostPort });
             }
             ProxyHttpConnection newConnection = connectionFactory.create(this, sourceChannel, hostPort);
-            newConnection.connect(new CompletionHandler<Void, Void>() {
-
-                @Override
-                public void completed(Void result, Void attachment) {
-                    connectionCache.put(hostPort, newConnection);
-                    handler.completed(newConnection, attachment);
-                }
-
-                @Override
-                public void failed(Throwable exc, Void attachment) {
-                    LOG.log(Level.INFO, "Connection failed to " + hostPort.toString(), exc);
-                    handler.failed(exc, attachment);
-                }
+            return newConnection.connect().thenApply(x -> {
+                connectionCache.put(hostPort, newConnection);
+                return newConnection;
             });
         } else {
-            handler.completed(connection, null);
+            return CompletableFuture.completedFuture(connection);
         }
     }
 }

@@ -18,9 +18,9 @@
 package com.github.apetrelli.scafa.http.gateway.direct;
 
 import java.io.IOException;
-import java.nio.channels.CompletionHandler;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -29,7 +29,6 @@ import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.gateway.GatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.gateway.MappedGatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
-import com.github.apetrelli.scafa.proto.aio.IgnoringCompletionHandler;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 
 public class DirectGatewayMappedHttpConnectionFactory implements MappedGatewayHttpConnectionFactory {
@@ -43,21 +42,20 @@ public class DirectGatewayMappedHttpConnectionFactory implements MappedGatewayHt
     public DirectGatewayMappedHttpConnectionFactory(GatewayHttpConnectionFactory connectionFactory) {
         this.connectionFactory = connectionFactory;
     }
-
+    
     @Override
-    public void create(AsyncSocket sourceChannel, HttpRequest request, CompletionHandler<HttpAsyncSocket<HttpRequest>, Void> handler) {
+    public CompletableFuture<HttpAsyncSocket<HttpRequest>> create(AsyncSocket sourceChannel, HttpRequest request) {
         try {
-            create(sourceChannel, request.getHostPort(), handler);
+            return create(sourceChannel, request.getHostPort());
         } catch (IOException e) {
             LOG.log(Level.SEVERE, "Problem with determining the host to connect to.", e);
-            handler.failed(e, null);
+            return CompletableFuture.failedFuture(e);
         }
     }
 
     @Override
     public void disconnectAll() throws IOException {
-    	CompletionHandler<Void, Void> handler = new IgnoringCompletionHandler<>();
-        connectionCache.values().stream().forEach(t -> t.disconnect(handler));
+        connectionCache.values().stream().forEach(AsyncSocket::disconnect);
         connectionCache.clear();
     }
 
@@ -69,30 +67,20 @@ public class DirectGatewayMappedHttpConnectionFactory implements MappedGatewayHt
         }
     }
 
-    private void create(AsyncSocket sourceChannel, HostPort hostPort, CompletionHandler<HttpAsyncSocket<HttpRequest>, Void> handler) {
+    private CompletableFuture<HttpAsyncSocket<HttpRequest>> create(AsyncSocket sourceChannel, HostPort hostPort) {
     	HttpAsyncSocket<HttpRequest> connection = connectionCache.get(hostPort);
         if (connection == null) {
             if (LOG.isLoggable(Level.INFO)) {
                 LOG.log(Level.INFO, "Connecting thread {0} to address {1}",
-                        new Object[] { Thread.currentThread().getName(), hostPort.toString() });
+                        new Object[] { Thread.currentThread().getName(), hostPort });
             }
             HttpAsyncSocket<HttpRequest> newConnection = connectionFactory.create(this, sourceChannel, hostPort);
-            newConnection.connect(new CompletionHandler<Void, Void>() {
-
-                @Override
-                public void completed(Void result, Void attachment) {
-                    connectionCache.put(hostPort, newConnection);
-                    handler.completed(newConnection, attachment);
-                }
-
-                @Override
-                public void failed(Throwable exc, Void attachment) {
-                    LOG.log(Level.INFO, "Connection failed to " + hostPort.toString(), exc);
-                    handler.failed(exc, attachment);
-                }
+            return newConnection.connect().thenApply(x -> {
+                connectionCache.put(hostPort, newConnection);
+                return newConnection;
             });
         } else {
-            handler.completed(connection, null);
+            return CompletableFuture.completedFuture(connection);
         }
     }
 }

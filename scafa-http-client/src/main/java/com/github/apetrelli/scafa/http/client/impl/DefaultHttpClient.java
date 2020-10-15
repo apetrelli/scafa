@@ -2,9 +2,9 @@ package com.github.apetrelli.scafa.http.client.impl;
 
 import java.io.IOException;
 import java.nio.channels.AsynchronousFileChannel;
-import java.nio.channels.CompletionHandler;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.concurrent.CompletableFuture;
 
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.client.HttpClient;
@@ -14,116 +14,11 @@ import com.github.apetrelli.scafa.http.output.DataSenderFactory;
 import com.github.apetrelli.scafa.http.output.impl.DefaultDataSenderFactory;
 import com.github.apetrelli.scafa.proto.aio.BufferContext;
 import com.github.apetrelli.scafa.proto.aio.BufferContextReader;
+import com.github.apetrelli.scafa.proto.aio.CompletionHandlerFuture;
 import com.github.apetrelli.scafa.proto.aio.impl.PathBufferContextReader;
 import com.github.apetrelli.scafa.tls.util.IOUtils;
 
 public class DefaultHttpClient implements HttpClient {
-
-	private class RequestWithPayloadCompletionHandler implements CompletionHandler<Void, Void> {
-		private final HttpRequest realRequest;
-		private final BufferContextReader payloadReader;
-		private final HttpClientHandler handler;
-		private final HttpClientConnection connection;
-
-		private RequestWithPayloadCompletionHandler(HttpRequest realRequest,
-				BufferContextReader payloadReader, HttpClientHandler handler, HttpClientConnection connection) {
-			this.realRequest = realRequest;
-			this.payloadReader = payloadReader;
-			this.handler = handler;
-			this.connection = connection;
-		}
-
-		@Override
-		public void completed(Void result, Void attachment) {
-			handler.onRequestHeaderSent(realRequest);
-			BufferContext fileContext = new BufferContext();
-			RequestBodySentCompletionHandler requestBodySentCompletionHandler = new RequestBodySentCompletionHandler(
-					realRequest, payloadReader, handler, fileContext);
-            ReadFileHandler readFileHandler = new ReadFileHandler(realRequest, requestBodySentCompletionHandler,
-                    handler, connection);
-			requestBodySentCompletionHandler.setReadFileHandler(readFileHandler);
-			payloadReader.read(fileContext, readFileHandler);
-		}
-
-		@Override
-		public void failed(Throwable exc, Void attachment) {
-			handler.onRequestError(realRequest, exc);
-		}
-	}
-
-	private static class ReadFileHandler implements CompletionHandler<Integer, BufferContext> {
-		private class AfterPayloadSentCompletionHandler implements CompletionHandler<Void, Void> {
-			@Override
-			public void completed(Void result, Void attachment) {
-				handler.onRequestEnd(request);
-			}
-
-			@Override
-			public void failed(Throwable exc, Void attachment) {
-				handler.onRequestError(request, exc);
-			}
-		}
-
-		private final HttpRequest request;
-		private final CompletionHandler<Void, Void> requestBodySentCompletionHandler;
-		private final HttpClientHandler handler;
-		private final HttpClientConnection connection;
-
-		private ReadFileHandler(HttpRequest request, CompletionHandler<Void, Void> requestBodySentCompletionHandler,
-				HttpClientHandler handler, HttpClientConnection connection) {
-			this.request = request;
-			this.requestBodySentCompletionHandler = requestBodySentCompletionHandler;
-			this.handler = handler;
-			this.connection = connection;
-		}
-
-		@Override
-		public void completed(Integer result, BufferContext fileContext) {
-			if (result >= 0) {
-				connection.sendData(fileContext.getBuffer(), requestBodySentCompletionHandler);
-			} else {
-				connection.endData(new AfterPayloadSentCompletionHandler());
-			}
-		}
-
-		@Override
-		public void failed(Throwable exc, BufferContext attachment) {
-			handler.onRequestError(request, exc);
-		}
-	}
-
-	private static class RequestBodySentCompletionHandler implements CompletionHandler<Void, Void> {
-		private final HttpRequest realRequest;
-		private final BufferContextReader reader;
-		private final HttpClientHandler handler;
-		private final BufferContext fileContext;
-
-		private ReadFileHandler readFileHandler;
-
-		private RequestBodySentCompletionHandler(HttpRequest realRequest, BufferContextReader reader,
-				HttpClientHandler handler, BufferContext fileContext) {
-			this.realRequest = realRequest;
-			this.reader = reader;
-			this.handler = handler;
-			this.fileContext = fileContext;
-		}
-
-		public void setReadFileHandler(ReadFileHandler readFileHandler) {
-			this.readFileHandler = readFileHandler;
-		}
-
-		@Override
-		public void completed(Void result, Void attachment) {
-			fileContext.getBuffer().clear();
-			reader.read(fileContext, readFileHandler);
-		}
-
-		@Override
-		public void failed(Throwable exc, Void attachment) {
-			IOUtils.closeQuietly(reader);
-			handler.onRequestError(realRequest, exc);
-		}
-	}
 
 	private MappedHttpConnectionFactory connectionFactory;
 
@@ -135,30 +30,17 @@ public class DefaultHttpClient implements HttpClient {
 
 	@Override
 	public void request(HttpRequest request, HttpClientHandler handler) {
-		connectionFactory.create(request, new CompletionHandler<HttpClientConnection, Void>() {
-
-            @Override
-            public void completed(HttpClientConnection result, Void attachment) {
-            	result.prepare(request, handler);
-                result.sendHeader(request, new CompletionHandler<Void, Void>() {
-
-                    @Override
-                    public void completed(Void result, Void attachment) {
-                        handler.onRequestHeaderSent(request);
-                        handler.onRequestEnd(request);
-                    }
-
-                    @Override
-                    public void failed(Throwable exc, Void attachment) {
-                        handler.onRequestError(request, exc);
-                    }
-                });
-            }
-
-            @Override
-            public void failed(Throwable exc, Void attachment) {
-                handler.onRequestError(request, exc);
-            }
+		connectionFactory.create(request).thenCompose(result -> {
+			result.prepare(request, handler);
+			return result.sendHeader(request).thenAccept(x -> {
+                handler.onRequestHeaderSent(request);
+                handler.onRequestEnd(request);
+			});
+		}).handle((x, e) -> {
+			if (e != null) {
+				handler.onRequestError(request, e);
+			}
+			return CompletionHandlerFuture.completeEmpty();
 		});
 	}
 
@@ -180,8 +62,9 @@ public class DefaultHttpClient implements HttpClient {
 	public void request(HttpRequest request, Path payload, HttpClientHandler handler) {
 		AsynchronousFileChannel fileChannel = null;
 		try {
-			fileChannel = AsynchronousFileChannel.open(payload, StandardOpenOption.READ);
-			request(request, new PathBufferContextReader(fileChannel), fileChannel.size(), handler);
+			fileChannel = AsynchronousFileChannel.open(payload, StandardOpenOption.READ); // NOSONAR
+			PathBufferContextReader payloadReader = new PathBufferContextReader(fileChannel); // NOSONAR
+			request(request, payloadReader, fileChannel.size(), handler);
 		} catch (IOException e1) {
 			IOUtils.closeQuietly(fileChannel);
 			handler.onRequestError(request, e1);
@@ -190,18 +73,32 @@ public class DefaultHttpClient implements HttpClient {
 
 	private void requestWithPayload(HttpRequest realRequest, BufferContextReader payloadReader,
 			HttpClientHandler handler) {
-		connectionFactory.create(realRequest, new CompletionHandler<HttpClientConnection, Void>() {
+		connectionFactory.create(realRequest).thenCompose(connection -> {
+        	connection.prepare(realRequest, handler);
+            return connection.sendHeader(realRequest).thenCompose(x -> {
+    			handler.onRequestHeaderSent(realRequest);
+    			BufferContext fileContext = new BufferContext();
+    			return transferPayload(realRequest, payloadReader, handler, connection, fileContext);
+            });
+		}).handle((x, e) -> {
+			if (e != null) {
+				handler.onRequestError(realRequest, e);
+			}
+			return CompletionHandlerFuture.completeEmpty();
+		});
+	}
 
-            @Override
-            public void completed(HttpClientConnection connection, Void attachment) {
-            	connection.prepare(realRequest, handler);
-                connection.sendHeader(realRequest, new RequestWithPayloadCompletionHandler(realRequest, payloadReader, handler, connection));
-            }
-
-            @Override
-            public void failed(Throwable exc, Void attachment) {
-                handler.onRequestError(realRequest, exc);
-            }
+	private CompletableFuture<Void> transferPayload(HttpRequest realRequest, BufferContextReader payloadReader,
+			HttpClientHandler handler, HttpClientConnection connection, BufferContext fileContext) {
+		return payloadReader.read(fileContext).thenCompose(y -> {
+			if (y.getResult() >= 0) {
+				return connection.sendData(fileContext.getBuffer()).thenCompose(x -> {
+					fileContext.getBuffer().clear();
+					return transferPayload(realRequest, payloadReader, handler, connection, fileContext);
+				});
+			} else {
+				return connection.endData().thenAccept(z -> handler.onRequestEnd(realRequest));
+			}
 		});
 	}
 }

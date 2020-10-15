@@ -17,27 +17,28 @@
  */
 package com.github.apetrelli.scafa.http.proxy.ntlm;
 
-import java.nio.channels.CompletionHandler;
+import java.util.concurrent.CompletableFuture;
 
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.impl.HttpHandlerSupport;
+import com.github.apetrelli.scafa.proto.aio.CompletionHandlerFuture;
 
 public class CapturingHandler extends HttpHandlerSupport {
 
     protected HttpResponse response;
 
     protected boolean finished = false;
-
+    
     @Override
-    public void onResponseHeader(HttpResponse response, CompletionHandler<Void, Void> handler) {
+    public CompletableFuture<Void> onResponseHeader(HttpResponse response) {
         this.response = response;
-        handler.completed(null, null);
+        return CompletionHandlerFuture.completeEmpty();
     }
 
     @Override
-    public void onEnd(CompletionHandler<Void, Void> handler) {
+    public CompletableFuture<Void> onEnd() {
         finished = true;
-        handler.completed(null, null);
+        return CompletionHandlerFuture.completeEmpty();
     }
 
     public boolean isFinished() {

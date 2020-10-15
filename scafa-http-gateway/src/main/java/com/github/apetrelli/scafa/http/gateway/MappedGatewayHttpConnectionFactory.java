@@ -18,7 +18,7 @@
 package com.github.apetrelli.scafa.http.gateway;
 
 import java.io.IOException;
-import java.nio.channels.CompletionHandler;
+import java.util.concurrent.CompletableFuture;
 
 import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpRequest;
@@ -27,7 +27,7 @@ import com.github.apetrelli.scafa.proto.client.HostPort;
 
 public interface MappedGatewayHttpConnectionFactory {
 
-    void create(AsyncSocket sourceChannel, HttpRequest request, CompletionHandler<HttpAsyncSocket<HttpRequest>, Void> handler);
+    CompletableFuture<HttpAsyncSocket<HttpRequest>> create(AsyncSocket sourceChannel, HttpRequest request);
 
     void disconnectAll() throws IOException;
 

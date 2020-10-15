@@ -19,7 +19,7 @@ package com.github.apetrelli.scafa.http.gateway.impl;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.CompletionHandler;
+import java.util.concurrent.CompletableFuture;
 
 import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpHandler;
@@ -27,7 +27,7 @@ import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.gateway.MappedGatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
-import com.github.apetrelli.scafa.proto.aio.IgnoringCompletionHandler;
+import com.github.apetrelli.scafa.proto.aio.CompletionHandlerFuture;
 
 public class DefaultGatewayHttpHandler implements HttpHandler {
 
@@ -51,69 +51,59 @@ public class DefaultGatewayHttpHandler implements HttpHandler {
     public void onStart() {
         // Does nothing
     }
-
+    
     @Override
-    public void onResponseHeader(HttpResponse response, CompletionHandler<Void, Void> handler) {
-        handler.failed(new UnsupportedOperationException("Not expected a response header"), null);
+    public CompletableFuture<Void> onResponseHeader(HttpResponse response) {
+        return CompletableFuture.failedFuture(new UnsupportedOperationException("Not expected a response header"));
     }
 
     @Override
-    public void onRequestHeader(HttpRequest request, CompletionHandler<Void, Void> handler) {
-        connectionFactory.create(sourceChannel, request, new CompletionHandler<HttpAsyncSocket<HttpRequest>, Void>() {
-
-            @Override
-            public void completed(HttpAsyncSocket<HttpRequest> result, Void attachment) {
-                connection = result;
-                connection.sendHeader(request, handler);
-            }
-
-            @Override
-            public void failed(Throwable exc, Void attachment) {
-                handler.failed(exc, attachment);
-            }
-        });
+    public CompletableFuture<Void> onRequestHeader(HttpRequest request) {
+    	return connectionFactory.create(sourceChannel, request).thenCompose(result -> {
+    		connection = result;
+    		return connection.sendHeader(request);
+    	});
     }
-
+    
     @Override
-    public void onBody(ByteBuffer buffer, long offset, long length, CompletionHandler<Void, Void> handler) {
-        connection.sendData(buffer, handler);
+    public CompletableFuture<Void> onBody(ByteBuffer buffer, long offset, long length) {
+        return connection.sendData(buffer);
     }
-
+    
     @Override
-    public void onChunkStart(long totalOffset, long chunkLength, CompletionHandler<Void, Void> handler) {
-    	// Do nothing
+    public CompletableFuture<Void> onChunkStart(long totalOffset, long chunkLength) {
+    	return CompletionHandlerFuture.completeEmpty();
     }
-
+    
     @Override
-    public void onChunk(ByteBuffer buffer, long totalOffset, long chunkOffset, long chunkLength,
-            CompletionHandler<Void, Void> handler) {
-        connection.sendData(buffer, handler);
+    public CompletableFuture<Void> onChunk(ByteBuffer buffer, long totalOffset, long chunkOffset, long chunkLength) {
+        return connection.sendData(buffer);
     }
-
+    
     @Override
-    public void onChunkEnd(CompletionHandler<Void, Void> handler) {
-    	// Do nothing
+    public CompletableFuture<Void> onChunkEnd() {
+    	return CompletionHandlerFuture.completeEmpty();
     }
-
+    
     @Override
-    public void onChunkedTransferEnd(CompletionHandler<Void, Void> handler) {
-    	// Do nothing
+    public CompletableFuture<Void> onChunkedTransferEnd() {
+    	return CompletionHandlerFuture.completeEmpty();
     }
-
+    
     @Override
-    public void onDataToPassAlong(ByteBuffer buffer, CompletionHandler<Void, Void> handler) {
-        connection.flushBuffer(buffer, handler);
+    public CompletableFuture<Void> onDataToPassAlong(ByteBuffer buffer) {
+        return connection.flushBuffer(buffer);
     }
-
+    
     @Override
-    public void onEnd(CompletionHandler<Void, Void> handler) {
-        connection.endData(handler);
+    public CompletableFuture<Void> onEnd() {
+        return connection.endData();
     }
 
     @Override
     public void onDisconnect() {
         if (connection != null) {
-            connection.disconnect(IgnoringCompletionHandler.INSTANCE);
+            connection.disconnect();
         }
     }
 }

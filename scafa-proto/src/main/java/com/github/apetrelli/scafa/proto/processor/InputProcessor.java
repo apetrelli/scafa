@@ -17,9 +17,9 @@
  */
 package com.github.apetrelli.scafa.proto.processor;
 
-import java.nio.channels.CompletionHandler;
+import java.util.concurrent.CompletableFuture;
 
 public interface InputProcessor<P extends Input> {
 
-    void process(P context, CompletionHandler<P, P> completionHandler);
+    CompletableFuture<P> process(P context);
 }

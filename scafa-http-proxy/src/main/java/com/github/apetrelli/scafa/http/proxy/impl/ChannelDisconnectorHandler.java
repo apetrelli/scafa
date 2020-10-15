@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
-import com.github.apetrelli.scafa.proto.aio.IgnoringCompletionHandler;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.processor.Handler;
 
@@ -29,7 +28,7 @@ public class ChannelDisconnectorHandler implements Handler {
 
 	@Override
 	public void onDisconnect() {
-		socket.disconnect(new IgnoringCompletionHandler<Void, Void>());
+		socket.disconnect(); // Ignore the outcome
 		factory.dispose(socketAddress);
 	}
 

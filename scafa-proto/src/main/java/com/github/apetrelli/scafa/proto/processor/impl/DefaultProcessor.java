@@ -21,7 +21,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousCloseException;
 import java.nio.channels.ClosedChannelException;
-import java.nio.channels.CompletionHandler;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -34,84 +35,6 @@ import com.github.apetrelli.scafa.proto.processor.ProcessingContextFactory;
 import com.github.apetrelli.scafa.proto.processor.Processor;
 
 public class DefaultProcessor<P extends Input, H extends Handler> implements Processor<H> {
-
-    private class ClientReadCompletionHandler implements CompletionHandler<Integer, P> {
-        private final H handler;
-        private final InputProcessor<P> processor;
-
-        private ProcessCompletionHandler processCompletionHandler;
-
-		private ClientReadCompletionHandler(H handler, InputProcessor<P> processor) {
-            this.handler = handler;
-            this.processor = processor;
-        }
-
-		public void setProcessCompletionHandler(ProcessCompletionHandler processCompletionHandler) {
-			this.processCompletionHandler = processCompletionHandler;
-		}
-
-        @Override
-        public void completed(Integer result, P attachment) {
-            if (result >= 0) {
-                ByteBuffer buffer = attachment.getBuffer();
-                buffer.flip();
-                processor.process(attachment, processCompletionHandler);
-            } else {
-                disconnect();
-            }
-        }
-
-        @Override
-        public void failed(Throwable exc, P attachment) {
-            if (exc instanceof AsynchronousCloseException || exc instanceof ClosedChannelException) {
-                LOG.log(Level.INFO, "Channel closed", exc);
-            } else if (exc instanceof IOException) {
-                LOG.log(Level.INFO, "I/O exception, closing", exc);
-                disconnect();
-            } else {
-                LOG.log(Level.SEVERE, "Unrecognized exception, don't know what to do...", exc);
-            }
-        }
-
-        private void disconnect() {
-        	client.disconnect(new CompletionHandler<Void, Void>() {
-
-				@Override
-				public void completed(Void result, Void attachment) {
-	            	handler.onDisconnect();
-				}
-
-				@Override
-				public void failed(Throwable exc, Void attachment) {
-	            	handler.onDisconnect();
-	                LOG.log(Level.SEVERE, "Error when disposing client", exc);
-				}
-			});
-        }
-    }
-
-    private class ProcessCompletionHandler implements CompletionHandler<P, P> {
-        private ClientReadCompletionHandler clientReadCompletionHandler;
-
-        private ProcessCompletionHandler(ClientReadCompletionHandler clientReadCompletionHandler) {
-            this.clientReadCompletionHandler = clientReadCompletionHandler;
-        }
-
-        @Override
-        public void completed(P result, P attachment) {
-        	ByteBuffer buffer = attachment.getBuffer();
-            if (client.isOpen()) {
-                buffer.clear();
-                client.read(buffer, attachment, clientReadCompletionHandler);
-            }
-        }
-
-        @Override
-        public void failed(Throwable exc, P attachment) {
-            LOG.log(Level.INFO, "Error when processing buffer, disconnecting", exc);
-            clientReadCompletionHandler.disconnect();
-        }
-    }
 
     private static final Logger LOG = Logger.getLogger(DefaultProcessor.class.getName());
 
@@ -134,13 +57,50 @@ public class DefaultProcessor<P extends Input, H extends Handler> implements Pro
             handler.onConnect();
             P context = processingContextFactory.create();
             InputProcessor<P> processor = inputProcessorFactory.create(handler);
-            ClientReadCompletionHandler clientReadCompletionHandler = new ClientReadCompletionHandler(handler, processor);
-            ProcessCompletionHandler processCompletionHandler = new ProcessCompletionHandler(clientReadCompletionHandler);
-            clientReadCompletionHandler.setProcessCompletionHandler(processCompletionHandler);
-            client.read(context.getBuffer(), context, clientReadCompletionHandler);
+            read(context, handler, processor).handle((x, exc) -> {
+            	if (exc != null) {
+            		if (exc instanceof CompletionException) {
+            			exc = ((CompletionException) exc).getCause();
+            		}
+	                if (exc instanceof AsynchronousCloseException || exc instanceof ClosedChannelException) {
+	                    LOG.log(Level.INFO, "Channel closed", exc);
+	                } else if (exc instanceof IOException) {
+	                    LOG.log(Level.INFO, "I/O exception, closing", exc);
+	                    disconnect(handler);
+	                } else {
+	                    LOG.log(Level.SEVERE, "Unrecognized exception, don''t know what to do...", exc);
+	                }
+            	}
+            	return x;
+            });
         } catch (IOException e) {
             LOG.log(Level.INFO, "Error when establishing a connection", e);
         }
+    }
+
+	private CompletableFuture<Void> read(P context, H handler, InputProcessor<P> processor) {
+		return client.read(context.getBuffer(), context).thenCompose(x -> {
+		    if (x.getResult() >= 0) {
+		        ByteBuffer buffer = x.getAttachment().getBuffer();
+		        buffer.flip();
+				return processor.process(x.getAttachment())
+						.thenCompose(y -> {
+							x.getAttachment().getBuffer().clear();
+							return read(x.getAttachment(), handler, processor);
+						});
+		    } else {
+		        return disconnect(handler);
+		    }
+		});
+	}
+    
+    private CompletableFuture<Void> disconnect(H handler) {
+    	return client.disconnect().handle((x, y) -> {
+    		if (y != null) {
+    			LOG.log(Level.SEVERE, "Error when disposing client", y);
+    		}
+            return x;
+		}).thenRun(handler::onDisconnect);
     }
 
 }

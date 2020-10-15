@@ -2,7 +2,7 @@ package com.github.apetrelli.scafa.http.impl;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.CompletionHandler;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -27,9 +27,9 @@ public class DirectHttpAsyncSocket<H extends HeaderHolder> extends AsyncSocketWr
 		dataSender = new DirectDataSender(socket);
 		this.dataSenderFactory = dataSenderFactory;
 	}
-
+	
 	@Override
-	public void sendHeader(H holder, CompletionHandler<Void, Void> completionHandler) {
+	public CompletableFuture<Void> sendHeader(H holder) {
 		dataSender = dataSenderFactory.create(holder, socket);
 		ByteBuffer buffer = holder.toHeapByteBuffer();
 		if (LOG.isLoggable(Level.FINEST)) {
@@ -38,26 +38,24 @@ public class DirectHttpAsyncSocket<H extends HeaderHolder> extends AsyncSocketWr
 			LOG.finest(request);
 			LOG.finest("-- End of header --");
 		}
-		socket.flipAndFlushBuffer(buffer, completionHandler);
+		return socket.flipAndFlushBuffer(buffer);
 	}
 
 	@Override
-	public void sendData(ByteBuffer buffer, CompletionHandler<Void, Void> completionHandler) {
+	public CompletableFuture<Void> sendData(ByteBuffer buffer) {
 		if (dataSender == null) {
-			completionHandler.failed(new IOException("Request never sent, data cannot be sent"), null);
+			return CompletableFuture.failedFuture(new IOException("Request never sent, data cannot be sent"));
 		} else {
-			dataSender.send(buffer, completionHandler);
+			return dataSender.send(buffer);
 		}
 	}
-
+	
 	@Override
-
-	public void endData(CompletionHandler<Void, Void> completionHandler) {
+	public CompletableFuture<Void> endData() {
 		if (dataSender == null) {
-			completionHandler.failed(new IOException("Request never sent, data cannot be ended"), null);
+			return CompletableFuture.failedFuture(new IOException("Request never sent, data cannot be ended"));
 		} else {
-			dataSender.end(completionHandler);
-			dataSender = null;
+			return dataSender.end().thenRun(() -> dataSender = null);
 		}
 	}
 

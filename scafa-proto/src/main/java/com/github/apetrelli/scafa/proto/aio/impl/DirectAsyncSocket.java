@@ -5,9 +5,11 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
-import java.nio.channels.CompletionHandler;
+import java.util.concurrent.CompletableFuture;
 
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
+import com.github.apetrelli.scafa.proto.aio.CompletionHandlerFuture;
+import com.github.apetrelli.scafa.proto.aio.CompletionHandlerResult;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.tls.TlsConnectionException;
 
@@ -18,10 +20,10 @@ public class DirectAsyncSocket implements AsyncSocket {
 	public DirectAsyncSocket(AsynchronousSocketChannel channel) {
 		this.channel = channel;
 	}
-
+	
 	@Override
-	public void connect(CompletionHandler<Void, Void> handler) {
-		handler.completed(null, null); // Already connected.
+	public CompletableFuture<Void> connect() {
+		return CompletionHandlerFuture.completeEmpty();
 	}
 	
 	@Override
@@ -41,16 +43,16 @@ public class DirectAsyncSocket implements AsyncSocket {
 	}
 	
 	@Override
-	public void disconnect(CompletionHandler<Void, Void> handler) {
+	public CompletableFuture<Void> disconnect() {
         if (channel != null && channel.isOpen()) {
     		try {
     			channel.close();
-    			handler.completed(null, null);
+    			return CompletionHandlerFuture.completeEmpty();
     		} catch (IOException e) {
-    			handler.failed(e, null);
+    			return CompletableFuture.failedFuture(e);
     		}
         } else {
-			handler.completed(null, null);
+			return CompletionHandlerFuture.completeEmpty();
         }
 	}
 	
@@ -58,15 +60,18 @@ public class DirectAsyncSocket implements AsyncSocket {
 	public boolean isOpen() {
 		return channel.isOpen();
 	}
-
+	
 	@Override
-	public <A> void read(ByteBuffer buffer, A attachment, CompletionHandler<Integer, ? super A> handler) {
-		channel.read(buffer, attachment, handler);
+	public <A> CompletableFuture<CompletionHandlerResult<Integer, A>> read(ByteBuffer buffer, A attachment) {
+		CompletableFuture<CompletionHandlerResult<Integer, A>> future = new CompletableFuture<>();
+		channel.read(buffer, new CompletableFutureAttachmentPair<>(future, attachment), CompletableFutureAttachmentPairCompletionHandler.getInstance());
+		return future;
 	}
-
+	
 	@Override
-	public <A> void write(ByteBuffer buffer, A attachment, CompletionHandler<Integer, ? super A> handler) {
-		channel.write(buffer, attachment, handler);
+	public <A> CompletableFuture<CompletionHandlerResult<Integer, A>> write(ByteBuffer buffer, A attachment) {
+		CompletableFuture<CompletionHandlerResult<Integer, A>> future = new CompletableFuture<>();
+		channel.write(buffer, new CompletableFutureAttachmentPair<>(future, attachment), CompletableFutureAttachmentPairCompletionHandler.getInstance());
+		return future;
 	}
-
 }

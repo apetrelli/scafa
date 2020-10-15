@@ -2,7 +2,7 @@ package com.github.apetrelli.scafa.http.client.impl;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.CompletionHandler;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.github.apetrelli.scafa.http.HttpHandler;
@@ -10,7 +10,7 @@ import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.client.HttpClientConnection;
 import com.github.apetrelli.scafa.http.client.HttpClientHandler;
-import com.github.apetrelli.scafa.proto.aio.DelegateFailureCompletionHandler;
+import com.github.apetrelli.scafa.proto.aio.CompletionHandlerFuture;
 
 public class ClientPipelineHttpHandler implements HttpHandler {
 
@@ -32,6 +32,7 @@ public class ClientPipelineHttpHandler implements HttpHandler {
 
     @Override
     public void onConnect() throws IOException {
+    	// Does nothing.
     }
 
     @Override
@@ -48,63 +49,59 @@ public class ClientPipelineHttpHandler implements HttpHandler {
         }
         currentContext.getHandler().onStart();
     }
-
+    
     @Override
-    public void onResponseHeader(HttpResponse response, CompletionHandler<Void, Void> handler) {
+    public CompletableFuture<Void> onResponseHeader(HttpResponse response) {
         currentContext.setResponse(response);
-        currentContext.getHandler().onResponseHeader(currentContext.getRequest(), response, handler);
+        return currentContext.getHandler().onResponseHeader(currentContext.getRequest(), response);
+    }
+    
+    @Override
+    public CompletableFuture<Void> onRequestHeader(HttpRequest request) {
+        return CompletableFuture.failedFuture(new UnsupportedOperationException("This is for responses only"));
     }
 
     @Override
-    public void onRequestHeader(HttpRequest request, CompletionHandler<Void, Void> handler) {
-        handler.failed(new UnsupportedOperationException("This is for responses only"), null);
+    public CompletableFuture<Void> onBody(ByteBuffer buffer, long offset, long length) {
+        return currentContext.getHandler().onBody(currentContext.getRequest(), currentContext.getResponse(), buffer, offset, length);
     }
 
     @Override
-    public void onBody(ByteBuffer buffer, long offset, long length, CompletionHandler<Void, Void> handler) {
-        currentContext.getHandler().onBody(currentContext.getRequest(), currentContext.getResponse(), buffer, offset, length, handler);
+    public CompletableFuture<Void> onChunkStart(long totalOffset, long chunkLength) {
+		return CompletionHandlerFuture.completeEmpty(); // Go on, nothing to call here.
     }
 
     @Override
-    public void onChunkStart(long totalOffset, long chunkLength, CompletionHandler<Void, Void> handler) {
-        handler.completed(null, null); // Go on, nothing to call here.
+    public CompletableFuture<Void> onChunk(ByteBuffer buffer, long totalOffset, long chunkOffset, long chunkLength) {
+        return currentContext.getHandler().onBody(currentContext.getRequest(), currentContext.getResponse(), buffer, totalOffset, -1L);
     }
 
     @Override
-    public void onChunk(ByteBuffer buffer, long totalOffset, long chunkOffset, long chunkLength,
-            CompletionHandler<Void, Void> handler) {
-        currentContext.getHandler().onBody(currentContext.getRequest(), currentContext.getResponse(), buffer, totalOffset, -1L, handler);
+    public CompletableFuture<Void> onChunkEnd() {
+		return CompletionHandlerFuture.completeEmpty(); // Go on, nothing to call here.
     }
 
     @Override
-    public void onChunkEnd(CompletionHandler<Void, Void> handler) {
-        handler.completed(null, null); // Go on, nothing to call here.
+    public CompletableFuture<Void> onChunkedTransferEnd() {
+		return CompletionHandlerFuture.completeEmpty(); // Go on, nothing to call here.
     }
-
+    
     @Override
-    public void onChunkedTransferEnd(CompletionHandler<Void, Void> handler) {
-        handler.completed(null, null); // Go on, nothing to call here.
+    public CompletableFuture<Void> onDataToPassAlong(ByteBuffer buffer) {
+        return CompletableFuture.failedFuture(new UnsupportedOperationException("CONNECT method not supported"));
     }
-
+    
     @Override
-    public void onDataToPassAlong(ByteBuffer buffer, CompletionHandler<Void, Void> handler) {
-        handler.failed(new UnsupportedOperationException("CONNECT method not supported"), null);
-    }
-
-    @Override
-    public void onEnd(CompletionHandler<Void, Void> handler) {
+    public CompletableFuture<Void> onEnd() {
         HttpResponse response = currentContext.getResponse();
-        currentContext.getHandler().onEnd(currentContext.getRequest(), response, new DelegateFailureCompletionHandler<Void, Void>(handler) {
-
-            @Override
-            public void completed(Void result, Void attachment) {
-                if (response != null && "close".equals(response.getHeader("Connection"))) {
-                    connection.disconnect(handler);
-                } else {
-                    handler.completed(null, null);
-                }
-            }
-        });
+        return currentContext.getHandler().onEnd(currentContext.getRequest(), response)
+        		.thenCompose(x -> {
+                    if (response != null && "close".equals(response.getHeader("Connection"))) {
+                        return connection.disconnect();
+                    } else {
+                    	return CompletionHandlerFuture.completeEmpty();
+                    }
+        		});
     }
 
 }

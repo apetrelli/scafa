@@ -1,9 +1,9 @@
 package com.github.apetrelli.scafa.http.client.impl;
 
 import java.io.IOException;
-import java.nio.channels.CompletionHandler;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpRequest;
@@ -12,7 +12,6 @@ import com.github.apetrelli.scafa.http.impl.DirectHttpAsyncSocket;
 import com.github.apetrelli.scafa.http.output.DataSenderFactory;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.AsynchronousSocketChannelFactory;
-import com.github.apetrelli.scafa.proto.aio.IgnoringCompletionHandler;
 import com.github.apetrelli.scafa.proto.aio.impl.DirectClientAsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.impl.SimpleAsynchronousSocketChannelFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
@@ -28,9 +27,9 @@ public class DefaultMappedHttpConnectionFactory implements MappedHttpConnectionF
 	public DefaultMappedHttpConnectionFactory(DataSenderFactory dataSenderFactory) {
         this.dataSenderFactory = dataSenderFactory;
     }
-
-    @Override
-	public void create(HttpRequest request, CompletionHandler<HttpClientConnection, Void> handler) {
+	
+	@Override
+	public CompletableFuture<HttpClientConnection> create(HttpRequest request) {
 		try {
 			HostPort hostPort = request.getHostPort();
 			HttpClientConnection cachedConnection = connectionCache.get(hostPort);
@@ -39,30 +38,18 @@ public class DefaultMappedHttpConnectionFactory implements MappedHttpConnectionF
 			    HttpAsyncSocket<HttpRequest> httpSocket = new DirectHttpAsyncSocket<>(socket, dataSenderFactory);
 				HttpClientConnection connection = new DirectHttpConnection(httpSocket, this);
 				connectionCache.put(hostPort, connection);
-				connection.connect(new CompletionHandler<Void, Void>() {
-
-					@Override
-					public void completed(Void result, Void attachment) {
-						handler.completed(connection, attachment);
-					}
-
-					@Override
-					public void failed(Throwable exc, Void attachment) {
-						handler.failed(exc, attachment);
-					}
-				});
+				return connection.connect().thenApply(x -> connection);
 			} else {
-				handler.completed(cachedConnection, null);
+				return CompletableFuture.completedFuture(cachedConnection);
 			}
 		} catch (IOException e) {
-			handler.failed(e, null);
+			return CompletableFuture.failedFuture(e);
 		}
 	}
 
 	@Override
 	public void disconnectAll() {
-	    CompletionHandler<Void, Void> handler = new IgnoringCompletionHandler<>();
-        connectionCache.values().stream().forEach(t -> t.disconnect(handler));
+        connectionCache.values().stream().forEach(AsyncSocket::disconnect);
         connectionCache.clear();
 	}
 

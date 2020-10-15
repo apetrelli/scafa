@@ -19,73 +19,77 @@ package com.github.apetrelli.scafa.http.impl;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.CompletionHandler;
+import java.util.concurrent.CompletableFuture;
 
 import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
+import com.github.apetrelli.scafa.proto.aio.CompletionHandlerFuture;
 
 public class HttpHandlerSupport implements HttpHandler {
 
     @Override
     public void onConnect() throws IOException {
+    	// Does nothing.
     }
 
     @Override
     public void onStart() {
+    	// Does nothing.
     }
 
     @Override
-    public void onResponseHeader(HttpResponse response, CompletionHandler<Void, Void> handler) {
-        handler.completed(null, null);
+    public CompletableFuture<Void> onResponseHeader(HttpResponse response) {
+    	return CompletionHandlerFuture.completeEmpty();
     }
-
+    
     @Override
-    public void onRequestHeader(HttpRequest request, CompletionHandler<Void, Void> handler) {
-        handler.completed(null, null);
+    public CompletableFuture<Void> onRequestHeader(HttpRequest request) {
+    	return CompletionHandlerFuture.completeEmpty();
     }
-
+    
     @Override
-    public void onBody(ByteBuffer buffer, long offset, long length, CompletionHandler<Void, Void> handler) {
+    public CompletableFuture<Void> onBody(ByteBuffer buffer, long offset, long length) {
         buffer.position(buffer.limit());
-        handler.completed(null, null);
+    	return CompletionHandlerFuture.completeEmpty();
     }
-
+    
     @Override
-    public void onChunkStart(long totalOffset, long chunkLength, CompletionHandler<Void, Void> handler) {
-        handler.completed(null, null);
+    public CompletableFuture<Void> onChunkStart(long totalOffset, long chunkLength) {
+    	return CompletionHandlerFuture.completeEmpty();
     }
-
+    
     @Override
-	public void onChunk(ByteBuffer buffer, long totalOffset, long chunkOffset, long chunkLength,
-			CompletionHandler<Void, Void> handler) {
+    public CompletableFuture<Void> onChunk(ByteBuffer buffer, long totalOffset,
+    		long chunkOffset, long chunkLength) {
         buffer.position(buffer.limit());
-        handler.completed(null, null);
+    	return CompletionHandlerFuture.completeEmpty();
     }
-
+    
     @Override
-    public void onChunkEnd(CompletionHandler<Void, Void> handler) {
-        handler.completed(null, null);
+    public CompletableFuture<Void> onChunkEnd() {
+    	return CompletionHandlerFuture.completeEmpty();
     }
-
+    
     @Override
-    public void onChunkedTransferEnd(CompletionHandler<Void, Void> handler) {
-        handler.completed(null, null);
+    public CompletableFuture<Void> onChunkedTransferEnd() {
+    	return CompletionHandlerFuture.completeEmpty();
     }
-
+    
     @Override
-    public void onDataToPassAlong(ByteBuffer buffer, CompletionHandler<Void, Void> handler) {
+    public CompletableFuture<Void> onDataToPassAlong(ByteBuffer buffer) {
         buffer.position(buffer.limit());
-        handler.completed(null, null);
+    	return CompletionHandlerFuture.completeEmpty();
     }
-
+    
     @Override
-    public void onEnd(CompletionHandler<Void, Void> handler) {
-        handler.completed(null, null);
+    public CompletableFuture<Void> onEnd() {
+    	return CompletionHandlerFuture.completeEmpty();
     }
 
     @Override
     public void onDisconnect() {
+    	// Does nothing.
     }
 
 }

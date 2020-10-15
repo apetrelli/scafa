@@ -18,7 +18,7 @@
 package com.github.apetrelli.scafa.http.proxy;
 
 import java.io.IOException;
-import java.nio.channels.CompletionHandler;
+import java.util.concurrent.CompletableFuture;
 
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
@@ -26,9 +26,9 @@ import com.github.apetrelli.scafa.proto.client.HostPort;
 
 public interface MappedProxyHttpConnectionFactory {
 
-    void create(AsyncSocket sourceChannel, HttpRequest request, CompletionHandler<ProxyHttpConnection, Void> handler);
+    CompletableFuture<ProxyHttpConnection> create(AsyncSocket sourceChannel, HttpRequest request);
 
-    void create(AsyncSocket sourceChannel, HttpConnectRequest request, CompletionHandler<ProxyHttpConnection, Void> handler);
+    CompletableFuture<ProxyHttpConnection> create(AsyncSocket sourceChannel, HttpConnectRequest request);
 
     void disconnectAll() throws IOException;
 

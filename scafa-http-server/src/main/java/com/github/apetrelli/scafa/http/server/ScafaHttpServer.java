@@ -50,7 +50,7 @@ public class ScafaHttpServer {
         AsyncSocketFactory<HttpAsyncSocket<HttpResponse>> asyncSocketFactory = new DirectHttpAsyncSocketFactory<>(dataSenderFactory);
         DefaultProcessorFactory<HttpStatus, HttpProcessingContext, HttpHandler> defaultProcessorFactory = new DefaultProcessorFactory<>(
                 inputProcessorFactory, processingContextFactory);
-		listener = new ScafaListener<HttpHandler, HttpAsyncSocket<HttpResponse>>(asyncSocketFactory, defaultProcessorFactory,
+		listener = new ScafaListener<>(asyncSocketFactory, defaultProcessorFactory,
 				handlerFactory, port, interfaceName, forceIpV4);
         try {
 			listener.listen();

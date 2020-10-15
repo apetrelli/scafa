@@ -18,7 +18,7 @@
 package com.github.apetrelli.scafa.http;
 
 import java.nio.ByteBuffer;
-import java.nio.channels.CompletionHandler;
+import java.util.concurrent.CompletableFuture;
 
 import com.github.apetrelli.scafa.proto.processor.Handler;
 
@@ -26,21 +26,21 @@ public interface HttpHandler extends Handler {
 
     void onStart();
 
-    void onResponseHeader(HttpResponse response, CompletionHandler<Void, Void> handler);
+    CompletableFuture<Void> onResponseHeader(HttpResponse response);
 
-    void onRequestHeader(HttpRequest request, CompletionHandler<Void, Void> handler);
+    CompletableFuture<Void> onRequestHeader(HttpRequest request);
 
-    void onBody(ByteBuffer buffer, long offset, long length, CompletionHandler<Void, Void> handler);
+    CompletableFuture<Void> onBody(ByteBuffer buffer, long offset, long length);
 
-    void onChunkStart(long totalOffset, long chunkLength, CompletionHandler<Void, Void> handler);
+    CompletableFuture<Void> onChunkStart(long totalOffset, long chunkLength);
 
-    void onChunk(ByteBuffer buffer, long totalOffset, long chunkOffset, long chunkLength, CompletionHandler<Void, Void> handler);
+    CompletableFuture<Void> onChunk(ByteBuffer buffer, long totalOffset, long chunkOffset, long chunkLength);
 
-    void onChunkEnd(CompletionHandler<Void, Void> handler);
+    CompletableFuture<Void> onChunkEnd();
 
-    void onChunkedTransferEnd(CompletionHandler<Void, Void> handler);
+    CompletableFuture<Void> onChunkedTransferEnd();
 
-    void onDataToPassAlong(ByteBuffer buffer, CompletionHandler<Void, Void> handler);
+    CompletableFuture<Void> onDataToPassAlong(ByteBuffer buffer);
 
-    void onEnd(CompletionHandler<Void, Void> handler);
+    CompletableFuture<Void> onEnd();
 }
