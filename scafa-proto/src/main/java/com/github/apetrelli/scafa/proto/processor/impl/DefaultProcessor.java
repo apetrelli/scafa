@@ -80,7 +80,10 @@ public class DefaultProcessor<P extends Input, H extends Handler> implements Pro
 		        ByteBuffer buffer = x.getAttachment().getBuffer();
 		        buffer.flip();
 				return processor.process(x.getAttachment())
-						.thenCompose(y -> read(x.getAttachment(), handler, processor));
+						.thenCompose(y -> {
+							x.getAttachment().getBuffer().clear();
+							return read(x.getAttachment(), handler, processor);
+						});
 		    } else {
 		        return disconnect(handler);
 		    }
@@ -89,7 +92,9 @@ public class DefaultProcessor<P extends Input, H extends Handler> implements Pro
     
     private CompletableFuture<Void> disconnect(H handler) {
     	return client.disconnect().handle((x, y) -> {
-            LOG.log(Level.SEVERE, "Error when disposing client", y);
+    		if (y != null) {
+    			LOG.log(Level.SEVERE, "Error when disposing client", y);
+    		}
             return x;
 		}).thenRun(handler::onDisconnect);
     }
