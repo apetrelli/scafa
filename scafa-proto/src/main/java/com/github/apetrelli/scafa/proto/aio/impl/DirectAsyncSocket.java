@@ -1,67 +1,72 @@
 package com.github.apetrelli.scafa.proto.aio.impl;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.Socket;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.channels.AsynchronousSocketChannel;
+import java.nio.channels.CompletionHandler;
 
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.client.HostPort;
+import com.github.apetrelli.scafa.tls.TlsConnectionException;
 
 public class DirectAsyncSocket implements AsyncSocket {
 	
-	protected Socket channel;
-	
-	public DirectAsyncSocket(Socket channel) {
+	protected AsynchronousSocketChannel channel;
+    
+	public DirectAsyncSocket(AsynchronousSocketChannel channel) {
 		this.channel = channel;
 	}
 
 	@Override
-	public void connect() {
-		// Already connected
+	public void connect(CompletionHandler<Void, Void> handler) {
+		handler.completed(null, null); // Already connected.
 	}
 	
 	@Override
 	public HostPort getAddress() {
-		return HostPort.fromSocketAddress(channel.getLocalSocketAddress());
+		HostPort retValue = null;
+		SocketAddress address;
+		try {
+			address = channel.getLocalAddress();
+			if (address instanceof InetSocketAddress) {
+				InetSocketAddress realAddress = (InetSocketAddress) address;
+				retValue = new HostPort(realAddress.getHostName(), realAddress.getPort());
+			}
+		} catch (IOException e) {
+			throw new TlsConnectionException(e);
+		}
+		return retValue;
 	}
 	
 	@Override
-	public void disconnect() {
-        if (channel != null && !channel.isClosed()) {
+	public void disconnect(CompletionHandler<Void, Void> handler) {
+        if (channel != null && channel.isOpen()) {
     		try {
     			channel.close();
+    			handler.completed(null, null);
     		} catch (IOException e) {
-    			throw new IORuntimeException(e);
+    			handler.failed(e, null);
     		}
+        } else {
+			handler.completed(null, null);
         }
 	}
 	
 	@Override
-	public void close() {
-		disconnect();
-	}
-	
-	@Override
 	public boolean isOpen() {
-		return !channel.isClosed();
+		return channel.isOpen();
 	}
-	
+
 	@Override
-	public InputStream getInputStream() {
-		try {
-			return channel.getInputStream();
-		} catch (IOException e) {
-			throw new IORuntimeException(e);
-		}
+	public <A> void read(ByteBuffer buffer, A attachment, CompletionHandler<Integer, ? super A> handler) {
+		channel.read(buffer, attachment, handler);
 	}
-	
+
 	@Override
-	public OutputStream getOutputStream() {
-		try {
-			return channel.getOutputStream();
-		} catch (IOException e) {
-			throw new IORuntimeException(e);
-		}
+	public <A> void write(ByteBuffer buffer, A attachment, CompletionHandler<Integer, ? super A> handler) {
+		channel.write(buffer, attachment, handler);
 	}
+
 }

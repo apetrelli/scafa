@@ -1,9 +1,9 @@
 package com.github.apetrelli.scafa.http.output.impl;
 
-import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.CompletionHandler;
 
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
-import com.github.apetrelli.scafa.proto.aio.impl.IORuntimeException;
 
 public class DirectDataSender extends AbstractDataSender {
 
@@ -12,16 +12,12 @@ public class DirectDataSender extends AbstractDataSender {
     }
 
     @Override
-    public void send(byte[] b, int off, int len) {
-        try {
-			channel.getOutputStream().write(b, off, len);
-		} catch (IOException e) {
-			throw new IORuntimeException(e);
-		}
+    public void send(ByteBuffer buffer, CompletionHandler<Void, Void> completionHandler) {
+        channel.flushBuffer(buffer, completionHandler);
     }
 
     @Override
-    public void end() {
-        // Does nothing
+    public void end(CompletionHandler<Void, Void> completionHandler) {
+        completionHandler.completed(null, null);
     }
 }

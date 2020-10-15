@@ -1,18 +1,23 @@
 package com.github.apetrelli.scafa.proto.processor;
 
-import java.io.InputStream;
+import java.nio.ByteBuffer;
 
 public class SimpleInput implements Input {
 
-	private InputStream stream;
+	private ByteBuffer buffer;
 
 	@Override
-	public InputStream getStream() {
-		return stream;
+	public ByteBuffer getBuffer() {
+		return buffer;
 	}
-	
-	public void setStream(InputStream stream) {
-		this.stream = stream;
+
+	public void setBuffer(ByteBuffer buffer) {
+		this.buffer = buffer;
 	}
-	
+
+	@Override
+	public byte peekNextByte() {
+        return buffer.array()[buffer.position()];
+	}
+
 }

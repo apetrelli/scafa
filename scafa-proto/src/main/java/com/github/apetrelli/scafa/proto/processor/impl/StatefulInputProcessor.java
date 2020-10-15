@@ -17,9 +17,9 @@
  */
 package com.github.apetrelli.scafa.proto.processor.impl;
 
-import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.CompletionHandler;
 
-import com.github.apetrelli.scafa.proto.aio.impl.IORuntimeException;
 import com.github.apetrelli.scafa.proto.processor.InputProcessor;
 import com.github.apetrelli.scafa.proto.processor.ProcessingContext;
 import com.github.apetrelli.scafa.proto.processor.ProtocolStateMachine;
@@ -36,17 +36,25 @@ public class StatefulInputProcessor<H, ST, P extends ProcessingContext<ST>> impl
     }
 
     @Override
-    public void process(P context) {
-    	int c;
-        try {
-			while ((c = context.getStream().read()) >= 0) {
-				byte ch = (byte) c;
-				stateMachine.next(ch, context);
-				stateMachine.out(ch, context, handler);
-			}
-		} catch (IOException e) {
-			throw new IORuntimeException(e);
-		}
+    public void process(P context, CompletionHandler<P, P> completionHandler) {
+        ByteBuffer buffer = context.getBuffer();
+        if (buffer.position() < buffer.limit()) {
+        	stateMachine.next(context);
+        	stateMachine.out(context, handler, new CompletionHandler<Void, Void>() {
+
+				@Override
+				public void completed(Void result, Void attachment) {
+                    process(context, completionHandler);
+				}
+
+				@Override
+				public void failed(Throwable exc, Void attachment) {
+					completionHandler.failed(exc, context);
+				}
+			});
+        } else {
+            completionHandler.completed(context, context);
+        }
     }
 
 }

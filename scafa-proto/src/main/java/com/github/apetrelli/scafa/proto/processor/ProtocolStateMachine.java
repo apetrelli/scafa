@@ -1,8 +1,10 @@
 package com.github.apetrelli.scafa.proto.processor;
 
+import java.nio.channels.CompletionHandler;
+
 public interface ProtocolStateMachine<H, ST, P extends ProcessingContext<ST>> {
 
-	ST next(byte ch, P context);
+	ST next(P context);
 
-	void out(byte ch, P context, H handler);
+	void out(P context, H handler, CompletionHandler<Void, Void> completionHandler);
 }

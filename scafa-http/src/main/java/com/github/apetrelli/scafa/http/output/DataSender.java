@@ -1,8 +1,11 @@
 package com.github.apetrelli.scafa.http.output;
 
+import java.nio.ByteBuffer;
+import java.nio.channels.CompletionHandler;
+
 public interface DataSender {
 
-	void send(byte[] b, int off, int len);
+	void send(ByteBuffer buffer, CompletionHandler<Void, Void> completionHandler);
 
-	void end();
+	void end(CompletionHandler<Void, Void> completionHandler);
 }

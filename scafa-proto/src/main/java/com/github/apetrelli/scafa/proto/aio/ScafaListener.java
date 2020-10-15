@@ -22,9 +22,10 @@ import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.net.SocketException;
+import java.nio.channels.AsynchronousServerSocketChannel;
+import java.nio.channels.AsynchronousSocketChannel;
+import java.nio.channels.CompletionHandler;
 import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -47,9 +48,7 @@ public class ScafaListener<H, S extends AsyncSocket> {
 
     private boolean forceIpV4;
 
-    private ServerSocket server;
-    
-    private boolean listening = true;
+    private AsynchronousServerSocketChannel server;
 
 	public ScafaListener(AsyncSocketFactory<S> asyncSocketFactory, ProcessorFactory<H> processorFactory,
 			HandlerFactory<H, S> handlerFactory, int portNumber, String interfaceName, boolean forceIpV4) {
@@ -67,23 +66,31 @@ public class ScafaListener<H, S extends AsyncSocket> {
     }
 
     public void listen() throws IOException {
-    	server = new ServerSocket(portNumber);
+        server = AsynchronousServerSocketChannel.open().bind(new InetSocketAddress(portNumber));
         bindChannel();
-        while (listening) {
-	        Socket client = server.accept();
-	        Thread.startVirtualThread(() -> {
-	            S socket = asyncSocketFactory.create(client);
+        server.accept((Void) null, new CompletionHandler<AsynchronousSocketChannel, Void>() {
+
+            @Override
+            public void completed(AsynchronousSocketChannel client,
+                    Void attachment) {
+                S socket = asyncSocketFactory.create(client);
 				Processor<H> processor = processorFactory.create(socket);
                 H handler = handlerFactory.create(socket);
                 processor.process(handler);
-	        });
-        }
+                server.accept(null, this);
+            }
+
+            @Override
+            public void failed(Throwable exc, Void attachment) {
+                LOG.log(Level.SEVERE, "Error when accepting connections", exc);
+            }
+        });
+
     }
 
     public void stop() {
         if (server != null) {
             try {
-            	listening = false;
                 server.close();
             } catch (IOException e) {
                 LOG.log(Level.WARNING, "Error when closing server channel", e);

@@ -1,8 +1,8 @@
 package com.github.apetrelli.scafa.proto.aio;
 
-import java.net.Socket;
+import java.nio.channels.AsynchronousSocketChannel;
 
 public interface AsyncSocketFactory<T extends AsyncSocket> {
 
-	T create(Socket channel);
+	T create(AsynchronousSocketChannel channel);
 }

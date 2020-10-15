@@ -17,9 +17,11 @@
  */
 package com.github.apetrelli.scafa.proto.processor;
 
-import java.io.InputStream;
+import java.nio.ByteBuffer;
 
 public interface Input {
 
-    InputStream getStream();
+    ByteBuffer getBuffer();
+
+    byte peekNextByte();
 }
