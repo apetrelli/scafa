@@ -6,7 +6,7 @@ import java.util.concurrent.CompletableFuture;
 
 public interface BufferContextReader extends Closeable {
 
-	CompletableFuture<CompletionHandlerResult<Integer, BufferContext>> read(BufferContext context);
+	CompletableFuture<Integer> read(BufferContext context);
 
 	void close() throws IOException;
 }

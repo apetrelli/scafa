@@ -91,7 +91,7 @@ public class DefaultHttpClient implements HttpClient {
 	private CompletableFuture<Void> transferPayload(HttpRequest realRequest, BufferContextReader payloadReader,
 			HttpClientHandler handler, HttpClientConnection connection, BufferContext fileContext) {
 		return payloadReader.read(fileContext).thenCompose(y -> {
-			if (y.getResult() >= 0) {
+			if (y >= 0) {
 				return connection.sendData(fileContext.getBuffer()).thenCompose(x -> {
 					fileContext.getBuffer().clear();
 					return transferPayload(realRequest, payloadReader, handler, connection, fileContext);

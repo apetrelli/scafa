@@ -7,7 +7,6 @@ import java.util.concurrent.CompletableFuture;
 
 import com.github.apetrelli.scafa.proto.aio.BufferContext;
 import com.github.apetrelli.scafa.proto.aio.BufferContextReader;
-import com.github.apetrelli.scafa.proto.aio.CompletionHandlerResult;
 import com.github.apetrelli.scafa.tls.util.IOUtils;
 
 public class PathBufferContextReader implements BufferContextReader {
@@ -19,26 +18,25 @@ public class PathBufferContextReader implements BufferContextReader {
 	}
 	
 	@Override
-	public CompletableFuture<CompletionHandlerResult<Integer, BufferContext>> read(BufferContext context) {
-		CompletableFuture<CompletionHandlerResult<Integer, BufferContext>> future = new CompletableFuture<>();
-		channel.read(context.getBuffer(), context.getPosition(), new CompletableFutureAttachmentPair<>(future, context), new CompletionHandler<Integer, CompletableFutureAttachmentPair<Integer, BufferContext>>() {
+	public CompletableFuture<Integer> read(BufferContext context) {
+		CompletableFuture<Integer> future = new CompletableFuture<>();
+		channel.read(context.getBuffer(), context.getPosition(), future, new CompletionHandler<Integer, CompletableFuture<Integer>>() {
 
 			@Override
-			public void completed(Integer result, CompletableFutureAttachmentPair<Integer, BufferContext> attachment) {
-				BufferContext context = attachment.getAttachment();
+			public void completed(Integer result, CompletableFuture<Integer> attachment) {
 				if (result >= 0) {
 					context.moveForwardBy(result);
 					context.getBuffer().flip();
 				} else {
 					IOUtils.closeQuietly(channel);
 				}
-				attachment.getFuture().complete(new CompletionHandlerResult<>(result, context));
+				attachment.complete(result);
 			}
 			
 			@Override
-			public void failed(Throwable exc, CompletableFutureAttachmentPair<Integer, BufferContext> attachment) {
+			public void failed(Throwable exc, CompletableFuture<Integer> attachment) {
 				IOUtils.closeQuietly(channel);
-				attachment.getFuture().completeExceptionally(exc);
+				attachment.completeExceptionally(exc);
 			}
 		});
 

@@ -9,7 +9,6 @@ import java.util.concurrent.CompletableFuture;
 
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.CompletionHandlerFuture;
-import com.github.apetrelli.scafa.proto.aio.CompletionHandlerResult;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.tls.TlsConnectionException;
 
@@ -62,16 +61,16 @@ public class DirectAsyncSocket implements AsyncSocket {
 	}
 	
 	@Override
-	public <A> CompletableFuture<CompletionHandlerResult<Integer, A>> read(ByteBuffer buffer, A attachment) {
-		CompletableFuture<CompletionHandlerResult<Integer, A>> future = new CompletableFuture<>();
-		channel.read(buffer, new CompletableFutureAttachmentPair<>(future, attachment), CompletableFutureAttachmentPairCompletionHandler.getInstance());
+	public CompletableFuture<Integer> read(ByteBuffer buffer) {
+		CompletableFuture<Integer> future = new CompletableFuture<>();
+		channel.read(buffer, future, CompletableFutureCompletionHandler.getInstance());
 		return future;
 	}
 	
 	@Override
-	public <A> CompletableFuture<CompletionHandlerResult<Integer, A>> write(ByteBuffer buffer, A attachment) {
-		CompletableFuture<CompletionHandlerResult<Integer, A>> future = new CompletableFuture<>();
-		channel.write(buffer, new CompletableFutureAttachmentPair<>(future, attachment), CompletableFutureAttachmentPairCompletionHandler.getInstance());
+	public CompletableFuture<Integer> write(ByteBuffer buffer) {
+		CompletableFuture<Integer> future = new CompletableFuture<>();
+		channel.write(buffer, future, CompletableFutureCompletionHandler.getInstance());
 		return future;
 	}
 }

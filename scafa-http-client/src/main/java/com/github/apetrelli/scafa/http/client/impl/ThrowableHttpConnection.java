@@ -24,7 +24,6 @@ import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.client.HttpClientConnection;
 import com.github.apetrelli.scafa.http.client.HttpClientHandler;
 import com.github.apetrelli.scafa.proto.aio.CompletionHandlerFuture;
-import com.github.apetrelli.scafa.proto.aio.CompletionHandlerResult;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 
 public class ThrowableHttpConnection implements HttpClientConnection {
@@ -81,13 +80,13 @@ public class ThrowableHttpConnection implements HttpClientConnection {
     }
     
     @Override
-    public <A> CompletableFuture<CompletionHandlerResult<Integer, A>> read(ByteBuffer buffer, A attachment) {
-		return CompletionHandlerFuture.complete(-1, attachment);
+    public CompletableFuture<Integer> read(ByteBuffer buffer) {
+		return CompletableFuture.completedFuture(-1);
     }
 
     @Override
-    public <A> CompletableFuture<CompletionHandlerResult<Integer, A>> write(ByteBuffer buffer, A attachment) {
-		return CompletionHandlerFuture.complete(-1, attachment);
+    public CompletableFuture<Integer> write(ByteBuffer buffer) {
+		return CompletableFuture.completedFuture(-1);
     }
 
     @Override

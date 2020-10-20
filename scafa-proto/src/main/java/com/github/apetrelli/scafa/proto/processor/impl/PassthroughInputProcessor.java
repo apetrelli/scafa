@@ -18,14 +18,13 @@ public class PassthroughInputProcessor<P extends Input> implements InputProcesso
 	
 	@Override
 	public CompletableFuture<P> process(P context) {
-		return channel.write(context.getBuffer(), context).thenCompose(x -> {
-        	P attachment = x.getAttachment();
-			ByteBuffer buffer = attachment.getBuffer();
-        	if (x.getResult() >= 0) {
+		return channel.write(context.getBuffer()).thenCompose(x -> {
+			ByteBuffer buffer = context.getBuffer();
+        	if (x >= 0) {
 				if (buffer.hasRemaining()) {
-	        		return process(attachment);
+	        		return process(context);
 	        	} else  {
-	        		return CompletableFuture.completedFuture(attachment);
+	        		return CompletableFuture.completedFuture(context);
 	        	}
         	} else {
         		return CompletableFuture.failedFuture(new IOException("Source channel closed"));
