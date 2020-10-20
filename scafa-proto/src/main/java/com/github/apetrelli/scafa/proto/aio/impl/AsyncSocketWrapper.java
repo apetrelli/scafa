@@ -4,7 +4,6 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
 
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
-import com.github.apetrelli.scafa.proto.aio.CompletionHandlerResult;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 
 public class AsyncSocketWrapper<T extends AsyncSocket> implements AsyncSocket {
@@ -30,13 +29,13 @@ public class AsyncSocketWrapper<T extends AsyncSocket> implements AsyncSocket {
 	}
 	
 	@Override
-	public <A> CompletableFuture<CompletionHandlerResult<Integer, A>> read(ByteBuffer buffer, A attachment) {
-		return socket.read(buffer, attachment);
+	public CompletableFuture<Integer> read(ByteBuffer buffer) {
+		return socket.read(buffer);
 	}
 	
 	@Override
-	public <A> CompletableFuture<CompletionHandlerResult<Integer, A>> write(ByteBuffer buffer, A attachment) {
-		return socket.write(buffer, attachment);
+	public CompletableFuture<Integer> write(ByteBuffer buffer) {
+		return socket.write(buffer);
 	}
 
 	public boolean isOpen() {

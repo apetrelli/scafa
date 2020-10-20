@@ -13,15 +13,14 @@ public interface AsyncSocket {
 	
 	CompletableFuture<Void> disconnect();
 	
-	<A> CompletableFuture<CompletionHandlerResult<Integer, A>> read(ByteBuffer buffer, A attachment);
+	CompletableFuture<Integer> read(ByteBuffer buffer);
 	
-	<A> CompletableFuture<CompletionHandlerResult<Integer, A>> write(ByteBuffer buffer, A attachment);
+	CompletableFuture<Integer> write(ByteBuffer buffer);
 	
 	default CompletableFuture<Void> flushBuffer(ByteBuffer buffer) {
-		return write(buffer, buffer).thenCompose(x -> {
-			ByteBuffer attachment = x.getAttachment();
-			if (attachment.hasRemaining()) {
-				return flushBuffer(attachment);
+		return write(buffer).thenCompose(x -> {
+			if (buffer.hasRemaining()) {
+				return flushBuffer(buffer);
 			}
 			return CompletionHandlerFuture.completeEmpty();
 		});

@@ -79,14 +79,14 @@ public class DefaultProcessor<P extends Input, H extends Handler> implements Pro
     }
 
 	private CompletableFuture<Void> read(P context, H handler, InputProcessor<P> processor) {
-		return client.read(context.getBuffer(), context).thenCompose(x -> {
-		    if (x.getResult() >= 0) {
-		        ByteBuffer buffer = x.getAttachment().getBuffer();
+		return client.read(context.getBuffer()).thenCompose(x -> {
+		    if (x >= 0) {
+		        ByteBuffer buffer = context.getBuffer();
 		        buffer.flip();
-				return processor.process(x.getAttachment())
+				return processor.process(context)
 						.thenCompose(y -> {
-							x.getAttachment().getBuffer().clear();
-							return read(x.getAttachment(), handler, processor);
+							context.getBuffer().clear();
+							return read(context, handler, processor);
 						});
 		    } else {
 		        return disconnect(handler);

@@ -69,8 +69,8 @@ public class DefaultHttpServer implements HttpServer {
 	private CompletableFuture<Void> transferPayload(BufferContextReader payloadReader, DataSender sender,
 			BufferContext fileContext) {
 		return payloadReader.read(fileContext).thenCompose(y -> {
-			if (y.getResult() >= 0) {
-				return sender.send(y.getAttachment().getBuffer()).thenCompose(x -> {
+			if (y >= 0) {
+				return sender.send(fileContext.getBuffer()).thenCompose(x -> {
 					fileContext.getBuffer().clear();
 					return transferPayload(payloadReader, sender, fileContext);
 				});
