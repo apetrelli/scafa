@@ -18,56 +18,32 @@
 package com.github.apetrelli.scafa.proto.aio;
 
 import java.io.IOException;
-import java.net.Inet4Address;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.nio.channels.AsynchronousServerSocketChannel;
-import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.github.apetrelli.scafa.proto.aio.impl.DirectAsyncServerSocket;
 import com.github.apetrelli.scafa.proto.processor.Processor;
 
 public class ScafaListener<H, S extends AsyncSocket> {
 
     private static final Logger LOG = Logger.getLogger(ScafaListener.class.getName());
-
-    private AsyncSocketFactory<S> asyncSocketFactory;
+    
+    private AsyncServerSocketFactory<S> asyncServerSocketFactory;
     
     private ProcessorFactory<H> processorFactory;
 
     private HandlerFactory<H, S> handlerFactory;
 
-    private int portNumber;
-
-    private String interfaceName;
-
-    private boolean forceIpV4;
-
     private AsyncServerSocket<S> server;
 
-	public ScafaListener(AsyncSocketFactory<S> asyncSocketFactory, ProcessorFactory<H> processorFactory,
-			HandlerFactory<H, S> handlerFactory, int portNumber, String interfaceName, boolean forceIpV4) {
-		this.asyncSocketFactory = asyncSocketFactory;
+	public ScafaListener(AsyncServerSocketFactory<S> asyncServerSocketFactory, ProcessorFactory<H> processorFactory,
+			HandlerFactory<H, S> handlerFactory) {
+		this.asyncServerSocketFactory = asyncServerSocketFactory;
         this.processorFactory = processorFactory;
         this.handlerFactory = handlerFactory;
-        this.portNumber = portNumber;
-        this.interfaceName = interfaceName;
-        this.forceIpV4 = forceIpV4;
-    }
-
-	public ScafaListener(AsyncSocketFactory<S> asyncSocketFactory, ProcessorFactory<H> processorFactory,
-			HandlerFactory<H, S> handlerFactory, int portNumber) {
-    	this(asyncSocketFactory, processorFactory, handlerFactory, portNumber, null, false);
     }
 
     public void listen() throws IOException {
-    	AsynchronousServerSocketChannel server = AsynchronousServerSocketChannel.open().bind(new InetSocketAddress(portNumber)); // NOSONAR
-        bindChannel(server);
-        this.server = new DirectAsyncServerSocket<>(server, asyncSocketFactory);
+    	this.server = asyncServerSocketFactory.create();
         accept();
     }
 
@@ -88,30 +64,6 @@ public class ScafaListener<H, S extends AsyncSocket> {
             } catch (IOException e) {
                 LOG.log(Level.WARNING, "Error when closing server channel", e);
             }
-        }
-    }
-
-    private void bindChannel(AsynchronousServerSocketChannel server) throws IOException {
-        if (interfaceName != null) {
-            NetworkInterface intf = NetworkInterface.getByName(interfaceName);
-            if (!intf.isUp()) {
-                throw new SocketException("The interface " + interfaceName + " is not connected");
-            }
-            Enumeration<InetAddress> addresses = intf.getInetAddresses();
-            if (!addresses.hasMoreElements()) {
-                throw new SocketException("The interface " + interfaceName + " has no addresses");
-            }
-            InetAddress address = null;
-            while (addresses.hasMoreElements() && address == null) {
-                InetAddress currentAddress = addresses.nextElement();
-                if (!forceIpV4 || currentAddress instanceof Inet4Address) {
-                    address = currentAddress;
-                }
-            }
-            if (address == null) {
-                throw new SocketException("Not able to find a feasible address for interface " + interfaceName);
-            }
-            server.bind(new InetSocketAddress(address, 0));
         }
     }
 }

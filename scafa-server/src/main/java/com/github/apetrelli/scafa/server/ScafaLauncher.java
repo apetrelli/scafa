@@ -39,12 +39,12 @@ import com.github.apetrelli.scafa.http.output.DataSenderFactory;
 import com.github.apetrelli.scafa.http.output.impl.DefaultDataSenderFactory;
 import com.github.apetrelli.scafa.http.proxy.impl.DefaultHttpConnectionFactoryFactory;
 import com.github.apetrelli.scafa.http.proxy.impl.ProxyHttpHandlerFactory;
+import com.github.apetrelli.scafa.proto.aio.AsyncServerSocketFactory;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
-import com.github.apetrelli.scafa.proto.aio.AsyncSocketFactory;
 import com.github.apetrelli.scafa.proto.aio.AsynchronousSocketChannelFactory;
 import com.github.apetrelli.scafa.proto.aio.ScafaListener;
 import com.github.apetrelli.scafa.proto.aio.impl.DefaultProcessorFactory;
-import com.github.apetrelli.scafa.proto.aio.impl.SimpleAsyncSocketFactory;
+import com.github.apetrelli.scafa.proto.aio.impl.DirectAsyncServerSocketFactory;
 import com.github.apetrelli.scafa.proto.aio.impl.SimpleAsynchronousSocketChannelFactory;
 import com.github.apetrelli.scafa.proto.processor.impl.StatefulInputProcessorFactory;
 import com.github.apetrelli.scafa.server.config.ConfigurationProxyHttpConnectionFactory;
@@ -118,10 +118,10 @@ public class ScafaLauncher {
                     new ConfigurationProxyHttpConnectionFactory(configuration, channelFactory, dataSenderFactory));
             HttpProcessingContextFactory processingContextFactory = new HttpProcessingContextFactory();
             ProxyHttpHandlerFactory proxyHttpHandlerFactory = new ProxyHttpHandlerFactory(connectionFactoryFactory);
-            AsyncSocketFactory<AsyncSocket> asyncSocketFactory = new SimpleAsyncSocketFactory();
+            AsyncServerSocketFactory<AsyncSocket> asyncServerSocketFactory = new DirectAsyncServerSocketFactory(port);
             DefaultProcessorFactory<HttpStatus, HttpProcessingContext, HttpHandler> defaultProcessorFactory = new DefaultProcessorFactory<>(
                     inputProcessorFactory, processingContextFactory);
-            proxy = new ScafaListener<>(asyncSocketFactory, defaultProcessorFactory, proxyHttpHandlerFactory, port);
+            proxy = new ScafaListener<>(asyncServerSocketFactory, defaultProcessorFactory, proxyHttpHandlerFactory);
             proxy.listen();
         } catch (IOException e) {
             LOG.log(Level.SEVERE, "Cannot start proxy", e);

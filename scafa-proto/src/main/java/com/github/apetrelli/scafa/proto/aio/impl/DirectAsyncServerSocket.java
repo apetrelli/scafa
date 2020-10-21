@@ -8,31 +8,27 @@ import java.util.concurrent.CompletableFuture;
 
 import com.github.apetrelli.scafa.proto.aio.AsyncServerSocket;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
-import com.github.apetrelli.scafa.proto.aio.AsyncSocketFactory;
 
-public class DirectAsyncServerSocket<T extends AsyncSocket> implements AsyncServerSocket<T> {
+public class DirectAsyncServerSocket implements AsyncServerSocket<AsyncSocket> {
 
 	private AsynchronousServerSocketChannel channel;
 
-	private AsyncSocketFactory<T> asyncSocketFactory;
-
-	public DirectAsyncServerSocket(AsynchronousServerSocketChannel channel, AsyncSocketFactory<T> asyncSocketFactory) {
+	public DirectAsyncServerSocket(AsynchronousServerSocketChannel channel) {
 		this.channel = channel;
-		this.asyncSocketFactory = asyncSocketFactory;
 	}
 
 	@Override
-	public CompletableFuture<T> accept() {
-		CompletableFuture<T> future = new CompletableFuture<>();
+	public CompletableFuture<AsyncSocket> accept() {
+		CompletableFuture<AsyncSocket> future = new CompletableFuture<>();
 		channel.accept(future, new CompletionHandler<>() {
 
 			@Override
-			public void completed(AsynchronousSocketChannel result, CompletableFuture<T> attachment) {
-				attachment.complete(asyncSocketFactory.create(result));
+			public void completed(AsynchronousSocketChannel result, CompletableFuture<AsyncSocket> attachment) {
+				attachment.complete(new DirectAsyncSocket(result));
 			}
 
 			@Override
-			public void failed(Throwable exc, CompletableFuture<T> attachment) {
+			public void failed(Throwable exc, CompletableFuture<AsyncSocket> attachment) {
 				attachment.completeExceptionally(exc);
 			}
 		});
