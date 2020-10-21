@@ -28,13 +28,12 @@ import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
-import com.github.apetrelli.scafa.proto.aio.AsynchronousSocketChannelFactory;
-import com.github.apetrelli.scafa.proto.aio.impl.DirectClientAsyncSocket;
+import com.github.apetrelli.scafa.proto.aio.AsyncSocketFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 
 public class NtlmProxyHttpConnectionFactory implements ProxyHttpConnectionFactory {
 
-	private AsynchronousSocketChannelFactory channelFactory;
+	private AsyncSocketFactory<AsyncSocket> socketFactory;
 
 	private DataSenderFactory dataSenderFactory;
 
@@ -50,11 +49,11 @@ public class NtlmProxyHttpConnectionFactory implements ProxyHttpConnectionFactor
 
 	private HttpStateMachine stateMachine;
 
-	public NtlmProxyHttpConnectionFactory(AsynchronousSocketChannelFactory channelFactory,
+	public NtlmProxyHttpConnectionFactory(AsyncSocketFactory<AsyncSocket> socketFactory,
 			DataSenderFactory dataSenderFactory, HostPort proxySocketAddress, String interfaceName, boolean forceIpV4,
 			String domain, String username, String password, HttpRequestManipulator manipulator,
 			HttpStateMachine stateMachine) {
-		this.channelFactory = channelFactory;
+		this.socketFactory = socketFactory;
 		this.dataSenderFactory = dataSenderFactory;
 		this.proxySocketAddress = proxySocketAddress;
 		this.interfaceName = interfaceName;
@@ -69,7 +68,7 @@ public class NtlmProxyHttpConnectionFactory implements ProxyHttpConnectionFactor
 	@Override
 	public ProxyHttpConnection create(MappedProxyHttpConnectionFactory factory, AsyncSocket sourceChannel,
 			HostPort socketAddress) {
-		AsyncSocket socket = new DirectClientAsyncSocket(channelFactory, proxySocketAddress, interfaceName, forceIpV4);
+		AsyncSocket socket = socketFactory.create(proxySocketAddress, interfaceName, forceIpV4);
 		HttpAsyncSocket<HttpRequest> httpSocket = new DirectHttpAsyncSocket<>(socket, dataSenderFactory);
 		HttpAsyncSocket<HttpResponse> httpSourceSocket = new DirectHttpAsyncSocket<>(sourceChannel, dataSenderFactory);
 		return new NtlmProxyHttpConnection(factory, httpSourceSocket, httpSocket, socketAddress, domain, username,

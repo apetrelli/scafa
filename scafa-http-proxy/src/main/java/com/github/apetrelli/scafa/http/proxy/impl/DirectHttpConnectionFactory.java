@@ -19,20 +19,18 @@ package com.github.apetrelli.scafa.http.proxy.impl;
 
 import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpRequest;
-import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.impl.DirectHttpAsyncSocket;
 import com.github.apetrelli.scafa.http.output.DataSenderFactory;
 import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
-import com.github.apetrelli.scafa.proto.aio.AsynchronousSocketChannelFactory;
-import com.github.apetrelli.scafa.proto.aio.impl.DirectClientAsyncSocket;
+import com.github.apetrelli.scafa.proto.aio.AsyncSocketFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 
 public class DirectHttpConnectionFactory implements ProxyHttpConnectionFactory {
 
-	private AsynchronousSocketChannelFactory channelFactory;
+	private AsyncSocketFactory<AsyncSocket> socketFactory;
 
 	private DataSenderFactory dataSenderFactory;
 
@@ -40,14 +38,14 @@ public class DirectHttpConnectionFactory implements ProxyHttpConnectionFactory {
 
 	private boolean forceIpV4;
 
-	public DirectHttpConnectionFactory(AsynchronousSocketChannelFactory channelFactory,
+	public DirectHttpConnectionFactory(AsyncSocketFactory<AsyncSocket> socketFactory,
 			DataSenderFactory dataSenderFactory) {
-		this(channelFactory, dataSenderFactory, null, false);
+		this(socketFactory, dataSenderFactory, null, false);
 	}
 
-	public DirectHttpConnectionFactory(AsynchronousSocketChannelFactory channelFactory,
+	public DirectHttpConnectionFactory(AsyncSocketFactory<AsyncSocket> socketFactory,
 			DataSenderFactory dataSenderFactory, String interfaceName, boolean forceIpV4) {
-		this.channelFactory = channelFactory;
+		this.socketFactory = socketFactory;
 		this.dataSenderFactory = dataSenderFactory;
 		this.interfaceName = interfaceName;
 		this.forceIpV4 = forceIpV4;
@@ -56,9 +54,9 @@ public class DirectHttpConnectionFactory implements ProxyHttpConnectionFactory {
 	@Override
 	public ProxyHttpConnection create(MappedProxyHttpConnectionFactory factory, AsyncSocket sourceChannel,
 			HostPort socketAddress) {
-		AsyncSocket socket = new DirectClientAsyncSocket(channelFactory, socketAddress, interfaceName, forceIpV4);
+		AsyncSocket socket = socketFactory.create(socketAddress, interfaceName, forceIpV4);
 		HttpAsyncSocket<HttpRequest> httpSocket = new DirectHttpAsyncSocket<>(socket, dataSenderFactory);
-		return new DirectProxyHttpConnection(factory, new DirectHttpAsyncSocket<HttpResponse>(sourceChannel, dataSenderFactory),
+		return new DirectProxyHttpConnection(factory, new DirectHttpAsyncSocket<>(sourceChannel, dataSenderFactory),
 				httpSocket);
 	}
 

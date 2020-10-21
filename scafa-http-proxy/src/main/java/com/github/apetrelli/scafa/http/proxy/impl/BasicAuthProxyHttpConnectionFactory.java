@@ -26,13 +26,12 @@ import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
-import com.github.apetrelli.scafa.proto.aio.AsynchronousSocketChannelFactory;
-import com.github.apetrelli.scafa.proto.aio.impl.DirectClientAsyncSocket;
+import com.github.apetrelli.scafa.proto.aio.AsyncSocketFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 
 public class BasicAuthProxyHttpConnectionFactory implements ProxyHttpConnectionFactory {
 
-	private AsynchronousSocketChannelFactory channelFactory;
+	private AsyncSocketFactory<AsyncSocket> socketFactory;
 
 	private DataSenderFactory dataSenderFactory;
 
@@ -46,10 +45,10 @@ public class BasicAuthProxyHttpConnectionFactory implements ProxyHttpConnectionF
 
 	private HttpRequestManipulator manipulator;
 
-	public BasicAuthProxyHttpConnectionFactory(AsynchronousSocketChannelFactory channelFactory,
+	public BasicAuthProxyHttpConnectionFactory(AsyncSocketFactory<AsyncSocket> socketFactory,
 			DataSenderFactory dataSenderFactory, HostPort proxySocketAddress, String interfaceName, boolean forceIpV4,
 			String username, String password, HttpRequestManipulator manipulator) {
-		this.channelFactory = channelFactory;
+		this.socketFactory = socketFactory;
 		this.dataSenderFactory = dataSenderFactory;
 		this.proxySocketAddress = proxySocketAddress;
 		this.interfaceName = interfaceName;
@@ -62,7 +61,7 @@ public class BasicAuthProxyHttpConnectionFactory implements ProxyHttpConnectionF
 	@Override
 	public ProxyHttpConnection create(MappedProxyHttpConnectionFactory factory, AsyncSocket sourceChannel,
 			HostPort socketAddress) {
-		AsyncSocket socket = new DirectClientAsyncSocket(channelFactory, proxySocketAddress, interfaceName, forceIpV4);
+		AsyncSocket socket = socketFactory.create(proxySocketAddress, interfaceName, forceIpV4);
 		HttpAsyncSocket<HttpRequest> httpSocket = new DirectHttpAsyncSocket<>(socket, dataSenderFactory);
 		return new BasicAuthProxyHttpConnection(factory, sourceChannel, httpSocket, socketAddress, manipulator, username,
 				password);
