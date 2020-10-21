@@ -9,15 +9,17 @@ import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpProcessingContext;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.HttpStatus;
-import com.github.apetrelli.scafa.http.impl.DirectHttpAsyncSocketFactory;
+import com.github.apetrelli.scafa.http.impl.HttpAsyncServerSocketFactory;
 import com.github.apetrelli.scafa.http.impl.HttpProcessingContextFactory;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
 import com.github.apetrelli.scafa.http.output.DataSenderFactory;
 import com.github.apetrelli.scafa.http.output.impl.DefaultDataSenderFactory;
 import com.github.apetrelli.scafa.http.server.impl.HttpServerHandlerAdapterFactory;
-import com.github.apetrelli.scafa.proto.aio.AsyncSocketFactory;
+import com.github.apetrelli.scafa.proto.aio.AsyncServerSocketFactory;
+import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.ScafaListener;
 import com.github.apetrelli.scafa.proto.aio.impl.DefaultProcessorFactory;
+import com.github.apetrelli.scafa.proto.aio.impl.DirectAsyncServerSocketFactory;
 import com.github.apetrelli.scafa.proto.processor.impl.StatefulInputProcessorFactory;
 
 public class ScafaHttpServer {
@@ -47,11 +49,12 @@ public class ScafaHttpServer {
         HttpProcessingContextFactory processingContextFactory = new HttpProcessingContextFactory();
         HttpServerHandlerAdapterFactory handlerFactory = new HttpServerHandlerAdapterFactory(factory);
         DataSenderFactory dataSenderFactory = new DefaultDataSenderFactory();
-        AsyncSocketFactory<HttpAsyncSocket<HttpResponse>> asyncSocketFactory = new DirectHttpAsyncSocketFactory<>(dataSenderFactory);
+        AsyncServerSocketFactory<AsyncSocket> serverSocketFactory = new DirectAsyncServerSocketFactory(port, interfaceName, forceIpV4);
+        AsyncServerSocketFactory<HttpAsyncSocket<HttpResponse>> httpServerSocketFactory = new HttpAsyncServerSocketFactory<>(serverSocketFactory, dataSenderFactory);
         DefaultProcessorFactory<HttpStatus, HttpProcessingContext, HttpHandler> defaultProcessorFactory = new DefaultProcessorFactory<>(
                 inputProcessorFactory, processingContextFactory);
-		listener = new ScafaListener<>(asyncSocketFactory, defaultProcessorFactory,
-				handlerFactory, port, interfaceName, forceIpV4);
+		listener = new ScafaListener<>(httpServerSocketFactory, defaultProcessorFactory,
+				handlerFactory);
         try {
 			listener.listen();
 		} catch (IOException e) {
