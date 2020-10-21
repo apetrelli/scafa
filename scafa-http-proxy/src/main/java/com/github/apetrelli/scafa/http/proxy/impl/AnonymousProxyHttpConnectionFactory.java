@@ -26,13 +26,12 @@ import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
-import com.github.apetrelli.scafa.proto.aio.AsynchronousSocketChannelFactory;
-import com.github.apetrelli.scafa.proto.aio.impl.DirectClientAsyncSocket;
+import com.github.apetrelli.scafa.proto.aio.AsyncSocketFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 
 public class AnonymousProxyHttpConnectionFactory implements ProxyHttpConnectionFactory {
 
-	private AsynchronousSocketChannelFactory channelFactory;
+	private AsyncSocketFactory<AsyncSocket> socketFactory;
 
 	private DataSenderFactory dataSenderFactory;
 
@@ -44,10 +43,10 @@ public class AnonymousProxyHttpConnectionFactory implements ProxyHttpConnectionF
 
 	private HttpRequestManipulator manipulator;
 
-	public AnonymousProxyHttpConnectionFactory(AsynchronousSocketChannelFactory channelFactory,
+	public AnonymousProxyHttpConnectionFactory(AsyncSocketFactory<AsyncSocket> socketFactory,
 			DataSenderFactory dataSenderFactory, HostPort proxySocketAddress, String interfaceName, boolean forceIpV4,
 			HttpRequestManipulator manipulator) {
-		this.channelFactory = channelFactory;
+		this.socketFactory = socketFactory;
 		this.dataSenderFactory = dataSenderFactory;
 		this.proxySocketAddress = proxySocketAddress;
 		this.interfaceName = interfaceName;
@@ -58,8 +57,8 @@ public class AnonymousProxyHttpConnectionFactory implements ProxyHttpConnectionF
 	@Override
 	public ProxyHttpConnection create(MappedProxyHttpConnectionFactory factory, AsyncSocket sourceChannel,
 			HostPort socketAddress) {
-		AsyncSocket socket = new DirectClientAsyncSocket(channelFactory, proxySocketAddress, interfaceName, forceIpV4);
-		HttpAsyncSocket<HttpRequest> httpSocket = new DirectHttpAsyncSocket<HttpRequest>(socket, dataSenderFactory);
+		AsyncSocket socket = socketFactory.create(proxySocketAddress, interfaceName, forceIpV4);
+		HttpAsyncSocket<HttpRequest> httpSocket = new DirectHttpAsyncSocket<>(socket, dataSenderFactory);
 		return new AnonymousProxyHttpConnection(factory, sourceChannel, httpSocket, socketAddress, manipulator);
 	}
 

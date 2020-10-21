@@ -27,7 +27,8 @@ import org.ini4j.InvalidFileFormatException;
 
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
 import com.github.apetrelli.scafa.http.output.DataSenderFactory;
-import com.github.apetrelli.scafa.proto.aio.AsynchronousSocketChannelFactory;
+import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
+import com.github.apetrelli.scafa.proto.aio.AsyncSocketFactory;
 import com.github.apetrelli.scafa.server.ConfigurationUtils;
 import com.github.apetrelli.scafa.server.config.Configuration;
 import com.github.apetrelli.scafa.server.config.ServerConfiguration;
@@ -38,21 +39,21 @@ public class IniConfiguration implements Configuration {
 
     private List<ServerConfiguration> serverConfigurations;
 
-    public static IniConfiguration create(String profile, AsynchronousSocketChannelFactory channelFactory,
+    public static IniConfiguration create(String profile, AsyncSocketFactory<AsyncSocket> socketFactory,
             DataSenderFactory dataSenderFactory, HttpStateMachine stateMachine)
             throws InvalidFileFormatException, IOException {
         if (profile == null) {
             profile = "direct";
         }
         Ini ini = ConfigurationUtils.loadIni(profile);
-        return new IniConfiguration(ini, channelFactory, dataSenderFactory, stateMachine);
+        return new IniConfiguration(ini, socketFactory, dataSenderFactory, stateMachine);
     }
 
-    private IniConfiguration(Ini ini, AsynchronousSocketChannelFactory channelFactory,
+    private IniConfiguration(Ini ini, AsyncSocketFactory<AsyncSocket> socketFactory,
             DataSenderFactory dataSenderFactory, HttpStateMachine stateMachine) {
         this.ini = ini;
         serverConfigurations = ini.keySet().stream().filter(t -> !"main".equals(t))
-                .map(t -> new IniServerConfiguration(ini.get(t), channelFactory, dataSenderFactory, stateMachine))
+                .map(t -> new IniServerConfiguration(ini.get(t), socketFactory, dataSenderFactory, stateMachine))
                 .collect(Collectors.toList());
     }
 

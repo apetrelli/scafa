@@ -6,13 +6,13 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.nio.channels.AsynchronousSocketChannel;
 import java.util.Enumeration;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
-import com.github.apetrelli.scafa.proto.aio.AsynchronousSocketChannelFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 
 public class DirectClientAsyncSocket extends DirectAsyncSocket implements AsyncSocket {
@@ -25,9 +25,9 @@ public class DirectClientAsyncSocket extends DirectAsyncSocket implements AsyncS
 
     private boolean forceIpV4;
     
-	public DirectClientAsyncSocket(AsynchronousSocketChannelFactory channelFactory, HostPort socketAddress,
+	public DirectClientAsyncSocket(AsynchronousSocketChannel channel, HostPort socketAddress,
 			String interfaceName, boolean forceIpV4) {
-		super(channelFactory.create());
+		super(channel);
 		this.socketAddress = socketAddress;
 		this.interfaceName = interfaceName;
 		this.forceIpV4 = forceIpV4;
