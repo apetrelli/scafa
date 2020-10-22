@@ -1,13 +1,9 @@
 package com.github.apetrelli.scafa.proto.aio.sync;
 
 import java.io.IOException;
-import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.NetworkInterface;
 import java.net.Socket;
-import java.net.SocketException;
-import java.util.Enumeration;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -15,6 +11,7 @@ import java.util.logging.Logger;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.CompletionHandlerFuture;
 import com.github.apetrelli.scafa.proto.client.HostPort;
+import com.github.apetrelli.scafa.proto.util.NetworkUtils;
 
 public class DirectClientSyncSocket extends DirectSyncSocket implements AsyncSocket {
 	
@@ -54,25 +51,8 @@ public class DirectClientSyncSocket extends DirectSyncSocket implements AsyncSoc
 	}
 
 	private void bindChannel() throws IOException {
-        if (interfaceName != null) {
-            NetworkInterface intf = NetworkInterface.getByName(interfaceName);
-            if (!intf.isUp()) {
-                throw new SocketException("The interface " + interfaceName + " is not connected");
-            }
-            Enumeration<InetAddress> addresses = intf.getInetAddresses();
-            if (!addresses.hasMoreElements()) {
-                throw new SocketException("The interface " + interfaceName + " has no addresses");
-            }
-            InetAddress address = null;
-            while (addresses.hasMoreElements() && address == null) {
-                InetAddress currentAddress = addresses.nextElement();
-                if (!forceIpV4 || currentAddress instanceof Inet4Address) {
-                    address = currentAddress;
-                }
-            }
-            if (address == null) {
-                throw new SocketException("Not able to find a feasible address for interface " + interfaceName);
-            }
+		InetAddress address = NetworkUtils.getInterfaceAddress(interfaceName, forceIpV4);
+        if (address != null) {
             channel.bind(new InetSocketAddress(address, 0));
         }
 	}
