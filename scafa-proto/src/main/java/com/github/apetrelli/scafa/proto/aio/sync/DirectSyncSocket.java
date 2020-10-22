@@ -13,7 +13,11 @@ import com.github.apetrelli.scafa.proto.client.HostPort;
 
 public class DirectSyncSocket implements AsyncSocket {
 	
-	private Socket channel;
+	protected final Socket channel;
+	
+	public DirectSyncSocket(Socket channel) {
+		this.channel = channel;
+	}
 
 	@Override
 	public CompletableFuture<Void> connect() {
