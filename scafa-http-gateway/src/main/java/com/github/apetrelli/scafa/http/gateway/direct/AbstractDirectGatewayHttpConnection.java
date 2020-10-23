@@ -6,8 +6,7 @@ import com.github.apetrelli.scafa.http.gateway.MappedGatewayHttpConnectionFactor
 import com.github.apetrelli.scafa.http.gateway.impl.AbstractGatewayHttpConnection;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.client.HostPort;
-import com.github.apetrelli.scafa.proto.processor.Handler;
-import com.github.apetrelli.scafa.proto.processor.Input;
+import com.github.apetrelli.scafa.proto.processor.DataHandler;
 import com.github.apetrelli.scafa.proto.processor.Processor;
 import com.github.apetrelli.scafa.proto.processor.impl.DefaultProcessor;
 import com.github.apetrelli.scafa.proto.processor.impl.PassthroughInputProcessorFactory;
@@ -29,7 +28,7 @@ public abstract class AbstractDirectGatewayHttpConnection extends AbstractGatewa
 
 	@Override
 	protected void prepareChannel() {
-        Processor<Handler> processor = new DefaultProcessor<Input, Handler>(socket, new PassthroughInputProcessorFactory(sourceChannel), inputFactory);
+        Processor<DataHandler> processor = new DefaultProcessor<>(socket, new PassthroughInputProcessorFactory(), inputFactory);
         processor.process(new ChannelDisconnectorHandler(factory, socket, destinationSocketAddress));
 	}
 

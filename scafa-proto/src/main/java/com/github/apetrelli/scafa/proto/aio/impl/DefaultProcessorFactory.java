@@ -20,13 +20,13 @@ package com.github.apetrelli.scafa.proto.aio.impl;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.ProcessorFactory;
 import com.github.apetrelli.scafa.proto.processor.Handler;
+import com.github.apetrelli.scafa.proto.processor.Input;
 import com.github.apetrelli.scafa.proto.processor.InputProcessorFactory;
-import com.github.apetrelli.scafa.proto.processor.ProcessingContext;
 import com.github.apetrelli.scafa.proto.processor.ProcessingContextFactory;
 import com.github.apetrelli.scafa.proto.processor.Processor;
 import com.github.apetrelli.scafa.proto.processor.impl.DefaultProcessor;
 
-public class DefaultProcessorFactory<ST, P extends ProcessingContext<ST>, H extends Handler>
+public class DefaultProcessorFactory<P extends Input, H extends Handler>
 		implements ProcessorFactory<H> {
 
 	private InputProcessorFactory<H, P> inputProcessorFactory;

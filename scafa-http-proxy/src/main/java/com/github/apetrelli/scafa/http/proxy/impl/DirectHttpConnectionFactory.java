@@ -26,27 +26,33 @@ import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocketFactory;
+import com.github.apetrelli.scafa.proto.aio.ProcessorFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
+import com.github.apetrelli.scafa.proto.processor.DataHandler;
 
 public class DirectHttpConnectionFactory implements ProxyHttpConnectionFactory {
 
 	private AsyncSocketFactory<AsyncSocket> socketFactory;
 
 	private DataSenderFactory dataSenderFactory;
+	
+	private ProcessorFactory<DataHandler> clientProcessorFactory;
 
 	private String interfaceName;
 
 	private boolean forceIpV4;
 
 	public DirectHttpConnectionFactory(AsyncSocketFactory<AsyncSocket> socketFactory,
-			DataSenderFactory dataSenderFactory) {
-		this(socketFactory, dataSenderFactory, null, false);
+			DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler> clientProcessorFactory) {
+		this(socketFactory, dataSenderFactory, clientProcessorFactory, null, false);
 	}
 
 	public DirectHttpConnectionFactory(AsyncSocketFactory<AsyncSocket> socketFactory,
-			DataSenderFactory dataSenderFactory, String interfaceName, boolean forceIpV4) {
+			DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler> clientProcessorFactory,
+			String interfaceName, boolean forceIpV4) {
 		this.socketFactory = socketFactory;
 		this.dataSenderFactory = dataSenderFactory;
+		this.clientProcessorFactory = clientProcessorFactory;
 		this.interfaceName = interfaceName;
 		this.forceIpV4 = forceIpV4;
 	}
@@ -56,8 +62,8 @@ public class DirectHttpConnectionFactory implements ProxyHttpConnectionFactory {
 			HostPort socketAddress) {
 		AsyncSocket socket = socketFactory.create(socketAddress, interfaceName, forceIpV4);
 		HttpAsyncSocket<HttpRequest> httpSocket = new DirectHttpAsyncSocket<>(socket, dataSenderFactory);
-		return new DirectProxyHttpConnection(factory, new DirectHttpAsyncSocket<>(sourceChannel, dataSenderFactory),
-				httpSocket);
+		return new DirectProxyHttpConnection(factory, clientProcessorFactory,
+				new DirectHttpAsyncSocket<>(sourceChannel, dataSenderFactory), httpSocket);
 	}
 
 }
