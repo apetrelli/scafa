@@ -57,7 +57,7 @@ public class DirectHttpGateway {
         GatewayHttpConnectionFactoryFactory factoryFactory = new DirectHttpConnectionFactoryFactory(connectionFactory);
         HandlerFactory<HttpHandler, AsyncSocket> handlerFactory = new DefaultGatewayHttpHandlerFactory(factoryFactory);
         AsyncServerSocketFactory<AsyncSocket> asyncServerSocketFactory = new DirectAsyncServerSocketFactory(port, interfaceName, forceIpV4);
-        DefaultProcessorFactory<HttpStatus, HttpProcessingContext, HttpHandler> defaultProcessorFactory = new DefaultProcessorFactory<>(
+        DefaultProcessorFactory<HttpProcessingContext, HttpHandler> defaultProcessorFactory = new DefaultProcessorFactory<>(
                 inputProcessorFactory, processingContextFactory);
 		listener = new ScafaListener<>(asyncServerSocketFactory, defaultProcessorFactory,
 				handlerFactory);
