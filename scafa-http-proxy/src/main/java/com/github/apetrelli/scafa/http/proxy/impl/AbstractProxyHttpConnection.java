@@ -30,7 +30,7 @@ import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.client.impl.AbstractClientConnection;
-import com.github.apetrelli.scafa.proto.processor.Handler;
+import com.github.apetrelli.scafa.proto.processor.DataHandler;
 import com.github.apetrelli.scafa.proto.processor.Processor;
 import com.github.apetrelli.scafa.proto.processor.impl.DefaultProcessor;
 import com.github.apetrelli.scafa.proto.processor.impl.PassthroughInputProcessorFactory;
@@ -47,6 +47,8 @@ public abstract class AbstractProxyHttpConnection<T extends AsyncSocket> extends
     private SimpleInputFactory inputFactory = new SimpleInputFactory();
 
     private HostPort destinationSocketAddress;
+
+	private final PassthroughInputProcessorFactory inputProcessorFactory = new PassthroughInputProcessorFactory();
 
 	public AbstractProxyHttpConnection(MappedProxyHttpConnectionFactory factory, T sourceChannel,
 			HttpAsyncSocket<HttpRequest> socket, HostPort destinationSocketAddress) {
@@ -94,7 +96,7 @@ public abstract class AbstractProxyHttpConnection<T extends AsyncSocket> extends
     }
 
     protected void prepareChannel() {
-        Processor<Handler> processor = new DefaultProcessor<>(socket, new PassthroughInputProcessorFactory(sourceChannel), inputFactory);
+        Processor<DataHandler> processor = new DefaultProcessor<>(socket, inputProcessorFactory, inputFactory);
         processor.process(new ChannelDisconnectorHandler(factory, sourceChannel, destinationSocketAddress));
     }
 }
