@@ -27,13 +27,17 @@ import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocketFactory;
+import com.github.apetrelli.scafa.proto.aio.ProcessorFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
+import com.github.apetrelli.scafa.proto.processor.DataHandler;
 
 public class AnonymousProxyHttpConnectionFactory implements ProxyHttpConnectionFactory {
 
 	private AsyncSocketFactory<AsyncSocket> socketFactory;
 
 	private DataSenderFactory dataSenderFactory;
+	
+	private ProcessorFactory<DataHandler> clientProcessorFactory;
 
 	private HostPort proxySocketAddress;
 
@@ -44,10 +48,12 @@ public class AnonymousProxyHttpConnectionFactory implements ProxyHttpConnectionF
 	private HttpRequestManipulator manipulator;
 
 	public AnonymousProxyHttpConnectionFactory(AsyncSocketFactory<AsyncSocket> socketFactory,
-			DataSenderFactory dataSenderFactory, HostPort proxySocketAddress, String interfaceName, boolean forceIpV4,
+			DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler> clientProcessorFactory,
+			HostPort proxySocketAddress, String interfaceName, boolean forceIpV4,
 			HttpRequestManipulator manipulator) {
 		this.socketFactory = socketFactory;
 		this.dataSenderFactory = dataSenderFactory;
+		this.clientProcessorFactory = clientProcessorFactory;
 		this.proxySocketAddress = proxySocketAddress;
 		this.interfaceName = interfaceName;
 		this.forceIpV4 = forceIpV4;
@@ -59,7 +65,8 @@ public class AnonymousProxyHttpConnectionFactory implements ProxyHttpConnectionF
 			HostPort socketAddress) {
 		AsyncSocket socket = socketFactory.create(proxySocketAddress, interfaceName, forceIpV4);
 		HttpAsyncSocket<HttpRequest> httpSocket = new DirectHttpAsyncSocket<>(socket, dataSenderFactory);
-		return new AnonymousProxyHttpConnection(factory, sourceChannel, httpSocket, socketAddress, manipulator);
+		return new AnonymousProxyHttpConnection(factory, clientProcessorFactory, sourceChannel, httpSocket,
+				socketAddress, manipulator);
 	}
 
 }

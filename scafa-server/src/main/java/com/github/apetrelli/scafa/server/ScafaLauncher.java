@@ -46,6 +46,10 @@ import com.github.apetrelli.scafa.proto.aio.ScafaListener;
 import com.github.apetrelli.scafa.proto.aio.impl.DefaultProcessorFactory;
 import com.github.apetrelli.scafa.proto.aio.impl.DirectAsyncServerSocketFactory;
 import com.github.apetrelli.scafa.proto.aio.impl.DirectClientAsyncSocketFactory;
+import com.github.apetrelli.scafa.proto.processor.DataHandler;
+import com.github.apetrelli.scafa.proto.processor.Input;
+import com.github.apetrelli.scafa.proto.processor.impl.PassthroughInputProcessorFactory;
+import com.github.apetrelli.scafa.proto.processor.impl.SimpleInputFactory;
 import com.github.apetrelli.scafa.proto.processor.impl.StatefulInputProcessorFactory;
 import com.github.apetrelli.scafa.server.config.ConfigurationProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.server.config.ini.IniConfiguration;
@@ -111,11 +115,14 @@ public class ScafaLauncher {
         	HttpStateMachine stateMachine = new HttpStateMachine();
             DataSenderFactory dataSenderFactory = new DefaultDataSenderFactory();
             AsyncSocketFactory<AsyncSocket> socketFactory = new DirectClientAsyncSocketFactory();
-            IniConfiguration configuration = IniConfiguration.create(profile, socketFactory, dataSenderFactory, stateMachine);
+            DefaultProcessorFactory<Input, DataHandler> clientProcessorFactory = new DefaultProcessorFactory<>(
+            		new PassthroughInputProcessorFactory(), new SimpleInputFactory());
+			IniConfiguration configuration = IniConfiguration.create(profile, socketFactory, dataSenderFactory,
+					clientProcessorFactory, stateMachine);
             Integer port = configuration.getPort();
             StatefulInputProcessorFactory<HttpHandler, HttpStatus, HttpProcessingContext> inputProcessorFactory = new StatefulInputProcessorFactory<>(stateMachine);
             DefaultHttpConnectionFactoryFactory connectionFactoryFactory = new DefaultHttpConnectionFactoryFactory(
-                    new ConfigurationProxyHttpConnectionFactory(configuration, socketFactory, dataSenderFactory));
+                    new ConfigurationProxyHttpConnectionFactory(configuration, socketFactory, dataSenderFactory, clientProcessorFactory));
             HttpProcessingContextFactory processingContextFactory = new HttpProcessingContextFactory();
             ProxyHttpHandlerFactory proxyHttpHandlerFactory = new ProxyHttpHandlerFactory(connectionFactoryFactory);
             AsyncServerSocketFactory<AsyncSocket> asyncServerSocketFactory = new DirectAsyncServerSocketFactory(port);

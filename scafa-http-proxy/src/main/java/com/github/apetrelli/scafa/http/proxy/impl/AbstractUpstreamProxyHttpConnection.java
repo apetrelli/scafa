@@ -29,7 +29,9 @@ import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
 import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
+import com.github.apetrelli.scafa.proto.aio.ProcessorFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
+import com.github.apetrelli.scafa.proto.processor.DataHandler;
 
 public abstract class AbstractUpstreamProxyHttpConnection extends AbstractProxyHttpConnection<AsyncSocket> implements ProxyHttpConnection {
 
@@ -37,9 +39,11 @@ public abstract class AbstractUpstreamProxyHttpConnection extends AbstractProxyH
 
     protected HttpRequestManipulator manipulator;
 
-    public AbstractUpstreamProxyHttpConnection(MappedProxyHttpConnectionFactory factory, AsyncSocket sourceChannel,
-            HttpAsyncSocket<HttpRequest> socket, HostPort destinationSocketAddress, HttpRequestManipulator manipulator) {
-        super(factory, sourceChannel, socket, destinationSocketAddress);
+	public AbstractUpstreamProxyHttpConnection(MappedProxyHttpConnectionFactory factory,
+			ProcessorFactory<DataHandler> clientProcessorFactory, AsyncSocket sourceChannel,
+			HttpAsyncSocket<HttpRequest> socket, HostPort destinationSocketAddress,
+			HttpRequestManipulator manipulator) {
+        super(factory, clientProcessorFactory, sourceChannel, socket, destinationSocketAddress);
         this.manipulator = manipulator;
     }
     

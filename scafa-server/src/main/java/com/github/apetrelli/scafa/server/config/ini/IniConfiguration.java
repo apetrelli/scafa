@@ -23,12 +23,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.ini4j.Ini;
-import org.ini4j.InvalidFileFormatException;
 
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
 import com.github.apetrelli.scafa.http.output.DataSenderFactory;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocketFactory;
+import com.github.apetrelli.scafa.proto.aio.ProcessorFactory;
+import com.github.apetrelli.scafa.proto.processor.DataHandler;
 import com.github.apetrelli.scafa.server.ConfigurationUtils;
 import com.github.apetrelli.scafa.server.config.Configuration;
 import com.github.apetrelli.scafa.server.config.ServerConfiguration;
@@ -40,21 +41,24 @@ public class IniConfiguration implements Configuration {
     private List<ServerConfiguration> serverConfigurations;
 
     public static IniConfiguration create(String profile, AsyncSocketFactory<AsyncSocket> socketFactory,
-            DataSenderFactory dataSenderFactory, HttpStateMachine stateMachine)
-            throws InvalidFileFormatException, IOException {
+            DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler> clientProcessorFactory,
+            HttpStateMachine stateMachine)
+            throws IOException {
         if (profile == null) {
             profile = "direct";
         }
         Ini ini = ConfigurationUtils.loadIni(profile);
-        return new IniConfiguration(ini, socketFactory, dataSenderFactory, stateMachine);
+        return new IniConfiguration(ini, socketFactory, dataSenderFactory, clientProcessorFactory, stateMachine);
     }
 
-    private IniConfiguration(Ini ini, AsyncSocketFactory<AsyncSocket> socketFactory,
-            DataSenderFactory dataSenderFactory, HttpStateMachine stateMachine) {
+	private IniConfiguration(Ini ini, AsyncSocketFactory<AsyncSocket> socketFactory,
+			DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler> clientProcessorFactory,
+			HttpStateMachine stateMachine) {
         this.ini = ini;
-        serverConfigurations = ini.keySet().stream().filter(t -> !"main".equals(t))
-                .map(t -> new IniServerConfiguration(ini.get(t), socketFactory, dataSenderFactory, stateMachine))
-                .collect(Collectors.toList());
+		serverConfigurations = ini
+				.keySet().stream().filter(t -> !"main".equals(t)).map(t -> new IniServerConfiguration(ini.get(t),
+						socketFactory, dataSenderFactory, clientProcessorFactory, stateMachine))
+				.collect(Collectors.toList());
     }
 
     @Override
@@ -70,7 +74,7 @@ public class IniConfiguration implements Configuration {
         while (!found && configIt.hasNext()) {
             config = configIt.next();
             List<String> excludeRegexp = config.getExcludes();
-            boolean excluded = excludeRegexp.stream().anyMatch(t -> host.matches(t));
+            boolean excluded = excludeRegexp.stream().anyMatch(host::matches);
             found = !excluded;
         }
         return found ? config : null;

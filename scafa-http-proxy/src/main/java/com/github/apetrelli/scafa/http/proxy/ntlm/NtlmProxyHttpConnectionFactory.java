@@ -29,13 +29,17 @@ import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocketFactory;
+import com.github.apetrelli.scafa.proto.aio.ProcessorFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
+import com.github.apetrelli.scafa.proto.processor.DataHandler;
 
 public class NtlmProxyHttpConnectionFactory implements ProxyHttpConnectionFactory {
 
 	private AsyncSocketFactory<AsyncSocket> socketFactory;
 
 	private DataSenderFactory dataSenderFactory;
+	
+	private ProcessorFactory<DataHandler> clientProcessorFactory;
 
 	private HostPort proxySocketAddress;
 
@@ -50,11 +54,13 @@ public class NtlmProxyHttpConnectionFactory implements ProxyHttpConnectionFactor
 	private HttpStateMachine stateMachine;
 
 	public NtlmProxyHttpConnectionFactory(AsyncSocketFactory<AsyncSocket> socketFactory,
-			DataSenderFactory dataSenderFactory, HostPort proxySocketAddress, String interfaceName, boolean forceIpV4,
+			DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler> clientProcessorFactory,
+			HostPort proxySocketAddress, String interfaceName, boolean forceIpV4,
 			String domain, String username, String password, HttpRequestManipulator manipulator,
 			HttpStateMachine stateMachine) {
 		this.socketFactory = socketFactory;
 		this.dataSenderFactory = dataSenderFactory;
+		this.clientProcessorFactory = clientProcessorFactory;
 		this.proxySocketAddress = proxySocketAddress;
 		this.interfaceName = interfaceName;
 		this.forceIpV4 = forceIpV4;
@@ -71,8 +77,8 @@ public class NtlmProxyHttpConnectionFactory implements ProxyHttpConnectionFactor
 		AsyncSocket socket = socketFactory.create(proxySocketAddress, interfaceName, forceIpV4);
 		HttpAsyncSocket<HttpRequest> httpSocket = new DirectHttpAsyncSocket<>(socket, dataSenderFactory);
 		HttpAsyncSocket<HttpResponse> httpSourceSocket = new DirectHttpAsyncSocket<>(sourceChannel, dataSenderFactory);
-		return new NtlmProxyHttpConnection(factory, httpSourceSocket, httpSocket, socketAddress, domain, username,
-				password, stateMachine, manipulator);
+		return new NtlmProxyHttpConnection(factory, clientProcessorFactory, httpSourceSocket, httpSocket, socketAddress,
+				domain, username, password, stateMachine, manipulator);
 	}
 
 }

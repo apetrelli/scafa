@@ -27,13 +27,17 @@ import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocketFactory;
+import com.github.apetrelli.scafa.proto.aio.ProcessorFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
+import com.github.apetrelli.scafa.proto.processor.DataHandler;
 
 public class BasicAuthProxyHttpConnectionFactory implements ProxyHttpConnectionFactory {
 
 	private AsyncSocketFactory<AsyncSocket> socketFactory;
 
 	private DataSenderFactory dataSenderFactory;
+	
+	private ProcessorFactory<DataHandler> clientProcessorFactory;
 
 	private HostPort proxySocketAddress;
 
@@ -46,10 +50,12 @@ public class BasicAuthProxyHttpConnectionFactory implements ProxyHttpConnectionF
 	private HttpRequestManipulator manipulator;
 
 	public BasicAuthProxyHttpConnectionFactory(AsyncSocketFactory<AsyncSocket> socketFactory,
-			DataSenderFactory dataSenderFactory, HostPort proxySocketAddress, String interfaceName, boolean forceIpV4,
+			DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler> clientProcessorFactory,
+			HostPort proxySocketAddress, String interfaceName, boolean forceIpV4,
 			String username, String password, HttpRequestManipulator manipulator) {
 		this.socketFactory = socketFactory;
 		this.dataSenderFactory = dataSenderFactory;
+		this.clientProcessorFactory = clientProcessorFactory;
 		this.proxySocketAddress = proxySocketAddress;
 		this.interfaceName = interfaceName;
 		this.forceIpV4 = forceIpV4;
@@ -63,8 +69,8 @@ public class BasicAuthProxyHttpConnectionFactory implements ProxyHttpConnectionF
 			HostPort socketAddress) {
 		AsyncSocket socket = socketFactory.create(proxySocketAddress, interfaceName, forceIpV4);
 		HttpAsyncSocket<HttpRequest> httpSocket = new DirectHttpAsyncSocket<>(socket, dataSenderFactory);
-		return new BasicAuthProxyHttpConnection(factory, sourceChannel, httpSocket, socketAddress, manipulator, username,
-				password);
+		return new BasicAuthProxyHttpConnection(factory, clientProcessorFactory, sourceChannel, httpSocket,
+				socketAddress, manipulator, username, password);
 	}
 
 }
