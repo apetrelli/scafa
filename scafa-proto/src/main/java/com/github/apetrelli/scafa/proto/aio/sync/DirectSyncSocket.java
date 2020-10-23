@@ -51,8 +51,21 @@ public class DirectSyncSocket implements AsyncSocket {
 			InputStream is = channel.getInputStream();
 			int ch;
 			int count = 0;
-			while (buffer.hasRemaining() && (ch = is.read()) > 0) {
+			int countdown = is.available();
+			if (countdown == 0 && buffer.hasRemaining()) { // No fresh data, block
+				ch = is.read();
+				if (ch >= 0) {
+					buffer.put((byte) ch);
+					count++;
+					countdown = is.available();
+				} else {
+					return CompletableFuture.completedFuture(ch);
+				}
+				
+			}
+			while (buffer.hasRemaining() && countdown > 0 && (ch = is.read()) >= 0) {
 				buffer.put((byte) ch);
+				countdown--;
 				count++;
 			}
 			return CompletableFuture.completedFuture(count);
@@ -70,6 +83,7 @@ public class DirectSyncSocket implements AsyncSocket {
 				os.write(buffer.get());
 				count++;
 			}
+			os.flush();
 			return CompletableFuture.completedFuture(count);
 		} catch (IOException e) {
 			return CompletableFuture.failedFuture(e);
