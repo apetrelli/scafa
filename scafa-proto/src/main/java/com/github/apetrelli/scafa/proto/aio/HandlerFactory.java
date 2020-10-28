@@ -17,7 +17,7 @@
  */
 package com.github.apetrelli.scafa.proto.aio;
 
-public interface HandlerFactory<H, S extends AsyncSocket> {
+public interface HandlerFactory<H, S> {
 
     H create(S sourceChannel);
 }
