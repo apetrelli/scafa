@@ -41,7 +41,7 @@ import com.github.apetrelli.scafa.http.proxy.impl.DefaultHttpConnectionFactoryFa
 import com.github.apetrelli.scafa.http.proxy.impl.ProxyHttpHandlerFactory;
 import com.github.apetrelli.scafa.proto.aio.AsyncServerSocketFactory;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
-import com.github.apetrelli.scafa.proto.aio.AsyncSocketFactory;
+import com.github.apetrelli.scafa.proto.aio.SocketFactory;
 import com.github.apetrelli.scafa.proto.aio.ScafaListener;
 import com.github.apetrelli.scafa.proto.aio.impl.DefaultProcessorFactory;
 import com.github.apetrelli.scafa.proto.aio.impl.DirectAsyncServerSocketFactory;
@@ -114,7 +114,7 @@ public class ScafaLauncher {
         try {
         	HttpStateMachine stateMachine = new HttpStateMachine();
             DataSenderFactory dataSenderFactory = new DefaultDataSenderFactory();
-            AsyncSocketFactory<AsyncSocket> socketFactory = new DirectClientAsyncSocketFactory();
+            SocketFactory<AsyncSocket> socketFactory = new DirectClientAsyncSocketFactory();
             DefaultProcessorFactory<Input, DataHandler> clientProcessorFactory = new DefaultProcessorFactory<>(
             		new PassthroughInputProcessorFactory(), new SimpleInputFactory());
 			IniConfiguration configuration = IniConfiguration.create(profile, socketFactory, dataSenderFactory,

@@ -4,11 +4,11 @@ import java.io.IOException;
 import java.nio.channels.AsynchronousSocketChannel;
 
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
-import com.github.apetrelli.scafa.proto.aio.AsyncSocketFactory;
+import com.github.apetrelli.scafa.proto.aio.SocketFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.tls.TlsConnectionException;
 
-public class DirectClientAsyncSocketFactory implements AsyncSocketFactory<AsyncSocket>{
+public class DirectClientAsyncSocketFactory implements SocketFactory<AsyncSocket>{
 	
 	@Override
 	public AsyncSocket create(HostPort hostPort, String interfaceName, boolean forceIpV4) {

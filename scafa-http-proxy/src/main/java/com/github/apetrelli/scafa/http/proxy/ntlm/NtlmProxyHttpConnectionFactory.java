@@ -28,14 +28,14 @@ import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
-import com.github.apetrelli.scafa.proto.aio.AsyncSocketFactory;
+import com.github.apetrelli.scafa.proto.aio.SocketFactory;
 import com.github.apetrelli.scafa.proto.aio.ProcessorFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.processor.DataHandler;
 
 public class NtlmProxyHttpConnectionFactory implements ProxyHttpConnectionFactory {
 
-	private AsyncSocketFactory<AsyncSocket> socketFactory;
+	private SocketFactory<AsyncSocket> socketFactory;
 
 	private DataSenderFactory dataSenderFactory;
 	
@@ -53,7 +53,7 @@ public class NtlmProxyHttpConnectionFactory implements ProxyHttpConnectionFactor
 
 	private HttpStateMachine stateMachine;
 
-	public NtlmProxyHttpConnectionFactory(AsyncSocketFactory<AsyncSocket> socketFactory,
+	public NtlmProxyHttpConnectionFactory(SocketFactory<AsyncSocket> socketFactory,
 			DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory,
 			HostPort proxySocketAddress, String interfaceName, boolean forceIpV4,
 			String domain, String username, String password, HttpRequestManipulator manipulator,

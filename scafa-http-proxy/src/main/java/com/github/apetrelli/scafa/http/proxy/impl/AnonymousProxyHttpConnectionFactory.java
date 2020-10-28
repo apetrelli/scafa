@@ -26,14 +26,14 @@ import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
-import com.github.apetrelli.scafa.proto.aio.AsyncSocketFactory;
+import com.github.apetrelli.scafa.proto.aio.SocketFactory;
 import com.github.apetrelli.scafa.proto.aio.ProcessorFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.processor.DataHandler;
 
 public class AnonymousProxyHttpConnectionFactory implements ProxyHttpConnectionFactory {
 
-	private AsyncSocketFactory<AsyncSocket> socketFactory;
+	private SocketFactory<AsyncSocket> socketFactory;
 
 	private DataSenderFactory dataSenderFactory;
 	
@@ -47,7 +47,7 @@ public class AnonymousProxyHttpConnectionFactory implements ProxyHttpConnectionF
 
 	private HttpRequestManipulator manipulator;
 
-	public AnonymousProxyHttpConnectionFactory(AsyncSocketFactory<AsyncSocket> socketFactory,
+	public AnonymousProxyHttpConnectionFactory(SocketFactory<AsyncSocket> socketFactory,
 			DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory,
 			HostPort proxySocketAddress, String interfaceName, boolean forceIpV4, HttpRequestManipulator manipulator) {
 		this.socketFactory = socketFactory;

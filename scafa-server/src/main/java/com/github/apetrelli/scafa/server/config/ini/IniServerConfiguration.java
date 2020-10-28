@@ -20,7 +20,7 @@ import com.github.apetrelli.scafa.http.proxy.impl.BasicAuthProxyHttpConnectionFa
 import com.github.apetrelli.scafa.http.proxy.impl.DirectHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.ntlm.NtlmProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
-import com.github.apetrelli.scafa.proto.aio.AsyncSocketFactory;
+import com.github.apetrelli.scafa.proto.aio.SocketFactory;
 import com.github.apetrelli.scafa.proto.aio.ProcessorFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.processor.DataHandler;
@@ -33,7 +33,7 @@ public class IniServerConfiguration implements ServerConfiguration {
 
     private List<String> excludes;
 
-    public IniServerConfiguration(Section section, AsyncSocketFactory<AsyncSocket> socketFactory,
+    public IniServerConfiguration(Section section, SocketFactory<AsyncSocket> socketFactory,
             DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory,
             HttpStateMachine stateMachine) {
         String type = section.get("type");

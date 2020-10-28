@@ -11,7 +11,7 @@ import com.github.apetrelli.scafa.http.client.HttpClientConnection;
 import com.github.apetrelli.scafa.http.impl.DirectHttpAsyncSocket;
 import com.github.apetrelli.scafa.http.output.DataSenderFactory;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
-import com.github.apetrelli.scafa.proto.aio.AsyncSocketFactory;
+import com.github.apetrelli.scafa.proto.aio.SocketFactory;
 import com.github.apetrelli.scafa.proto.aio.impl.DirectClientAsyncSocketFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 
@@ -19,7 +19,7 @@ public class DefaultMappedHttpConnectionFactory implements MappedHttpConnectionF
 
     private DataSenderFactory dataSenderFactory;
     
-    private AsyncSocketFactory<AsyncSocket> socketFactory = new DirectClientAsyncSocketFactory();
+    private SocketFactory<AsyncSocket> socketFactory = new DirectClientAsyncSocketFactory();
 
     private Map<HostPort, HttpClientConnection> connectionCache = new HashMap<>();
 
