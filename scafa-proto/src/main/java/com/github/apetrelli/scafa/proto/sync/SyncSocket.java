@@ -12,9 +12,9 @@ public interface SyncSocket {
 	
 	void disconnect();
 	
-	Integer read(ByteBuffer buffer);
+	int read(ByteBuffer buffer);
 	
-	Integer write(ByteBuffer buffer);
+	int write(ByteBuffer buffer);
 	
 	default void flushBuffer(ByteBuffer buffer) {
 		while (buffer.hasRemaining()) {
