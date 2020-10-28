@@ -1,4 +1,4 @@
-package com.github.apetrelli.scafa.proto.sync.impl;
+package com.github.apetrelli.scafa.proto.sync.socket;
 
 import java.io.IOException;
 import java.io.InputStream;
