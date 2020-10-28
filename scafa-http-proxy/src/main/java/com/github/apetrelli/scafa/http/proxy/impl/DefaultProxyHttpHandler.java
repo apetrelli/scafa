@@ -44,7 +44,7 @@ public class DefaultProxyHttpHandler implements ProxyHttpHandler {
     }
 
     @Override
-    public void onConnect() throws IOException {
+    public void onConnect() {
         // Does nothing
     }
 

@@ -1,6 +1,5 @@
 package com.github.apetrelli.scafa.http.gateway.direct;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
 
@@ -25,7 +24,7 @@ public class ChannelDisconnectorHandler implements DataHandler {
 	}
 
 	@Override
-	public void onConnect() throws IOException {
+	public void onConnect() {
 		// Do nothing
 	}
 	

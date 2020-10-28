@@ -17,7 +17,6 @@
  */
 package com.github.apetrelli.scafa.http.impl;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
 
@@ -29,7 +28,7 @@ import com.github.apetrelli.scafa.proto.aio.CompletionHandlerFuture;
 public class HttpHandlerSupport implements HttpHandler {
 
     @Override
-    public void onConnect() throws IOException {
+    public void onConnect() {
     	// Does nothing.
     }
 
