@@ -19,7 +19,7 @@ public class ConfigurationProxyHttpConnectionFactory implements ProxyHttpConnect
 
     public ConfigurationProxyHttpConnectionFactory(Configuration configuration,
     		AsyncSocketFactory<AsyncSocket> socketFactory, DataSenderFactory dataSenderFactory,
-    		ProcessorFactory<DataHandler> clientProcessorFactory) {
+    		ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory) {
         this.configuration = configuration;
         directHttpConnectionFactory = new DirectHttpConnectionFactory(socketFactory, dataSenderFactory, clientProcessorFactory);
     }

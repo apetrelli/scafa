@@ -19,7 +19,7 @@ package com.github.apetrelli.scafa.proto.aio;
 
 import com.github.apetrelli.scafa.proto.processor.Processor;
 
-public interface ProcessorFactory<H> {
+public interface ProcessorFactory<H, S> {
 
-    Processor<H> create(AsyncSocket socket);
+    Processor<H> create(S socket);
 }

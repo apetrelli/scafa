@@ -27,7 +27,7 @@ import com.github.apetrelli.scafa.proto.processor.Processor;
 import com.github.apetrelli.scafa.proto.processor.impl.DefaultProcessor;
 
 public class DefaultProcessorFactory<P extends Input, H extends Handler>
-		implements ProcessorFactory<H> {
+		implements ProcessorFactory<H, AsyncSocket> {
 
 	private InputProcessorFactory<H, P> inputProcessorFactory;
 

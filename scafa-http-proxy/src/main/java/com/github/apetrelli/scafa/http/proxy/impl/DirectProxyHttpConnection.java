@@ -28,6 +28,7 @@ import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
 import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
+import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.ProcessorFactory;
 import com.github.apetrelli.scafa.proto.processor.DataHandler;
 
@@ -36,7 +37,7 @@ public class DirectProxyHttpConnection extends AbstractProxyHttpConnection<HttpA
     private static final Logger LOG = Logger.getLogger(DirectProxyHttpConnection.class.getName());
 
     public DirectProxyHttpConnection(MappedProxyHttpConnectionFactory factory,
-    		ProcessorFactory<DataHandler> clientProcessorFactory,
+    		ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory,
             HttpAsyncSocket<HttpResponse> sourceChannel, HttpAsyncSocket<HttpRequest> socket) {
         super(factory, clientProcessorFactory, sourceChannel, socket, socket.getAddress());
     }

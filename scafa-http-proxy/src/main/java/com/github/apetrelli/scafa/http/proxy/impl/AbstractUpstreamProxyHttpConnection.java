@@ -40,7 +40,7 @@ public abstract class AbstractUpstreamProxyHttpConnection extends AbstractProxyH
     protected HttpRequestManipulator manipulator;
 
 	public AbstractUpstreamProxyHttpConnection(MappedProxyHttpConnectionFactory factory,
-			ProcessorFactory<DataHandler> clientProcessorFactory, AsyncSocket sourceChannel,
+			ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory, AsyncSocket sourceChannel,
 			HttpAsyncSocket<HttpRequest> socket, HostPort destinationSocketAddress,
 			HttpRequestManipulator manipulator) {
         super(factory, clientProcessorFactory, sourceChannel, socket, destinationSocketAddress);

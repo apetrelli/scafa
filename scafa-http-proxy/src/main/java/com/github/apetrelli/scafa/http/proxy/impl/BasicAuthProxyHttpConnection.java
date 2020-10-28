@@ -19,7 +19,7 @@ public class BasicAuthProxyHttpConnection extends AbstractUpstreamProxyHttpConne
     private String authString;
 
 	public BasicAuthProxyHttpConnection(MappedProxyHttpConnectionFactory factory,
-			ProcessorFactory<DataHandler> clientProcessorFactory, AsyncSocket sourceChannel,
+			ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory, AsyncSocket sourceChannel,
 			HttpAsyncSocket<HttpRequest> socket, HostPort destinationSocketAddress, HttpRequestManipulator manipulator,
 			String username, String password) {
         super(factory, clientProcessorFactory, sourceChannel, socket, destinationSocketAddress, manipulator);
