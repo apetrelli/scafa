@@ -4,10 +4,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.net.SocketException;
 import java.nio.ByteBuffer;
 
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.sync.IORuntimeException;
+import com.github.apetrelli.scafa.proto.sync.SocketRuntimeException;
 import com.github.apetrelli.scafa.proto.sync.SyncSocket;
 
 public class DirectSyncSocket implements SyncSocket {
@@ -65,6 +67,8 @@ public class DirectSyncSocket implements SyncSocket {
 				count++;
 			}
 			return count;
+		} catch (SocketException e) {
+			throw new SocketRuntimeException(e);
 		} catch (IOException e) {
 			throw new IORuntimeException(e);
 		}
