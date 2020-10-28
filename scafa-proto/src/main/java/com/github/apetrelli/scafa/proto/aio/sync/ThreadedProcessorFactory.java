@@ -4,11 +4,11 @@ import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.ProcessorFactory;
 import com.github.apetrelli.scafa.proto.processor.Processor;
 
-public class ThreadedProcessorFactory<H> implements ProcessorFactory<H>{
+public class ThreadedProcessorFactory<H> implements ProcessorFactory<H, AsyncSocket>{
 
-	private final ProcessorFactory<H> delegate;
+	private final ProcessorFactory<H, AsyncSocket> delegate;
 	
-	public ThreadedProcessorFactory(ProcessorFactory<H> delegate) {
+	public ThreadedProcessorFactory(ProcessorFactory<H, AsyncSocket> delegate) {
 		this.delegate = delegate;
 	}
 	
