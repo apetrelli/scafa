@@ -27,7 +27,7 @@ import org.ini4j.Ini;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
 import com.github.apetrelli.scafa.http.output.DataSenderFactory;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
-import com.github.apetrelli.scafa.proto.aio.AsyncSocketFactory;
+import com.github.apetrelli.scafa.proto.aio.SocketFactory;
 import com.github.apetrelli.scafa.proto.aio.ProcessorFactory;
 import com.github.apetrelli.scafa.proto.processor.DataHandler;
 import com.github.apetrelli.scafa.server.ConfigurationUtils;
@@ -40,7 +40,7 @@ public class IniConfiguration implements Configuration {
 
     private List<ServerConfiguration> serverConfigurations;
 
-    public static IniConfiguration create(String profile, AsyncSocketFactory<AsyncSocket> socketFactory,
+    public static IniConfiguration create(String profile, SocketFactory<AsyncSocket> socketFactory,
             DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory,
             HttpStateMachine stateMachine)
             throws IOException {
@@ -51,7 +51,7 @@ public class IniConfiguration implements Configuration {
         return new IniConfiguration(ini, socketFactory, dataSenderFactory, clientProcessorFactory, stateMachine);
     }
 
-	private IniConfiguration(Ini ini, AsyncSocketFactory<AsyncSocket> socketFactory,
+	private IniConfiguration(Ini ini, SocketFactory<AsyncSocket> socketFactory,
 			DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory,
 			HttpStateMachine stateMachine) {
         this.ini = ini;

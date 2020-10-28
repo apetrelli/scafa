@@ -7,18 +7,18 @@ import com.github.apetrelli.scafa.http.gateway.MappedGatewayHttpConnectionFactor
 import com.github.apetrelli.scafa.http.impl.DirectHttpAsyncSocket;
 import com.github.apetrelli.scafa.http.output.DataSenderFactory;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
-import com.github.apetrelli.scafa.proto.aio.AsyncSocketFactory;
+import com.github.apetrelli.scafa.proto.aio.SocketFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 
 public class DirectGatewayHttpConnectionFactory implements GatewayHttpConnectionFactory {
 
-	private AsyncSocketFactory<AsyncSocket> socketFactory;
+	private SocketFactory<AsyncSocket> socketFactory;
 	
 	private DataSenderFactory dataSenderFactory;
 	
 	private HostPort destinationSocketAddress;
 
-	public DirectGatewayHttpConnectionFactory(AsyncSocketFactory<AsyncSocket> socketFactory,
+	public DirectGatewayHttpConnectionFactory(SocketFactory<AsyncSocket> socketFactory,
 			DataSenderFactory dataSenderFactory, HostPort destinationSocketAddress) {
 		this.socketFactory = socketFactory;
 		this.dataSenderFactory = dataSenderFactory;

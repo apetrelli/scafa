@@ -6,7 +6,7 @@ import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.impl.DirectHttpConnectionFactory;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
-import com.github.apetrelli.scafa.proto.aio.AsyncSocketFactory;
+import com.github.apetrelli.scafa.proto.aio.SocketFactory;
 import com.github.apetrelli.scafa.proto.aio.ProcessorFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.processor.DataHandler;
@@ -18,7 +18,7 @@ public class ConfigurationProxyHttpConnectionFactory implements ProxyHttpConnect
     private ProxyHttpConnectionFactory directHttpConnectionFactory;
 
     public ConfigurationProxyHttpConnectionFactory(Configuration configuration,
-    		AsyncSocketFactory<AsyncSocket> socketFactory, DataSenderFactory dataSenderFactory,
+    		SocketFactory<AsyncSocket> socketFactory, DataSenderFactory dataSenderFactory,
     		ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory) {
         this.configuration = configuration;
         directHttpConnectionFactory = new DirectHttpConnectionFactory(socketFactory, dataSenderFactory, clientProcessorFactory);
