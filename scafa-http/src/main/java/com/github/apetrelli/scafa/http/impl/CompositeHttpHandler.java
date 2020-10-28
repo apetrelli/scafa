@@ -1,6 +1,5 @@
 package com.github.apetrelli.scafa.http.impl;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -59,7 +58,7 @@ public class CompositeHttpHandler implements HttpHandler {
 	}
 
 	@Override
-	public void onConnect() throws IOException {
+	public void onConnect() {
 		// Does nothing
 	}
 

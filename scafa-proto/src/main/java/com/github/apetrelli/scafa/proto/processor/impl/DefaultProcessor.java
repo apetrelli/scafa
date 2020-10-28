@@ -53,29 +53,25 @@ public class DefaultProcessor<P extends Input, H extends Handler> implements Pro
 
     @Override
     public void process(H handler) {
-        try {
-            handler.onConnect();
-            P context = processingContextFactory.create();
-            InputProcessor<P> processor = inputProcessorFactory.create(handler);
-            read(context, handler, processor).handle((x, exc) -> {
-            	if (exc != null) {
-            		if (exc instanceof CompletionException) {
-            			exc = ((CompletionException) exc).getCause();
-            		}
-	                if (exc instanceof AsynchronousCloseException || exc instanceof ClosedChannelException) {
-	                    LOG.log(Level.INFO, "Channel closed", exc);
-	                } else if (exc instanceof IOException) {
-	                    LOG.log(Level.INFO, "I/O exception, closing", exc);
-	                    disconnect(handler);
-	                } else {
-	                    LOG.log(Level.SEVERE, "Unrecognized exception, don''t know what to do...", exc);
-	                }
-            	}
-            	return x;
-            });
-        } catch (IOException e) {
-            LOG.log(Level.INFO, "Error when establishing a connection", e);
-        }
+        handler.onConnect();
+        P context = processingContextFactory.create();
+        InputProcessor<P> processor = inputProcessorFactory.create(handler);
+        read(context, handler, processor).handle((x, exc) -> {
+        	if (exc != null) {
+        		if (exc instanceof CompletionException) {
+        			exc = ((CompletionException) exc).getCause();
+        		}
+                if (exc instanceof AsynchronousCloseException || exc instanceof ClosedChannelException) {
+                    LOG.log(Level.INFO, "Channel closed", exc);
+                } else if (exc instanceof IOException) {
+                    LOG.log(Level.INFO, "I/O exception, closing", exc);
+                    disconnect(handler);
+                } else {
+                    LOG.log(Level.SEVERE, "Unrecognized exception, don''t know what to do...", exc);
+                }
+        	}
+        	return x;
+        });
     }
 
 	private CompletableFuture<Void> read(P context, H handler, InputProcessor<P> processor) {

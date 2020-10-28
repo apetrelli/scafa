@@ -1,6 +1,5 @@
 package com.github.apetrelli.scafa.http.client.impl;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -31,7 +30,7 @@ public class ClientPipelineHttpHandler implements HttpHandler {
     }
 
     @Override
-    public void onConnect() throws IOException {
+    public void onConnect() {
     	// Does nothing.
     }
 

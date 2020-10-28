@@ -17,7 +17,6 @@
  */
 package com.github.apetrelli.scafa.http.gateway.impl;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
 
@@ -43,7 +42,7 @@ public class DefaultGatewayHttpHandler implements HttpHandler {
     }
 
     @Override
-    public void onConnect() throws IOException {
+    public void onConnect() {
         // Does nothing
     }
 
