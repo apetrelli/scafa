@@ -17,7 +17,6 @@
  */
 package com.github.apetrelli.scafa.proto.sync.processor;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -49,22 +48,18 @@ public class DefaultProcessor<P extends Input, H extends Handler> implements Pro
 
     @Override
     public void process(H handler) {
+        handler.onConnect();
+        P context = processingContextFactory.create();
+        InputProcessor<P> processor = inputProcessorFactory.create(handler);
         try {
-            handler.onConnect();
-            P context = processingContextFactory.create();
-            InputProcessor<P> processor = inputProcessorFactory.create(handler);
-            try {
-            	read(context, handler, processor);
-            } catch (SocketRuntimeException exc) {
-                LOG.log(Level.INFO, "Channel closed", exc);
-            } catch (IORuntimeException exc) {
-                LOG.log(Level.INFO, "I/O exception, closing", exc);
-                disconnect(handler);
-            } catch (RuntimeException exc) {
-                LOG.log(Level.SEVERE, "Unrecognized exception, don''t know what to do...", exc);
-            }
-        } catch (IOException e) {
-            LOG.log(Level.INFO, "Error when establishing a connection", e);
+        	read(context, handler, processor);
+        } catch (SocketRuntimeException exc) {
+            LOG.log(Level.INFO, "Channel closed", exc);
+        } catch (IORuntimeException exc) {
+            LOG.log(Level.INFO, "I/O exception, closing", exc);
+            disconnect(handler);
+        } catch (RuntimeException exc) {
+            LOG.log(Level.SEVERE, "Unrecognized exception, don''t know what to do...", exc);
         }
     }
 
