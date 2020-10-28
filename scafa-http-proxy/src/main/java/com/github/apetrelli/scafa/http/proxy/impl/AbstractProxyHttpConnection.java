@@ -40,15 +40,15 @@ public abstract class AbstractProxyHttpConnection<T extends AsyncSocket> extends
 
     protected MappedProxyHttpConnectionFactory factory;
     
-    protected ProcessorFactory<DataHandler> clientProcessorFactory;
+    protected ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory;
 
     protected T sourceChannel;
 
     private HostPort destinationSocketAddress;
 
 	public AbstractProxyHttpConnection(MappedProxyHttpConnectionFactory factory,
-			ProcessorFactory<DataHandler> clientProcessorFactory, T sourceChannel, HttpAsyncSocket<HttpRequest> socket,
-			HostPort destinationSocketAddress) {
+			ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory, T sourceChannel,
+			HttpAsyncSocket<HttpRequest> socket, HostPort destinationSocketAddress) {
         super(socket);
         this.factory = factory;
         this.clientProcessorFactory = clientProcessorFactory;

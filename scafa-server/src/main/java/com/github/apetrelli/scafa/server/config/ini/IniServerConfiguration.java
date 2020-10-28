@@ -34,7 +34,7 @@ public class IniServerConfiguration implements ServerConfiguration {
     private List<String> excludes;
 
     public IniServerConfiguration(Section section, AsyncSocketFactory<AsyncSocket> socketFactory,
-            DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler> clientProcessorFactory,
+            DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory,
             HttpStateMachine stateMachine) {
         String type = section.get("type");
         switch (type) {

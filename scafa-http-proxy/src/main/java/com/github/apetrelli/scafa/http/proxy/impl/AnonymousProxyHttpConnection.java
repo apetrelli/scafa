@@ -29,7 +29,7 @@ import com.github.apetrelli.scafa.proto.processor.DataHandler;
 public class AnonymousProxyHttpConnection extends AbstractUpstreamProxyHttpConnection {
 
 	public AnonymousProxyHttpConnection(MappedProxyHttpConnectionFactory factory,
-			ProcessorFactory<DataHandler> clientProcessorFactory, AsyncSocket sourceChannel,
+			ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory, AsyncSocket sourceChannel,
 			HttpAsyncSocket<HttpRequest> socket, HostPort destinationSocketAddress,
 			HttpRequestManipulator manipulator) {
         super(factory, clientProcessorFactory, sourceChannel, socket, destinationSocketAddress, manipulator);

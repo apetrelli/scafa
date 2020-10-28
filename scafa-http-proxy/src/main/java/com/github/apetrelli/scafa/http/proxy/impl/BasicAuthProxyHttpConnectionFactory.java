@@ -37,7 +37,7 @@ public class BasicAuthProxyHttpConnectionFactory implements ProxyHttpConnectionF
 
 	private DataSenderFactory dataSenderFactory;
 	
-	private ProcessorFactory<DataHandler> clientProcessorFactory;
+	private ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory;
 
 	private HostPort proxySocketAddress;
 
@@ -50,9 +50,9 @@ public class BasicAuthProxyHttpConnectionFactory implements ProxyHttpConnectionF
 	private HttpRequestManipulator manipulator;
 
 	public BasicAuthProxyHttpConnectionFactory(AsyncSocketFactory<AsyncSocket> socketFactory,
-			DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler> clientProcessorFactory,
-			HostPort proxySocketAddress, String interfaceName, boolean forceIpV4,
-			String username, String password, HttpRequestManipulator manipulator) {
+			DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory,
+			HostPort proxySocketAddress, String interfaceName, boolean forceIpV4, String username, String password,
+			HttpRequestManipulator manipulator) {
 		this.socketFactory = socketFactory;
 		this.dataSenderFactory = dataSenderFactory;
 		this.clientProcessorFactory = clientProcessorFactory;

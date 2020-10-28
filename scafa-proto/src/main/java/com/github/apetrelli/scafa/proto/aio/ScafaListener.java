@@ -29,13 +29,13 @@ public class ScafaListener<H, S extends AsyncSocket> {
     
     private AsyncServerSocketFactory<S> asyncServerSocketFactory;
     
-    private ProcessorFactory<H> processorFactory;
+    private ProcessorFactory<H, AsyncSocket> processorFactory;
 
     private HandlerFactory<H, S> handlerFactory;
 
     private AsyncServerSocket<S> server;
 
-	public ScafaListener(AsyncServerSocketFactory<S> asyncServerSocketFactory, ProcessorFactory<H> processorFactory,
+	public ScafaListener(AsyncServerSocketFactory<S> asyncServerSocketFactory, ProcessorFactory<H, AsyncSocket> processorFactory,
 			HandlerFactory<H, S> handlerFactory) {
 		this.asyncServerSocketFactory = asyncServerSocketFactory;
         this.processorFactory = processorFactory;

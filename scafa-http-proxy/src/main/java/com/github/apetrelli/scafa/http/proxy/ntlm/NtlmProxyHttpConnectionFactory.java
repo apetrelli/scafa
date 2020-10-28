@@ -39,7 +39,7 @@ public class NtlmProxyHttpConnectionFactory implements ProxyHttpConnectionFactor
 
 	private DataSenderFactory dataSenderFactory;
 	
-	private ProcessorFactory<DataHandler> clientProcessorFactory;
+	private ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory;
 
 	private HostPort proxySocketAddress;
 
@@ -54,7 +54,7 @@ public class NtlmProxyHttpConnectionFactory implements ProxyHttpConnectionFactor
 	private HttpStateMachine stateMachine;
 
 	public NtlmProxyHttpConnectionFactory(AsyncSocketFactory<AsyncSocket> socketFactory,
-			DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler> clientProcessorFactory,
+			DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory,
 			HostPort proxySocketAddress, String interfaceName, boolean forceIpV4,
 			String domain, String username, String password, HttpRequestManipulator manipulator,
 			HttpStateMachine stateMachine) {

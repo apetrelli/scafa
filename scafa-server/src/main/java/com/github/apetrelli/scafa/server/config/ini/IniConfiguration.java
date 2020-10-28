@@ -41,7 +41,7 @@ public class IniConfiguration implements Configuration {
     private List<ServerConfiguration> serverConfigurations;
 
     public static IniConfiguration create(String profile, AsyncSocketFactory<AsyncSocket> socketFactory,
-            DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler> clientProcessorFactory,
+            DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory,
             HttpStateMachine stateMachine)
             throws IOException {
         if (profile == null) {
@@ -52,7 +52,7 @@ public class IniConfiguration implements Configuration {
     }
 
 	private IniConfiguration(Ini ini, AsyncSocketFactory<AsyncSocket> socketFactory,
-			DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler> clientProcessorFactory,
+			DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory,
 			HttpStateMachine stateMachine) {
         this.ini = ini;
 		serverConfigurations = ini

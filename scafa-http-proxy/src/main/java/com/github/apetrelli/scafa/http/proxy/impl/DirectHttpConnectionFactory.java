@@ -36,19 +36,19 @@ public class DirectHttpConnectionFactory implements ProxyHttpConnectionFactory {
 
 	private DataSenderFactory dataSenderFactory;
 	
-	private ProcessorFactory<DataHandler> clientProcessorFactory;
+	private ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory;
 
 	private String interfaceName;
 
 	private boolean forceIpV4;
 
 	public DirectHttpConnectionFactory(AsyncSocketFactory<AsyncSocket> socketFactory,
-			DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler> clientProcessorFactory) {
+			DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory) {
 		this(socketFactory, dataSenderFactory, clientProcessorFactory, null, false);
 	}
 
 	public DirectHttpConnectionFactory(AsyncSocketFactory<AsyncSocket> socketFactory,
-			DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler> clientProcessorFactory,
+			DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory,
 			String interfaceName, boolean forceIpV4) {
 		this.socketFactory = socketFactory;
 		this.dataSenderFactory = dataSenderFactory;
