@@ -6,26 +6,44 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.concurrent.CompletableFuture;
 
+import com.github.apetrelli.scafa.http.HttpHandler;
+import com.github.apetrelli.scafa.http.HttpProcessingContext;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.client.HttpClient;
 import com.github.apetrelli.scafa.http.client.HttpClientConnection;
 import com.github.apetrelli.scafa.http.client.HttpClientHandler;
-import com.github.apetrelli.scafa.http.output.DataSenderFactory;
+import com.github.apetrelli.scafa.http.impl.HttpProcessingContextFactory;
+import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
 import com.github.apetrelli.scafa.http.output.impl.DefaultDataSenderFactory;
+import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.BufferContext;
 import com.github.apetrelli.scafa.proto.aio.BufferContextReader;
 import com.github.apetrelli.scafa.proto.aio.CompletionHandlerFuture;
+import com.github.apetrelli.scafa.proto.aio.ProcessorFactory;
+import com.github.apetrelli.scafa.proto.aio.impl.DefaultProcessorFactory;
+import com.github.apetrelli.scafa.proto.aio.impl.DirectClientAsyncSocketFactory;
 import com.github.apetrelli.scafa.proto.aio.impl.PathBufferContextReader;
+import com.github.apetrelli.scafa.proto.processor.impl.StatefulInputProcessorFactory;
 import com.github.apetrelli.scafa.tls.util.IOUtils;
 
 public class DefaultHttpClient implements HttpClient {
 
 	private MappedHttpConnectionFactory connectionFactory;
 
-	private DataSenderFactory dataSenderFactory = new DefaultDataSenderFactory();
+	private static ProcessorFactory<HttpHandler, AsyncSocket> buildDefaultProcessorFactory() {
+		HttpProcessingContextFactory contextFactory = new HttpProcessingContextFactory();
+		StatefulInputProcessorFactory<HttpHandler, HttpProcessingContext> inputProcessorFactory = new StatefulInputProcessorFactory<>(
+				new HttpStateMachine());
+		return new DefaultProcessorFactory<>(inputProcessorFactory, contextFactory);
+	}
+	
+	public DefaultHttpClient(MappedHttpConnectionFactory connectionFactory) {
+		this.connectionFactory = connectionFactory;
+	}
 
 	public DefaultHttpClient() {
-		connectionFactory = new DefaultMappedHttpConnectionFactory(dataSenderFactory);
+		this(new DefaultMappedHttpConnectionFactory(new DefaultDataSenderFactory(),
+				new DirectClientAsyncSocketFactory(), buildDefaultProcessorFactory()));
 	}
 
 	@Override

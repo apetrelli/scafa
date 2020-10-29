@@ -6,11 +6,13 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import com.github.apetrelli.scafa.http.HttpAsyncSocket;
+import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.client.HttpClientConnection;
 import com.github.apetrelli.scafa.http.impl.DirectHttpAsyncSocket;
 import com.github.apetrelli.scafa.http.output.DataSenderFactory;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
+import com.github.apetrelli.scafa.proto.aio.ProcessorFactory;
 import com.github.apetrelli.scafa.proto.aio.SocketFactory;
 import com.github.apetrelli.scafa.proto.aio.impl.DirectClientAsyncSocketFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
@@ -20,11 +22,16 @@ public class DefaultMappedHttpConnectionFactory implements MappedHttpConnectionF
     private DataSenderFactory dataSenderFactory;
     
     private SocketFactory<AsyncSocket> socketFactory = new DirectClientAsyncSocketFactory();
+    
+    private ProcessorFactory<HttpHandler, AsyncSocket> processorFactory;
 
     private Map<HostPort, HttpClientConnection> connectionCache = new HashMap<>();
 
-	public DefaultMappedHttpConnectionFactory(DataSenderFactory dataSenderFactory) {
+	public DefaultMappedHttpConnectionFactory(DataSenderFactory dataSenderFactory,
+			SocketFactory<AsyncSocket> socketFactory, ProcessorFactory<HttpHandler, AsyncSocket> processorFactory) {
         this.dataSenderFactory = dataSenderFactory;
+        this.socketFactory = socketFactory;
+        this.processorFactory = processorFactory;
     }
 	
 	@Override
@@ -35,7 +42,7 @@ public class DefaultMappedHttpConnectionFactory implements MappedHttpConnectionF
 			if (cachedConnection == null) {
 			    AsyncSocket socket = socketFactory.create(hostPort, null, false);
 			    HttpAsyncSocket<HttpRequest> httpSocket = new DirectHttpAsyncSocket<>(socket, dataSenderFactory);
-				HttpClientConnection connection = new DirectHttpConnection(httpSocket, this);
+				HttpClientConnection connection = new DirectHttpConnection(httpSocket, this, processorFactory);
 				connectionCache.put(hostPort, connection);
 				return connection.connect().thenApply(x -> connection);
 			} else {
