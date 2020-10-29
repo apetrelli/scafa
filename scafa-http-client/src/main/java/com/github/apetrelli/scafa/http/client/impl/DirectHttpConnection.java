@@ -7,7 +7,6 @@ import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpProcessingContext;
 import com.github.apetrelli.scafa.http.HttpRequest;
-import com.github.apetrelli.scafa.http.HttpStatus;
 import com.github.apetrelli.scafa.http.client.HttpClientConnection;
 import com.github.apetrelli.scafa.http.client.HttpClientHandler;
 import com.github.apetrelli.scafa.http.impl.HttpProcessingContextFactory;
@@ -58,7 +57,7 @@ public class DirectHttpConnection extends AbstractClientConnection<HttpAsyncSock
 	@Override
     protected void prepareChannel() {
 		HttpProcessingContextFactory contextFactory = new HttpProcessingContextFactory();
-		StatefulInputProcessorFactory<HttpHandler, HttpStatus, HttpProcessingContext> inputProcessorFactory = new StatefulInputProcessorFactory<>(
+		StatefulInputProcessorFactory<HttpHandler, HttpProcessingContext> inputProcessorFactory = new StatefulInputProcessorFactory<>(
 				new HttpStateMachine());
 		Processor<HttpHandler> processor = new DefaultProcessor<>(socket, inputProcessorFactory, contextFactory);
 		processor.process(responseHandler);

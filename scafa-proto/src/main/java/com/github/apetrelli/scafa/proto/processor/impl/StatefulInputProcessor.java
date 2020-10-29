@@ -24,13 +24,13 @@ import com.github.apetrelli.scafa.proto.processor.InputProcessor;
 import com.github.apetrelli.scafa.proto.processor.ProcessingContext;
 import com.github.apetrelli.scafa.proto.processor.ProtocolStateMachine;
 
-public class StatefulInputProcessor<H, ST, P extends ProcessingContext<ST>> implements InputProcessor<P> {
+public class StatefulInputProcessor<H, P extends ProcessingContext<?>> implements InputProcessor<P> {
 
-    private ProtocolStateMachine<H, ST, P> stateMachine;
+    private ProtocolStateMachine<H, ? super P> stateMachine;
 
     private H handler;
 
-    public StatefulInputProcessor(H handler, ProtocolStateMachine<H, ST, P> stateMachine) {
+    public StatefulInputProcessor(H handler, ProtocolStateMachine<H, ? super P> stateMachine) {
         this.handler = handler;
         this.stateMachine = stateMachine;
     }
@@ -38,8 +38,7 @@ public class StatefulInputProcessor<H, ST, P extends ProcessingContext<ST>> impl
     @Override
     public CompletableFuture<P> process(P context) {
         ByteBuffer buffer = context.getBuffer();
-        if (buffer.position() < buffer.limit()) {
-        	stateMachine.next(context);
+        if (buffer.hasRemaining()) {
         	return stateMachine.out(context, handler).thenCompose(x -> process(context));
         } else {
             return CompletableFuture.completedFuture(context);

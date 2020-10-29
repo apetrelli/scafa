@@ -25,7 +25,6 @@ import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
-import com.github.apetrelli.scafa.http.HttpStatus;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
 import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
@@ -56,7 +55,7 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
 
     private String domain, username, password;
 
-    private NtlmHttpStateMachine stateMachine;
+    private HttpStateMachine stateMachine;
 
     private TentativeHandler tentativeHandler;
 
@@ -72,7 +71,7 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
         this.domain = domain;
         this.username = username;
         this.password = password;
-        this.stateMachine = new NtlmHttpStateMachine(stateMachine);
+        this.stateMachine = stateMachine;
         tentativeHandler = new TentativeHandler(sourceChannel);
         processingContextFactory = new NtlmHttpProcessingContextFactory();
     }
@@ -97,7 +96,7 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
     private CompletableFuture<Void> authenticateOnConnect(HttpRequest request) {
         HttpRequest modifiedRequest = new HttpRequest(request);
         modifiedRequest.setHeader("Proxy-Connection", "keep-alive");
-        StatefulInputProcessor<HttpHandler, HttpStatus, NtlmHttpProcessingContext> processor = new StatefulInputProcessor<>(tentativeHandler, stateMachine);
+        StatefulInputProcessor<HttpHandler, NtlmHttpProcessingContext> processor = new StatefulInputProcessor<>(tentativeHandler, stateMachine);
         return ntlmAuthenticate(modifiedRequest, modifiedRequest, tentativeHandler, processor);
     }
 
@@ -109,7 +108,7 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
         if (length != null) {
             modifiedRequest.setHeader("Content-Length", "0");
         }
-        StatefulInputProcessor<HttpHandler, HttpStatus, NtlmHttpProcessingContext> processor = new StatefulInputProcessor<>(
+        StatefulInputProcessor<HttpHandler, NtlmHttpProcessingContext> processor = new StatefulInputProcessor<>(
                 tentativeHandler, stateMachine);
 		return socket.sendHeader(modifiedRequest).thenCompose(x -> readResponse(tentativeHandler, processor))
 				.thenCompose(x -> {
@@ -133,7 +132,7 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
     }
 
     private CompletableFuture<Void> ntlmAuthenticate(HttpRequest modifiedRequest, HttpRequest finalRequest, CapturingHandler handler,
-            StatefulInputProcessor<HttpHandler, HttpStatus, NtlmHttpProcessingContext> processor) {
+            StatefulInputProcessor<HttpHandler, NtlmHttpProcessingContext> processor) {
         Type1Message message1 = new Type1Message(TYPE_1_FLAGS, null, null);
         modifiedRequest.setHeader("PROXY-AUTHORIZATION", NTLM + Base64.encode(message1.toByteArray()));
         return socket.sendHeader(modifiedRequest).thenCompose(x -> readResponse(handler, processor))
@@ -183,14 +182,14 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
     }
 
     private CompletableFuture<Integer> readResponse(CapturingHandler handler,
-            StatefulInputProcessor<HttpHandler, HttpStatus, NtlmHttpProcessingContext> processor) {
+            StatefulInputProcessor<HttpHandler, NtlmHttpProcessingContext> processor) {
         handler.reset();
         NtlmHttpProcessingContext context = processingContextFactory.create();
         return readResponse(handler, processor, context);
     }
 
 	private CompletableFuture<Integer> readResponse(CapturingHandler handler,
-			StatefulInputProcessor<HttpHandler, HttpStatus, NtlmHttpProcessingContext> processor,
+			StatefulInputProcessor<HttpHandler, NtlmHttpProcessingContext> processor,
 			NtlmHttpProcessingContext context) {
         if (!handler.isFinished()) {
             readBuffer.clear();
