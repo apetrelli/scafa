@@ -55,7 +55,7 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
 
     private String domain, username, password;
 
-    private NtlmHttpStateMachine stateMachine;
+    private HttpStateMachine stateMachine;
 
     private TentativeHandler tentativeHandler;
 
@@ -71,7 +71,7 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
         this.domain = domain;
         this.username = username;
         this.password = password;
-        this.stateMachine = new NtlmHttpStateMachine(stateMachine);
+        this.stateMachine = stateMachine;
         tentativeHandler = new TentativeHandler(sourceChannel);
         processingContextFactory = new NtlmHttpProcessingContextFactory();
     }
