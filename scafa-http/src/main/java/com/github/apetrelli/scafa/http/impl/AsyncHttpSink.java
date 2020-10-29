@@ -1,6 +1,5 @@
 package com.github.apetrelli.scafa.http.impl;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
@@ -77,21 +76,17 @@ public class AsyncHttpSink implements HttpSink<HttpHandler, CompletableFuture<Vo
 	}
 
 	public CompletableFuture<Void> endChunkCount(HttpProcessingContext context, HttpHandler handler) {
-		try {
-			context.evaluateChunkLength();
-			long chunkCount = context.getChunkLength();
-			return handler.onChunkStart(context.getTotalChunkedTransferLength(), chunkCount).thenCompose(x -> {
-				if (chunkCount == 0L) {
-					return handler.onChunkEnd().thenCompose(y -> handler.onChunkedTransferEnd())
-							.thenCompose(z -> handler.onEnd());
-				} else {
-					return CompletionHandlerFuture.completeEmpty();
-				}
+		context.evaluateChunkLength();
+		long chunkCount = context.getChunkLength();
+		return handler.onChunkStart(context.getTotalChunkedTransferLength(), chunkCount).thenCompose(x -> {
+			if (chunkCount == 0L) {
+				return handler.onChunkEnd().thenCompose(y -> handler.onChunkedTransferEnd())
+						.thenCompose(z -> handler.onEnd());
+			} else {
+				return CompletionHandlerFuture.completeEmpty();
+			}
 
-			});
-		} catch (IOException e) {
-			return CompletableFuture.failedFuture(e);
-		}
+		});
 	}
 
 	@Override
