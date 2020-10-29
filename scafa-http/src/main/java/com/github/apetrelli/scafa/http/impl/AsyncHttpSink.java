@@ -13,9 +13,14 @@ import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.HttpSink;
 import com.github.apetrelli.scafa.proto.aio.CompletionHandlerFuture;
 
-public class AsyncHttpSink implements HttpSink {
+public class AsyncHttpSink implements HttpSink<HttpHandler, CompletableFuture<Void>> {
 	
 	private static final Logger LOG = Logger.getLogger(AsyncHttpSink.class.getName());
+	
+	@Override
+	public void onStart(HttpHandler handler) {
+		handler.onStart();
+	}
 
 	public CompletableFuture<Void> endHeader(HttpProcessingContext context, HttpHandler handler) {
 		HttpRequest request = context.getRequest();
@@ -89,4 +94,18 @@ public class AsyncHttpSink implements HttpSink {
 		}
 	}
 
+	@Override
+	public CompletableFuture<Void> onChunkEnd(HttpHandler handler) {
+		return handler.onChunkEnd();
+	}
+	
+	@Override
+	public CompletableFuture<Void> onDataToPassAlong(HttpProcessingContext context, HttpHandler handler) {
+		return handler.onDataToPassAlong(context.getBuffer());
+	}
+	
+	@Override
+	public CompletableFuture<Void> completed() {
+		return CompletionHandlerFuture.completeEmpty();
+	}
 }

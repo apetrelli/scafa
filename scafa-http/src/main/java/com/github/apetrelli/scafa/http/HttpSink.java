@@ -1,15 +1,22 @@
 package com.github.apetrelli.scafa.http;
 
-import java.util.concurrent.CompletableFuture;
-
-public interface HttpSink {
-	CompletableFuture<Void> endHeader(HttpProcessingContext context, HttpHandler handler);
+public interface HttpSink<H, R> {
 	
-	CompletableFuture<Void> endHeaderAndRequest(HttpProcessingContext context, HttpHandler handler);
+	void onStart(H handler);
 	
-	CompletableFuture<Void> data(HttpProcessingContext context, HttpHandler handler);
+	R endHeader(HttpProcessingContext context, H handler);
 	
-	CompletableFuture<Void> chunkData(HttpProcessingContext context, HttpHandler handler);
+	R endHeaderAndRequest(HttpProcessingContext context, H handler);
 	
-	CompletableFuture<Void> endChunkCount(HttpProcessingContext context, HttpHandler handler);
+	R data(HttpProcessingContext context, H handler);
+	
+	R chunkData(HttpProcessingContext context, H handler);
+	
+	R endChunkCount(HttpProcessingContext context, H handler);
+	
+	R onChunkEnd(H handler);
+	
+	R onDataToPassAlong(HttpProcessingContext context, H handler);
+	
+	R completed();
 }

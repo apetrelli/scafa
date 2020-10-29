@@ -34,7 +34,7 @@ public class DefaultHttpClient implements HttpClient {
 	private static ProcessorFactory<HttpHandler, AsyncSocket> buildDefaultProcessorFactory() {
 		HttpProcessingContextFactory contextFactory = new HttpProcessingContextFactory();
 		StatefulInputProcessorFactory<HttpHandler, HttpProcessingContext> inputProcessorFactory = new StatefulInputProcessorFactory<>(
-				new HttpStateMachine(new AsyncHttpSink()));
+				new HttpStateMachine<>(new AsyncHttpSink()));
 		return new DefaultProcessorFactory<>(inputProcessorFactory, contextFactory);
 	}
 	

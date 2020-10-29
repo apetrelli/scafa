@@ -26,11 +26,11 @@ import com.github.apetrelli.scafa.proto.processor.ProtocolStateMachine;
 
 public class StatefulInputProcessor<H, P extends ProcessingContext<?>> implements InputProcessor<P> {
 
-    private ProtocolStateMachine<H, ? super P> stateMachine;
+    private ProtocolStateMachine<H, ? super P, CompletableFuture<Void>> stateMachine;
 
     private H handler;
 
-    public StatefulInputProcessor(H handler, ProtocolStateMachine<H, ? super P> stateMachine) {
+	public StatefulInputProcessor(H handler, ProtocolStateMachine<H, ? super P, CompletableFuture<Void>> stateMachine) {
         this.handler = handler;
         this.stateMachine = stateMachine;
     }
