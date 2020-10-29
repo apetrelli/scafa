@@ -7,9 +7,9 @@ import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.impl.DirectHttpConnectionFactory;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.SocketFactory;
-import com.github.apetrelli.scafa.proto.aio.ProcessorFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.processor.DataHandler;
+import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
 
 public class ConfigurationProxyHttpConnectionFactory implements ProxyHttpConnectionFactory {
 

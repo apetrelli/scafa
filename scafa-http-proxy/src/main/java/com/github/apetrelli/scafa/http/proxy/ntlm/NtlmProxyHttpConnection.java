@@ -32,9 +32,9 @@ import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.impl.AbstractUpstreamProxyHttpConnection;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.CompletionHandlerFuture;
-import com.github.apetrelli.scafa.proto.aio.ProcessorFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.processor.DataHandler;
+import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
 import com.github.apetrelli.scafa.proto.processor.impl.StatefulInputProcessor;
 
 import jcifs.ntlmssp.NtlmFlags;

@@ -28,11 +28,11 @@ import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
-import com.github.apetrelli.scafa.proto.aio.ProcessorFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.client.impl.AbstractClientConnection;
 import com.github.apetrelli.scafa.proto.processor.DataHandler;
 import com.github.apetrelli.scafa.proto.processor.Processor;
+import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
 
 public abstract class AbstractProxyHttpConnection<T extends AsyncSocket> extends AbstractClientConnection<HttpAsyncSocket<HttpRequest>> implements ProxyHttpConnection {
 	
