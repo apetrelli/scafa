@@ -12,6 +12,7 @@ import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.client.HttpClient;
 import com.github.apetrelli.scafa.http.client.HttpClientConnection;
 import com.github.apetrelli.scafa.http.client.HttpClientHandler;
+import com.github.apetrelli.scafa.http.impl.AsyncHttpSink;
 import com.github.apetrelli.scafa.http.impl.HttpProcessingContextFactory;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
 import com.github.apetrelli.scafa.http.output.impl.DefaultDataSenderFactory;
@@ -33,7 +34,7 @@ public class DefaultHttpClient implements HttpClient {
 	private static ProcessorFactory<HttpHandler, AsyncSocket> buildDefaultProcessorFactory() {
 		HttpProcessingContextFactory contextFactory = new HttpProcessingContextFactory();
 		StatefulInputProcessorFactory<HttpHandler, HttpProcessingContext> inputProcessorFactory = new StatefulInputProcessorFactory<>(
-				new HttpStateMachine());
+				new HttpStateMachine(new AsyncHttpSink()));
 		return new DefaultProcessorFactory<>(inputProcessorFactory, contextFactory);
 	}
 	
