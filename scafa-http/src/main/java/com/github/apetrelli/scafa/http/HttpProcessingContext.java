@@ -1,6 +1,5 @@
 package com.github.apetrelli.scafa.http;
 
-import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -181,7 +180,7 @@ public class HttpProcessingContext extends ProcessingContext<HttpStatus> {
         }
     }
 
-    public void evaluateChunkLength() throws IOException {
+    public void evaluateChunkLength() {
         if (lineBuilder.length() > 0) {
             String chunkCountHex = lineBuilder.toString();
             clearLineBuilder();
@@ -190,10 +189,10 @@ public class HttpProcessingContext extends ProcessingContext<HttpStatus> {
                 LOG.log(Level.FINEST, "Preparing to read {0} bytes of a chunk", chunkCount);
                 setChunkLength(chunkCount);
             } catch (NumberFormatException e) {
-                throw new IOException("Invalid chunk count " + chunkCountHex, e);
+                throw new HttpException("Invalid chunk count " + chunkCountHex, e);
             }
         } else {
-            throw new IOException("Chunk count as empty string, invalid");
+            throw new HttpException("Chunk count as empty string, invalid");
         }
     }
     public void reset() {
