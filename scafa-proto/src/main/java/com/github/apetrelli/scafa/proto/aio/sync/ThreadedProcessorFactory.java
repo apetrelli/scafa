@@ -1,8 +1,8 @@
 package com.github.apetrelli.scafa.proto.aio.sync;
 
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
-import com.github.apetrelli.scafa.proto.aio.ProcessorFactory;
 import com.github.apetrelli.scafa.proto.processor.Processor;
+import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
 
 public class ThreadedProcessorFactory<H> implements ProcessorFactory<H, AsyncSocket>{
 
