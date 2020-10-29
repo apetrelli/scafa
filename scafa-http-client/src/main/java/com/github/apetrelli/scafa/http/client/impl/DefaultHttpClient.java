@@ -20,9 +20,9 @@ import com.github.apetrelli.scafa.proto.aio.BufferContext;
 import com.github.apetrelli.scafa.proto.aio.BufferContextReader;
 import com.github.apetrelli.scafa.proto.aio.CompletionHandlerFuture;
 import com.github.apetrelli.scafa.proto.aio.ProcessorFactory;
-import com.github.apetrelli.scafa.proto.aio.impl.DefaultProcessorFactory;
 import com.github.apetrelli.scafa.proto.aio.impl.DirectClientAsyncSocketFactory;
 import com.github.apetrelli.scafa.proto.aio.impl.PathBufferContextReader;
+import com.github.apetrelli.scafa.proto.processor.impl.DefaultProcessorFactory;
 import com.github.apetrelli.scafa.proto.processor.impl.StatefulInputProcessorFactory;
 import com.github.apetrelli.scafa.tls.util.IOUtils;
 
