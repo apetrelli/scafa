@@ -32,7 +32,6 @@ import org.apache.commons.io.IOUtils;
 
 import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpProcessingContext;
-import com.github.apetrelli.scafa.http.HttpStatus;
 import com.github.apetrelli.scafa.http.impl.HttpProcessingContextFactory;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
 import com.github.apetrelli.scafa.http.output.DataSenderFactory;
@@ -41,8 +40,8 @@ import com.github.apetrelli.scafa.http.proxy.impl.DefaultHttpConnectionFactoryFa
 import com.github.apetrelli.scafa.http.proxy.impl.ProxyHttpHandlerFactory;
 import com.github.apetrelli.scafa.proto.aio.AsyncServerSocketFactory;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
-import com.github.apetrelli.scafa.proto.aio.SocketFactory;
 import com.github.apetrelli.scafa.proto.aio.ScafaListener;
+import com.github.apetrelli.scafa.proto.aio.SocketFactory;
 import com.github.apetrelli.scafa.proto.aio.impl.DefaultProcessorFactory;
 import com.github.apetrelli.scafa.proto.aio.impl.DirectAsyncServerSocketFactory;
 import com.github.apetrelli.scafa.proto.aio.impl.DirectClientAsyncSocketFactory;
@@ -120,7 +119,7 @@ public class ScafaLauncher {
 			IniConfiguration configuration = IniConfiguration.create(profile, socketFactory, dataSenderFactory,
 					clientProcessorFactory, stateMachine);
             Integer port = configuration.getPort();
-            StatefulInputProcessorFactory<HttpHandler, HttpStatus, HttpProcessingContext> inputProcessorFactory = new StatefulInputProcessorFactory<>(stateMachine);
+            StatefulInputProcessorFactory<HttpHandler, HttpProcessingContext> inputProcessorFactory = new StatefulInputProcessorFactory<>(stateMachine);
             DefaultHttpConnectionFactoryFactory connectionFactoryFactory = new DefaultHttpConnectionFactoryFactory(
                     new ConfigurationProxyHttpConnectionFactory(configuration, socketFactory, dataSenderFactory, clientProcessorFactory));
             HttpProcessingContextFactory processingContextFactory = new HttpProcessingContextFactory();

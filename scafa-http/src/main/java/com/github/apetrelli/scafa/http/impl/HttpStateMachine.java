@@ -15,16 +15,90 @@ import com.github.apetrelli.scafa.http.HttpStatus;
 import com.github.apetrelli.scafa.proto.aio.CompletionHandlerFuture;
 import com.github.apetrelli.scafa.proto.processor.ProtocolStateMachine;
 
-public class HttpStateMachine implements ProtocolStateMachine<HttpHandler, HttpStatus, HttpProcessingContext> {
+public class HttpStateMachine implements ProtocolStateMachine<HttpHandler, HttpProcessingContext> {
 
 	private static final Logger LOG = Logger.getLogger(HttpStateMachine.class.getName());
 
     private static final byte CR = 13;
 
     private static final byte LF = 10;
-
+	
 	@Override
-	public HttpStatus next(HttpProcessingContext context) {
+	public CompletableFuture<Void> out(HttpProcessingContext context,
+			HttpHandler handler) {
+		CompletableFuture<Void> retValue = null;
+		try {
+			while (retValue == null && context.getBuffer().hasRemaining()) {
+				next(context);
+				switch (context.getStatus()) {
+				case IDLE:
+					break;
+				case START_REQUEST_LINE:
+			        context.reset();
+			        context.appendToLine(context.getBuffer().get());
+					handler.onStart();
+					break;
+				case REQUEST_LINE:
+		            onRequestLine(context);
+					break;
+				case REQUEST_LINE_CR:
+					endRequestLine(context);
+					break;
+				case REQUEST_LINE_LF:
+				case HEADER_LF:
+				case PENULTIMATE_BYTE:
+				case LAST_BYTE:
+				case CHUNK_COUNT_CR:
+				case CHUNK_LF:
+		            context.getBuffer().get(); // discard LF.
+					break;
+				case POSSIBLE_HEADER_CR:
+		            context.getBuffer().get(); // discard CR.
+		            context.evaluateBodyMode();
+					break;
+				case SEND_HEADER_AND_END:
+		            context.getBuffer().get(); // discard LF.
+					retValue = endHeaderAndRequest(context, handler);
+					break;
+				case POSSIBLE_HEADER_LF:
+		            context.getBuffer().get(); // discard LF.
+		            retValue = endHeader(context, handler);
+					break;
+				case HEADER:
+					onHeader(context);
+					break;
+				case HEADER_CR:
+		            context.getBuffer().get(); // discard CR
+		            context.addHeaderLine();
+					break;
+				case BODY:
+					retValue = data(context, handler);
+					break;
+				case CHUNK_COUNT:
+					onChunkCount(context);
+					break;
+				case CHUNK_COUNT_LF:
+		            context.getBuffer().get(); // discard LF.
+		            retValue = endChunkCount(context, handler);
+					break;
+				case CHUNK:
+					retValue = chunkData(context, handler);
+					break;
+				case CHUNK_CR:
+					context.getBuffer().get(); // discard CR
+					retValue = handler.onChunkEnd();
+					break;
+				case CONNECT:
+					retValue = handler.onDataToPassAlong(context.getBuffer());
+				}
+			}
+		} catch (IOException e) {
+			retValue = CompletableFuture.failedFuture(e);
+		}
+		return retValue != null ? retValue.thenCompose(x -> out(context, handler)) : CompletionHandlerFuture.completeEmpty();
+	}
+	
+	private HttpStatus next(HttpProcessingContext context) {
 		HttpStatus newStatus = null;
 		switch (context.getStatus()) {
 		case IDLE:
@@ -129,81 +203,8 @@ public class HttpStateMachine implements ProtocolStateMachine<HttpHandler, HttpS
 		context.setStatus(newStatus);
 		return newStatus;
 	}
-	
-	@Override
-	public CompletableFuture<Void> out(HttpProcessingContext context,
-			HttpHandler handler) {
-		CompletableFuture<Void> retValue = null;
-		switch (context.getStatus()) {
-		case IDLE:
-			retValue = CompletionHandlerFuture.completeEmpty();
-			break;
-		case START_REQUEST_LINE:
-	        context.reset();
-	        context.appendToLine(context.getBuffer().get());
-			handler.onStart();
-			retValue = CompletionHandlerFuture.completeEmpty();
-			break;
-		case REQUEST_LINE:
-            retValue = onRequestLine(context);
-			break;
-		case REQUEST_LINE_CR:
-			retValue = endRequestLine(context);
-			break;
-		case REQUEST_LINE_LF:
-		case HEADER_LF:
-		case PENULTIMATE_BYTE:
-		case LAST_BYTE:
-		case CHUNK_COUNT_CR:
-		case CHUNK_LF:
-            context.getBuffer().get(); // discard LF.
-			retValue = CompletionHandlerFuture.completeEmpty();
-			break;
-		case POSSIBLE_HEADER_CR:
-            context.getBuffer().get(); // discard CR.
-            context.evaluateBodyMode();
-			retValue = CompletionHandlerFuture.completeEmpty();
-			break;
-		case SEND_HEADER_AND_END:
-            context.getBuffer().get(); // discard LF.
-            retValue = endHeaderAndRequest(context, handler);
-			break;
-		case POSSIBLE_HEADER_LF:
-            context.getBuffer().get(); // discard LF.
-            retValue = endHeader(context, handler);
-			break;
-		case HEADER:
-			retValue = onHeader(context);
-			break;
-		case HEADER_CR:
-            context.getBuffer().get(); // discard CR
-            context.addHeaderLine();
-			retValue = CompletionHandlerFuture.completeEmpty();
-			break;
-		case BODY:
-            retValue = data(context, handler);
-			break;
-		case CHUNK_COUNT:
-            retValue = onChunkCount(context);
-			break;
-		case CHUNK_COUNT_LF:
-            context.getBuffer().get(); // discard LF.
-            retValue = endChunkCount(context, handler);
-			break;
-		case CHUNK:
-            retValue = chunkData(context, handler);
-			break;
-		case CHUNK_CR:
-			context.getBuffer().get(); // discard CR
-			retValue = handler.onChunkEnd();
-			break;
-		case CONNECT:
-			retValue = handler.onDataToPassAlong(context.getBuffer());
-		}
-		return retValue;
-	}
 
-	private CompletableFuture<Void> onChunkCount(HttpProcessingContext context) {
+	private void onChunkCount(HttpProcessingContext context) {
 		ByteBuffer buffer = context.getBuffer();
 		byte currentByte;
 		currentByte = buffer.get();
@@ -212,10 +213,9 @@ public class HttpStateMachine implements ProtocolStateMachine<HttpHandler, HttpS
 		    currentByte = buffer.get();
 		}
 		// Evaluating of CR is not necessary since chunk count is treated when LF arrives, at the next state.
-		return CompletionHandlerFuture.completeEmpty();
 	}
 
-	private CompletableFuture<Void> onHeader(HttpProcessingContext context) {
+	private void onHeader(HttpProcessingContext context) {
 		ByteBuffer buffer = context.getBuffer();
 		byte currentByte;
 		currentByte = buffer.get();
@@ -226,10 +226,9 @@ public class HttpStateMachine implements ProtocolStateMachine<HttpHandler, HttpS
 		if (currentByte == CR) {
 		    context.addHeaderLine();
 		}
-		return CompletionHandlerFuture.completeEmpty();
 	}
 
-	private CompletableFuture<Void> onRequestLine(HttpProcessingContext context) {
+	private void onRequestLine(HttpProcessingContext context) throws IOException {
 		ByteBuffer buffer = context.getBuffer();
 		byte currentByte;
 		currentByte = buffer.get();
@@ -238,19 +237,12 @@ public class HttpStateMachine implements ProtocolStateMachine<HttpHandler, HttpS
 		    currentByte = buffer.get();
 		}
 		if (currentByte == CR) {
-			return endRequestLine(context);
-		} else {
-			return CompletionHandlerFuture.completeEmpty();
+			endRequestLine(context);
 		}
 	}
 
-	private CompletableFuture<Void> endRequestLine(HttpProcessingContext context) {
-		try {
-			context.evaluateRequestLine();
-			return CompletionHandlerFuture.completeEmpty();
-		} catch (IOException e) {
-			return CompletableFuture.failedFuture(e);
-		}
+	private void endRequestLine(HttpProcessingContext context) throws IOException {
+		context.evaluateRequestLine();
 	}
 
     private CompletableFuture<Void> endHeader(HttpProcessingContext context, HttpHandler handler) {

@@ -6,7 +6,6 @@ import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpProcessingContext;
-import com.github.apetrelli.scafa.http.HttpStatus;
 import com.github.apetrelli.scafa.http.gateway.GatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.gateway.GatewayHttpConnectionFactoryFactory;
 import com.github.apetrelli.scafa.http.gateway.impl.DefaultGatewayHttpHandlerFactory;
@@ -16,9 +15,9 @@ import com.github.apetrelli.scafa.http.output.DataSenderFactory;
 import com.github.apetrelli.scafa.http.output.impl.DefaultDataSenderFactory;
 import com.github.apetrelli.scafa.proto.aio.AsyncServerSocketFactory;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
-import com.github.apetrelli.scafa.proto.aio.SocketFactory;
 import com.github.apetrelli.scafa.proto.aio.HandlerFactory;
 import com.github.apetrelli.scafa.proto.aio.ScafaListener;
+import com.github.apetrelli.scafa.proto.aio.SocketFactory;
 import com.github.apetrelli.scafa.proto.aio.impl.DefaultProcessorFactory;
 import com.github.apetrelli.scafa.proto.aio.impl.DirectAsyncServerSocketFactory;
 import com.github.apetrelli.scafa.proto.aio.impl.DirectClientAsyncSocketFactory;
@@ -48,7 +47,7 @@ public class DirectHttpGateway {
 
 	public void launch() {
     	HttpStateMachine stateMachine = new HttpStateMachine();
-        StatefulInputProcessorFactory<HttpHandler, HttpStatus, HttpProcessingContext> inputProcessorFactory = new StatefulInputProcessorFactory<>(stateMachine);
+        StatefulInputProcessorFactory<HttpHandler, HttpProcessingContext> inputProcessorFactory = new StatefulInputProcessorFactory<>(stateMachine);
         HttpProcessingContextFactory processingContextFactory = new HttpProcessingContextFactory();
         SocketFactory<AsyncSocket> socketFactory = new DirectClientAsyncSocketFactory();
         DataSenderFactory dataSenderFactory = new DefaultDataSenderFactory();

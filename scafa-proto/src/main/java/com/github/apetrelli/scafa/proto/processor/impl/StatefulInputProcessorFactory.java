@@ -22,12 +22,12 @@ import com.github.apetrelli.scafa.proto.processor.InputProcessorFactory;
 import com.github.apetrelli.scafa.proto.processor.ProcessingContext;
 import com.github.apetrelli.scafa.proto.processor.ProtocolStateMachine;
 
-public class StatefulInputProcessorFactory<H, ST, P extends ProcessingContext<ST>> implements
+public class StatefulInputProcessorFactory<H, P extends ProcessingContext<?>> implements
         InputProcessorFactory<H, P> {
 
-	private ProtocolStateMachine<H, ST, P> stateMachine;
+	private ProtocolStateMachine<H, P> stateMachine;
 
-	public StatefulInputProcessorFactory(ProtocolStateMachine<H, ST, P> stateMachine) {
+	public StatefulInputProcessorFactory(ProtocolStateMachine<H, P> stateMachine) {
 		this.stateMachine = stateMachine;
 	}
 
