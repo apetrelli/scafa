@@ -17,8 +17,8 @@ import com.github.apetrelli.scafa.http.server.impl.HttpServerHandlerAdapterFacto
 import com.github.apetrelli.scafa.proto.aio.AsyncServerSocketFactory;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.ScafaListener;
-import com.github.apetrelli.scafa.proto.aio.impl.DefaultProcessorFactory;
 import com.github.apetrelli.scafa.proto.aio.impl.DirectAsyncServerSocketFactory;
+import com.github.apetrelli.scafa.proto.processor.impl.DefaultProcessorFactory;
 import com.github.apetrelli.scafa.proto.processor.impl.StatefulInputProcessorFactory;
 
 public class ScafaHttpServer {

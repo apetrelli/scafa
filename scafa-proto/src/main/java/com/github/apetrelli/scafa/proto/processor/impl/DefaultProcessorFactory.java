@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.apetrelli.scafa.proto.aio.impl;
+package com.github.apetrelli.scafa.proto.processor.impl;
 
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.ProcessorFactory;
@@ -24,7 +24,6 @@ import com.github.apetrelli.scafa.proto.processor.Input;
 import com.github.apetrelli.scafa.proto.processor.InputProcessorFactory;
 import com.github.apetrelli.scafa.proto.processor.ProcessingContextFactory;
 import com.github.apetrelli.scafa.proto.processor.Processor;
-import com.github.apetrelli.scafa.proto.processor.impl.DefaultProcessor;
 
 public class DefaultProcessorFactory<P extends Input, H extends Handler>
 		implements ProcessorFactory<H, AsyncSocket> {
