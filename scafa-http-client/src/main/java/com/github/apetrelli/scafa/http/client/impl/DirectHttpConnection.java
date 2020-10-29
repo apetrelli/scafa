@@ -5,26 +5,27 @@ import java.util.concurrent.CompletableFuture;
 
 import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpHandler;
-import com.github.apetrelli.scafa.http.HttpProcessingContext;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.client.HttpClientConnection;
 import com.github.apetrelli.scafa.http.client.HttpClientHandler;
-import com.github.apetrelli.scafa.http.impl.HttpProcessingContextFactory;
-import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
+import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
+import com.github.apetrelli.scafa.proto.aio.ProcessorFactory;
 import com.github.apetrelli.scafa.proto.client.impl.AbstractClientConnection;
 import com.github.apetrelli.scafa.proto.processor.Processor;
-import com.github.apetrelli.scafa.proto.processor.impl.DefaultProcessor;
-import com.github.apetrelli.scafa.proto.processor.impl.StatefulInputProcessorFactory;
 
 public class DirectHttpConnection extends AbstractClientConnection<HttpAsyncSocket<HttpRequest>> implements HttpClientConnection {
 
     private ClientPipelineHttpHandler responseHandler;
 
     private MappedHttpConnectionFactory connectionFactory;
+    
+    private ProcessorFactory<HttpHandler, AsyncSocket> processorFactory;
 
-	public DirectHttpConnection(HttpAsyncSocket<HttpRequest> socket, MappedHttpConnectionFactory connectionFactory) {
+	public DirectHttpConnection(HttpAsyncSocket<HttpRequest> socket, MappedHttpConnectionFactory connectionFactory,
+			ProcessorFactory<HttpHandler, AsyncSocket> processorFactory) {
 		super(socket); // No binding ATM.
 		this.connectionFactory = connectionFactory;
+		this.processorFactory = processorFactory;
 		responseHandler = new ClientPipelineHttpHandler(this);
 	}
 	
@@ -56,10 +57,7 @@ public class DirectHttpConnection extends AbstractClientConnection<HttpAsyncSock
 
 	@Override
     protected void prepareChannel() {
-		HttpProcessingContextFactory contextFactory = new HttpProcessingContextFactory();
-		StatefulInputProcessorFactory<HttpHandler, HttpProcessingContext> inputProcessorFactory = new StatefulInputProcessorFactory<>(
-				new HttpStateMachine());
-		Processor<HttpHandler> processor = new DefaultProcessor<>(socket, inputProcessorFactory, contextFactory);
+		Processor<HttpHandler> processor = processorFactory.create(socket);
 		processor.process(responseHandler);
 	}
 }
