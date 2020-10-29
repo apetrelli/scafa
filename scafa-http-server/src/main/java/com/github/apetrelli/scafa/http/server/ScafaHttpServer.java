@@ -1,6 +1,7 @@
 package com.github.apetrelli.scafa.http.server;
 
 import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -44,7 +45,7 @@ public class ScafaHttpServer {
 	}
 
 	public void launch() {
-    	HttpStateMachine stateMachine = new HttpStateMachine(new AsyncHttpSink());
+    	HttpStateMachine<HttpHandler, CompletableFuture<Void>> stateMachine = new HttpStateMachine<>(new AsyncHttpSink());
         StatefulInputProcessorFactory<HttpHandler, HttpProcessingContext> inputProcessorFactory = new StatefulInputProcessorFactory<>(stateMachine);
         HttpProcessingContextFactory processingContextFactory = new HttpProcessingContextFactory();
         HttpServerHandlerAdapterFactory handlerFactory = new HttpServerHandlerAdapterFactory(factory);

@@ -20,10 +20,12 @@ package com.github.apetrelli.scafa.server.config.ini;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 import org.ini4j.Ini;
 
+import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
 import com.github.apetrelli.scafa.http.output.DataSenderFactory;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
@@ -42,7 +44,7 @@ public class IniConfiguration implements Configuration {
 
     public static IniConfiguration create(String profile, SocketFactory<AsyncSocket> socketFactory,
             DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory,
-            HttpStateMachine stateMachine)
+            HttpStateMachine<HttpHandler, CompletableFuture<Void>> stateMachine)
             throws IOException {
         if (profile == null) {
             profile = "direct";
@@ -53,7 +55,7 @@ public class IniConfiguration implements Configuration {
 
 	private IniConfiguration(Ini ini, SocketFactory<AsyncSocket> socketFactory,
 			DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory,
-			HttpStateMachine stateMachine) {
+			HttpStateMachine<HttpHandler, CompletableFuture<Void>> stateMachine) {
         this.ini = ini;
 		serverConfigurations = ini
 				.keySet().stream().filter(t -> !"main".equals(t)).map(t -> new IniServerConfiguration(ini.get(t),

@@ -55,7 +55,7 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
 
     private String domain, username, password;
 
-    private HttpStateMachine stateMachine;
+    private HttpStateMachine<HttpHandler, CompletableFuture<Void>> stateMachine;
 
     private TentativeHandler tentativeHandler;
 
@@ -66,7 +66,7 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
 	public NtlmProxyHttpConnection(MappedProxyHttpConnectionFactory factory,
 			ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory, HttpAsyncSocket<HttpResponse> sourceChannel,
 			HttpAsyncSocket<HttpRequest> socket, HostPort destinationSocketAddress, String domain, String username,
-			String password, HttpStateMachine stateMachine, HttpRequestManipulator manipulator) {
+			String password, HttpStateMachine<HttpHandler, CompletableFuture<Void>> stateMachine, HttpRequestManipulator manipulator) {
         super(factory, clientProcessorFactory, sourceChannel, socket, destinationSocketAddress, manipulator);
         this.domain = domain;
         this.username = username;

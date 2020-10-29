@@ -1,102 +1,93 @@
 package com.github.apetrelli.scafa.http.impl;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.concurrent.CompletableFuture;
 
 import com.github.apetrelli.scafa.http.HttpBodyMode;
-import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpProcessingContext;
 import com.github.apetrelli.scafa.http.HttpSink;
 import com.github.apetrelli.scafa.http.HttpStatus;
-import com.github.apetrelli.scafa.proto.aio.CompletionHandlerFuture;
 import com.github.apetrelli.scafa.proto.processor.ProtocolStateMachine;
 
-public class HttpStateMachine implements ProtocolStateMachine<HttpHandler, HttpProcessingContext> {
+public class HttpStateMachine<H, R> implements ProtocolStateMachine<H, HttpProcessingContext, R> {
 
     private static final byte CR = 13;
 
     private static final byte LF = 10;
     
-    private HttpSink sink;
+    private HttpSink<H, R> sink;
 	
-	public HttpStateMachine(HttpSink sink) {
+	public HttpStateMachine(HttpSink<H, R> sink) {
 		this.sink = sink;
 	}
 
 	@Override
-	public CompletableFuture<Void> out(HttpProcessingContext context,
-			HttpHandler handler) {
-		CompletableFuture<Void> retValue = null;
-		try {
-			while (retValue == null && context.getBuffer().hasRemaining()) {
-				next(context);
-				switch (context.getStatus()) {
-				case IDLE:
-					break;
-				case START_REQUEST_LINE:
-			        context.reset();
-			        context.appendToLine(context.getBuffer().get());
-					handler.onStart();
-					break;
-				case REQUEST_LINE:
-		            onRequestLine(context);
-					break;
-				case REQUEST_LINE_CR:
-					endRequestLine(context);
-					break;
-				case REQUEST_LINE_LF:
-				case HEADER_LF:
-				case PENULTIMATE_BYTE:
-				case LAST_BYTE:
-				case CHUNK_COUNT_CR:
-				case CHUNK_LF:
-		            context.getBuffer().get(); // discard LF.
-					break;
-				case POSSIBLE_HEADER_CR:
-		            context.getBuffer().get(); // discard CR.
-		            context.evaluateBodyMode();
-					break;
-				case SEND_HEADER_AND_END:
-		            context.getBuffer().get(); // discard LF.
-					retValue = sink.endHeaderAndRequest(context, handler);
-					break;
-				case POSSIBLE_HEADER_LF:
-		            context.getBuffer().get(); // discard LF.
-		            retValue = sink.endHeader(context, handler);
-					break;
-				case HEADER:
-					onHeader(context);
-					break;
-				case HEADER_CR:
-		            context.getBuffer().get(); // discard CR
-		            context.addHeaderLine();
-					break;
-				case BODY:
-					retValue = sink.data(context, handler);
-					break;
-				case CHUNK_COUNT:
-					onChunkCount(context);
-					break;
-				case CHUNK_COUNT_LF:
-		            context.getBuffer().get(); // discard LF.
-		            retValue = sink.endChunkCount(context, handler);
-					break;
-				case CHUNK:
-					retValue = sink.chunkData(context, handler);
-					break;
-				case CHUNK_CR:
-					context.getBuffer().get(); // discard CR
-					retValue = handler.onChunkEnd();
-					break;
-				case CONNECT:
-					retValue = handler.onDataToPassAlong(context.getBuffer());
-				}
+	public R out(HttpProcessingContext context, H handler) {
+		R retValue = null;
+		while (retValue == null && context.getBuffer().hasRemaining()) {
+			next(context);
+			switch (context.getStatus()) {
+			case IDLE:
+				break;
+			case START_REQUEST_LINE:
+		        context.reset();
+		        context.appendToLine(context.getBuffer().get());
+				sink.onStart(handler);
+				break;
+			case REQUEST_LINE:
+	            onRequestLine(context);
+				break;
+			case REQUEST_LINE_CR:
+				endRequestLine(context);
+				break;
+			case REQUEST_LINE_LF:
+			case HEADER_LF:
+			case PENULTIMATE_BYTE:
+			case LAST_BYTE:
+			case CHUNK_COUNT_CR:
+			case CHUNK_LF:
+	            context.getBuffer().get(); // discard LF.
+				break;
+			case POSSIBLE_HEADER_CR:
+	            context.getBuffer().get(); // discard CR.
+	            context.evaluateBodyMode();
+				break;
+			case SEND_HEADER_AND_END:
+	            context.getBuffer().get(); // discard LF.
+				retValue = sink.endHeaderAndRequest(context, handler);
+				break;
+			case POSSIBLE_HEADER_LF:
+	            context.getBuffer().get(); // discard LF.
+	            retValue = sink.endHeader(context, handler);
+				break;
+			case HEADER:
+				onHeader(context);
+				break;
+			case HEADER_CR:
+	            context.getBuffer().get(); // discard CR
+	            context.addHeaderLine();
+				break;
+			case BODY:
+				retValue = sink.data(context, handler);
+				break;
+			case CHUNK_COUNT:
+				onChunkCount(context);
+				break;
+			case CHUNK_COUNT_LF:
+	            context.getBuffer().get(); // discard LF.
+	            retValue = sink.endChunkCount(context, handler);
+				break;
+			case CHUNK:
+				retValue = sink.chunkData(context, handler);
+				break;
+			case CHUNK_CR:
+				context.getBuffer().get(); // discard CR
+				retValue = sink.onChunkEnd(handler);
+				break;
+			case CONNECT:
+				retValue = sink.onDataToPassAlong(context, handler);
 			}
-		} catch (IOException e) {
-			retValue = CompletableFuture.failedFuture(e);
 		}
-		return retValue != null ? retValue : CompletionHandlerFuture.completeEmpty();
+		return retValue != null ? retValue : sink.completed();
 	}
 	
 	private HttpStatus next(HttpProcessingContext context) {
@@ -229,7 +220,7 @@ public class HttpStateMachine implements ProtocolStateMachine<HttpHandler, HttpP
 		}
 	}
 
-	private void onRequestLine(HttpProcessingContext context) throws IOException {
+	private void onRequestLine(HttpProcessingContext context) {
 		ByteBuffer buffer = context.getBuffer();
 		byte currentByte;
 		currentByte = buffer.get();
@@ -242,7 +233,7 @@ public class HttpStateMachine implements ProtocolStateMachine<HttpHandler, HttpP
 		}
 	}
 
-	private void endRequestLine(HttpProcessingContext context) throws IOException {
+	private void endRequestLine(HttpProcessingContext context) {
 		context.evaluateRequestLine();
 	}
 }

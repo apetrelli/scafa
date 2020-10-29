@@ -23,6 +23,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -112,7 +113,7 @@ public class ScafaLauncher {
 
     public void launch(String profile) {
         try {
-        	HttpStateMachine stateMachine = new HttpStateMachine(new AsyncHttpSink());
+        	HttpStateMachine<HttpHandler, CompletableFuture<Void>> stateMachine = new HttpStateMachine<>(new AsyncHttpSink());
             DataSenderFactory dataSenderFactory = new DefaultDataSenderFactory();
             SocketFactory<AsyncSocket> socketFactory = new DirectClientAsyncSocketFactory();
             DefaultProcessorFactory<Input, DataHandler> clientProcessorFactory = new DefaultProcessorFactory<>(

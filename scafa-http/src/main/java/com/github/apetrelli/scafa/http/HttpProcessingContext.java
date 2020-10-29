@@ -111,7 +111,7 @@ public class HttpProcessingContext extends ProcessingContext<HttpStatus> {
         lineBuilder.append((char) currentByte);
     }
 
-    public void evaluateRequestLine() throws IOException {
+    public void evaluateRequestLine() {
         String requestLine = lineBuilder.toString();
         clearLineBuilder();
         String[] pieces = requestLine.split("\\s+");
@@ -123,7 +123,7 @@ public class HttpProcessingContext extends ProcessingContext<HttpStatus> {
                     responseCode = Integer.parseInt(pieces[1]);
                 } catch (NumberFormatException e) {
                     responseCode = 500;
-                    LOG.log(Level.SEVERE, "The response code is not a number: " + pieces[1], e);
+                    LOG.log(Level.SEVERE, e, () -> "The response code is not a number: " + pieces[1]);
                 }
                 String responseMessage = null;
                 if (pieces.length > 2) {
@@ -140,10 +140,10 @@ public class HttpProcessingContext extends ProcessingContext<HttpStatus> {
                 request = new HttpRequest(pieces[0], pieces[1], pieces[2]);
                 holder = request;
             } else {
-                throw new IOException("The request or response line is invalid: " + requestLine);
+                throw new HttpException("The request or response line is invalid: " + requestLine);
             }
         } else {
-            throw new IOException("The request or response line is invalid: " + requestLine);
+            throw new HttpException("The request or response line is invalid: " + requestLine);
         }
     }
 

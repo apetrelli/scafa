@@ -17,6 +17,8 @@
  */
 package com.github.apetrelli.scafa.proto.processor.impl;
 
+import java.util.concurrent.CompletableFuture;
+
 import com.github.apetrelli.scafa.proto.processor.InputProcessor;
 import com.github.apetrelli.scafa.proto.processor.InputProcessorFactory;
 import com.github.apetrelli.scafa.proto.processor.ProcessingContext;
@@ -25,9 +27,9 @@ import com.github.apetrelli.scafa.proto.processor.ProtocolStateMachine;
 public class StatefulInputProcessorFactory<H, P extends ProcessingContext<?>> implements
         InputProcessorFactory<H, P> {
 
-	private ProtocolStateMachine<H, P> stateMachine;
+	private ProtocolStateMachine<H, P, CompletableFuture<Void>> stateMachine;
 
-	public StatefulInputProcessorFactory(ProtocolStateMachine<H, P> stateMachine) {
+	public StatefulInputProcessorFactory(ProtocolStateMachine<H, P, CompletableFuture<Void>> stateMachine) {
 		this.stateMachine = stateMachine;
 	}
 

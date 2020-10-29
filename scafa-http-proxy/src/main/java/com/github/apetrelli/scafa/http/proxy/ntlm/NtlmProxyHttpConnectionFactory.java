@@ -17,7 +17,10 @@
  */
 package com.github.apetrelli.scafa.http.proxy.ntlm;
 
+import java.util.concurrent.CompletableFuture;
+
 import com.github.apetrelli.scafa.http.HttpAsyncSocket;
+import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.impl.DirectHttpAsyncSocket;
@@ -51,13 +54,13 @@ public class NtlmProxyHttpConnectionFactory implements ProxyHttpConnectionFactor
 
 	private HttpRequestManipulator manipulator;
 
-	private HttpStateMachine stateMachine;
+	private HttpStateMachine<HttpHandler, CompletableFuture<Void>> stateMachine;
 
 	public NtlmProxyHttpConnectionFactory(SocketFactory<AsyncSocket> socketFactory,
 			DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory,
 			HostPort proxySocketAddress, String interfaceName, boolean forceIpV4,
 			String domain, String username, String password, HttpRequestManipulator manipulator,
-			HttpStateMachine stateMachine) {
+			HttpStateMachine<HttpHandler, CompletableFuture<Void>> stateMachine) {
 		this.socketFactory = socketFactory;
 		this.dataSenderFactory = dataSenderFactory;
 		this.clientProcessorFactory = clientProcessorFactory;

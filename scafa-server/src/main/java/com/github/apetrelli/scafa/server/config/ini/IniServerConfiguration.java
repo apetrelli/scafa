@@ -3,6 +3,7 @@ package com.github.apetrelli.scafa.server.config.ini;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -11,6 +12,7 @@ import java.util.stream.Collectors;
 
 import org.ini4j.Profile.Section;
 
+import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
 import com.github.apetrelli.scafa.http.output.DataSenderFactory;
 import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
@@ -35,7 +37,7 @@ public class IniServerConfiguration implements ServerConfiguration {
 
     public IniServerConfiguration(Section section, SocketFactory<AsyncSocket> socketFactory,
             DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory,
-            HttpStateMachine stateMachine) {
+            HttpStateMachine<HttpHandler, CompletableFuture<Void>> stateMachine) {
         String type = section.get("type");
         switch (type) {
         case "ntlm":
