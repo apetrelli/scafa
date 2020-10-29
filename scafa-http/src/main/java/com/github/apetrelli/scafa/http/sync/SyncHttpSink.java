@@ -1,11 +1,9 @@
 package com.github.apetrelli.scafa.http.sync;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.github.apetrelli.scafa.http.HttpException;
 import com.github.apetrelli.scafa.http.HttpProcessingContext;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
@@ -73,19 +71,15 @@ public class SyncHttpSink implements HttpSink<HttpHandler, Void> {
 	}
 
 	public Void endChunkCount(HttpProcessingContext context, HttpHandler handler) {
-		try {
-			context.evaluateChunkLength();
-			long chunkCount = context.getChunkLength();
-			handler.onChunkStart(context.getTotalChunkedTransferLength(), chunkCount);
-			if (chunkCount == 0L) {
-				handler.onChunkEnd();
-				handler.onChunkedTransferEnd();
-				handler.onEnd();
-			}
-			return null;
-		} catch (IOException e) {
-			throw new HttpException(e);
+		context.evaluateChunkLength();
+		long chunkCount = context.getChunkLength();
+		handler.onChunkStart(context.getTotalChunkedTransferLength(), chunkCount);
+		if (chunkCount == 0L) {
+			handler.onChunkEnd();
+			handler.onChunkedTransferEnd();
+			handler.onEnd();
 		}
+		return null;
 	}
 
 	@Override
