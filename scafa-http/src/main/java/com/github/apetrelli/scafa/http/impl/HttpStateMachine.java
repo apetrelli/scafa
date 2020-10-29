@@ -3,26 +3,27 @@ package com.github.apetrelli.scafa.http.impl;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.http.HttpBodyMode;
 import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpProcessingContext;
-import com.github.apetrelli.scafa.http.HttpRequest;
-import com.github.apetrelli.scafa.http.HttpResponse;
+import com.github.apetrelli.scafa.http.HttpSink;
 import com.github.apetrelli.scafa.http.HttpStatus;
 import com.github.apetrelli.scafa.proto.aio.CompletionHandlerFuture;
 import com.github.apetrelli.scafa.proto.processor.ProtocolStateMachine;
 
 public class HttpStateMachine implements ProtocolStateMachine<HttpHandler, HttpProcessingContext> {
 
-	private static final Logger LOG = Logger.getLogger(HttpStateMachine.class.getName());
-
     private static final byte CR = 13;
 
     private static final byte LF = 10;
+    
+    private HttpSink sink;
 	
+	public HttpStateMachine(HttpSink sink) {
+		this.sink = sink;
+	}
+
 	@Override
 	public CompletableFuture<Void> out(HttpProcessingContext context,
 			HttpHandler handler) {
@@ -58,11 +59,11 @@ public class HttpStateMachine implements ProtocolStateMachine<HttpHandler, HttpP
 					break;
 				case SEND_HEADER_AND_END:
 		            context.getBuffer().get(); // discard LF.
-					retValue = endHeaderAndRequest(context, handler);
+					retValue = sink.endHeaderAndRequest(context, handler);
 					break;
 				case POSSIBLE_HEADER_LF:
 		            context.getBuffer().get(); // discard LF.
-		            retValue = endHeader(context, handler);
+		            retValue = sink.endHeader(context, handler);
 					break;
 				case HEADER:
 					onHeader(context);
@@ -72,17 +73,17 @@ public class HttpStateMachine implements ProtocolStateMachine<HttpHandler, HttpP
 		            context.addHeaderLine();
 					break;
 				case BODY:
-					retValue = data(context, handler);
+					retValue = sink.data(context, handler);
 					break;
 				case CHUNK_COUNT:
 					onChunkCount(context);
 					break;
 				case CHUNK_COUNT_LF:
 		            context.getBuffer().get(); // discard LF.
-		            retValue = endChunkCount(context, handler);
+		            retValue = sink.endChunkCount(context, handler);
 					break;
 				case CHUNK:
-					retValue = chunkData(context, handler);
+					retValue = sink.chunkData(context, handler);
 					break;
 				case CHUNK_CR:
 					context.getBuffer().get(); // discard CR
@@ -95,7 +96,7 @@ public class HttpStateMachine implements ProtocolStateMachine<HttpHandler, HttpP
 		} catch (IOException e) {
 			retValue = CompletableFuture.failedFuture(e);
 		}
-		return retValue != null ? retValue.thenCompose(x -> out(context, handler)) : CompletionHandlerFuture.completeEmpty();
+		return retValue != null ? retValue : CompletionHandlerFuture.completeEmpty();
 	}
 	
 	private HttpStatus next(HttpProcessingContext context) {
@@ -244,75 +245,4 @@ public class HttpStateMachine implements ProtocolStateMachine<HttpHandler, HttpP
 	private void endRequestLine(HttpProcessingContext context) throws IOException {
 		context.evaluateRequestLine();
 	}
-
-    private CompletableFuture<Void> endHeader(HttpProcessingContext context, HttpHandler handler) {
-    	HttpRequest request = context.getRequest();
-    	HttpResponse response = context.getResponse();
-        if (request != null) {
-            if ("CONNECT".equalsIgnoreCase(request.getMethod())) {
-                context.setHttpConnected(true);
-            }
-            return handler.onRequestHeader(new HttpRequest(request));
-        } else if (response != null) {
-            return handler.onResponseHeader(new HttpResponse(response));
-        } else {
-            return CompletionHandlerFuture.completeEmpty();
-        }
-    }
-
-    private CompletableFuture<Void> endHeaderAndRequest(HttpProcessingContext context, HttpHandler handler) {
-    	return endHeader(context, handler).thenCompose(x -> handler.onEnd());
-    }
-
-    private CompletableFuture<Void> data(HttpProcessingContext context, HttpHandler handler) {
-    	ByteBuffer buffer = context.getBuffer();
-        int oldLimit = buffer.limit();
-        int size = oldLimit - buffer.position();
-        int sizeToSend = (int) Math.min(size, context.getCountdown());
-        buffer.limit(buffer.position() + sizeToSend);
-        return handler.onBody(buffer, context.getBodyOffset(), context.getBodySize()).thenCompose(x -> {
-            context.reduceBody(sizeToSend);
-            buffer.limit(oldLimit);
-            if (context.getCountdown() <= 0L) {
-                return handler.onEnd();
-            } else {
-            	return CompletionHandlerFuture.completeEmpty();
-            }
-        });
-    }
-
-    private CompletableFuture<Void> chunkData(HttpProcessingContext context, HttpHandler handler) {
-		ByteBuffer buffer = context.getBuffer();
-		int oldLimit = buffer.limit();
-		int size = oldLimit - buffer.position();
-		int sizeToSend = (int) Math.min(size, context.getCountdown());
-		buffer.limit(buffer.position() + sizeToSend);
-		return handler.onChunk(buffer, context.getTotalChunkedTransferLength() - context.getChunkLength(),
-				context.getChunkOffset(), context.getChunkLength()).thenCompose(x -> {
-					context.reduceChunk(sizeToSend);
-					buffer.limit(oldLimit);
-					if (LOG.isLoggable(Level.FINEST)) {
-						LOG.log(Level.FINEST, "Handling chunk from {0} to {1}",
-								new Object[] { context.getChunkOffset(), context.getChunkOffset() + sizeToSend });
-					}
-					return CompletionHandlerFuture.completeEmpty();
-				});
-    }
-
-    private CompletableFuture<Void> endChunkCount(HttpProcessingContext context, HttpHandler handler) {
-    	try {
-			context.evaluateChunkLength();
-			long chunkCount = context.getChunkLength();
-			return handler.onChunkStart(context.getTotalChunkedTransferLength(), chunkCount).thenCompose(x -> {
-                if (chunkCount == 0L) {
-                	return handler.onChunkEnd().thenCompose(y -> handler.onChunkedTransferEnd()).thenCompose(z -> handler.onEnd());
-                } else {
-                	return CompletionHandlerFuture.completeEmpty();
-                }
-				
-			});
-		} catch (IOException e) {
-			return CompletableFuture.failedFuture(e);
-		}
-    }
 }

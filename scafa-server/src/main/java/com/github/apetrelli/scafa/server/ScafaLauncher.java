@@ -32,6 +32,7 @@ import org.apache.commons.io.IOUtils;
 
 import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpProcessingContext;
+import com.github.apetrelli.scafa.http.impl.AsyncHttpSink;
 import com.github.apetrelli.scafa.http.impl.HttpProcessingContextFactory;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
 import com.github.apetrelli.scafa.http.output.DataSenderFactory;
@@ -111,7 +112,7 @@ public class ScafaLauncher {
 
     public void launch(String profile) {
         try {
-        	HttpStateMachine stateMachine = new HttpStateMachine();
+        	HttpStateMachine stateMachine = new HttpStateMachine(new AsyncHttpSink());
             DataSenderFactory dataSenderFactory = new DefaultDataSenderFactory();
             SocketFactory<AsyncSocket> socketFactory = new DirectClientAsyncSocketFactory();
             DefaultProcessorFactory<Input, DataHandler> clientProcessorFactory = new DefaultProcessorFactory<>(
