@@ -19,14 +19,14 @@ import org.eclipse.swt.widgets.TrayItem;
 import org.eclipse.wb.swt.SWTResourceManager;
 
 import com.github.apetrelli.scafa.server.ConfigurationUtils;
-import com.github.apetrelli.scafa.server.ScafaLauncher;
+import com.github.apetrelli.scafa.server.AsyncScafaLauncher;
 import com.github.apetrelli.scafa.systray.edit.ConfigurationWindow;
 import com.github.apetrelli.scafa.systray.edit.PromptWindow;
 
 public class ScafaSystrayLauncher {
 
     private static final Logger LOG = Logger.getLogger(ScafaSystrayLauncher.class.getName());
-	private ScafaLauncher launcher;
+	private AsyncScafaLauncher launcher;
 	private Menu selectionMenu;
 	private Menu editMenu;
 	private Shell shell;
@@ -36,7 +36,7 @@ public class ScafaSystrayLauncher {
             Display.setAppName("Scafa");
 			DeviceData data = new DeviceData();
 			Display display = new Display(data);
-			launcher = new ScafaLauncher();
+			launcher = new AsyncScafaLauncher();
 			launcher.initialize();
 			shell = new Shell(display);
             selectionMenu = createSelectionMenu(shell, launcher);
@@ -65,7 +65,7 @@ public class ScafaSystrayLauncher {
         editMenu = createEditMenu(shell, launcher);
     }
 
-	private void createIcon(ScafaLauncher launcher, Shell shell, InputStream img, Display display) {
+	private void createIcon(AsyncScafaLauncher launcher, Shell shell, InputStream img, Display display) {
 		Image image = new Image(display, img);
         final Tray tray = display.getSystemTray();
         if (tray == null) {
@@ -87,7 +87,7 @@ public class ScafaSystrayLauncher {
         }
 	}
 
-	private Menu createSelectionMenu(Shell shell, ScafaLauncher launcher) {
+	private Menu createSelectionMenu(Shell shell, AsyncScafaLauncher launcher) {
 		final Menu menu = new Menu(shell, SWT.POP_UP);
 		final MenuItem profilesItem = new MenuItem(menu, SWT.CASCADE);
 		profilesItem.setText("Profiles");
@@ -135,7 +135,7 @@ public class ScafaSystrayLauncher {
 		});
 		return menu;
 	}
-	private Menu createEditMenu(Shell shell, ScafaLauncher launcher) {
+	private Menu createEditMenu(Shell shell, AsyncScafaLauncher launcher) {
 		final Menu menu = new Menu(shell, SWT.POP_UP);
 		ConfigurationWindow configurationDialog = new ConfigurationWindow();
 		MenuItem createProfileItem = new MenuItem(menu, SWT.PUSH);

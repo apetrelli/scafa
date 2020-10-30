@@ -20,7 +20,7 @@ package com.github.apetrelli.scafa.headless;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.github.apetrelli.scafa.server.ScafaLauncher;
+import com.github.apetrelli.scafa.server.AsyncScafaLauncher;
 
 public class ScafaMain {
 
@@ -31,7 +31,7 @@ public class ScafaMain {
         if (args.length > 0) {
             profile = args[0];
         }
-        ScafaLauncher launcher = new ScafaLauncher();
+        AsyncScafaLauncher launcher = new AsyncScafaLauncher();
         launcher.initialize();
         launcher.launch(profile);
 
