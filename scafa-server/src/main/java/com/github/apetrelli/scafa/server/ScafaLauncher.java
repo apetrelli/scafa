@@ -53,7 +53,7 @@ import com.github.apetrelli.scafa.proto.processor.impl.PassthroughInputProcessor
 import com.github.apetrelli.scafa.proto.processor.impl.SimpleInputFactory;
 import com.github.apetrelli.scafa.proto.processor.impl.StatefulInputProcessorFactory;
 import com.github.apetrelli.scafa.server.config.ConfigurationProxyHttpConnectionFactory;
-import com.github.apetrelli.scafa.server.config.ini.IniConfiguration;
+import com.github.apetrelli.scafa.server.config.ini.async.AsyncIniConfiguration;
 
 public class ScafaLauncher {
 
@@ -118,7 +118,7 @@ public class ScafaLauncher {
             SocketFactory<AsyncSocket> socketFactory = new DirectClientAsyncSocketFactory();
             DefaultProcessorFactory<Input, DataHandler> clientProcessorFactory = new DefaultProcessorFactory<>(
             		new PassthroughInputProcessorFactory(), new SimpleInputFactory());
-			IniConfiguration configuration = IniConfiguration.create(profile, socketFactory, dataSenderFactory,
+			AsyncIniConfiguration configuration = AsyncIniConfiguration.create(profile, socketFactory, dataSenderFactory,
 					clientProcessorFactory, stateMachine);
             Integer port = configuration.getPort();
             StatefulInputProcessorFactory<HttpHandler, HttpProcessingContext> inputProcessorFactory = new StatefulInputProcessorFactory<>(stateMachine);

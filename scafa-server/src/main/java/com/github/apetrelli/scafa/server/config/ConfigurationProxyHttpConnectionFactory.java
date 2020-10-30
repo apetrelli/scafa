@@ -13,11 +13,11 @@ import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
 
 public class ConfigurationProxyHttpConnectionFactory implements ProxyHttpConnectionFactory {
 
-    private Configuration configuration;
+    private Configuration<ProxyHttpConnectionFactory> configuration;
 
     private ProxyHttpConnectionFactory directHttpConnectionFactory;
 
-    public ConfigurationProxyHttpConnectionFactory(Configuration configuration,
+    public ConfigurationProxyHttpConnectionFactory(Configuration<ProxyHttpConnectionFactory> configuration,
     		SocketFactory<AsyncSocket> socketFactory, DataSenderFactory dataSenderFactory,
     		ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory) {
         this.configuration = configuration;
@@ -31,7 +31,7 @@ public class ConfigurationProxyHttpConnectionFactory implements ProxyHttpConnect
     }
 
     private ProxyHttpConnectionFactory getHttpConnectionFactoryByHost(String host) {
-        ServerConfiguration config = configuration.getServerConfigurationByHost(host);
+        ServerConfiguration<ProxyHttpConnectionFactory> config = configuration.getServerConfigurationByHost(host);
         return config != null ? config.getProxyHttpConnectionFactory() : directHttpConnectionFactory;
     }
 
