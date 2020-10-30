@@ -17,7 +17,6 @@
  */
 package com.github.apetrelli.scafa.http.proxy.impl;
 
-import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -61,7 +60,7 @@ public abstract class AbstractUpstreamProxyHttpConnection extends AbstractProxyH
     }
 
     @Override
-    protected HttpRequest createForwardedRequest(HttpRequest request) throws IOException {
+    protected HttpRequest createForwardedRequest(HttpRequest request) {
         if (manipulator != null) {
             request = new HttpRequest(request);
             manipulator.manipulate(request);

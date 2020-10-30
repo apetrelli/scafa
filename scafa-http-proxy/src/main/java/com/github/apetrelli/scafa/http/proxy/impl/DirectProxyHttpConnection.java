@@ -17,13 +17,14 @@
  */
 package com.github.apetrelli.scafa.http.proxy.impl;
 
-import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.http.HttpAsyncSocket;
+import com.github.apetrelli.scafa.http.HttpException;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
@@ -50,8 +51,13 @@ public class DirectProxyHttpConnection extends AbstractProxyHttpConnection<HttpA
         return sourceChannel.sendHeader(response).thenCompose(x -> sourceChannel.endData());
     }
 
-    protected HttpRequest createForwardedRequest(HttpRequest request) throws IOException {
-        URL realurl = new URL(request.getResource());
+    protected HttpRequest createForwardedRequest(HttpRequest request) {
+        URL realurl;
+		try {
+			realurl = new URL(request.getResource());
+		} catch (MalformedURLException e) {
+			throw new HttpException(e);
+		}
         HttpRequest modifiedRequest = new HttpRequest(request);
         modifiedRequest.setResource(realurl.getFile());
         if (LOG.isLoggable(Level.INFO)) {
