@@ -15,33 +15,37 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.apetrelli.scafa.http.sync;
+package com.github.apetrelli.scafa.http.proxy.sync.ntlm;
 
-import java.nio.ByteBuffer;
-
-import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
-import com.github.apetrelli.scafa.proto.processor.Handler;
+import com.github.apetrelli.scafa.http.sync.impl.HttpHandlerSupport;
 
-public interface HttpHandler extends Handler {
+public class CapturingHandler extends HttpHandlerSupport {
 
-    void onStart();
+    protected HttpResponse response;
 
-    void onResponseHeader(HttpResponse response);
+    protected boolean finished = false;
+    
+    @Override
+    public void onResponseHeader(HttpResponse response) {
+        this.response = response;
+    }
 
-    void onRequestHeader(HttpRequest request);
+    @Override
+    public void onEnd() {
+        finished = true;
+    }
 
-    void onBody(ByteBuffer buffer, long offset, long length);
+    public boolean isFinished() {
+        return finished;
+    }
 
-    void onChunkStart(long totalOffset, long chunkLength);
+    public void reset() {
+        finished = false;
+        response = null;
+    }
 
-    void onChunk(ByteBuffer buffer, long totalOffset, long chunkOffset, long chunkLength);
-
-    void onChunkEnd();
-
-    void onChunkedTransferEnd();
-
-    void onDataToPassAlong(ByteBuffer buffer);
-
-    void onEnd();
+    public HttpResponse getResponse() {
+        return response;
+    }
 }

@@ -15,33 +15,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.apetrelli.scafa.http.sync;
+package com.github.apetrelli.scafa.http.proxy.sync;
 
-import java.nio.ByteBuffer;
+import java.io.IOException;
 
 import com.github.apetrelli.scafa.http.HttpRequest;
-import com.github.apetrelli.scafa.http.HttpResponse;
-import com.github.apetrelli.scafa.proto.processor.Handler;
+import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
+import com.github.apetrelli.scafa.proto.client.HostPort;
+import com.github.apetrelli.scafa.proto.sync.SyncSocket;
 
-public interface HttpHandler extends Handler {
+public interface MappedProxyHttpConnectionFactory {
 
-    void onStart();
+    ProxyHttpConnection create(SyncSocket sourceChannel, HttpRequest request);
 
-    void onResponseHeader(HttpResponse response);
+    ProxyHttpConnection create(SyncSocket sourceChannel, HttpConnectRequest request);
 
-    void onRequestHeader(HttpRequest request);
+    void disconnectAll() throws IOException;
 
-    void onBody(ByteBuffer buffer, long offset, long length);
-
-    void onChunkStart(long totalOffset, long chunkLength);
-
-    void onChunk(ByteBuffer buffer, long totalOffset, long chunkOffset, long chunkLength);
-
-    void onChunkEnd();
-
-    void onChunkedTransferEnd();
-
-    void onDataToPassAlong(ByteBuffer buffer);
-
-    void onEnd();
+    void dispose(HostPort target);
 }

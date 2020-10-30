@@ -20,16 +20,16 @@ package com.github.apetrelli.scafa.proto.sync.processor.impl;
 import java.nio.ByteBuffer;
 
 import com.github.apetrelli.scafa.proto.processor.ProcessingContext;
+import com.github.apetrelli.scafa.proto.processor.ProtocolStateMachine;
 import com.github.apetrelli.scafa.proto.sync.processor.InputProcessor;
-import com.github.apetrelli.scafa.proto.sync.processor.ProtocolStateMachine;
 
 public class StatefulInputProcessor<H, P extends ProcessingContext<?>> implements InputProcessor<P> {
 
-    private ProtocolStateMachine<H, ? super P> stateMachine;
+    private ProtocolStateMachine<H, ? super P, Void> stateMachine;
 
     private H handler;
 
-    public StatefulInputProcessor(H handler, ProtocolStateMachine<H, ? super P> stateMachine) {
+    public StatefulInputProcessor(H handler, ProtocolStateMachine<H, ? super P, Void> stateMachine) {
         this.handler = handler;
         this.stateMachine = stateMachine;
     }

@@ -18,16 +18,16 @@
 package com.github.apetrelli.scafa.proto.sync.processor.impl;
 
 import com.github.apetrelli.scafa.proto.processor.ProcessingContext;
+import com.github.apetrelli.scafa.proto.processor.ProtocolStateMachine;
 import com.github.apetrelli.scafa.proto.sync.processor.InputProcessor;
 import com.github.apetrelli.scafa.proto.sync.processor.InputProcessorFactory;
-import com.github.apetrelli.scafa.proto.sync.processor.ProtocolStateMachine;
 
 public class StatefulInputProcessorFactory<H, P extends ProcessingContext<?>> implements
         InputProcessorFactory<H, P> {
 
-	private ProtocolStateMachine<H, P> stateMachine;
+	private ProtocolStateMachine<H, P, Void> stateMachine;
 
-	public StatefulInputProcessorFactory(ProtocolStateMachine<H, P> stateMachine) {
+	public StatefulInputProcessorFactory(ProtocolStateMachine<H, P, Void> stateMachine) {
 		this.stateMachine = stateMachine;
 	}
 

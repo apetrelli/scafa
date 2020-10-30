@@ -9,5 +9,7 @@ module com.github.apetrelli.scafa.proto {
 	exports com.github.apetrelli.scafa.proto.processor;
 	exports com.github.apetrelli.scafa.proto.processor.impl;
 	exports com.github.apetrelli.scafa.proto.sync;
+	exports com.github.apetrelli.scafa.proto.sync.client;
 	exports com.github.apetrelli.scafa.proto.sync.processor;
+	exports com.github.apetrelli.scafa.proto.sync.processor.impl;
 }
