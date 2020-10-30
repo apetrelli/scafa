@@ -17,7 +17,6 @@
  */
 package com.github.apetrelli.scafa.http.proxy.impl;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
@@ -59,12 +58,8 @@ public abstract class AbstractProxyHttpConnection<T extends AsyncSocket> extends
 	@Override
 	public CompletableFuture<Void> sendHeader(HttpRequest request) {
         HttpRequest modifiedRequest;
-        try {
-            modifiedRequest = createForwardedRequest(request);
-            return doSendHeader(modifiedRequest);
-        } catch (IOException e) {
-            return CompletableFuture.failedFuture(e);
-        }
+        modifiedRequest = createForwardedRequest(request);
+        return doSendHeader(modifiedRequest);
     }
 	
 	@Override
@@ -77,7 +72,7 @@ public abstract class AbstractProxyHttpConnection<T extends AsyncSocket> extends
     	return socket.endData();
     }
 
-    protected abstract HttpRequest createForwardedRequest(HttpRequest request) throws IOException;
+    protected abstract HttpRequest createForwardedRequest(HttpRequest request);
     
     @Override
     public CompletableFuture<Void> disconnect() {
