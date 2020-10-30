@@ -194,10 +194,14 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
         if (!handler.isFinished()) {
             readBuffer.clear();
             return socket.read(readBuffer).thenCompose(x -> {
-            	context.addBytesRead(x);
-                readBuffer.flip();
-                return processor.process(context);
-            }).thenCompose(x -> readResponse(handler, processor, context));
+            	if (x >= 0) {
+					context.addBytesRead(x);
+					readBuffer.flip();
+					return processor.process(context).thenCompose(y -> readResponse(handler, processor, context));
+            	} else {
+            		return CompletableFuture.failedFuture(new IOException("Connection Closed"));
+            	}
+            });
         } else {
             return CompletableFuture.completedFuture(context.getBytesRead());
         }
