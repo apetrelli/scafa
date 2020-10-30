@@ -85,6 +85,7 @@ public abstract class AbstractProxyHttpConnection<T extends SyncSocket> extends 
 
     protected void prepareChannel() {
         Processor<DataHandler> processor = clientProcessorFactory.create(socket);
-        processor.process(new ChannelDisconnectorHandler(factory, sourceChannel, destinationSocketAddress));
+		Thread.startVirtualThread(() -> processor
+				.process(new ChannelDisconnectorHandler(factory, sourceChannel, destinationSocketAddress)));
     }
 }
