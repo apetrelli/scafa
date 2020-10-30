@@ -2,11 +2,11 @@ package com.github.apetrelli.scafa.server.config;
 
 import java.util.List;
 
-public interface Configuration {
+public interface Configuration<T> {
 
     int getPort();
     
-    List<ServerConfiguration> getServerConfigurations();
+    List<ServerConfiguration<T>> getServerConfigurations();
     
-    ServerConfiguration getServerConfigurationByHost(String host);
+    ServerConfiguration<T> getServerConfigurationByHost(String host);
 }

@@ -28,6 +28,7 @@ import org.ini4j.Ini;
 import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
 import com.github.apetrelli.scafa.http.output.DataSenderFactory;
+import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.SocketFactory;
 import com.github.apetrelli.scafa.proto.processor.DataHandler;
@@ -36,11 +37,11 @@ import com.github.apetrelli.scafa.server.ConfigurationUtils;
 import com.github.apetrelli.scafa.server.config.Configuration;
 import com.github.apetrelli.scafa.server.config.ServerConfiguration;
 
-public class IniConfiguration implements Configuration {
+public class IniConfiguration implements Configuration<ProxyHttpConnectionFactory> {
 
     private Ini ini;
 
-    private List<ServerConfiguration> serverConfigurations;
+    private List<ServerConfiguration<ProxyHttpConnectionFactory>> serverConfigurations;
 
     public static IniConfiguration create(String profile, SocketFactory<AsyncSocket> socketFactory,
             DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory,
@@ -69,10 +70,10 @@ public class IniConfiguration implements Configuration {
     }
 
     @Override
-    public ServerConfiguration getServerConfigurationByHost(String host) {
+    public ServerConfiguration<ProxyHttpConnectionFactory> getServerConfigurationByHost(String host) {
         boolean found = false;
-        Iterator<ServerConfiguration> configIt = serverConfigurations.iterator();
-        ServerConfiguration config = null;
+        Iterator<ServerConfiguration<ProxyHttpConnectionFactory>> configIt = serverConfigurations.iterator();
+        ServerConfiguration<ProxyHttpConnectionFactory> config = null;
         while (!found && configIt.hasNext()) {
             config = configIt.next();
             List<String> excludeRegexp = config.getExcludes();
@@ -83,7 +84,7 @@ public class IniConfiguration implements Configuration {
     }
 
     @Override
-    public List<ServerConfiguration> getServerConfigurations() {
+    public List<ServerConfiguration<ProxyHttpConnectionFactory>> getServerConfigurations() {
         return serverConfigurations;
     }
 }

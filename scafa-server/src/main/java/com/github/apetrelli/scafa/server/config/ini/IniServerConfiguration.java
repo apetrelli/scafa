@@ -28,8 +28,12 @@ import com.github.apetrelli.scafa.proto.processor.DataHandler;
 import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
 import com.github.apetrelli.scafa.server.config.ServerConfiguration;
 
-public class IniServerConfiguration implements ServerConfiguration {
-    private static final Logger LOG = Logger.getLogger(IniServerConfiguration.class.getName());
+public class IniServerConfiguration implements ServerConfiguration<ProxyHttpConnectionFactory> {
+    private static final String FORCE_IPV4 = "forceIPV4";
+
+	private static final String INTERFACE = "interface";
+
+	private static final Logger LOG = Logger.getLogger(IniServerConfiguration.class.getName());
 
     private ProxyHttpConnectionFactory connectionFactory;
 
@@ -42,19 +46,19 @@ public class IniServerConfiguration implements ServerConfiguration {
         switch (type) {
         case "ntlm":
             connectionFactory = new NtlmProxyHttpConnectionFactory(socketFactory, dataSenderFactory,
-                    clientProcessorFactory, createProxySocketAddress(section), section.get("interface"),
-                    section.get("forceIPV4", boolean.class, false), section.get("domain"), section.get("username"),
+                    clientProcessorFactory, createProxySocketAddress(section), section.get(INTERFACE),
+                    section.get(FORCE_IPV4, boolean.class, false), section.get("domain"), section.get("username"),
                     section.get("password"), createManipulator(section), stateMachine);
             break;
         case "anon":
             connectionFactory = new AnonymousProxyHttpConnectionFactory(socketFactory, dataSenderFactory,
-                    clientProcessorFactory, createProxySocketAddress(section), section.get("interface"),
-                    section.get("forceIPV4", boolean.class, false), createManipulator(section));
+                    clientProcessorFactory, createProxySocketAddress(section), section.get(INTERFACE),
+                    section.get(FORCE_IPV4, boolean.class, false), createManipulator(section));
             break;
         case "basic":
             connectionFactory = new BasicAuthProxyHttpConnectionFactory(socketFactory, dataSenderFactory,
-                    clientProcessorFactory, createProxySocketAddress(section), section.get("interface"),
-                    section.get("forceIPV4", boolean.class, false), section.get("username"), section.get("password"),
+                    clientProcessorFactory, createProxySocketAddress(section), section.get(INTERFACE),
+                    section.get(FORCE_IPV4, boolean.class, false), section.get("username"), section.get("password"),
                     createManipulator(section));
             break;
         default:
@@ -66,7 +70,7 @@ public class IniServerConfiguration implements ServerConfiguration {
         if (exclude == null) {
             excludes = Collections.emptyList();
         } else {
-            excludes = exclude.stream().map(u -> createRegexpFromWildcard(u)).collect(Collectors.toList());
+            excludes = exclude.stream().map(this::createRegexpFromWildcard).collect(Collectors.toList());
         }
     }
 
@@ -104,7 +108,7 @@ public class IniServerConfiguration implements ServerConfiguration {
                 manipulator = clazz.getConstructor().newInstance();
             } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
                     | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-                LOG.log(Level.SEVERE, "Cannot instantiate manipulator: " + className, e);
+                LOG.log(Level.SEVERE, e, () -> "Cannot instantiate manipulator: " + className);
             }
         }
         return manipulator;
@@ -113,7 +117,6 @@ public class IniServerConfiguration implements ServerConfiguration {
     private static HostPort createProxySocketAddress(Section section) {
         String host = section.get("host");
         int port = section.get("port", int.class);
-        HostPort proxySocketAddress = new HostPort(host, port);
-        return proxySocketAddress;
+        return new HostPort(host, port);
     }
 }
