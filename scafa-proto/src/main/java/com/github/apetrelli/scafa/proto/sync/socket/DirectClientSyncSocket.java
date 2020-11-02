@@ -46,6 +46,7 @@ public class DirectClientSyncSocket extends DirectSyncSocket {
             throw new IORuntimeException(e1);
         }
         establishConnection();
+        super.connect();
 	}
 
 	private void bindChannel() throws IOException {

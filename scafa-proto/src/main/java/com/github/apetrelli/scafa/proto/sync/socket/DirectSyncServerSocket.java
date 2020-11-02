@@ -21,7 +21,9 @@ public class DirectSyncServerSocket implements SyncServerSocket<SyncSocket> {
 		Socket socket;
 		try {
 			socket = channel.accept();
-			return new DirectSyncSocket(socket);
+			DirectSyncSocket syncSocket = new DirectSyncSocket(socket);
+			syncSocket.connect();
+			return syncSocket;
 		} catch (IOException e) {
 			throw new IORuntimeException(e);
 		}

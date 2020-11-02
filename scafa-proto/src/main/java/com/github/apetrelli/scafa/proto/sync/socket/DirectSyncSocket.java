@@ -15,6 +15,10 @@ import com.github.apetrelli.scafa.proto.sync.SyncSocket;
 public class DirectSyncSocket implements SyncSocket {
 	
 	protected final Socket channel;
+
+	private InputStream is;
+	
+	private OutputStream os;
 	
 	public DirectSyncSocket(Socket channel) {
 		this.channel = channel;
@@ -22,7 +26,14 @@ public class DirectSyncSocket implements SyncSocket {
 
 	@Override
 	public void connect() {
-		// Already connected.
+		try {
+			is = channel.getInputStream();
+			os = channel.getOutputStream();
+		} catch (SocketException e) {
+			throw new SocketRuntimeException(e);
+		} catch (IOException e) {
+			throw new IORuntimeException(e);
+		}
 	}
 
 	@Override
@@ -46,25 +57,9 @@ public class DirectSyncSocket implements SyncSocket {
 	@Override
 	public int read(ByteBuffer buffer) {
 		try {
-			InputStream is = channel.getInputStream();
-			int ch;
-			int count = 0;
-			int countdown = is.available();
-			if (countdown == 0 && buffer.hasRemaining()) { // No fresh data, block
-				ch = is.read();
-				if (ch >= 0) {
-					buffer.put((byte) ch);
-					count++;
-					countdown = is.available();
-				} else {
-					return ch;
-				}
-				
-			}
-			while (buffer.hasRemaining() && countdown > 0 && (ch = is.read()) >= 0) {
-				buffer.put((byte) ch);
-				countdown--;
-				count++;
+			int count = is.read(buffer.array(), buffer.position() + buffer.arrayOffset(), buffer.remaining());
+			if (count >= 0) {
+				buffer.position(buffer.position() + count);
 			}
 			return count;
 		} catch (SocketException e) {
@@ -77,13 +72,9 @@ public class DirectSyncSocket implements SyncSocket {
 	@Override
 	public int write(ByteBuffer buffer) {
 		try {
-			OutputStream os = channel.getOutputStream();
-			int count = 0;
-			while (buffer.hasRemaining()) {
-				os.write(buffer.get());
-				count++;
-			}
-			os.flush();
+			int count = buffer.remaining();
+			os.write(buffer.array(), buffer.position() + buffer.arrayOffset(), buffer.remaining());
+			buffer.position(buffer.limit());
 			return count;
 		} catch (IOException e) {
 			throw new IORuntimeException(e);
