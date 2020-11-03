@@ -27,6 +27,7 @@ import com.github.apetrelli.scafa.http.sync.HttpSyncSocket;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.processor.Processor;
 import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
+import com.github.apetrelli.scafa.proto.sync.RunnableStarter;
 import com.github.apetrelli.scafa.proto.sync.SyncSocket;
 import com.github.apetrelli.scafa.proto.sync.client.AbstractClientConnection;
 import com.github.apetrelli.scafa.proto.sync.processor.DataHandler;
@@ -40,15 +41,18 @@ public abstract class AbstractProxyHttpConnection<T extends SyncSocket> extends 
     protected T sourceChannel;
 
     private HostPort destinationSocketAddress;
+    
+    private RunnableStarter runnableStarter;
 
 	public AbstractProxyHttpConnection(MappedProxyHttpConnectionFactory factory,
-			ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory, T sourceChannel,
-			HttpSyncSocket<HttpRequest> socket, HostPort destinationSocketAddress) {
+			ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory, RunnableStarter runnableStarter,
+			T sourceChannel, HttpSyncSocket<HttpRequest> socket, HostPort destinationSocketAddress) {
         super(socket);
         this.factory = factory;
         this.clientProcessorFactory = clientProcessorFactory;
         this.sourceChannel = sourceChannel;
         this.destinationSocketAddress = destinationSocketAddress;
+        this.runnableStarter = runnableStarter;
     }
 	
 	@Override
@@ -85,7 +89,7 @@ public abstract class AbstractProxyHttpConnection<T extends SyncSocket> extends 
 
     protected void prepareChannel() {
         Processor<DataHandler> processor = clientProcessorFactory.create(socket);
-		Thread.startVirtualThread(() -> processor
+		runnableStarter.start(() -> processor
 				.process(new ChannelDisconnectorHandler(factory, sourceChannel, destinationSocketAddress)));
     }
 }

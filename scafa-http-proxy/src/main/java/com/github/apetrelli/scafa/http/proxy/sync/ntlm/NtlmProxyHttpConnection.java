@@ -34,6 +34,7 @@ import com.github.apetrelli.scafa.http.sync.HttpHandler;
 import com.github.apetrelli.scafa.http.sync.HttpSyncSocket;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
+import com.github.apetrelli.scafa.proto.sync.RunnableStarter;
 import com.github.apetrelli.scafa.proto.sync.SyncSocket;
 import com.github.apetrelli.scafa.proto.sync.processor.DataHandler;
 import com.github.apetrelli.scafa.proto.sync.processor.impl.StatefulInputProcessor;
@@ -65,10 +66,12 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
     private ByteBuffer readBuffer = ByteBuffer.allocate(16384);
 
 	public NtlmProxyHttpConnection(MappedProxyHttpConnectionFactory factory,
-			ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory, HttpSyncSocket<HttpResponse> sourceChannel,
+			ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory,
+			RunnableStarter runnableStarter, HttpSyncSocket<HttpResponse> sourceChannel,
 			HttpSyncSocket<HttpRequest> socket, HostPort destinationSocketAddress, String domain, String username,
 			String password, HttpStateMachine<HttpHandler, Void> stateMachine, HttpRequestManipulator manipulator) {
-        super(factory, clientProcessorFactory, sourceChannel, socket, destinationSocketAddress, manipulator);
+		super(factory, clientProcessorFactory, runnableStarter, sourceChannel, socket, destinationSocketAddress,
+				manipulator);
         this.domain = domain;
         this.username = username;
         this.password = password;

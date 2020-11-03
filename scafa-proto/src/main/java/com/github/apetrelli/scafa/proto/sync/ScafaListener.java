@@ -34,14 +34,17 @@ public class ScafaListener<H, S extends SyncSocket> {
     private ProcessorFactory<H, S> processorFactory;
 
     private HandlerFactory<H, S> handlerFactory;
+    
+    private RunnableStarter runnableStarter;
 
     private SyncServerSocket<S> server;
 
 	public ScafaListener(SyncServerSocketFactory<S> asyncServerSocketFactory, ProcessorFactory<H, S> processorFactory,
-			HandlerFactory<H, S> handlerFactory) {
+			HandlerFactory<H, S> handlerFactory, RunnableStarter runnableStarter) {
 		this.asyncServerSocketFactory = asyncServerSocketFactory;
         this.processorFactory = processorFactory;
         this.handlerFactory = handlerFactory;
+        this.runnableStarter = runnableStarter;
     }
 
     public void listen() throws IOException {
@@ -52,7 +55,7 @@ public class ScafaListener<H, S extends SyncSocket> {
 	private void accept() {
 		while (server.isOpen()) {
 			S socket = server.accept();
-			Thread.startVirtualThread(() -> {
+			runnableStarter.start(() -> {
 				Processor<H> processor = processorFactory.create(socket);
 	            H handler = handlerFactory.create(socket);
 	            processor.process(handler);

@@ -29,6 +29,7 @@ import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
 import com.github.apetrelli.scafa.http.proxy.sync.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.sync.HttpSyncSocket;
 import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
+import com.github.apetrelli.scafa.proto.sync.RunnableStarter;
 import com.github.apetrelli.scafa.proto.sync.SyncSocket;
 import com.github.apetrelli.scafa.proto.sync.processor.DataHandler;
 
@@ -37,10 +38,10 @@ public class DirectProxyHttpConnection extends AbstractProxyHttpConnection<HttpS
 
     private static final Logger LOG = Logger.getLogger(DirectProxyHttpConnection.class.getName());
 
-    public DirectProxyHttpConnection(MappedProxyHttpConnectionFactory factory,
-    		ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory,
-            HttpSyncSocket<HttpResponse> sourceChannel, HttpSyncSocket<HttpRequest> socket) {
-        super(factory, clientProcessorFactory, sourceChannel, socket, socket.getAddress());
+	public DirectProxyHttpConnection(MappedProxyHttpConnectionFactory factory,
+			ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory, RunnableStarter runnableStarter,
+			HttpSyncSocket<HttpResponse> sourceChannel, HttpSyncSocket<HttpRequest> socket) {
+		super(factory, clientProcessorFactory, runnableStarter, sourceChannel, socket, socket.getAddress());
     }
     
     @Override

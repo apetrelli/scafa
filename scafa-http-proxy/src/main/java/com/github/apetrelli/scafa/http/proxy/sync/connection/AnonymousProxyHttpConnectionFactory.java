@@ -28,6 +28,7 @@ import com.github.apetrelli.scafa.http.sync.output.DataSenderFactory;
 import com.github.apetrelli.scafa.proto.aio.SocketFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
+import com.github.apetrelli.scafa.proto.sync.RunnableStarter;
 import com.github.apetrelli.scafa.proto.sync.SyncSocket;
 import com.github.apetrelli.scafa.proto.sync.processor.DataHandler;
 
@@ -38,6 +39,8 @@ public class AnonymousProxyHttpConnectionFactory implements ProxyHttpConnectionF
 	private DataSenderFactory dataSenderFactory;
 	
 	private ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory;
+	
+	private RunnableStarter runnableStarter;
 
 	private HostPort proxySocketAddress;
 
@@ -49,10 +52,12 @@ public class AnonymousProxyHttpConnectionFactory implements ProxyHttpConnectionF
 
 	public AnonymousProxyHttpConnectionFactory(SocketFactory<SyncSocket> socketFactory,
 			DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory,
+			RunnableStarter runnableStarter, 
 			HostPort proxySocketAddress, String interfaceName, boolean forceIpV4, HttpRequestManipulator manipulator) {
 		this.socketFactory = socketFactory;
 		this.dataSenderFactory = dataSenderFactory;
 		this.clientProcessorFactory = clientProcessorFactory;
+		this.runnableStarter = runnableStarter;
 		this.proxySocketAddress = proxySocketAddress;
 		this.interfaceName = interfaceName;
 		this.forceIpV4 = forceIpV4;
@@ -64,8 +69,8 @@ public class AnonymousProxyHttpConnectionFactory implements ProxyHttpConnectionF
 			HostPort socketAddress) {
 		SyncSocket socket = socketFactory.create(proxySocketAddress, interfaceName, forceIpV4);
 		HttpSyncSocket<HttpRequest> httpSocket = new DirectHttpSyncSocket<>(socket, dataSenderFactory);
-		return new AnonymousProxyHttpConnection(factory, clientProcessorFactory, sourceChannel, httpSocket,
-				socketAddress, manipulator);
+		return new AnonymousProxyHttpConnection(factory, clientProcessorFactory, runnableStarter, sourceChannel,
+				httpSocket, socketAddress, manipulator);
 	}
 
 }

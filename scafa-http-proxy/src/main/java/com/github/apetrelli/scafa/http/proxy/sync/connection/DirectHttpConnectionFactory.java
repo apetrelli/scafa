@@ -27,6 +27,7 @@ import com.github.apetrelli.scafa.http.sync.output.DataSenderFactory;
 import com.github.apetrelli.scafa.proto.aio.SocketFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
+import com.github.apetrelli.scafa.proto.sync.RunnableStarter;
 import com.github.apetrelli.scafa.proto.sync.SyncSocket;
 import com.github.apetrelli.scafa.proto.sync.processor.DataHandler;
 
@@ -37,22 +38,26 @@ public class DirectHttpConnectionFactory implements ProxyHttpConnectionFactory {
 	private DataSenderFactory dataSenderFactory;
 	
 	private ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory;
+	
+	private RunnableStarter runnableStarter;
 
 	private String interfaceName;
 
 	private boolean forceIpV4;
 
 	public DirectHttpConnectionFactory(SocketFactory<SyncSocket> socketFactory,
-			DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory) {
-		this(socketFactory, dataSenderFactory, clientProcessorFactory, null, false);
+			DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory,
+			RunnableStarter runnableStarter) {
+		this(socketFactory, dataSenderFactory, clientProcessorFactory, runnableStarter, null, false);
 	}
 
-	public DirectHttpConnectionFactory(SocketFactory<SyncSocket> socketFactory,
-			DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory,
+	public DirectHttpConnectionFactory(SocketFactory<SyncSocket> socketFactory, DataSenderFactory dataSenderFactory,
+			ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory, RunnableStarter runnableStarter,
 			String interfaceName, boolean forceIpV4) {
 		this.socketFactory = socketFactory;
 		this.dataSenderFactory = dataSenderFactory;
 		this.clientProcessorFactory = clientProcessorFactory;
+		this.runnableStarter = runnableStarter;
 		this.interfaceName = interfaceName;
 		this.forceIpV4 = forceIpV4;
 	}
@@ -62,7 +67,7 @@ public class DirectHttpConnectionFactory implements ProxyHttpConnectionFactory {
 			HostPort socketAddress) {
 		SyncSocket socket = socketFactory.create(socketAddress, interfaceName, forceIpV4);
 		HttpSyncSocket<HttpRequest> httpSocket = new DirectHttpSyncSocket<>(socket, dataSenderFactory);
-		return new DirectProxyHttpConnection(factory, clientProcessorFactory,
+		return new DirectProxyHttpConnection(factory, clientProcessorFactory, runnableStarter,
 				new DirectHttpSyncSocket<>(sourceChannel, dataSenderFactory), httpSocket);
 	}
 

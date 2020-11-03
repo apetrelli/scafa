@@ -26,15 +26,16 @@ public class SyncScafaMain {
         if (args.length > 0) {
             profile = args[0];
         }
+
         SyncScafaLauncher launcher = new SyncScafaLauncher();
         launcher.initialize();
-        launcher.launch(profile);
-
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
                 launcher.stop();
             }
         });
+
+        launcher.launch(profile);
     }
 }

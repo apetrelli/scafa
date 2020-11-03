@@ -31,6 +31,7 @@ import com.github.apetrelli.scafa.http.sync.output.DataSenderFactory;
 import com.github.apetrelli.scafa.proto.aio.SocketFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
+import com.github.apetrelli.scafa.proto.sync.RunnableStarter;
 import com.github.apetrelli.scafa.proto.sync.SyncSocket;
 import com.github.apetrelli.scafa.proto.sync.processor.DataHandler;
 
@@ -41,6 +42,8 @@ public class NtlmProxyHttpConnectionFactory implements ProxyHttpConnectionFactor
 	private DataSenderFactory dataSenderFactory;
 	
 	private ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory;
+	
+	private RunnableStarter runnableStarter;
 
 	private HostPort proxySocketAddress;
 
@@ -54,14 +57,14 @@ public class NtlmProxyHttpConnectionFactory implements ProxyHttpConnectionFactor
 
 	private HttpStateMachine<HttpHandler, Void> stateMachine;
 
-	public NtlmProxyHttpConnectionFactory(SocketFactory<SyncSocket> socketFactory,
-			DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory,
-			HostPort proxySocketAddress, String interfaceName, boolean forceIpV4,
-			String domain, String username, String password, HttpRequestManipulator manipulator,
-			HttpStateMachine<HttpHandler, Void> stateMachine) {
+	public NtlmProxyHttpConnectionFactory(SocketFactory<SyncSocket> socketFactory, DataSenderFactory dataSenderFactory,
+			ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory, RunnableStarter runnableStarter,
+			HostPort proxySocketAddress, String interfaceName, boolean forceIpV4, String domain, String username,
+			String password, HttpRequestManipulator manipulator, HttpStateMachine<HttpHandler, Void> stateMachine) {
 		this.socketFactory = socketFactory;
 		this.dataSenderFactory = dataSenderFactory;
 		this.clientProcessorFactory = clientProcessorFactory;
+		this.runnableStarter = runnableStarter;
 		this.proxySocketAddress = proxySocketAddress;
 		this.interfaceName = interfaceName;
 		this.forceIpV4 = forceIpV4;
@@ -78,8 +81,8 @@ public class NtlmProxyHttpConnectionFactory implements ProxyHttpConnectionFactor
 		SyncSocket socket = socketFactory.create(proxySocketAddress, interfaceName, forceIpV4);
 		HttpSyncSocket<HttpRequest> httpSocket = new DirectHttpSyncSocket<>(socket, dataSenderFactory);
 		HttpSyncSocket<HttpResponse> httpSourceSocket = new DirectHttpSyncSocket<>(sourceChannel, dataSenderFactory);
-		return new NtlmProxyHttpConnection(factory, clientProcessorFactory, httpSourceSocket, httpSocket, socketAddress,
-				domain, username, password, stateMachine, manipulator);
+		return new NtlmProxyHttpConnection(factory, clientProcessorFactory, runnableStarter, httpSourceSocket,
+				httpSocket, socketAddress, domain, username, password, stateMachine, manipulator);
 	}
 
 }

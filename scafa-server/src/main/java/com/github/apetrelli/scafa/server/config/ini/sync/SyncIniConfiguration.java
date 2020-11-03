@@ -28,6 +28,7 @@ import com.github.apetrelli.scafa.http.sync.HttpHandler;
 import com.github.apetrelli.scafa.http.sync.output.DataSenderFactory;
 import com.github.apetrelli.scafa.proto.aio.SocketFactory;
 import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
+import com.github.apetrelli.scafa.proto.sync.RunnableStarter;
 import com.github.apetrelli.scafa.proto.sync.SyncSocket;
 import com.github.apetrelli.scafa.proto.sync.processor.DataHandler;
 import com.github.apetrelli.scafa.server.config.ServerConfiguration;
@@ -38,31 +39,33 @@ public class SyncIniConfiguration extends AbstractIniConfiguration<ProxyHttpConn
     private SocketFactory<SyncSocket> socketFactory;
     private DataSenderFactory dataSenderFactory;
     private ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory;
+    private RunnableStarter runnableStarter;
     private HttpStateMachine<HttpHandler, Void> stateMachine;
 
-    public static SyncIniConfiguration create(String profile, SocketFactory<SyncSocket> socketFactory,
-            DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory,
-            HttpStateMachine<HttpHandler, Void> stateMachine)
-            throws IOException {
+	public static SyncIniConfiguration create(String profile, SocketFactory<SyncSocket> socketFactory,
+			DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory,
+			RunnableStarter runnableStarter, HttpStateMachine<HttpHandler, Void> stateMachine) throws IOException {
         Ini ini = AbstractIniConfiguration.loadIni(profile);
-        SyncIniConfiguration configuration = new SyncIniConfiguration(ini, socketFactory, dataSenderFactory, clientProcessorFactory, stateMachine);
+		SyncIniConfiguration configuration = new SyncIniConfiguration(ini, socketFactory, dataSenderFactory,
+				clientProcessorFactory, runnableStarter, stateMachine);
         configuration.initizializeServerConfigurations();
 		return configuration;
     }
 
 	protected SyncIniConfiguration(Ini ini, SocketFactory<SyncSocket> socketFactory,
 			DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory,
-			HttpStateMachine<HttpHandler, Void> stateMachine) {
+			RunnableStarter runnableStarter, HttpStateMachine<HttpHandler, Void> stateMachine) {
         super(ini);
         this.socketFactory = socketFactory;
         this.dataSenderFactory = dataSenderFactory;
         this.clientProcessorFactory = clientProcessorFactory;
+        this.runnableStarter = runnableStarter;
         this.stateMachine = stateMachine;
     }
 
 	@Override
 	protected ServerConfiguration<ProxyHttpConnectionFactory> createServerConfiguration(Section section) {
-		return new SyncIniServerConfiguration(section,
-				this.socketFactory, this.dataSenderFactory, this.clientProcessorFactory, this.stateMachine);
+		return new SyncIniServerConfiguration(section, socketFactory, dataSenderFactory,
+				clientProcessorFactory, runnableStarter, stateMachine);
 	}
 }

@@ -8,6 +8,7 @@ import com.github.apetrelli.scafa.http.sync.output.DataSenderFactory;
 import com.github.apetrelli.scafa.proto.aio.SocketFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
+import com.github.apetrelli.scafa.proto.sync.RunnableStarter;
 import com.github.apetrelli.scafa.proto.sync.SyncSocket;
 import com.github.apetrelli.scafa.proto.sync.processor.DataHandler;
 
@@ -19,9 +20,10 @@ public class SyncConfigurationProxyHttpConnectionFactory implements ProxyHttpCon
 
     public SyncConfigurationProxyHttpConnectionFactory(Configuration<ProxyHttpConnectionFactory> configuration,
     		SocketFactory<SyncSocket> socketFactory, DataSenderFactory dataSenderFactory,
-    		ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory) {
+    		ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory,
+    		RunnableStarter runnableStarter) {
         this.configuration = configuration;
-        directHttpConnectionFactory = new DirectHttpConnectionFactory(socketFactory, dataSenderFactory, clientProcessorFactory);
+        directHttpConnectionFactory = new DirectHttpConnectionFactory(socketFactory, dataSenderFactory, clientProcessorFactory, runnableStarter);
     }
 
     @Override
