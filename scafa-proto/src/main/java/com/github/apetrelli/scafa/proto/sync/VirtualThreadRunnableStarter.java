@@ -18,7 +18,7 @@ public class VirtualThreadRunnableStarter implements RunnableStarter {
 	}
 
 	@Override
-	public void shutdown() {
+	public void close() {
 		try {
 			scheduler.shutdown();
 			scheduler.awaitTermination(60, TimeUnit.SECONDS);

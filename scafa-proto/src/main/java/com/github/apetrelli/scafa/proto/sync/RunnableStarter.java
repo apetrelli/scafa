@@ -1,8 +1,6 @@
 package com.github.apetrelli.scafa.proto.sync;
 
-public interface RunnableStarter {
+public interface RunnableStarter extends AutoCloseable {
 
 	void start(Runnable runnable);
-	
-	void shutdown();
 }
