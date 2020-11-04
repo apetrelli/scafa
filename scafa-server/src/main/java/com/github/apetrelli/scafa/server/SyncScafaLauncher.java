@@ -56,6 +56,10 @@ public class SyncScafaLauncher extends AbstractScafaLauncher {
     
     private ScafaListener<HttpHandler, SyncSocket> proxy;
 
+	private DefaultProcessorFactory<Input, DataHandler> clientProcessorFactory;
+
+	private DefaultProcessorFactory<HttpProcessingContext, HttpHandler> defaultProcessorFactory;
+
 
     @Override
     public void launch(String profile) {
@@ -63,7 +67,7 @@ public class SyncScafaLauncher extends AbstractScafaLauncher {
         	HttpStateMachine<HttpHandler, Void> stateMachine = new HttpStateMachine<>(new SyncHttpSink());
             DataSenderFactory dataSenderFactory = new DefaultDataSenderFactory();
             SocketFactory<SyncSocket> socketFactory = new DirectClientSyncSocketFactory();
-            DefaultProcessorFactory<Input, DataHandler> clientProcessorFactory = new DefaultProcessorFactory<>(
+            clientProcessorFactory = new DefaultProcessorFactory<>(
             		new PassthroughInputProcessorFactory(), new SimpleInputFactory());
             runnableStarter = new VirtualThreadRunnableStarter();
 			SyncIniConfiguration configuration = SyncIniConfiguration.create(profile, socketFactory, dataSenderFactory,
@@ -76,7 +80,7 @@ public class SyncScafaLauncher extends AbstractScafaLauncher {
             HttpProcessingContextFactory processingContextFactory = new HttpProcessingContextFactory();
             ProxyHttpHandlerFactory proxyHttpHandlerFactory = new ProxyHttpHandlerFactory(connectionFactoryFactory);
             SyncServerSocketFactory<SyncSocket> syncServerSocketFactory = new DirectSyncServerSocketFactory(port);
-            DefaultProcessorFactory<HttpProcessingContext, HttpHandler> defaultProcessorFactory = new DefaultProcessorFactory<>(
+            defaultProcessorFactory = new DefaultProcessorFactory<>(
                     inputProcessorFactory, processingContextFactory);
             proxy = new ScafaListener<>(syncServerSocketFactory, defaultProcessorFactory, proxyHttpHandlerFactory, runnableStarter);
             proxy.listen();
@@ -90,6 +94,8 @@ public class SyncScafaLauncher extends AbstractScafaLauncher {
         if (proxy != null) {
             proxy.stop();
         }
+        clientProcessorFactory.close();
+        defaultProcessorFactory.close();
         runnableStarter.shutdown();
     }
 }

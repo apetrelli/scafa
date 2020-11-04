@@ -17,6 +17,10 @@
  */
 package com.github.apetrelli.scafa.proto.sync.processor.impl;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
+
 import com.github.apetrelli.scafa.proto.processor.Handler;
 import com.github.apetrelli.scafa.proto.processor.Input;
 import com.github.apetrelli.scafa.proto.processor.ProcessingContextFactory;
@@ -26,21 +30,44 @@ import com.github.apetrelli.scafa.proto.sync.SyncSocket;
 import com.github.apetrelli.scafa.proto.sync.processor.InputProcessorFactory;
 
 public class DefaultProcessorFactory<P extends Input, H extends Handler>
-		implements ProcessorFactory<H, SyncSocket> {
+		implements ProcessorFactory<H, SyncSocket>, AutoCloseable {
 
 	private InputProcessorFactory<H, P> inputProcessorFactory;
 
 	private ProcessingContextFactory<P> processingContextFactory;
+	
+	private AtomicLong currentId = new AtomicLong(0L);
+	
+	private Map<Long, DefaultProcessor<P, H>> id2processor;
 
 	public DefaultProcessorFactory(InputProcessorFactory<H, P> inputProcessorFactory,
 			ProcessingContextFactory<P> processingContextFactory) {
 		this.inputProcessorFactory = inputProcessorFactory;
 		this.processingContextFactory = processingContextFactory;
+		id2processor = new ConcurrentHashMap<>();
 	}
 
 	@Override
 	public Processor<H> create(SyncSocket client) {
-		return new DefaultProcessor<>(client, inputProcessorFactory, processingContextFactory);
+		long id = currentId.getAndIncrement();
+		DefaultProcessor<P, H> processor = new DefaultProcessor<>(id, client, inputProcessorFactory, processingContextFactory, this);
+		id2processor.put(id, processor);
+		return processor;
 	}
 
+	public void release(long id) {
+		id2processor.remove(id);
+	}
+
+	@Override
+	public void close() {
+		id2processor.values().forEach(x -> {
+			try {
+				x.disconnectFinally();
+			} catch (RuntimeException e) {
+				// Ignore+
+			}
+		});
+		id2processor.clear();
+	}
 }

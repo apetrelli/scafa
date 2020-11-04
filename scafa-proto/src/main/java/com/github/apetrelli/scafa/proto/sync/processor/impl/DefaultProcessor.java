@@ -40,12 +40,18 @@ public class DefaultProcessor<P extends Input, H extends Handler> implements Pro
     private InputProcessorFactory<H, P> inputProcessorFactory;
 
     private ProcessingContextFactory<P> processingContextFactory;
+    
+    private long id;
+    
+    private DefaultProcessorFactory<P, H> processorFactory;
 
-	public DefaultProcessor(SyncSocket client, InputProcessorFactory<H, P> inputProcessorFactory,
-			ProcessingContextFactory<P> processingContextFactory) {
+	public DefaultProcessor(long id, SyncSocket client, InputProcessorFactory<H, P> inputProcessorFactory,
+			ProcessingContextFactory<P> processingContextFactory, DefaultProcessorFactory<P, H> processorFactory) {
+		this.id = id;
         this.client = client;
         this.inputProcessorFactory = inputProcessorFactory;
         this.processingContextFactory = processingContextFactory;
+        this.processorFactory = processorFactory;
     }
 
     @Override
@@ -64,23 +70,31 @@ public class DefaultProcessor<P extends Input, H extends Handler> implements Pro
             LOG.log(Level.SEVERE, "Unrecognized exception, don''t know what to do...", exc);
         }
     }
-
-	private void read(P context, H handler, InputProcessor<P> processor) {
-	    while (client.read(context.getBuffer()) >= 0) {
-	        ByteBuffer buffer = context.getBuffer();
-	        buffer.flip();
-	        processor.process(context);
-	        buffer.clear();
-	    }
-        disconnect(handler);
-	}
     
-    private void disconnect(H handler) {
+    public void disconnectFinally() {
     	try {
     		client.disconnect();
     	} catch (RuntimeException y) {
 			LOG.log(Level.SEVERE, "Error when disposing client", y);
     	}
+    }
+
+	private void read(P context, H handler, InputProcessor<P> processor) {
+		try {
+		    while (client.read(context.getBuffer()) >= 0) {
+		        ByteBuffer buffer = context.getBuffer();
+		        buffer.flip();
+		        processor.process(context);
+		        buffer.clear();
+		    }
+		} finally {
+			disconnect(handler);
+		}
+	}
+    
+    private void disconnect(H handler) {
+    	disconnectFinally();
+    	processorFactory.release(id);
     	handler.onDisconnect();
     }
 
