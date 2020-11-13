@@ -77,7 +77,19 @@ public class ScafaWebServerLauncher {
 		try {
 			Ini ini = new Ini(new File(rootFilesystemDirectory, "config.ini"));
 			AbstractIniConfiguration config = new AbstractIniConfiguration(ini, rootFilesystemDirectory);
-			listeners = config.getSocketConfigurations().stream().map(this::createListener).collect(Collectors.toList());
+			HttpStateMachine<HttpHandler, CompletableFuture<Void>> stateMachine = new HttpStateMachine<>(new AsyncHttpSink());
+			StatefulInputProcessorFactory<HttpHandler, HttpProcessingContext> inputProcessorFactory = new StatefulInputProcessorFactory<>(stateMachine);
+			HttpProcessingContextFactory processingContextFactory = new HttpProcessingContextFactory();
+			DataSenderFactory dataSenderFactory = new DefaultDataSenderFactory();
+			SocketFactory<AsyncSocket> socketFactory = new DirectClientAsyncSocketFactory();
+			DefaultProcessorFactory<HttpProcessingContext, HttpHandler> defaultProcessorFactory = new DefaultProcessorFactory<>(
+			        inputProcessorFactory, processingContextFactory);
+			HttpServer server = new DefaultHttpServer(dataSenderFactory);
+			NotFoundHttpServerHandlerFactory notFoundFactory = new NotFoundHttpServerHandlerFactory(server);
+			HandlerFactory<HttpHandler, HttpAsyncSocket<HttpResponse>> defaultHandlerFactory = new HttpServerHandlerAdapterFactory(notFoundFactory);
+			listeners = config.getSocketConfigurations().stream().map(x -> createListener(x, dataSenderFactory,
+					socketFactory, defaultProcessorFactory, server, defaultHandlerFactory))
+					.collect(Collectors.toList());
 			listeners.forEach(x -> {
 				try {
 					x.listen();
@@ -92,20 +104,6 @@ public class ScafaWebServerLauncher {
 	
 	public void stop() {
 		listeners.forEach(ScafaListener::stop);
-	}
-
-	private ScafaListener<HttpHandler,HttpAsyncSocket<HttpResponse>> createListener(SocketConfiguration socketConfig) {
-    	HttpStateMachine<HttpHandler, CompletableFuture<Void>> stateMachine = new HttpStateMachine<>(new AsyncHttpSink());
-        StatefulInputProcessorFactory<HttpHandler, HttpProcessingContext> inputProcessorFactory = new StatefulInputProcessorFactory<>(stateMachine);
-        HttpProcessingContextFactory processingContextFactory = new HttpProcessingContextFactory();
-        DataSenderFactory dataSenderFactory = new DefaultDataSenderFactory();
-        SocketFactory<AsyncSocket> socketFactory = new DirectClientAsyncSocketFactory();
-        DefaultProcessorFactory<HttpProcessingContext, HttpHandler> defaultProcessorFactory = new DefaultProcessorFactory<>(
-                inputProcessorFactory, processingContextFactory);
-        HttpServer server = new DefaultHttpServer(dataSenderFactory);
-        NotFoundHttpServerHandlerFactory notFoundFactory = new NotFoundHttpServerHandlerFactory(server);
-        HandlerFactory<HttpHandler, HttpAsyncSocket<HttpResponse>> defaultHandlerFactory = new HttpServerHandlerAdapterFactory(notFoundFactory);
-        return createListener(socketConfig, dataSenderFactory, socketFactory, defaultProcessorFactory, server, defaultHandlerFactory);
 	}
 
 	private ScafaListener<HttpHandler, HttpAsyncSocket<HttpResponse>> createListener(SocketConfiguration socketConfig,
