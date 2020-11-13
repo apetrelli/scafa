@@ -61,9 +61,12 @@ public class ScafaWebServerLauncher {
 			String line;
 			while ((line = br.readLine()) != null) {
 				if (!line.startsWith("#")) {
-					String[] pieces = line.split("\s+");
-					if (pieces.length == 2) {
-						mimeTypeConfig.put(pieces[1], pieces[0]);
+					String[] pieces = line.split("\\s+");
+					if (pieces.length >= 2) {
+						String mimeType = pieces[0];
+						for (int i = 1; i < pieces.length; i++) {
+							mimeTypeConfig.put(pieces[i], mimeType);
+						}
 					}
 				}
 			}
