@@ -6,18 +6,23 @@ import com.github.apetrelli.scafa.web.config.StaticPathConfiguration;
 
 public class AbstractIniStaticPathConfiguration extends AbstractIniPathConfiguration implements StaticPathConfiguration {
 
-	public AbstractIniStaticPathConfiguration(Section section) {
+	private String rootFilesystemPath;
+	
+	public AbstractIniStaticPathConfiguration(Section section, String rootFilesystemPath) {
 		super(section);
+		this.rootFilesystemPath = rootFilesystemPath;
 	}
 
 	@Override
 	public String getBaseFilesystemPath() {
-		return section.get("baseFilesystemPath");
+		String baseFilesystemPath = section.get("baseFilesystemPath");
+		return (baseFilesystemPath.startsWith("/") ? "" : rootFilesystemPath)
+				+ (rootFilesystemPath.endsWith("/") ? "" : "/") + baseFilesystemPath;
 	}
 
 	@Override
 	public String getIndexResource() {
-		return section.get("indexResource");
+		return section.get("indexResource", "index.html");
 	}
 
 }

@@ -2,7 +2,9 @@ package com.github.apetrelli.scafa.web.handler;
 
 import java.util.Map;
 
+import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpHandler;
+import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.gateway.GatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.gateway.GatewayHttpConnectionFactoryFactory;
 import com.github.apetrelli.scafa.http.gateway.direct.DirectGatewayHttpConnectionFactory;
@@ -22,6 +24,8 @@ import com.github.apetrelli.scafa.proto.client.HostPort;
 public class WebCompositeHttpHandlerFactoryBuilder {
 	
 	public class StaticHttpServerHandlerFactoryBuilder {
+		private String basePath;
+		
 		private String basePathPattern;
 		
 		private String baseFilesystemPath;
@@ -35,7 +39,9 @@ public class WebCompositeHttpHandlerFactoryBuilder {
 		}
 
 		public StaticHttpServerHandlerFactoryBuilder withBasePath(String basePath) {
-			this.basePathPattern = createPathPattern(basePath);
+			basePath = cleanBasePath(basePath);
+			this.basePath = "/" + basePath; // NOSONAR
+			this.basePathPattern = "^\\/\\Q" + basePath + "\\E\\/?(\\/.+)?";
 			return this;
 		}
 		
@@ -55,8 +61,8 @@ public class WebCompositeHttpHandlerFactoryBuilder {
 		}
 		
 		public WebCompositeHttpHandlerFactoryBuilder and() {
-			WebCompositeHttpHandlerFactoryBuilder.this.innerBuilder.withPattern("^\\/\\Q" + basePathPattern + "\\E\\/?(\\/.+)?",
-					new HttpServerHandlerAdapterFactory(new StaticHttpServerHandlerFactory(basePathPattern, baseFilesystemPath,
+			WebCompositeHttpHandlerFactoryBuilder.this.innerBuilder.withPattern(basePathPattern,
+					new HttpServerHandlerAdapterFactory(new StaticHttpServerHandlerFactory(basePath, baseFilesystemPath,
 							indexResource, mimeTypeConfig, httpServer)));
 			return WebCompositeHttpHandlerFactoryBuilder.this;
 		}
@@ -125,6 +131,12 @@ public class WebCompositeHttpHandlerFactoryBuilder {
 	
 	public WebCompositeHttpHandlerFactoryBuilder withMimeTypeConfig(Map<String, String> mimeTypeConfig) {
 		this.mimeTypeConfig = mimeTypeConfig;
+		return this;
+	}
+	
+	public WebCompositeHttpHandlerFactoryBuilder withDefaultHandlerFactory(
+			HandlerFactory<HttpHandler, HttpAsyncSocket<HttpResponse>> defaultHandlerFactory) {
+		innerBuilder.withDefaultHandlerFactory(defaultHandlerFactory);
 		return this;
 	}
 	

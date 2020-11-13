@@ -16,14 +16,14 @@ public class AbstractIniConfiguration implements Configuration{
 	
 	private List<SocketConfiguration> sockets;
 	
-	public AbstractIniConfiguration(Ini ini) {
+	public AbstractIniConfiguration(Ini ini, String rootFilesystemPath) {
 		Map<String, AbstractIniSocketConfiguration> name2socket = new LinkedHashMap<>();
 		Map<String, List<PathConfiguration>> socket2path = new LinkedHashMap<>();
 		ini.keySet().stream().map(ini::get).forEach(x -> {
 			if (x.getName().startsWith("socket-")) {
 				name2socket.put(x.getName().substring("socket-".length()), new AbstractIniSocketConfiguration(x));
 			} else if (x.getName().startsWith("static-")) {
-				AbstractIniStaticPathConfiguration path = new AbstractIniStaticPathConfiguration(x);
+				AbstractIniStaticPathConfiguration path = new AbstractIniStaticPathConfiguration(x, rootFilesystemPath);
 				mapToSocket(socket2path, x, path);
 			} else if (x.getName().startsWith("gateway-")) {
 				AbstractIniGatewayPathConfiguration path = new AbstractIniGatewayPathConfiguration(x);

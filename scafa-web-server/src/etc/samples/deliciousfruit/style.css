@@ -1,0 +1,307 @@
+/* CSS Document av Dieter Schneider 2007 */
+
+* {margin: 0; padding: 0;}
+
+/************************************* Main structure *************************/
+
+body {
+	font-family: Georgia, "Times New Roman", Times, serif;
+	font-size: 62.5%;
+}
+
+#container {
+	background-image: url(images/container_bg.jpg);
+	background-repeat: no-repeat;
+	height: 465px;
+	width: 931px;
+	font-size: 1.2em;
+	margin: 4px;
+	border-top: 1px solid white;
+}
+
+#header {
+	height: 205px;
+	padding-top: 20px;
+	margin-left: 365px;
+}
+
+#header_left {
+	float: left;
+	width: 326px;
+	height: 206px;
+}
+
+#header_right {
+    height: 206px;
+	margin-left: 330px;
+	margin-right: 20px;
+}
+
+#left {
+	float:left;
+	width: 225px;
+	margin-left: 45px;
+	margin-top: 120px;
+}
+
+#right {
+	margin-left: 340px;
+	margin-top: 70px;
+	margin-right: 50px;
+}
+
+#footer {
+	clear: both;
+	margin-left: 340px;
+	margin-right: 50px;
+	margin-top: 40px;
+	padding: 20px;
+	text-align: center;
+	border-top: 1px dotted #CCCCCC;
+	background-color: #F9F7EA;
+}
+
+.date_box {
+	background-color: #FFFFFF;
+	background-image: url(images/date.jpg);
+	height: 51px;
+	width: 52px;
+	float: left;
+}
+
+.date_box_month {
+	padding-top: 6px;
+	font-size: 10px;
+	font-family: Arial, Helvetica, sans-serif;
+	padding-left: 3px;
+	text-align: center;
+	color: #75a006;
+}
+
+.date_box_day {
+	font-size: 22px;
+	font-weight: bold;
+	padding-left: 3px;
+	text-align: center;
+	font-style: italic;	
+	color: #654040;
+}
+
+/******************************* Text and image formatting *******************************/
+
+p {margin-bottom: 15px;
+   margin-top: 15px;
+}
+
+p.quote:first-letter 
+{
+	color: #6F9800;
+	font-size:xx-large;
+	margin-top: 20px;
+	font-size: 2.5em;
+    padding-right: 2px;
+   
+}
+
+h1 {
+	color: #87a448;
+	margin-top: 85px;
+	margin-left: 40px;
+	font-family: "Times New Roman", Times, serif;
+	font-style: italic;
+	font-size: 2.6em;
+}
+
+.red {color: #614240;}
+
+h2 {
+	color: #bf8a44;
+	margin-left: 120px;
+	font-size: 1.6em;
+	font-family: "Times New Roman", Times, serif;
+	font-style: italic;
+}
+
+h3 {
+	height: 31px;
+	background-color: #FFFFFF;
+	padding-top: 20px;
+	padding-left: 75px;
+	font-size: 1.6em;
+	font-family: "Times New Roman", Times, serif;
+	font-style: italic;
+	font-weight: bold;
+	color: #84A54A;
+	border-bottom: 1px dotted #CCCCCC;
+}
+
+h4 {
+	width: 210px;
+	margin-top: 20px;
+	margin-bottom: 20px;
+	background-color: #F5F9EB;
+	padding: 5px;
+	border-top-width: 1px;
+	border-bottom-width: 1px;
+	border-top-style: dotted;
+	border-bottom-style: dotted;
+	border-top-color: #CEAC86;
+	border-bottom-color: #CEAC86;
+	font-size: 1.2em;
+	color: #A6BB7A;
+}
+
+blockquote {
+	background-color: #F4F7F0;
+	margin-top: 15px;
+	margin-bottom: 15px;
+	padding-left: 60px;
+	padding-right: 60px;
+	padding-top: 30px;
+	padding-bottom:30px;
+	border: 1px dotted #EBE2B7;
+	background-image: url(images/blockquote.png);
+	background-repeat: no-repeat;
+	font-style: italic;
+}
+
+.read_more {
+	background-color: #FFFFFF;
+	padding: 3px;
+	text-align: right;
+	font-weight: bold;
+	font-style: italic;
+}
+
+img {border: none;}
+
+.float_left {float: left;
+              margin-right: 10px;}
+			  
+.float_right {float: right;
+              margin-left: 10px;}
+			 
+a:link {color: #557C2B; text-decoration: none;}     /* unvisited link */
+a:visited {color: #83A956; text-decoration: none;}  /* visited link */
+a:hover {color: #821115; text-decoration: none;}   /* mouse over link */
+a:active {color: #577E2D; text-decoration: none;}   /* selected link */
+
+/********************************* Navigation **********************************/
+
+#navcontainer { }
+
+#navcontainer ul
+{
+	list-style-type: none;
+	font-weight: bold;
+	color: #990000;
+}
+
+#navcontainer a
+{
+	display: block;
+	padding-top: 17px;
+	padding-left: 37px;
+	width: 182px;
+	background-color: #DCE3ED;
+	border-bottom: 1px solid #eee;
+	background-image: url(images/menu.png);
+	background-repeat: repeat-x;
+	height: 27px;
+}
+
+
+#navcontainer a:link, #navlist a:visited
+{
+color: #93B26E;
+text-decoration: none;
+}
+
+#navcontainer a:hover 
+{	
+	background: url(images/menu.png) 0 -45px;
+	color: #562930;
+}
+
+/**************************************** Form elements member login ****************************/
+
+
+p.welcome {
+	font-size: 0.8em;
+	text-align: left;
+	margin-right: 30px;
+	margin-left: 35px;
+	margin-bottom: 0px;
+	margin-top: 25px;
+	color: #6B383D;
+}
+
+form {
+	margin-top: 15px;
+	margin-left: 35px;
+}
+
+input.fields {display: block;
+        width: 140px;
+        background: url(images/input_bg.png);
+		border-top: 1px solid #E3E4E9;
+		border-left: 1px solid #E3E4E9;
+		border-bottom: 1px solid white;
+		border-right: 1px solid white;
+		margin-top: 3px;
+	    margin-bottom: 3px;}
+
+label {
+	color: #A5BB73;
+	font-style: italic;
+}
+
+.submit_button {
+	margin-top: 15px;
+	padding: 2px;
+	background-color: #EAF4D9;
+	float: right;
+	margin-right: 40px;
+	border-top: 2px solid white;
+	border-left: 2px solid white;
+	border-bottom: 2px solid #E3E4E9;
+	border-right: 2px solid #E3E4E9;
+}
+
+/**************************************** extra classes: contact us ****************************/
+
+form.contact_us {
+	width: 190px;
+	margin-top: 15px;
+	margin-left: 0px;
+	padding: 15px;
+	background-color: #FBF9F4;
+	background-image: url(images/form_bg.png);
+	background-repeat: no-repeat;
+	background-position: right bottom;
+}
+
+input.fields_contact_us {display: block;
+        width: 185px;
+        background: url(images/input_bg.png);
+		border-top: 1px solid #E3E4E9;
+		border-left: 1px solid #E3E4E9;
+		border-bottom: 1px solid white;
+		border-right: 1px solid white;
+		margin-top: 3px;
+	    margin-bottom: 3px;}
+
+textarea {width: 185px;
+          background: url(images/input_bg.png);
+          border-top: 1px solid #E3E4E9;
+		  border-left: 1px solid #E3E4E9;
+		  border-bottom: 1px solid white;
+		  border-right: 1px solid white;
+
+          margin-top: 3px;}
+
+.submit_button_contact {
+	margin-top: 15px;
+	padding: 2px;
+	background-color: #EAF4D9;
+}
