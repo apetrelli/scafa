@@ -18,10 +18,10 @@ import com.github.apetrelli.scafa.http.server.impl.HttpServerHandlerSupport;
 
 public class StaticHttpServerHandler extends HttpServerHandlerSupport {
 
-	private static String getCurrentDateString() {
+	private static String getCurrentDateString(TimeZone timeZone) {
 		Calendar calendar = Calendar.getInstance();
 		SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.US);
-		dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+		dateFormat.setTimeZone(timeZone);
 		return dateFormat.format(calendar.getTime());
 	}
 
@@ -34,15 +34,18 @@ public class StaticHttpServerHandler extends HttpServerHandlerSupport {
 	private Map<String, String> mimeTypeConfig;
 
 	private HttpServer server;
+	
+	private TimeZone timeZone;
 
 	public StaticHttpServerHandler(HttpAsyncSocket<HttpResponse> channel, String basePath, String baseFilesystemPath,
-			String indexResource, Map<String, String> mimeTypeConfig, HttpServer server) {
+			String indexResource, Map<String, String> mimeTypeConfig, HttpServer server, TimeZone timeZone) {
 		super(channel);
 		this.basePath = basePath;
 		this.baseFilesystemPath = baseFilesystemPath;
 		this.indexResource = indexResource;
 		this.mimeTypeConfig = mimeTypeConfig;
 		this.server = server;
+		this.timeZone = timeZone;
 	}
 	
 	@Override
@@ -66,7 +69,7 @@ public class StaticHttpServerHandler extends HttpServerHandlerSupport {
 						if (Files.exists(path)) {
 							HttpResponse response = new HttpResponse("HTTP/1.1", 200, "Found");
 							response.setHeader("Server", "Scafa");
-							response.setHeader("Date", getCurrentDateString());
+							response.setHeader("Date", getCurrentDateString(timeZone));
 							String connection = request.getHeader("Connection");
 							if (!"close".equals(connection)) {
 								connection = "keep-alive";
