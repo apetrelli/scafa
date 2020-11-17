@@ -1,6 +1,7 @@
 package com.github.apetrelli.scafa.http.server.impl;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -31,28 +32,28 @@ public class DefaultHttpServer implements HttpServer {
 	
 	@Override
 	public CompletableFuture<Void> response(HttpAsyncSocket<HttpResponse> channel, HttpResponse response,
-			BufferContextReader payloadReader) {
+			BufferContextReader payloadReader, ByteBuffer writeBuffer) {
 		HttpResponse realResponse = new HttpResponse(response);
 		realResponse.setHeader("Transfer-Encoding", "chunked");
-		return responseWithPayload(channel, realResponse, payloadReader);
+		return responseWithPayload(channel, realResponse, payloadReader, writeBuffer);
 	}
 
 	@Override
 	public CompletableFuture<Void> response(HttpAsyncSocket<HttpResponse> channel, HttpResponse response,
-			BufferContextReader payloadReader, long size) {
+			BufferContextReader payloadReader, long size, ByteBuffer writeBuffer) {
 		HttpResponse realResponse = new HttpResponse(response);
 		realResponse.setHeader("Content-Length", Long.toString(size));
-		return responseWithPayload(channel, realResponse, payloadReader);
+		return responseWithPayload(channel, realResponse, payloadReader, writeBuffer);
 	}
 	
 	@Override
 	public CompletableFuture<Void> response(HttpAsyncSocket<HttpResponse> channel, HttpResponse response,
-			Path payload) {
+			Path payload, ByteBuffer writeBuffer) {
 		AsynchronousFileChannel fileChannel = null;
 		try {
 			fileChannel = AsynchronousFileChannel.open(payload, StandardOpenOption.READ); // NOSONAR
 			PathBufferContextReader payloadReader = new PathBufferContextReader(fileChannel); // NOSONAR
-			return response(channel, response, payloadReader, fileChannel.size());
+			return response(channel, response, payloadReader, fileChannel.size(), writeBuffer);
 		} catch (IOException e1) {
 			IOUtils.closeQuietly(fileChannel);
 			return CompletableFuture.failedFuture(e1);
@@ -60,9 +61,10 @@ public class DefaultHttpServer implements HttpServer {
 	}
 
 	private CompletableFuture<Void> responseWithPayload(HttpAsyncSocket<HttpResponse> channel, HttpResponse realResponse,
-			BufferContextReader payloadReader) {
+			BufferContextReader payloadReader, ByteBuffer writeBuffer) {
 		DataSender sender = dataSenderFactory.create(realResponse, channel);
 		BufferContext fileContext = new BufferContext();
+		fileContext.setBuffer(writeBuffer);
 		return channel.sendHeader(realResponse).thenCompose(x -> transferPayload(payloadReader, sender, fileContext));
 	}
 

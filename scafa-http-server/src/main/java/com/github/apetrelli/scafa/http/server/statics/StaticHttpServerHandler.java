@@ -1,5 +1,6 @@
 package com.github.apetrelli.scafa.http.server.statics;
 
+import java.nio.ByteBuffer;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -36,6 +37,8 @@ public class StaticHttpServerHandler extends HttpServerHandlerSupport {
 	private HttpServer server;
 	
 	private TimeZone timeZone;
+	
+	private ByteBuffer writeBuffer;
 
 	public StaticHttpServerHandler(HttpAsyncSocket<HttpResponse> channel, String basePath, String baseFilesystemPath,
 			String indexResource, Map<String, String> mimeTypeConfig, HttpServer server, TimeZone timeZone) {
@@ -46,6 +49,7 @@ public class StaticHttpServerHandler extends HttpServerHandlerSupport {
 		this.mimeTypeConfig = mimeTypeConfig;
 		this.server = server;
 		this.timeZone = timeZone;
+		writeBuffer = ByteBuffer.allocate(16384);
 	}
 	
 	@Override
@@ -82,7 +86,7 @@ public class StaticHttpServerHandler extends HttpServerHandlerSupport {
 									response.setHeader("Content-Type", contentType);
 								}
 							}
-							return server.response(channel, response, path);
+							return server.response(channel, response, path, writeBuffer);
 						} else {
 							return sendSimpleMessage(404, "The resource " + localResource + " does not exist");
 						}

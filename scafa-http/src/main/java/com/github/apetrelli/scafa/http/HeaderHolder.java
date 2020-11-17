@@ -91,6 +91,8 @@ public abstract class HeaderHolder {
     	return Collections.unmodifiableCollection(capitalized2normalHeader.values());
     }
 
+    public abstract void fill(ByteBuffer buffer);
+
     public abstract ByteBuffer toHeapByteBuffer();
 
     protected void loadInBuffer(ByteBuffer buffer) {
@@ -98,9 +100,8 @@ public abstract class HeaderHolder {
         headers.entrySet().stream().forEach(t -> {
             String key = t.getKey();
             byte[] originalKey = capitalized2normalHeader.get(key).getBytes(StandardCharsets.US_ASCII);
-            t.getValue().forEach(u -> {
-                buffer.put(originalKey).put(COLON).put(SPACE).put(u.getBytes(charset)).put(CR).put(LF);
-            });
+			t.getValue().forEach(
+					u -> buffer.put(originalKey).put(COLON).put(SPACE).put(u.getBytes(charset)).put(CR).put(LF));
         });
         buffer.put(CR).put(LF);
     }

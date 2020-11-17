@@ -30,8 +30,8 @@ public class DirectHttpAsyncSocket<H extends HeaderHolder> extends AsyncSocketWr
 	
 	@Override
 	public CompletableFuture<Void> sendHeader(H holder) {
-		dataSender = dataSenderFactory.create(holder, socket);
 		ByteBuffer buffer = holder.toHeapByteBuffer();
+		dataSender = dataSenderFactory.create(holder, socket);
 		if (LOG.isLoggable(Level.FINEST)) {
 			String request = new String(buffer.array(), 0, buffer.limit());
 			LOG.finest("-- Raw request/response header");
