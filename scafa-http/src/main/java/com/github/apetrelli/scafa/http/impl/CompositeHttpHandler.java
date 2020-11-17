@@ -1,8 +1,6 @@
 package com.github.apetrelli.scafa.http.impl;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import com.github.apetrelli.scafa.http.HttpHandler;
@@ -11,27 +9,7 @@ import com.github.apetrelli.scafa.http.HttpResponse;
 
 public class CompositeHttpHandler implements HttpHandler {
 
-	public static class CompositeHttpHandlerBuilder {
-		private HttpHandler defaultHandler;
-
-		private List<PatternHandlerPair> pairs = new ArrayList<>();
-
-		public CompositeHttpHandler build() {
-			return new CompositeHttpHandler(defaultHandler, pairs.toArray(new PatternHandlerPair[pairs.size()]));
-		}
-
-		public CompositeHttpHandlerBuilder withDefaultHandler(HttpHandler defaultHandler) {
-			this.defaultHandler = defaultHandler;
-			return this;
-		}
-
-		public CompositeHttpHandlerBuilder withHandler(String pattern, HttpHandler handler) {
-			pairs.add(new PatternHandlerPair(pattern, handler));
-			return this;
-		}
-	}
-
-	private static class PatternHandlerPair {
+	public static class PatternHandlerPair {
 		private String pattern;
 
 		private HttpHandler handler;
@@ -42,17 +20,13 @@ public class CompositeHttpHandler implements HttpHandler {
 		}
 	}
 
-	public static CompositeHttpHandlerBuilder builder() {
-		return new CompositeHttpHandlerBuilder();
-	}
-
 	private PatternHandlerPair[] pairs;
 
 	private HttpHandler defaultHandler;
 
 	private HttpHandler currentHandler;
 
-	private CompositeHttpHandler(HttpHandler defaultHandler, PatternHandlerPair... pairs) {
+	public CompositeHttpHandler(HttpHandler defaultHandler, PatternHandlerPair... pairs) {
 		this.defaultHandler = defaultHandler;
 		this.pairs = pairs;
 	}

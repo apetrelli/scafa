@@ -34,7 +34,7 @@ public class HttpRequest extends HeaderHolder {
 
 	private static final Logger LOG = Logger.getLogger(HttpRequest.class.getName());
 
-    private static final Map<String, Integer> protocol2port = new HashMap<String, Integer>();
+    private static final Map<String, Integer> protocol2port = new HashMap<>();
 
     private String method;
 
@@ -145,12 +145,17 @@ public class HttpRequest extends HeaderHolder {
     @Override
     public ByteBuffer toHeapByteBuffer() {
         ByteBuffer buffer = ByteBuffer.allocate(byteSize);
-        Charset charset = StandardCharsets.US_ASCII;
+        fill(buffer);
+        return buffer;
+    }
+
+    @Override
+	public void fill(ByteBuffer buffer) {
+		Charset charset = StandardCharsets.US_ASCII;
         buffer.put(method.getBytes(charset)).put(SPACE).put(resource.getBytes(charset)).put(SPACE)
                 .put(httpVersion.getBytes(charset)).put(CR).put(LF);
         loadInBuffer(buffer);
-        return buffer;
-    }
+	}
 
     public ParsedResource getParsedResource() {
     	return new ParsedResource(resource);

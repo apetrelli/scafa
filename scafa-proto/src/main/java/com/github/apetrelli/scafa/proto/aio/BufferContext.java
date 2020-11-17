@@ -8,10 +8,6 @@ public class BufferContext {
 
 	private ByteBuffer buffer;
 
-	public BufferContext() {
-		buffer = ByteBuffer.allocate(16384);
-	}
-
 	public void moveForwardBy(int bytes) {
 		position += bytes;
 	}
@@ -22,5 +18,9 @@ public class BufferContext {
 
 	public ByteBuffer getBuffer() {
 		return buffer;
+	}
+	
+	public void setBuffer(ByteBuffer buffer) {
+		this.buffer = buffer;
 	}
 }
