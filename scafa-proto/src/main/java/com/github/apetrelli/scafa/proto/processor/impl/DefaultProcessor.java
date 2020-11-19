@@ -67,7 +67,8 @@ public class DefaultProcessor<P extends Input, H extends Handler> implements Pro
                     LOG.log(Level.INFO, "I/O exception, closing", exc);
                     disconnect(handler);
                 } else {
-                    LOG.log(Level.SEVERE, "Unrecognized exception, don''t know what to do...", exc);
+                    LOG.log(Level.SEVERE, "Unrecognized exception, use the handler", exc);
+                    handler.onError(exc);
                 }
         	}
         	return x;

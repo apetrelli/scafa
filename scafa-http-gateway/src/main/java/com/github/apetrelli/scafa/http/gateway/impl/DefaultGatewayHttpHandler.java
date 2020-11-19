@@ -25,10 +25,10 @@ import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.gateway.MappedGatewayHttpConnectionFactory;
+import com.github.apetrelli.scafa.http.impl.HttpHandlerSupport;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
-import com.github.apetrelli.scafa.proto.aio.CompletionHandlerFuture;
 
-public class DefaultGatewayHttpHandler implements HttpHandler {
+public class DefaultGatewayHttpHandler extends HttpHandlerSupport implements HttpHandler {
 
     private MappedGatewayHttpConnectionFactory connectionFactory;
 
@@ -39,16 +39,6 @@ public class DefaultGatewayHttpHandler implements HttpHandler {
     public DefaultGatewayHttpHandler(MappedGatewayHttpConnectionFactory connectionFactory, AsyncSocket sourceChannel) {
         this.connectionFactory = connectionFactory;
         this.sourceChannel = sourceChannel;
-    }
-
-    @Override
-    public void onConnect() {
-        // Does nothing
-    }
-
-    @Override
-    public void onStart() {
-        // Does nothing
     }
     
     @Override
@@ -70,23 +60,8 @@ public class DefaultGatewayHttpHandler implements HttpHandler {
     }
     
     @Override
-    public CompletableFuture<Void> onChunkStart(long totalOffset, long chunkLength) {
-    	return CompletionHandlerFuture.completeEmpty();
-    }
-    
-    @Override
     public CompletableFuture<Void> onChunk(ByteBuffer buffer, long totalOffset, long chunkOffset, long chunkLength) {
         return connection.sendData(buffer);
-    }
-    
-    @Override
-    public CompletableFuture<Void> onChunkEnd() {
-    	return CompletionHandlerFuture.completeEmpty();
-    }
-    
-    @Override
-    public CompletableFuture<Void> onChunkedTransferEnd() {
-    	return CompletionHandlerFuture.completeEmpty();
     }
     
     @Override

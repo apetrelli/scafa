@@ -7,8 +7,9 @@ import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.processor.DataHandler;
+import com.github.apetrelli.scafa.proto.processor.HandlerSupport;
 
-public class ChannelDisconnectorHandler implements DataHandler {
+public class ChannelDisconnectorHandler extends HandlerSupport implements DataHandler {
 
 	private MappedProxyHttpConnectionFactory factory;
 	
@@ -20,11 +21,6 @@ public class ChannelDisconnectorHandler implements DataHandler {
 		this.factory = factory;
 		this.socket = socket;
 		this.socketAddress = socketAddress;
-	}
-
-	@Override
-	public void onConnect() {
-		// Do nothing
 	}
 	
 	@Override

@@ -15,6 +15,6 @@ public interface HttpServerHandler {
 
 	CompletableFuture<Void> onRequestEnd(HttpRequest request);
 
-	void onRequestError(HttpRequest request, Throwable exc);
+	CompletableFuture<Void> onRequestError(HttpRequest request, Throwable exc);
 
 }
