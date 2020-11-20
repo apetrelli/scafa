@@ -1,7 +1,6 @@
 package com.github.apetrelli.scafa.web.handler;
 
 import java.util.Map;
-import java.util.TimeZone;
 
 import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpHandler;
@@ -32,8 +31,6 @@ public class WebCompositeHttpHandlerFactoryBuilder {
 		private String baseFilesystemPath;
 		
 		private String indexResource = "index.html";
-		
-		private TimeZone timeZone = TimeZone.getTimeZone("GMT");
 
 		private Map<String, String> mimeTypeConfig;
 		
@@ -63,15 +60,10 @@ public class WebCompositeHttpHandlerFactoryBuilder {
 			return this;
 		}
 		
-		public StaticHttpServerHandlerFactoryBuilder withTimeZone(TimeZone timeZone) {
-			this.timeZone = timeZone;
-			return this;
-		}
-		
 		public WebCompositeHttpHandlerFactoryBuilder and() {
 			WebCompositeHttpHandlerFactoryBuilder.this.innerBuilder.withPattern(basePathPattern,
 					new HttpServerHandlerAdapterFactory(new StaticHttpServerHandlerFactory(basePath, baseFilesystemPath,
-							indexResource, mimeTypeConfig, httpServer, timeZone)));
+							indexResource, mimeTypeConfig, httpServer)));
 			return WebCompositeHttpHandlerFactoryBuilder.this;
 		}
 		
