@@ -6,6 +6,8 @@ import java.nio.channels.AsynchronousFileChannel;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.concurrent.CompletableFuture;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpResponse;
@@ -18,6 +20,8 @@ import com.github.apetrelli.scafa.proto.aio.impl.PathBufferContextReader;
 import com.github.apetrelli.scafa.tls.util.IOUtils;
 
 public class DefaultHttpServer implements HttpServer {
+	
+	private static final Logger LOG = Logger.getLogger(DefaultHttpServer.class.getName());
 
 	private DataSenderFactory dataSenderFactory;
 
@@ -53,7 +57,13 @@ public class DefaultHttpServer implements HttpServer {
 		try {
 			fileChannel = AsynchronousFileChannel.open(payload, StandardOpenOption.READ); // NOSONAR
 			PathBufferContextReader payloadReader = new PathBufferContextReader(fileChannel); // NOSONAR
-			return response(channel, response, payloadReader, fileChannel.size(), writeBuffer);
+			return response(channel, response, payloadReader, fileChannel.size(), writeBuffer).thenRun(() -> {
+				try {
+					payloadReader.close();
+				} catch (IOException e) {
+					LOG.log(Level.FINE, "Error when closing payload reader", e);
+				}
+			});
 		} catch (IOException e1) {
 			IOUtils.closeQuietly(fileChannel);
 			return CompletableFuture.failedFuture(e1);
