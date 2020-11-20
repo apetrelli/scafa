@@ -26,9 +26,10 @@ import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
 import com.github.apetrelli.scafa.http.proxy.sync.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.sync.ProxyHttpConnection;
+import com.github.apetrelli.scafa.http.sync.impl.HttpHandlerSupport;
 import com.github.apetrelli.scafa.proto.sync.SyncSocket;
 
-public class DefaultProxyHttpHandler implements ProxyHttpHandler {
+public class DefaultProxyHttpHandler extends HttpHandlerSupport implements ProxyHttpHandler {
 
     private MappedProxyHttpConnectionFactory connectionFactory;
 
@@ -39,16 +40,6 @@ public class DefaultProxyHttpHandler implements ProxyHttpHandler {
     public DefaultProxyHttpHandler(MappedProxyHttpConnectionFactory connectionFactory, SyncSocket sourceChannel) {
         this.connectionFactory = connectionFactory;
         this.sourceChannel = sourceChannel;
-    }
-
-    @Override
-    public void onConnect() {
-        // Does nothing
-    }
-
-    @Override
-    public void onStart() {
-        // Does nothing
     }
 
     @Override
@@ -78,23 +69,8 @@ public class DefaultProxyHttpHandler implements ProxyHttpHandler {
     }
     
     @Override
-    public void onChunkStart(long totalOffset, long chunkLength) {
-    	// Does nothing.
-    }
-    
-    @Override
     public void onChunk(ByteBuffer buffer, long totalOffset, long chunkOffset, long chunkLength) {
         connection.sendData(buffer);
-    }
-
-    @Override
-    public void onChunkEnd() {
-    	// Does nothing.
-    }
-
-    @Override
-    public void onChunkedTransferEnd() {
-    	// Does nothing.
     }
     
     @Override

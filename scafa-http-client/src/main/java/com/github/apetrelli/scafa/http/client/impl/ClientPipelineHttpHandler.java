@@ -9,9 +9,10 @@ import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.client.HttpClientConnection;
 import com.github.apetrelli.scafa.http.client.HttpClientHandler;
+import com.github.apetrelli.scafa.http.impl.HttpHandlerSupport;
 import com.github.apetrelli.scafa.proto.aio.CompletionHandlerFuture;
 
-public class ClientPipelineHttpHandler implements HttpHandler {
+public class ClientPipelineHttpHandler extends HttpHandlerSupport implements HttpHandler {
 
     private static final HttpClientHandler NULL_HANDLER = new NullHttpClientHandler();
 
@@ -25,13 +26,8 @@ public class ClientPipelineHttpHandler implements HttpHandler {
         this.connection = connection;
     }
 
-    public void add(HttpRequest request, HttpClientHandler handler, HttpClientConnection connection) {
+    public void add(HttpRequest request, HttpClientHandler handler) {
         contexts.offer(new HttpPipelineContext(request, handler));
-    }
-
-    @Override
-    public void onConnect() {
-    	// Does nothing.
     }
 
     @Override
@@ -66,23 +62,8 @@ public class ClientPipelineHttpHandler implements HttpHandler {
     }
 
     @Override
-    public CompletableFuture<Void> onChunkStart(long totalOffset, long chunkLength) {
-		return CompletionHandlerFuture.completeEmpty(); // Go on, nothing to call here.
-    }
-
-    @Override
     public CompletableFuture<Void> onChunk(ByteBuffer buffer, long totalOffset, long chunkOffset, long chunkLength) {
         return currentContext.getHandler().onBody(currentContext.getRequest(), currentContext.getResponse(), buffer, totalOffset, -1L);
-    }
-
-    @Override
-    public CompletableFuture<Void> onChunkEnd() {
-		return CompletionHandlerFuture.completeEmpty(); // Go on, nothing to call here.
-    }
-
-    @Override
-    public CompletableFuture<Void> onChunkedTransferEnd() {
-		return CompletionHandlerFuture.completeEmpty(); // Go on, nothing to call here.
     }
     
     @Override

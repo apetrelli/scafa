@@ -6,10 +6,11 @@ import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.http.proxy.sync.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
+import com.github.apetrelli.scafa.proto.processor.HandlerSupport;
 import com.github.apetrelli.scafa.proto.sync.SyncSocket;
 import com.github.apetrelli.scafa.proto.sync.processor.DataHandler;
 
-public class ChannelDisconnectorHandler implements DataHandler {
+public class ChannelDisconnectorHandler extends HandlerSupport implements DataHandler {
 	
 	private static final Logger LOG = Logger.getLogger(ChannelDisconnectorHandler.class.getName());
 
@@ -23,11 +24,6 @@ public class ChannelDisconnectorHandler implements DataHandler {
 		this.factory = factory;
 		this.socket = socket;
 		this.socketAddress = socketAddress;
-	}
-
-	@Override
-	public void onConnect() {
-		// Do nothing
 	}
 	
 	@Override

@@ -24,13 +24,9 @@ import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.proto.aio.CompletionHandlerFuture;
+import com.github.apetrelli.scafa.proto.processor.HandlerSupport;
 
-public class HttpHandlerSupport implements HttpHandler {
-
-    @Override
-    public void onConnect() {
-    	// Does nothing.
-    }
+public class HttpHandlerSupport extends HandlerSupport implements HttpHandler {
 
     @Override
     public void onStart() {
@@ -85,10 +81,4 @@ public class HttpHandlerSupport implements HttpHandler {
     public CompletableFuture<Void> onEnd() {
     	return CompletionHandlerFuture.completeEmpty();
     }
-
-    @Override
-    public void onDisconnect() {
-    	// Does nothing.
-    }
-
 }

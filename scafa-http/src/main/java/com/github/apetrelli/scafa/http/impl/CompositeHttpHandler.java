@@ -100,4 +100,10 @@ public class CompositeHttpHandler implements HttpHandler {
 		return currentHandler.onEnd().thenRun(() -> currentHandler = defaultHandler);
 	}
 
+	@Override
+	public void onError(Throwable exc) {
+		if (currentHandler != null) {
+			currentHandler.onError(exc);
+		}
+	}
 }

@@ -22,13 +22,9 @@ import java.nio.ByteBuffer;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.sync.HttpHandler;
+import com.github.apetrelli.scafa.proto.processor.HandlerSupport;
 
-public class HttpHandlerSupport implements HttpHandler {
-
-    @Override
-    public void onConnect() {
-    	// Does nothing.
-    }
+public class HttpHandlerSupport extends HandlerSupport implements HttpHandler {
 
     @Override
     public void onStart() {
@@ -80,10 +76,4 @@ public class HttpHandlerSupport implements HttpHandler {
     public void onEnd() {
     	// Does nothing.
     }
-
-    @Override
-    public void onDisconnect() {
-    	// Does nothing.
-    }
-
 }

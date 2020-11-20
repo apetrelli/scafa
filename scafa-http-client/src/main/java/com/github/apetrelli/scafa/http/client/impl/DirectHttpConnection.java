@@ -31,7 +31,7 @@ public class DirectHttpConnection extends AbstractClientConnection<HttpAsyncSock
 	
 	@Override
 	public void prepare(HttpRequest request, HttpClientHandler clientHandler) {
-        responseHandler.add(request, clientHandler, this);
+        responseHandler.add(request, clientHandler);
 	}
 	
 	@Override

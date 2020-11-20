@@ -80,5 +80,12 @@ public class HttpServerHandlerAdapter implements HttpHandler {
 		// The response has to be served yet, and it should happen with this call.
 		return this.handler.onRequestEnd(currentRequest).thenAccept(x -> currentRequest = null);
 	}
+	
+	@Override
+	public void onError(Throwable exc) {
+		if (currentRequest != null) {
+			handler.onRequestError(currentRequest, exc);
+		}
+	}
 
 }
