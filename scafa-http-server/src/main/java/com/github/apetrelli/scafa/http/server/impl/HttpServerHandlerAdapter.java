@@ -6,10 +6,10 @@ import java.util.concurrent.CompletableFuture;
 import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
+import com.github.apetrelli.scafa.http.impl.HttpHandlerSupport;
 import com.github.apetrelli.scafa.http.server.HttpServerHandler;
-import com.github.apetrelli.scafa.proto.aio.CompletionHandlerFuture;
 
-public class HttpServerHandlerAdapter implements HttpHandler {
+public class HttpServerHandlerAdapter extends HttpHandlerSupport implements HttpHandler {
 
 	private HttpServerHandler handler;
 
@@ -17,16 +17,6 @@ public class HttpServerHandlerAdapter implements HttpHandler {
 
 	public HttpServerHandlerAdapter(HttpServerHandler handler) {
 		this.handler = handler;
-	}
-
-	@Override
-	public void onConnect() {
-		// Does nothing
-	}
-
-	@Override
-	public void onDisconnect() {
-		// Does nothing
 	}
 
 	@Override
@@ -49,25 +39,10 @@ public class HttpServerHandlerAdapter implements HttpHandler {
 	public CompletableFuture<Void> onBody(ByteBuffer buffer, long offset, long length) {
 		return this.handler.onBody(currentRequest, buffer, offset, length);
 	}
-	
-	@Override
-	public CompletableFuture<Void> onChunkStart(long totalOffset, long chunkLength) {
-		return CompletionHandlerFuture.completeEmpty();
-	}
 
 	@Override
 	public CompletableFuture<Void> onChunk(ByteBuffer buffer, long totalOffset, long chunkOffset, long chunkLength) {
 		return this.handler.onBody(currentRequest, buffer, totalOffset, -1);
-	}
-	
-	@Override
-	public CompletableFuture<Void> onChunkEnd() {
-		return CompletionHandlerFuture.completeEmpty();
-	}
-	
-	@Override
-	public CompletableFuture<Void> onChunkedTransferEnd() {
-		return CompletionHandlerFuture.completeEmpty();
 	}
 	
 	@Override
