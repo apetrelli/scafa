@@ -25,20 +25,35 @@ import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpRequest;
+import com.github.apetrelli.scafa.http.gateway.MappedGatewayHttpConnectionFactory;
+import com.github.apetrelli.scafa.http.gateway.direct.ChannelDisconnectorHandler;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.CompletionHandlerFuture;
+import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.client.impl.AbstractClientConnection;
+import com.github.apetrelli.scafa.proto.processor.DataHandler;
+import com.github.apetrelli.scafa.proto.processor.Processor;
+import com.github.apetrelli.scafa.proto.processor.impl.DefaultProcessor;
+import com.github.apetrelli.scafa.proto.processor.impl.PassthroughInputProcessorFactory;
+import com.github.apetrelli.scafa.proto.processor.impl.SimpleInputFactory;
 
-public abstract class AbstractGatewayHttpConnection extends AbstractClientConnection<HttpAsyncSocket<HttpRequest>> implements HttpAsyncSocket<HttpRequest> {
+public abstract class AbstractGatewayHttpConnection<T extends AsyncSocket> extends AbstractClientConnection<HttpAsyncSocket<HttpRequest>> implements HttpAsyncSocket<HttpRequest> {
 	
 	private static final Logger LOG = Logger.getLogger(AbstractGatewayHttpConnection.class.getName());
 
-    protected AsyncSocket sourceChannel;
+    protected T sourceChannel;
 
-	public AbstractGatewayHttpConnection(AsyncSocket sourceChannel, HttpAsyncSocket<HttpRequest> socket) {
-        super(socket);
-        this.sourceChannel = sourceChannel;
-    }
+    private SimpleInputFactory inputFactory = new SimpleInputFactory();
+
+    protected HostPort destinationSocketAddress;
+
+    protected MappedGatewayHttpConnectionFactory<?> factory;
+
+	public AbstractGatewayHttpConnection(T sourceChannel, HttpAsyncSocket<HttpRequest> socket, MappedGatewayHttpConnectionFactory<?> factory) {
+		super(socket);
+		this.sourceChannel = sourceChannel;
+		this.factory = factory;
+	}
 	
 	@Override
 	public CompletableFuture<Void> sendHeader(HttpRequest request) {
@@ -74,4 +89,10 @@ public abstract class AbstractGatewayHttpConnection extends AbstractClientConnec
     protected CompletableFuture<Void> doSendHeader(HttpRequest request) {
         return socket.sendHeader(request);
     }
+
+	@Override
+	protected void prepareChannel() {
+        Processor<DataHandler> processor = new DefaultProcessor<>(socket, new PassthroughInputProcessorFactory(), inputFactory);
+        processor.process(new ChannelDisconnectorHandler(factory, socket, destinationSocketAddress));
+	}
 }

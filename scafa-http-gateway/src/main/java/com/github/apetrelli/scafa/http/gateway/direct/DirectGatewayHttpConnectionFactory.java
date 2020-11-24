@@ -10,7 +10,7 @@ import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.SocketFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 
-public class DirectGatewayHttpConnectionFactory implements GatewayHttpConnectionFactory {
+public class DirectGatewayHttpConnectionFactory implements GatewayHttpConnectionFactory<HttpAsyncSocket<HttpRequest>> {
 
 	private SocketFactory<AsyncSocket> socketFactory;
 	
@@ -26,7 +26,7 @@ public class DirectGatewayHttpConnectionFactory implements GatewayHttpConnection
 	}
 
 	@Override
-	public HttpAsyncSocket<HttpRequest> create(MappedGatewayHttpConnectionFactory factory,
+	public HttpAsyncSocket<HttpRequest> create(MappedGatewayHttpConnectionFactory<HttpAsyncSocket<HttpRequest>> factory,
 			AsyncSocket sourceChannel, HostPort socketAddress) {
 		AsyncSocket socket = socketFactory.create(destinationSocketAddress, null, false);
 		HttpAsyncSocket<HttpRequest> httpSocket = new DirectHttpAsyncSocket<>(socket, dataSenderFactory);

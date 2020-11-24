@@ -25,9 +25,9 @@ import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 
-public interface MappedGatewayHttpConnectionFactory {
+public interface MappedGatewayHttpConnectionFactory<T extends HttpAsyncSocket<HttpRequest>> {
 
-    CompletableFuture<HttpAsyncSocket<HttpRequest>> create(AsyncSocket sourceChannel, HttpRequest request);
+    CompletableFuture<T> create(AsyncSocket sourceChannel, HttpRequest request);
 
     void disconnectAll() throws IOException;
 
