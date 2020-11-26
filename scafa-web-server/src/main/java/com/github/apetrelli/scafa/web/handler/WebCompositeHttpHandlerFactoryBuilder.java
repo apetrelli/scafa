@@ -9,7 +9,7 @@ import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.gateway.GatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.gateway.GatewayHttpConnectionFactoryFactory;
 import com.github.apetrelli.scafa.http.gateway.direct.DirectGatewayHttpConnectionFactory;
-import com.github.apetrelli.scafa.http.gateway.direct.DirectHttpConnectionFactoryFactory;
+import com.github.apetrelli.scafa.http.gateway.direct.DefaultGatewayHttpConnectionFactoryFactory;
 import com.github.apetrelli.scafa.http.gateway.impl.DefaultGatewayHttpHandlerFactory;
 import com.github.apetrelli.scafa.http.impl.CompositeHttpHandlerFactory;
 import com.github.apetrelli.scafa.http.impl.CompositeHttpHandlerFactory.CompositeHttpHandlerFactoryBuilder;
@@ -96,7 +96,7 @@ public class WebCompositeHttpHandlerFactoryBuilder {
 		public WebCompositeHttpHandlerFactoryBuilder and() {
 			GatewayHttpConnectionFactory<HttpAsyncSocket<HttpRequest>> connectionFactory = new DirectGatewayHttpConnectionFactory(socketFactory,
 					dataSenderFactory, clientProcessorFactory, destinationSocketAddress);
-	        GatewayHttpConnectionFactoryFactory<HttpAsyncSocket<HttpRequest>> factoryFactory = new DirectHttpConnectionFactoryFactory(connectionFactory);
+	        GatewayHttpConnectionFactoryFactory<HttpAsyncSocket<HttpRequest>> factoryFactory = new DefaultGatewayHttpConnectionFactoryFactory<>(connectionFactory);
 	        HandlerFactory<HttpHandler, AsyncSocket> handlerFactory = new DefaultGatewayHttpHandlerFactory<>(factoryFactory);
 	        WebCompositeHttpHandlerFactoryBuilder.this.innerBuilder.withPattern(basePathPattern, handlerFactory);
 			return WebCompositeHttpHandlerFactoryBuilder.this;

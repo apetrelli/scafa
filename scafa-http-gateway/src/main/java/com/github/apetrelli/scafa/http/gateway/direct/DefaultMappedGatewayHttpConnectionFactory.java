@@ -31,20 +31,20 @@ import com.github.apetrelli.scafa.http.gateway.MappedGatewayHttpConnectionFactor
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 
-public class DirectGatewayMappedHttpConnectionFactory implements MappedGatewayHttpConnectionFactory<HttpAsyncSocket<HttpRequest>> {
+public class DefaultMappedGatewayHttpConnectionFactory<T extends HttpAsyncSocket<HttpRequest>> implements MappedGatewayHttpConnectionFactory<T> {
 
-    private static final Logger LOG = Logger.getLogger(DirectGatewayMappedHttpConnectionFactory.class.getName());
+    private static final Logger LOG = Logger.getLogger(DefaultMappedGatewayHttpConnectionFactory.class.getName());
 
-    private Map<HostPort, HttpAsyncSocket<HttpRequest>> connectionCache = new HashMap<>();
+    private Map<HostPort, T> connectionCache = new HashMap<>();
 
-    private GatewayHttpConnectionFactory<HttpAsyncSocket<HttpRequest>> connectionFactory;
+    private GatewayHttpConnectionFactory<T> connectionFactory;
 
-    public DirectGatewayMappedHttpConnectionFactory(GatewayHttpConnectionFactory<HttpAsyncSocket<HttpRequest>> connectionFactory) {
+    public DefaultMappedGatewayHttpConnectionFactory(GatewayHttpConnectionFactory<T> connectionFactory) {
         this.connectionFactory = connectionFactory;
     }
     
     @Override
-    public CompletableFuture<HttpAsyncSocket<HttpRequest>> create(AsyncSocket sourceChannel, HttpRequest request) {
+    public CompletableFuture<T> create(AsyncSocket sourceChannel, HttpRequest request) {
         try {
             return create(sourceChannel, request.getHostPort());
         } catch (IOException e) {
@@ -61,20 +61,20 @@ public class DirectGatewayMappedHttpConnectionFactory implements MappedGatewayHt
 
     @Override
     public void dispose(HostPort target) {
-    	HttpAsyncSocket<HttpRequest> connection = connectionCache.get(target);
+    	T connection = connectionCache.get(target);
         if (connection != null) {
             connectionCache.remove(target);
         }
     }
 
-    private CompletableFuture<HttpAsyncSocket<HttpRequest>> create(AsyncSocket sourceChannel, HostPort hostPort) {
-    	HttpAsyncSocket<HttpRequest> connection = connectionCache.get(hostPort);
+    private CompletableFuture<T> create(AsyncSocket sourceChannel, HostPort hostPort) {
+    	T connection = connectionCache.get(hostPort);
         if (connection == null) {
             if (LOG.isLoggable(Level.INFO)) {
                 LOG.log(Level.INFO, "Connecting thread {0} to address {1}",
                         new Object[] { Thread.currentThread().getName(), hostPort });
             }
-            HttpAsyncSocket<HttpRequest> newConnection = connectionFactory.create(this, sourceChannel, hostPort);
+            T newConnection = connectionFactory.create(this, sourceChannel, hostPort);
             return newConnection.connect().thenApply(x -> {
                 connectionCache.put(hostPort, newConnection);
                 return newConnection;

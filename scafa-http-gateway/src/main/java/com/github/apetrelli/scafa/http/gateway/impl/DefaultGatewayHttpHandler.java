@@ -30,11 +30,11 @@ import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 
 public class DefaultGatewayHttpHandler<T extends HttpAsyncSocket<HttpRequest>> extends HttpHandlerSupport implements HttpHandler {
 
+    protected AsyncSocket sourceChannel;
+
+    protected T connection;
+
     private MappedGatewayHttpConnectionFactory<T> connectionFactory;
-
-    private AsyncSocket sourceChannel;
-
-    private HttpAsyncSocket<HttpRequest> connection;
 
     public DefaultGatewayHttpHandler(MappedGatewayHttpConnectionFactory<T> connectionFactory, AsyncSocket sourceChannel) {
         this.connectionFactory = connectionFactory;
@@ -48,10 +48,8 @@ public class DefaultGatewayHttpHandler<T extends HttpAsyncSocket<HttpRequest>> e
 
     @Override
     public CompletableFuture<Void> onRequestHeader(HttpRequest request) {
-    	return connectionFactory.create(sourceChannel, request).thenCompose(result -> {
-    		connection = result;
-    		return connection.sendHeader(request);
-    	});
+		return connectionFactory.create(sourceChannel, request).thenAccept(x -> connection = x)
+				.thenCompose(x -> connection.sendHeader(request));
     }
     
     @Override
@@ -77,7 +75,7 @@ public class DefaultGatewayHttpHandler<T extends HttpAsyncSocket<HttpRequest>> e
     @Override
     public void onDisconnect() {
         if (connection != null) {
-            connection.disconnect();
+    		connection.disconnect(); // Ignore the outcome
         }
     }
 }
