@@ -19,8 +19,10 @@ import org.ini4j.Ini;
 import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpProcessingContext;
+import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.impl.AsyncHttpSink;
+import com.github.apetrelli.scafa.http.impl.DirectHttpAsyncSocketFactory;
 import com.github.apetrelli.scafa.http.impl.HttpAsyncServerSocketFactory;
 import com.github.apetrelli.scafa.http.impl.HttpProcessingContextFactory;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
@@ -85,7 +87,7 @@ public class ScafaWebServerLauncher {
 			StatefulInputProcessorFactory<HttpHandler, HttpProcessingContext> inputProcessorFactory = new StatefulInputProcessorFactory<>(stateMachine);
 			HttpProcessingContextFactory processingContextFactory = new HttpProcessingContextFactory();
 			DataSenderFactory dataSenderFactory = new DefaultDataSenderFactory();
-			SocketFactory<AsyncSocket> socketFactory = new DirectClientAsyncSocketFactory();
+			SocketFactory<HttpAsyncSocket<HttpRequest>> socketFactory = new DirectHttpAsyncSocketFactory(new DirectClientAsyncSocketFactory(), dataSenderFactory);
 			DefaultProcessorFactory<HttpProcessingContext, HttpHandler> defaultProcessorFactory = new DefaultProcessorFactory<>(
 			        inputProcessorFactory, processingContextFactory);
 			HttpServer server = new DefaultHttpServer(dataSenderFactory);
@@ -113,13 +115,13 @@ public class ScafaWebServerLauncher {
 	}
 
 	private ScafaListener<HttpHandler, HttpAsyncSocket<HttpResponse>> createListener(SocketConfiguration socketConfig,
-			DataSenderFactory dataSenderFactory, SocketFactory<AsyncSocket> socketFactory,
+			DataSenderFactory dataSenderFactory, SocketFactory<HttpAsyncSocket<HttpRequest>> socketFactory,
 			DefaultProcessorFactory<HttpProcessingContext, HttpHandler> defaultProcessorFactory, 
 			ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory, HttpServer server,
 			HandlerFactory<HttpHandler, HttpAsyncSocket<HttpResponse>> defaultHandlerFactory) {
         AsyncServerSocketFactory<AsyncSocket> serverSocketFactory = new DirectAsyncServerSocketFactory(socketConfig.getPort(), null, false);
 		WebCompositeHttpHandlerFactoryBuilder builder = new WebCompositeHttpHandlerFactoryBuilder();
-		builder.withDataSenderFactory(dataSenderFactory).withMimeTypeConfig(mimeTypeConfig)
+		builder.withMimeTypeConfig(mimeTypeConfig)
 				.withSocketFactory(socketFactory).withHttpServer(server)
 				.withDefaultHandlerFactory(defaultHandlerFactory).withClientProcessorFactory(clientProcessorFactory);
         socketConfig.getPaths().forEach(x -> buildPortion(x, builder));

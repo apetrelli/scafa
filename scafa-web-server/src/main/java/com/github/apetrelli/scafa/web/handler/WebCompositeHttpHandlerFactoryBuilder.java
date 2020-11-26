@@ -8,12 +8,11 @@ import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.gateway.GatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.gateway.GatewayHttpConnectionFactoryFactory;
-import com.github.apetrelli.scafa.http.gateway.direct.DirectGatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.gateway.direct.DefaultGatewayHttpConnectionFactoryFactory;
+import com.github.apetrelli.scafa.http.gateway.direct.DirectGatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.gateway.impl.DefaultGatewayHttpHandlerFactory;
 import com.github.apetrelli.scafa.http.impl.CompositeHttpHandlerFactory;
 import com.github.apetrelli.scafa.http.impl.CompositeHttpHandlerFactory.CompositeHttpHandlerFactoryBuilder;
-import com.github.apetrelli.scafa.http.output.DataSenderFactory;
 import com.github.apetrelli.scafa.http.server.HttpServer;
 import com.github.apetrelli.scafa.http.server.impl.HttpServerHandlerAdapterFactory;
 import com.github.apetrelli.scafa.http.server.statics.StaticHttpServerHandlerFactory;
@@ -95,7 +94,7 @@ public class WebCompositeHttpHandlerFactoryBuilder {
 		
 		public WebCompositeHttpHandlerFactoryBuilder and() {
 			GatewayHttpConnectionFactory<HttpAsyncSocket<HttpRequest>> connectionFactory = new DirectGatewayHttpConnectionFactory(socketFactory,
-					dataSenderFactory, clientProcessorFactory, destinationSocketAddress);
+					clientProcessorFactory, destinationSocketAddress);
 	        GatewayHttpConnectionFactoryFactory<HttpAsyncSocket<HttpRequest>> factoryFactory = new DefaultGatewayHttpConnectionFactoryFactory<>(connectionFactory);
 	        HandlerFactory<HttpHandler, AsyncSocket> handlerFactory = new DefaultGatewayHttpHandlerFactory<>(factoryFactory);
 	        WebCompositeHttpHandlerFactoryBuilder.this.innerBuilder.withPattern(basePathPattern, handlerFactory);
@@ -107,9 +106,7 @@ public class WebCompositeHttpHandlerFactoryBuilder {
 	
 	private HttpServer httpServer;
 	
-    private SocketFactory<AsyncSocket> socketFactory;
-    
-    private DataSenderFactory dataSenderFactory;
+    private SocketFactory<HttpAsyncSocket<HttpRequest>> socketFactory;
 	
     private ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory;
 
@@ -124,13 +121,8 @@ public class WebCompositeHttpHandlerFactoryBuilder {
 		return this;
 	}
 	
-	public WebCompositeHttpHandlerFactoryBuilder withSocketFactory(SocketFactory<AsyncSocket> socketFactory) {
+	public WebCompositeHttpHandlerFactoryBuilder withSocketFactory(SocketFactory<HttpAsyncSocket<HttpRequest>> socketFactory) {
 		this.socketFactory = socketFactory;
-		return this;
-	}
-	
-	public WebCompositeHttpHandlerFactoryBuilder withDataSenderFactory(DataSenderFactory dataSenderFactory) {
-		this.dataSenderFactory = dataSenderFactory;
 		return this;
 	}
 	
