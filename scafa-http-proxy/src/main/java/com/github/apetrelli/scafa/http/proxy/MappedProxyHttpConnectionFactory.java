@@ -17,20 +17,12 @@
  */
 package com.github.apetrelli.scafa.http.proxy;
 
-import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
-import com.github.apetrelli.scafa.http.HttpRequest;
+import com.github.apetrelli.scafa.http.gateway.MappedGatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
-import com.github.apetrelli.scafa.proto.client.HostPort;
 
-public interface MappedProxyHttpConnectionFactory {
-
-    CompletableFuture<ProxyHttpConnection> create(AsyncSocket sourceChannel, HttpRequest request);
+public interface MappedProxyHttpConnectionFactory extends MappedGatewayHttpConnectionFactory<ProxyHttpConnection> {
 
     CompletableFuture<ProxyHttpConnection> create(AsyncSocket sourceChannel, HttpConnectRequest request);
-
-    void disconnectAll() throws IOException;
-
-    void dispose(HostPort target);
 }

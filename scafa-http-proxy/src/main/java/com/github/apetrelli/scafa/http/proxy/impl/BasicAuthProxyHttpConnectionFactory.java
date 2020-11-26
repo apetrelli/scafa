@@ -19,19 +19,19 @@ package com.github.apetrelli.scafa.http.proxy.impl;
 
 import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpRequest;
+import com.github.apetrelli.scafa.http.gateway.GatewayHttpConnectionFactory;
+import com.github.apetrelli.scafa.http.gateway.MappedGatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.impl.DirectHttpAsyncSocket;
 import com.github.apetrelli.scafa.http.output.DataSenderFactory;
 import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
-import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
-import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.SocketFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.processor.DataHandler;
 import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
 
-public class BasicAuthProxyHttpConnectionFactory implements ProxyHttpConnectionFactory {
+public class BasicAuthProxyHttpConnectionFactory implements GatewayHttpConnectionFactory<ProxyHttpConnection> {
 
 	private SocketFactory<AsyncSocket> socketFactory;
 
@@ -65,7 +65,7 @@ public class BasicAuthProxyHttpConnectionFactory implements ProxyHttpConnectionF
 	}
 
 	@Override
-	public ProxyHttpConnection create(MappedProxyHttpConnectionFactory factory, AsyncSocket sourceChannel,
+	public ProxyHttpConnection create(MappedGatewayHttpConnectionFactory<ProxyHttpConnection> factory, AsyncSocket sourceChannel,
 			HostPort socketAddress) {
 		AsyncSocket socket = socketFactory.create(proxySocketAddress, interfaceName, forceIpV4);
 		HttpAsyncSocket<HttpRequest> httpSocket = new DirectHttpAsyncSocket<>(socket, dataSenderFactory);

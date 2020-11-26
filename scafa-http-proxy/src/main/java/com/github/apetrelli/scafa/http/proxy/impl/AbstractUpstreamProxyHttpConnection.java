@@ -23,22 +23,23 @@ import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpRequest;
+import com.github.apetrelli.scafa.http.gateway.MappedGatewayHttpConnectionFactory;
+import com.github.apetrelli.scafa.http.gateway.impl.AbstractGatewayHttpConnection;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
 import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
-import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.processor.DataHandler;
 import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
 
-public abstract class AbstractUpstreamProxyHttpConnection extends AbstractProxyHttpConnection<AsyncSocket> implements ProxyHttpConnection {
+public abstract class AbstractUpstreamProxyHttpConnection extends AbstractGatewayHttpConnection<AsyncSocket> implements ProxyHttpConnection {
 
     private static final Logger LOG = Logger.getLogger(AbstractUpstreamProxyHttpConnection.class.getName());
 
     protected HttpRequestManipulator manipulator;
 
-	public AbstractUpstreamProxyHttpConnection(MappedProxyHttpConnectionFactory factory,
+	public AbstractUpstreamProxyHttpConnection(MappedGatewayHttpConnectionFactory<?> factory,
 			ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory, AsyncSocket sourceChannel,
 			HttpAsyncSocket<HttpRequest> socket, HostPort destinationSocketAddress,
 			HttpRequestManipulator manipulator) {

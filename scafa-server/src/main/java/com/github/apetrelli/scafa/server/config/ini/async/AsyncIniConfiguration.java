@@ -24,9 +24,10 @@ import org.ini4j.Ini;
 import org.ini4j.Profile.Section;
 
 import com.github.apetrelli.scafa.http.HttpHandler;
+import com.github.apetrelli.scafa.http.gateway.GatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
 import com.github.apetrelli.scafa.http.output.DataSenderFactory;
-import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnectionFactory;
+import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.SocketFactory;
 import com.github.apetrelli.scafa.proto.processor.DataHandler;
@@ -34,7 +35,7 @@ import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
 import com.github.apetrelli.scafa.server.config.ServerConfiguration;
 import com.github.apetrelli.scafa.server.config.ini.AbstractIniConfiguration;
 
-public class AsyncIniConfiguration extends AbstractIniConfiguration<ProxyHttpConnectionFactory> {
+public class AsyncIniConfiguration extends AbstractIniConfiguration<GatewayHttpConnectionFactory<ProxyHttpConnection>> {
     
     private SocketFactory<AsyncSocket> socketFactory;
     private DataSenderFactory dataSenderFactory;
@@ -62,7 +63,7 @@ public class AsyncIniConfiguration extends AbstractIniConfiguration<ProxyHttpCon
     }
 
 	@Override
-	protected ServerConfiguration<ProxyHttpConnectionFactory> createServerConfiguration(Section section) {
+	protected ServerConfiguration<GatewayHttpConnectionFactory<ProxyHttpConnection>> createServerConfiguration(Section section) {
 		return new AsyncIniServerConfiguration(section,
 				this.socketFactory, this.dataSenderFactory, this.clientProcessorFactory, this.stateMachine);
 	}

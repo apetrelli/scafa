@@ -25,7 +25,11 @@ import com.github.apetrelli.scafa.proto.aio.SocketFactory;
 import com.github.apetrelli.scafa.proto.aio.impl.DirectAsyncServerSocketFactory;
 import com.github.apetrelli.scafa.proto.aio.impl.DirectClientAsyncSocketFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
+import com.github.apetrelli.scafa.proto.processor.DataHandler;
+import com.github.apetrelli.scafa.proto.processor.Input;
 import com.github.apetrelli.scafa.proto.processor.impl.DefaultProcessorFactory;
+import com.github.apetrelli.scafa.proto.processor.impl.PassthroughInputProcessorFactory;
+import com.github.apetrelli.scafa.proto.processor.impl.SimpleInputFactory;
 import com.github.apetrelli.scafa.proto.processor.impl.StatefulInputProcessorFactory;
 
 public class DirectHttpGateway {
@@ -55,8 +59,10 @@ public class DirectHttpGateway {
         HttpProcessingContextFactory processingContextFactory = new HttpProcessingContextFactory();
         SocketFactory<AsyncSocket> socketFactory = new DirectClientAsyncSocketFactory();
         DataSenderFactory dataSenderFactory = new DefaultDataSenderFactory();
+        DefaultProcessorFactory<Input, DataHandler> clientProcessorFactory = new DefaultProcessorFactory<>(
+        		new PassthroughInputProcessorFactory(), new SimpleInputFactory());
 		GatewayHttpConnectionFactory<HttpAsyncSocket<HttpRequest>> connectionFactory = new DirectGatewayHttpConnectionFactory(socketFactory,
-				dataSenderFactory, destinationSocketAddress);
+				dataSenderFactory, clientProcessorFactory, destinationSocketAddress);
         GatewayHttpConnectionFactoryFactory<HttpAsyncSocket<HttpRequest>> factoryFactory = new DirectHttpConnectionFactoryFactory(connectionFactory);
         HandlerFactory<HttpHandler, AsyncSocket> handlerFactory = new DefaultGatewayHttpHandlerFactory<>(factoryFactory);
         AsyncServerSocketFactory<AsyncSocket> asyncServerSocketFactory = new DirectAsyncServerSocketFactory(port, interfaceName, forceIpV4);
