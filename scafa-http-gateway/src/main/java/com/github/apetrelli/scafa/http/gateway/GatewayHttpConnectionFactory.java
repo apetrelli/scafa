@@ -22,8 +22,8 @@ import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 
-public interface GatewayHttpConnectionFactory {
+public interface GatewayHttpConnectionFactory <T extends HttpAsyncSocket<HttpRequest>> {
 
-	HttpAsyncSocket<HttpRequest> create(MappedGatewayHttpConnectionFactory factory, AsyncSocket sourceChannel,
+	T create(MappedGatewayHttpConnectionFactory<T> factory, AsyncSocket sourceChannel,
 			HostPort socketAddress);
 }

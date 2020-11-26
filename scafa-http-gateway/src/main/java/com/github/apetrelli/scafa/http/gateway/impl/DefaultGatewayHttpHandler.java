@@ -28,15 +28,15 @@ import com.github.apetrelli.scafa.http.gateway.MappedGatewayHttpConnectionFactor
 import com.github.apetrelli.scafa.http.impl.HttpHandlerSupport;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 
-public class DefaultGatewayHttpHandler extends HttpHandlerSupport implements HttpHandler {
+public class DefaultGatewayHttpHandler<T extends HttpAsyncSocket<HttpRequest>> extends HttpHandlerSupport implements HttpHandler {
 
-    private MappedGatewayHttpConnectionFactory connectionFactory;
+    private MappedGatewayHttpConnectionFactory<T> connectionFactory;
 
     private AsyncSocket sourceChannel;
 
     private HttpAsyncSocket<HttpRequest> connection;
 
-    public DefaultGatewayHttpHandler(MappedGatewayHttpConnectionFactory connectionFactory, AsyncSocket sourceChannel) {
+    public DefaultGatewayHttpHandler(MappedGatewayHttpConnectionFactory<T> connectionFactory, AsyncSocket sourceChannel) {
         this.connectionFactory = connectionFactory;
         this.sourceChannel = sourceChannel;
     }

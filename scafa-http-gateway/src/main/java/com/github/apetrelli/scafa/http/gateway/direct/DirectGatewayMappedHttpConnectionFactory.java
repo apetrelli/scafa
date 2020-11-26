@@ -31,15 +31,15 @@ import com.github.apetrelli.scafa.http.gateway.MappedGatewayHttpConnectionFactor
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 
-public class DirectGatewayMappedHttpConnectionFactory implements MappedGatewayHttpConnectionFactory {
+public class DirectGatewayMappedHttpConnectionFactory implements MappedGatewayHttpConnectionFactory<HttpAsyncSocket<HttpRequest>> {
 
     private static final Logger LOG = Logger.getLogger(DirectGatewayMappedHttpConnectionFactory.class.getName());
 
     private Map<HostPort, HttpAsyncSocket<HttpRequest>> connectionCache = new HashMap<>();
 
-    private GatewayHttpConnectionFactory connectionFactory;
+    private GatewayHttpConnectionFactory<HttpAsyncSocket<HttpRequest>> connectionFactory;
 
-    public DirectGatewayMappedHttpConnectionFactory(GatewayHttpConnectionFactory connectionFactory) {
+    public DirectGatewayMappedHttpConnectionFactory(GatewayHttpConnectionFactory<HttpAsyncSocket<HttpRequest>> connectionFactory) {
         this.connectionFactory = connectionFactory;
     }
     

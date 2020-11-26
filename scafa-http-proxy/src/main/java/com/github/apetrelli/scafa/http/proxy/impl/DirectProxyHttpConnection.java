@@ -27,17 +27,19 @@ import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpException;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
+import com.github.apetrelli.scafa.http.gateway.MappedGatewayHttpConnectionFactory;
+import com.github.apetrelli.scafa.http.gateway.impl.AbstractGatewayHttpConnection;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
-import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
+import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.processor.DataHandler;
 import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
 
-public class DirectProxyHttpConnection extends AbstractProxyHttpConnection<HttpAsyncSocket<HttpResponse>> {
+public class DirectProxyHttpConnection extends AbstractGatewayHttpConnection<HttpAsyncSocket<HttpResponse>> implements ProxyHttpConnection {
 
     private static final Logger LOG = Logger.getLogger(DirectProxyHttpConnection.class.getName());
 
-    public DirectProxyHttpConnection(MappedProxyHttpConnectionFactory factory,
+    public DirectProxyHttpConnection(MappedGatewayHttpConnectionFactory<?> factory,
     		ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory,
             HttpAsyncSocket<HttpResponse> sourceChannel, HttpAsyncSocket<HttpRequest> socket) {
         super(factory, clientProcessorFactory, sourceChannel, socket, socket.getAddress());

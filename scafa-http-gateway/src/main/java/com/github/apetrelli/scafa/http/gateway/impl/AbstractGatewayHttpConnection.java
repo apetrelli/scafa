@@ -17,7 +17,6 @@
  */
 package com.github.apetrelli.scafa.http.gateway.impl;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
@@ -25,30 +24,42 @@ import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpRequest;
+import com.github.apetrelli.scafa.http.gateway.MappedGatewayHttpConnectionFactory;
+import com.github.apetrelli.scafa.http.gateway.direct.ChannelDisconnectorHandler;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
-import com.github.apetrelli.scafa.proto.aio.CompletionHandlerFuture;
+import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.client.impl.AbstractClientConnection;
+import com.github.apetrelli.scafa.proto.processor.DataHandler;
+import com.github.apetrelli.scafa.proto.processor.Processor;
+import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
 
-public abstract class AbstractGatewayHttpConnection extends AbstractClientConnection<HttpAsyncSocket<HttpRequest>> implements HttpAsyncSocket<HttpRequest> {
+public abstract class AbstractGatewayHttpConnection<T extends AsyncSocket> extends AbstractClientConnection<HttpAsyncSocket<HttpRequest>> implements HttpAsyncSocket<HttpRequest> {
 	
 	private static final Logger LOG = Logger.getLogger(AbstractGatewayHttpConnection.class.getName());
 
-    protected AsyncSocket sourceChannel;
+    protected T sourceChannel;
+    
+    protected ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory;
 
-	public AbstractGatewayHttpConnection(AsyncSocket sourceChannel, HttpAsyncSocket<HttpRequest> socket) {
-        super(socket);
-        this.sourceChannel = sourceChannel;
-    }
+    protected HostPort destinationSocketAddress;
+
+    protected MappedGatewayHttpConnectionFactory<?> factory;
+
+	public AbstractGatewayHttpConnection(MappedGatewayHttpConnectionFactory<?> factory,
+			ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory, T sourceChannel,
+			HttpAsyncSocket<HttpRequest> socket, HostPort destinationSocketAddress) {
+		super(socket);
+		this.clientProcessorFactory = clientProcessorFactory;
+		this.sourceChannel = sourceChannel;
+		this.factory = factory;
+		this.destinationSocketAddress = destinationSocketAddress;
+	}
 	
 	@Override
 	public CompletableFuture<Void> sendHeader(HttpRequest request) {
         HttpRequest modifiedRequest;
-        try {
-            modifiedRequest = createForwardedRequest(request);
-            return doSendHeader(modifiedRequest);
-        } catch (IOException e) {
-            return CompletableFuture.failedFuture(e);
-        }
+        modifiedRequest = createForwardedRequest(request);
+        return doSendHeader(modifiedRequest);
     }
 	
 	@Override
@@ -60,18 +71,26 @@ public abstract class AbstractGatewayHttpConnection extends AbstractClientConnec
 	public CompletableFuture<Void> endData() {
     	return socket.endData();
     }
-	
-	@Override
-	public CompletableFuture<Void> disconnect() {
-		return super.disconnect().handle((r, e) -> {
-			LOG.log(Level.SEVERE, "Cannot disconnect gateway client channel", e);
-			return CompletionHandlerFuture.completeEmpty();
-		}).thenCompose(x -> sourceChannel.disconnect());
+    
+    @Override
+    public CompletableFuture<Void> disconnect() {
+    	return super.disconnect().handle((r, e) -> {
+    		if (e != null) {
+				LOG.log(Level.SEVERE, "Cannot disconnect proxied client channel", e);
+    		}
+    		return r;
+    	}).thenCompose(x -> sourceChannel.disconnect());
     }
 
-    protected abstract HttpRequest createForwardedRequest(HttpRequest request) throws IOException;
+    protected abstract HttpRequest createForwardedRequest(HttpRequest request);
 
     protected CompletableFuture<Void> doSendHeader(HttpRequest request) {
         return socket.sendHeader(request);
+    }
+
+	@Override
+	protected void prepareChannel() {
+        Processor<DataHandler> processor = clientProcessorFactory.create(socket);
+        processor.process(new ChannelDisconnectorHandler(factory, sourceChannel, destinationSocketAddress));
     }
 }

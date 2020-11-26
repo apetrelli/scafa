@@ -37,7 +37,11 @@ import com.github.apetrelli.scafa.proto.aio.ScafaListener;
 import com.github.apetrelli.scafa.proto.aio.SocketFactory;
 import com.github.apetrelli.scafa.proto.aio.impl.DirectAsyncServerSocketFactory;
 import com.github.apetrelli.scafa.proto.aio.impl.DirectClientAsyncSocketFactory;
+import com.github.apetrelli.scafa.proto.processor.DataHandler;
+import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
 import com.github.apetrelli.scafa.proto.processor.impl.DefaultProcessorFactory;
+import com.github.apetrelli.scafa.proto.processor.impl.PassthroughInputProcessorFactory;
+import com.github.apetrelli.scafa.proto.processor.impl.SimpleInputFactory;
 import com.github.apetrelli.scafa.proto.processor.impl.StatefulInputProcessorFactory;
 import com.github.apetrelli.scafa.web.config.PathConfiguration;
 import com.github.apetrelli.scafa.web.config.SocketConfiguration;
@@ -87,8 +91,10 @@ public class ScafaWebServerLauncher {
 			HttpServer server = new DefaultHttpServer(dataSenderFactory);
 			NotFoundHttpServerHandlerFactory notFoundFactory = new NotFoundHttpServerHandlerFactory(server);
 			HandlerFactory<HttpHandler, HttpAsyncSocket<HttpResponse>> defaultHandlerFactory = new HttpServerHandlerAdapterFactory(notFoundFactory);
+			ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory = new DefaultProcessorFactory<>(
+            		new PassthroughInputProcessorFactory(), new SimpleInputFactory());
 			listeners = config.getSocketConfigurations().stream().map(x -> createListener(x, dataSenderFactory,
-					socketFactory, defaultProcessorFactory, server, defaultHandlerFactory))
+					socketFactory, defaultProcessorFactory, clientProcessorFactory, server, defaultHandlerFactory))
 					.collect(Collectors.toList());
 			listeners.forEach(x -> {
 				try {
@@ -108,13 +114,14 @@ public class ScafaWebServerLauncher {
 
 	private ScafaListener<HttpHandler, HttpAsyncSocket<HttpResponse>> createListener(SocketConfiguration socketConfig,
 			DataSenderFactory dataSenderFactory, SocketFactory<AsyncSocket> socketFactory,
-			DefaultProcessorFactory<HttpProcessingContext, HttpHandler> defaultProcessorFactory, HttpServer server,
+			DefaultProcessorFactory<HttpProcessingContext, HttpHandler> defaultProcessorFactory, 
+			ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory, HttpServer server,
 			HandlerFactory<HttpHandler, HttpAsyncSocket<HttpResponse>> defaultHandlerFactory) {
         AsyncServerSocketFactory<AsyncSocket> serverSocketFactory = new DirectAsyncServerSocketFactory(socketConfig.getPort(), null, false);
 		WebCompositeHttpHandlerFactoryBuilder builder = new WebCompositeHttpHandlerFactoryBuilder();
 		builder.withDataSenderFactory(dataSenderFactory).withMimeTypeConfig(mimeTypeConfig)
 				.withSocketFactory(socketFactory).withHttpServer(server)
-				.withDefaultHandlerFactory(defaultHandlerFactory);
+				.withDefaultHandlerFactory(defaultHandlerFactory).withClientProcessorFactory(clientProcessorFactory);
         socketConfig.getPaths().forEach(x -> buildPortion(x, builder));
         AsyncServerSocketFactory<HttpAsyncSocket<HttpResponse>> httpServerSocketFactory = new HttpAsyncServerSocketFactory<>(serverSocketFactory, dataSenderFactory);
 		return new ScafaListener<>(httpServerSocketFactory, defaultProcessorFactory, builder.build());

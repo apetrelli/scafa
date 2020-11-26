@@ -17,20 +17,22 @@
  */
 package com.github.apetrelli.scafa.http.gateway.direct;
 
+import com.github.apetrelli.scafa.http.HttpAsyncSocket;
+import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.gateway.GatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.gateway.GatewayHttpConnectionFactoryFactory;
 import com.github.apetrelli.scafa.http.gateway.MappedGatewayHttpConnectionFactory;
 
-public class DirectHttpConnectionFactoryFactory implements GatewayHttpConnectionFactoryFactory {
+public class DirectHttpConnectionFactoryFactory implements GatewayHttpConnectionFactoryFactory<HttpAsyncSocket<HttpRequest>> {
 
-    private GatewayHttpConnectionFactory connectionFactory;
+    private GatewayHttpConnectionFactory<HttpAsyncSocket<HttpRequest>> connectionFactory;
 
-    public DirectHttpConnectionFactoryFactory(GatewayHttpConnectionFactory connectionFactory) {
+    public DirectHttpConnectionFactoryFactory(GatewayHttpConnectionFactory<HttpAsyncSocket<HttpRequest>> connectionFactory) {
         this.connectionFactory = connectionFactory;
     }
 
     @Override
-    public MappedGatewayHttpConnectionFactory create() {
+    public MappedGatewayHttpConnectionFactory<HttpAsyncSocket<HttpRequest>> create() {
         return new DirectGatewayMappedHttpConnectionFactory(connectionFactory);
     }
 

@@ -17,7 +17,10 @@
  */
 package com.github.apetrelli.scafa.http.gateway;
 
-public interface GatewayHttpConnectionFactoryFactory {
+import com.github.apetrelli.scafa.http.HttpAsyncSocket;
+import com.github.apetrelli.scafa.http.HttpRequest;
 
-    MappedGatewayHttpConnectionFactory create();
+public interface GatewayHttpConnectionFactoryFactory<T extends HttpAsyncSocket<HttpRequest>> {
+
+    MappedGatewayHttpConnectionFactory<T> create();
 }

@@ -11,13 +11,13 @@ import com.github.apetrelli.scafa.proto.processor.HandlerSupport;
 
 public class ChannelDisconnectorHandler extends HandlerSupport implements DataHandler {
 
-	private MappedGatewayHttpConnectionFactory factory;
+	private MappedGatewayHttpConnectionFactory<?> factory;
 	
 	private AsyncSocket socket;
 
 	private HostPort socketAddress;
 
-	public ChannelDisconnectorHandler(MappedGatewayHttpConnectionFactory factory,
+	public ChannelDisconnectorHandler(MappedGatewayHttpConnectionFactory<?> factory,
 			AsyncSocket socket, HostPort socketAddress) {
 		this.factory = factory;
 		this.socket = socket;
