@@ -23,8 +23,8 @@ import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
-import com.github.apetrelli.scafa.http.gateway.GatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.gateway.MappedGatewayHttpConnectionFactory;
+import com.github.apetrelli.scafa.http.gateway.impl.AbstractGatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.impl.DirectHttpAsyncSocket;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
 import com.github.apetrelli.scafa.http.output.DataSenderFactory;
@@ -36,19 +36,9 @@ import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.processor.DataHandler;
 import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
 
-public class NtlmProxyHttpConnectionFactory implements GatewayHttpConnectionFactory<ProxyHttpConnection> {
-
-	private SocketFactory<AsyncSocket> socketFactory;
+public class NtlmProxyHttpConnectionFactory extends AbstractGatewayHttpConnectionFactory<ProxyHttpConnection> {
 
 	private DataSenderFactory dataSenderFactory;
-	
-	private ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory;
-
-	private HostPort proxySocketAddress;
-
-	private String interfaceName;
-
-	private boolean forceIpV4;
 
 	private String domain, username, password;
 
@@ -56,17 +46,13 @@ public class NtlmProxyHttpConnectionFactory implements GatewayHttpConnectionFact
 
 	private HttpStateMachine<HttpHandler, CompletableFuture<Void>> stateMachine;
 
-	public NtlmProxyHttpConnectionFactory(SocketFactory<AsyncSocket> socketFactory,
+	public NtlmProxyHttpConnectionFactory(SocketFactory<HttpAsyncSocket<HttpRequest>> socketFactory,
 			DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory,
 			HostPort proxySocketAddress, String interfaceName, boolean forceIpV4,
 			String domain, String username, String password, HttpRequestManipulator manipulator,
 			HttpStateMachine<HttpHandler, CompletableFuture<Void>> stateMachine) {
-		this.socketFactory = socketFactory;
+		super(socketFactory, clientProcessorFactory, proxySocketAddress, interfaceName, forceIpV4);
 		this.dataSenderFactory = dataSenderFactory;
-		this.clientProcessorFactory = clientProcessorFactory;
-		this.proxySocketAddress = proxySocketAddress;
-		this.interfaceName = interfaceName;
-		this.forceIpV4 = forceIpV4;
 		this.domain = domain;
 		this.username = username;
 		this.password = password;
@@ -75,13 +61,10 @@ public class NtlmProxyHttpConnectionFactory implements GatewayHttpConnectionFact
 	}
 
 	@Override
-	public ProxyHttpConnection create(MappedGatewayHttpConnectionFactory<ProxyHttpConnection> factory, AsyncSocket sourceChannel,
-			HostPort socketAddress) {
-		AsyncSocket socket = socketFactory.create(proxySocketAddress, interfaceName, forceIpV4);
-		HttpAsyncSocket<HttpRequest> httpSocket = new DirectHttpAsyncSocket<>(socket, dataSenderFactory);
+	protected ProxyHttpConnection createConnection(MappedGatewayHttpConnectionFactory<ProxyHttpConnection> factory,
+			AsyncSocket sourceChannel, HttpAsyncSocket<HttpRequest> httpSocket, HostPort socketAddress) {
 		HttpAsyncSocket<HttpResponse> httpSourceSocket = new DirectHttpAsyncSocket<>(sourceChannel, dataSenderFactory);
 		return new NtlmProxyHttpConnection(factory, clientProcessorFactory, httpSourceSocket, httpSocket, socketAddress,
 				domain, username, password, stateMachine, manipulator);
 	}
-
 }

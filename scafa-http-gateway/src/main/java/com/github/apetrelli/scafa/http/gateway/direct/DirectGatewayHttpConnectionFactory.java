@@ -14,13 +14,14 @@ public class DirectGatewayHttpConnectionFactory extends AbstractGatewayHttpConne
 
 	public DirectGatewayHttpConnectionFactory(SocketFactory<HttpAsyncSocket<HttpRequest>> socketFactory,
 			ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory, HostPort destinationSocketAddress) {
-		super(socketFactory, clientProcessorFactory, destinationSocketAddress);
+		super(socketFactory, clientProcessorFactory, destinationSocketAddress, null, false);
 	}
 
 	@Override
 	protected HttpAsyncSocket<HttpRequest> createConnection(
 			MappedGatewayHttpConnectionFactory<HttpAsyncSocket<HttpRequest>> factory, AsyncSocket sourceChannel,
-			HttpAsyncSocket<HttpRequest> httpSocket) {
+			HttpAsyncSocket<HttpRequest> httpSocket, HostPort socketAddress) {
+		// The socket address is in the original request, so it must be ignored for a gateway.
 		return new DirectGatewayHttpConnection(factory, clientProcessorFactory, sourceChannel, httpSocket, destinationSocketAddress);
 	}
 }

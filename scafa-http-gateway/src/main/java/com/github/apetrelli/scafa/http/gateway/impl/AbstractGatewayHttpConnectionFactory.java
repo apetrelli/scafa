@@ -18,21 +18,28 @@ public abstract class AbstractGatewayHttpConnectionFactory<T extends HttpAsyncSo
 	
 	protected HostPort destinationSocketAddress;
 
+	private String interfaceName;
+
+	private boolean forceIpV4;
+
 	public AbstractGatewayHttpConnectionFactory(SocketFactory<HttpAsyncSocket<HttpRequest>> socketFactory,
-			ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory, HostPort destinationSocketAddress) {
+			ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory, HostPort destinationSocketAddress,
+			String interfaceName, boolean forceIpV4) {
 		this.socketFactory = socketFactory;
 		this.clientProcessorFactory = clientProcessorFactory;
 		this.destinationSocketAddress = destinationSocketAddress;
+		this.interfaceName = interfaceName;
+		this.forceIpV4 = forceIpV4;
 	}
 
 	@Override
 	public T create(MappedGatewayHttpConnectionFactory<T> factory,
 			AsyncSocket sourceChannel, HostPort socketAddress) {
-		HttpAsyncSocket<HttpRequest> httpSocket = socketFactory.create(destinationSocketAddress, null, false);
-		return createConnection(factory, sourceChannel, httpSocket);
+		HttpAsyncSocket<HttpRequest> httpSocket = socketFactory.create(destinationSocketAddress, interfaceName, forceIpV4);
+		return createConnection(factory, sourceChannel, httpSocket, socketAddress);
 	}
 
 	protected abstract T createConnection(MappedGatewayHttpConnectionFactory<T> factory, AsyncSocket sourceChannel,
-			HttpAsyncSocket<HttpRequest> httpSocket);
+			HttpAsyncSocket<HttpRequest> httpSocket, HostPort socketAddress);
 
 }

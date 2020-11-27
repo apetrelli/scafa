@@ -4,7 +4,9 @@ import java.util.concurrent.CompletableFuture;
 
 import org.ini4j.Profile.Section;
 
+import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpHandler;
+import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.gateway.GatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
 import com.github.apetrelli.scafa.http.output.DataSenderFactory;
@@ -24,7 +26,7 @@ public class AsyncIniServerConfiguration extends AbstractIniServerConfiguration<
 
 	private static final String INTERFACE = "interface";
 
-	private static GatewayHttpConnectionFactory<ProxyHttpConnection> buildConnectionFactory(Section section, SocketFactory<AsyncSocket> socketFactory,
+	private static GatewayHttpConnectionFactory<ProxyHttpConnection> buildConnectionFactory(Section section, SocketFactory<HttpAsyncSocket<HttpRequest>> socketFactory,
 			DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory,
 			HttpStateMachine<HttpHandler, CompletableFuture<Void>> stateMachine) {
 		GatewayHttpConnectionFactory<ProxyHttpConnection> connectionFactory;
@@ -37,15 +39,15 @@ public class AsyncIniServerConfiguration extends AbstractIniServerConfiguration<
                     section.get("password"), createManipulator(section), stateMachine);
             break;
         case "anon":
-            connectionFactory = new AnonymousProxyHttpConnectionFactory(socketFactory, dataSenderFactory,
-                    clientProcessorFactory, createProxySocketAddress(section), section.get(INTERFACE),
-                    section.get(FORCE_IPV4, boolean.class, false), createManipulator(section));
+			connectionFactory = new AnonymousProxyHttpConnectionFactory(socketFactory, clientProcessorFactory,
+					createProxySocketAddress(section), section.get(INTERFACE),
+					section.get(FORCE_IPV4, boolean.class, false), createManipulator(section));
             break;
         case "basic":
-            connectionFactory = new BasicAuthProxyHttpConnectionFactory(socketFactory, dataSenderFactory,
-                    clientProcessorFactory, createProxySocketAddress(section), section.get(INTERFACE),
-                    section.get(FORCE_IPV4, boolean.class, false), section.get("username"), section.get("password"),
-                    createManipulator(section));
+			connectionFactory = new BasicAuthProxyHttpConnectionFactory(socketFactory, clientProcessorFactory,
+					createProxySocketAddress(section), section.get(INTERFACE),
+					section.get(FORCE_IPV4, boolean.class, false), section.get("username"), section.get("password"),
+					createManipulator(section));
             break;
         default:
 			connectionFactory = new DirectHttpConnectionFactory(socketFactory, dataSenderFactory,
@@ -55,7 +57,7 @@ public class AsyncIniServerConfiguration extends AbstractIniServerConfiguration<
 		return connectionFactory;
 	}
 
-    public AsyncIniServerConfiguration(Section section, SocketFactory<AsyncSocket> socketFactory,
+    public AsyncIniServerConfiguration(Section section, SocketFactory<HttpAsyncSocket<HttpRequest>> socketFactory,
             DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory,
             HttpStateMachine<HttpHandler, CompletableFuture<Void>> stateMachine) {
     	super(section, buildConnectionFactory(section, socketFactory, dataSenderFactory, clientProcessorFactory, stateMachine));

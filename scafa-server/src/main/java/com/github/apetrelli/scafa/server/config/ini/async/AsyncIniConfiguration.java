@@ -23,7 +23,9 @@ import java.util.concurrent.CompletableFuture;
 import org.ini4j.Ini;
 import org.ini4j.Profile.Section;
 
+import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpHandler;
+import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.gateway.GatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
 import com.github.apetrelli.scafa.http.output.DataSenderFactory;
@@ -37,12 +39,12 @@ import com.github.apetrelli.scafa.server.config.ini.AbstractIniConfiguration;
 
 public class AsyncIniConfiguration extends AbstractIniConfiguration<GatewayHttpConnectionFactory<ProxyHttpConnection>> {
     
-    private SocketFactory<AsyncSocket> socketFactory;
+    private SocketFactory<HttpAsyncSocket<HttpRequest>> socketFactory;
     private DataSenderFactory dataSenderFactory;
     private ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory;
     private HttpStateMachine<HttpHandler, CompletableFuture<Void>> stateMachine;
 
-    public static AsyncIniConfiguration create(String profile, SocketFactory<AsyncSocket> socketFactory,
+    public static AsyncIniConfiguration create(String profile, SocketFactory<HttpAsyncSocket<HttpRequest>> socketFactory,
             DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory,
             HttpStateMachine<HttpHandler, CompletableFuture<Void>> stateMachine)
             throws IOException {
@@ -52,7 +54,7 @@ public class AsyncIniConfiguration extends AbstractIniConfiguration<GatewayHttpC
 		return configuration;
     }
 
-	protected AsyncIniConfiguration(Ini ini, SocketFactory<AsyncSocket> socketFactory,
+	protected AsyncIniConfiguration(Ini ini, SocketFactory<HttpAsyncSocket<HttpRequest>> socketFactory,
 			DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory,
 			HttpStateMachine<HttpHandler, CompletableFuture<Void>> stateMachine) {
         super(ini);

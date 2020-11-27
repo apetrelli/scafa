@@ -32,7 +32,7 @@ import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
 
 public class DirectHttpConnectionFactory implements GatewayHttpConnectionFactory<ProxyHttpConnection> {
 
-	private SocketFactory<AsyncSocket> socketFactory;
+	private SocketFactory<HttpAsyncSocket<HttpRequest>> socketFactory;
 
 	private DataSenderFactory dataSenderFactory;
 	
@@ -42,12 +42,12 @@ public class DirectHttpConnectionFactory implements GatewayHttpConnectionFactory
 
 	private boolean forceIpV4;
 
-	public DirectHttpConnectionFactory(SocketFactory<AsyncSocket> socketFactory,
+	public DirectHttpConnectionFactory(SocketFactory<HttpAsyncSocket<HttpRequest>> socketFactory,
 			DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory) {
 		this(socketFactory, dataSenderFactory, clientProcessorFactory, null, false);
 	}
 
-	public DirectHttpConnectionFactory(SocketFactory<AsyncSocket> socketFactory,
+	public DirectHttpConnectionFactory(SocketFactory<HttpAsyncSocket<HttpRequest>> socketFactory,
 			DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory,
 			String interfaceName, boolean forceIpV4) {
 		this.socketFactory = socketFactory;
@@ -60,8 +60,7 @@ public class DirectHttpConnectionFactory implements GatewayHttpConnectionFactory
 	@Override
 	public ProxyHttpConnection create(MappedGatewayHttpConnectionFactory<ProxyHttpConnection> factory, AsyncSocket sourceChannel,
 			HostPort socketAddress) {
-		AsyncSocket socket = socketFactory.create(socketAddress, interfaceName, forceIpV4);
-		HttpAsyncSocket<HttpRequest> httpSocket = new DirectHttpAsyncSocket<>(socket, dataSenderFactory);
+		HttpAsyncSocket<HttpRequest> httpSocket = socketFactory.create(socketAddress, interfaceName, forceIpV4);
 		return new DirectProxyHttpConnection(factory, clientProcessorFactory,
 				new DirectHttpAsyncSocket<>(sourceChannel, dataSenderFactory), httpSocket);
 	}
