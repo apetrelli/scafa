@@ -22,9 +22,12 @@ import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpProcessingContext;
+import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.impl.AsyncHttpSink;
+import com.github.apetrelli.scafa.http.impl.DirectHttpAsyncSocketFactory;
 import com.github.apetrelli.scafa.http.impl.HttpProcessingContextFactory;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
 import com.github.apetrelli.scafa.http.output.DataSenderFactory;
@@ -57,7 +60,7 @@ public class AsyncScafaLauncher extends AbstractScafaLauncher {
         try {
         	HttpStateMachine<HttpHandler, CompletableFuture<Void>> stateMachine = new HttpStateMachine<>(new AsyncHttpSink());
             DataSenderFactory dataSenderFactory = new DefaultDataSenderFactory();
-            SocketFactory<AsyncSocket> socketFactory = new DirectClientAsyncSocketFactory();
+            SocketFactory<HttpAsyncSocket<HttpRequest>> socketFactory = new DirectHttpAsyncSocketFactory(new DirectClientAsyncSocketFactory(), dataSenderFactory);
             DefaultProcessorFactory<Input, DataHandler> clientProcessorFactory = new DefaultProcessorFactory<>(
             		new PassthroughInputProcessorFactory(), new SimpleInputFactory());
 			AsyncIniConfiguration configuration = AsyncIniConfiguration.create(profile, socketFactory, dataSenderFactory,

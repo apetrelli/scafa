@@ -18,29 +18,24 @@
 package com.github.apetrelli.scafa.http.proxy.impl;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
 
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
-import com.github.apetrelli.scafa.http.impl.HttpHandlerSupport;
+import com.github.apetrelli.scafa.http.gateway.impl.DefaultGatewayHttpHandler;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
 import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpHandler;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 
-public class DefaultProxyHttpHandler extends HttpHandlerSupport implements ProxyHttpHandler {
+public class DefaultProxyHttpHandler extends DefaultGatewayHttpHandler<ProxyHttpConnection> implements ProxyHttpHandler {
 
-    private MappedProxyHttpConnectionFactory connectionFactory;
-
-    private AsyncSocket sourceChannel;
-
-    private ProxyHttpConnection connection;
-
+	private MappedProxyHttpConnectionFactory connectionFactory;
+	
     public DefaultProxyHttpHandler(MappedProxyHttpConnectionFactory connectionFactory, AsyncSocket sourceChannel) {
-        this.connectionFactory = connectionFactory;
-        this.sourceChannel = sourceChannel;
+    	super(connectionFactory, sourceChannel);
+    	this.connectionFactory = connectionFactory;
     }
 
     @Override
@@ -59,41 +54,13 @@ public class DefaultProxyHttpHandler extends HttpHandlerSupport implements Proxy
             	return CompletableFuture.failedFuture(e);
             }
         } else {
-			return connectionFactory.create(sourceChannel, request).thenAccept(x -> connection = x)
-					.thenCompose(x -> connection.sendHeader(request));
+			return super.onRequestHeader(request);
         }
-    }
-    
-    @Override
-    public CompletableFuture<Void> onBody(ByteBuffer buffer, long offset, long length) {
-        return connection.sendData(buffer);
-    }
-    
-    @Override
-    public CompletableFuture<Void> onChunk(ByteBuffer buffer, long totalOffset, long chunkOffset, long chunkLength) {
-        return connection.sendData(buffer);
     }
     
     @Override
     public CompletableFuture<Void> onConnectMethod(HttpConnectRequest connectRequest) {
 		return connectionFactory.create(sourceChannel, connectRequest).thenAccept(x -> connection = x)
 				.thenCompose(x -> connection.connect(connectRequest));
-    }
-    
-    @Override
-    public CompletableFuture<Void> onDataToPassAlong(ByteBuffer buffer) {
-        return connection.flushBuffer(buffer);
-    }
-    
-    @Override
-    public CompletableFuture<Void> onEnd() {
-        return connection.endData();
-    }
-
-    @Override
-    public void onDisconnect() {
-    	if (connection != null) {
-    		connection.disconnect(); // Ignore the outcome
-    	}
     }
 }

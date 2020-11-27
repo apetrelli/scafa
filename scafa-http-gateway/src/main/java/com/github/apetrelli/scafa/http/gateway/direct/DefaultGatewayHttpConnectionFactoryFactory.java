@@ -10,7 +10,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU General Public License for more 	details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
@@ -23,17 +23,17 @@ import com.github.apetrelli.scafa.http.gateway.GatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.gateway.GatewayHttpConnectionFactoryFactory;
 import com.github.apetrelli.scafa.http.gateway.MappedGatewayHttpConnectionFactory;
 
-public class DirectHttpConnectionFactoryFactory implements GatewayHttpConnectionFactoryFactory<HttpAsyncSocket<HttpRequest>> {
+public class DefaultGatewayHttpConnectionFactoryFactory<T extends HttpAsyncSocket<HttpRequest>> implements GatewayHttpConnectionFactoryFactory<T> {
 
-    private GatewayHttpConnectionFactory<HttpAsyncSocket<HttpRequest>> connectionFactory;
+    private GatewayHttpConnectionFactory<T> connectionFactory;
 
-    public DirectHttpConnectionFactoryFactory(GatewayHttpConnectionFactory<HttpAsyncSocket<HttpRequest>> connectionFactory) {
+    public DefaultGatewayHttpConnectionFactoryFactory(GatewayHttpConnectionFactory<T> connectionFactory) {
         this.connectionFactory = connectionFactory;
     }
 
     @Override
-    public MappedGatewayHttpConnectionFactory<HttpAsyncSocket<HttpRequest>> create() {
-        return new DirectGatewayMappedHttpConnectionFactory(connectionFactory);
+    public MappedGatewayHttpConnectionFactory<T> create() {
+        return new DefaultMappedGatewayHttpConnectionFactory<>(connectionFactory);
     }
 
 }

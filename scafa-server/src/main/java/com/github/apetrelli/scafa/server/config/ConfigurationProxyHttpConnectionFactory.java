@@ -1,5 +1,7 @@
 package com.github.apetrelli.scafa.server.config;
 
+import com.github.apetrelli.scafa.http.HttpAsyncSocket;
+import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.gateway.GatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.gateway.MappedGatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.output.DataSenderFactory;
@@ -18,7 +20,7 @@ public class ConfigurationProxyHttpConnectionFactory implements GatewayHttpConne
     private GatewayHttpConnectionFactory<ProxyHttpConnection> directHttpConnectionFactory;
 
     public ConfigurationProxyHttpConnectionFactory(Configuration<GatewayHttpConnectionFactory<ProxyHttpConnection>> configuration,
-    		SocketFactory<AsyncSocket> socketFactory, DataSenderFactory dataSenderFactory,
+    		SocketFactory<HttpAsyncSocket<HttpRequest>> socketFactory, DataSenderFactory dataSenderFactory,
     		ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory) {
         this.configuration = configuration;
         directHttpConnectionFactory = new DirectHttpConnectionFactory(socketFactory, dataSenderFactory, clientProcessorFactory);
