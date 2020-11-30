@@ -27,7 +27,7 @@ import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
 import com.github.apetrelli.scafa.http.proxy.sync.connection.DefaultHttpConnectionFactoryFactory;
 import com.github.apetrelli.scafa.http.proxy.sync.handler.ProxyHttpHandlerFactory;
 import com.github.apetrelli.scafa.http.sync.HttpHandler;
-import com.github.apetrelli.scafa.http.sync.SyncHttpSink;
+import com.github.apetrelli.scafa.http.sync.impl.SyncHttpSink;
 import com.github.apetrelli.scafa.http.sync.output.DataSenderFactory;
 import com.github.apetrelli.scafa.http.sync.output.impl.DefaultDataSenderFactory;
 import com.github.apetrelli.scafa.proto.aio.SocketFactory;

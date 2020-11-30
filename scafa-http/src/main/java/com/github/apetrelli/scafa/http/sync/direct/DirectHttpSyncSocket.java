@@ -1,4 +1,4 @@
-package com.github.apetrelli.scafa.http.proxy.sync.socket;
+package com.github.apetrelli.scafa.http.sync.direct;
 
 import java.nio.ByteBuffer;
 import java.util.logging.Level;

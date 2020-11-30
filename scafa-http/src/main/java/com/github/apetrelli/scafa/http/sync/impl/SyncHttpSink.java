@@ -1,4 +1,4 @@
-package com.github.apetrelli.scafa.http.sync;
+package com.github.apetrelli.scafa.http.sync.impl;
 
 import java.nio.ByteBuffer;
 import java.util.logging.Level;
@@ -8,6 +8,7 @@ import com.github.apetrelli.scafa.http.HttpProcessingContext;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.HttpSink;
+import com.github.apetrelli.scafa.http.sync.HttpHandler;
 
 public class SyncHttpSink implements HttpSink<HttpHandler, Void> {
 	
