@@ -23,12 +23,12 @@ import java.nio.ByteBuffer;
 import com.github.apetrelli.scafa.http.HttpException;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
+import com.github.apetrelli.scafa.http.gateway.sync.MappedGatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
 import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
 import com.github.apetrelli.scafa.http.proxy.ntlm.NtlmHttpProcessingContext;
 import com.github.apetrelli.scafa.http.proxy.ntlm.NtlmHttpProcessingContextFactory;
-import com.github.apetrelli.scafa.http.proxy.sync.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.sync.connection.AbstractUpstreamProxyHttpConnection;
 import com.github.apetrelli.scafa.http.sync.HttpHandler;
 import com.github.apetrelli.scafa.http.sync.HttpSyncSocket;
@@ -65,7 +65,7 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
 
     private ByteBuffer readBuffer = ByteBuffer.allocate(16384);
 
-	public NtlmProxyHttpConnection(MappedProxyHttpConnectionFactory factory,
+	public NtlmProxyHttpConnection(MappedGatewayHttpConnectionFactory<?> factory,
 			ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory,
 			RunnableStarter runnableStarter, HttpSyncSocket<HttpResponse> sourceChannel,
 			HttpSyncSocket<HttpRequest> socket, HostPort destinationSocketAddress, String domain, String username,

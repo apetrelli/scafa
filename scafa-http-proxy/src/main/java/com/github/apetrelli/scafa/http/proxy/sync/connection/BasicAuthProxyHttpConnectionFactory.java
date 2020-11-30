@@ -18,13 +18,11 @@
 package com.github.apetrelli.scafa.http.proxy.sync.connection;
 
 import com.github.apetrelli.scafa.http.HttpRequest;
+import com.github.apetrelli.scafa.http.gateway.sync.MappedGatewayHttpConnectionFactory;
+import com.github.apetrelli.scafa.http.gateway.sync.connection.AbstractGatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
-import com.github.apetrelli.scafa.http.proxy.sync.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.sync.ProxyHttpConnection;
-import com.github.apetrelli.scafa.http.proxy.sync.ProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.sync.HttpSyncSocket;
-import com.github.apetrelli.scafa.http.sync.direct.DirectHttpSyncSocket;
-import com.github.apetrelli.scafa.http.sync.output.DataSenderFactory;
 import com.github.apetrelli.scafa.proto.aio.SocketFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
@@ -32,49 +30,26 @@ import com.github.apetrelli.scafa.proto.sync.RunnableStarter;
 import com.github.apetrelli.scafa.proto.sync.SyncSocket;
 import com.github.apetrelli.scafa.proto.sync.processor.DataHandler;
 
-public class BasicAuthProxyHttpConnectionFactory implements ProxyHttpConnectionFactory {
-
-	private SocketFactory<SyncSocket> socketFactory;
-
-	private DataSenderFactory dataSenderFactory;
-	
-	private ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory;
-	
-	private RunnableStarter runnableStarter;
-
-	private HostPort proxySocketAddress;
-
-	private String interfaceName;
-
-	private boolean forceIpV4;
+public class BasicAuthProxyHttpConnectionFactory extends AbstractGatewayHttpConnectionFactory<ProxyHttpConnection> {
 
 	private String username, password;
 
 	private HttpRequestManipulator manipulator;
 
-	public BasicAuthProxyHttpConnectionFactory(SocketFactory<SyncSocket> socketFactory,
-			DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory,
+	public BasicAuthProxyHttpConnectionFactory(SocketFactory<HttpSyncSocket<HttpRequest>> socketFactory,
+			ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory,
 			RunnableStarter runnableStarter, HostPort proxySocketAddress, String interfaceName, boolean forceIpV4,
 			String username, String password, HttpRequestManipulator manipulator) {
-		this.socketFactory = socketFactory;
-		this.dataSenderFactory = dataSenderFactory;
-		this.clientProcessorFactory = clientProcessorFactory;
-		this.runnableStarter = runnableStarter;
-		this.proxySocketAddress = proxySocketAddress;
-		this.interfaceName = interfaceName;
-		this.forceIpV4 = forceIpV4;
+		super(socketFactory, clientProcessorFactory, runnableStarter, proxySocketAddress, interfaceName, forceIpV4);
 		this.username = username;
 		this.password = password;
 		this.manipulator = manipulator;
 	}
 
 	@Override
-	public ProxyHttpConnection create(MappedProxyHttpConnectionFactory factory, SyncSocket sourceChannel,
-			HostPort socketAddress) {
-		SyncSocket socket = socketFactory.create(proxySocketAddress, interfaceName, forceIpV4);
-		HttpSyncSocket<HttpRequest> httpSocket = new DirectHttpSyncSocket<>(socket, dataSenderFactory);
+	protected ProxyHttpConnection createConnection(MappedGatewayHttpConnectionFactory<ProxyHttpConnection> factory,
+			SyncSocket sourceChannel, HttpSyncSocket<HttpRequest> httpSocket, HostPort socketAddress) {
 		return new BasicAuthProxyHttpConnection(factory, clientProcessorFactory, runnableStarter, sourceChannel,
 				httpSocket, socketAddress, manipulator, username, password);
 	}
-
 }

@@ -17,15 +17,16 @@
  */
 package com.github.apetrelli.scafa.http.proxy.sync.connection;
 
+import com.github.apetrelli.scafa.http.gateway.sync.GatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.sync.MappedProxyHttpConnectionFactory;
-import com.github.apetrelli.scafa.http.proxy.sync.ProxyHttpConnectionFactory;
+import com.github.apetrelli.scafa.http.proxy.sync.ProxyHttpConnection;
 import com.github.apetrelli.scafa.http.proxy.sync.ProxyHttpConnectionFactoryFactory;
 
 public class DefaultHttpConnectionFactoryFactory implements ProxyHttpConnectionFactoryFactory {
 
-    private ProxyHttpConnectionFactory connectionFactory;
+    private GatewayHttpConnectionFactory<ProxyHttpConnection> connectionFactory;
 
-    public DefaultHttpConnectionFactoryFactory(ProxyHttpConnectionFactory connectionFactory) {
+    public DefaultHttpConnectionFactoryFactory(GatewayHttpConnectionFactory<ProxyHttpConnection> connectionFactory) {
         this.connectionFactory = connectionFactory;
     }
 

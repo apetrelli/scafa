@@ -22,9 +22,12 @@ import java.io.IOException;
 import org.ini4j.Ini;
 import org.ini4j.Profile.Section;
 
+import com.github.apetrelli.scafa.http.HttpRequest;
+import com.github.apetrelli.scafa.http.gateway.sync.GatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
-import com.github.apetrelli.scafa.http.proxy.sync.ProxyHttpConnectionFactory;
+import com.github.apetrelli.scafa.http.proxy.sync.ProxyHttpConnection;
 import com.github.apetrelli.scafa.http.sync.HttpHandler;
+import com.github.apetrelli.scafa.http.sync.HttpSyncSocket;
 import com.github.apetrelli.scafa.http.sync.output.DataSenderFactory;
 import com.github.apetrelli.scafa.proto.aio.SocketFactory;
 import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
@@ -34,15 +37,15 @@ import com.github.apetrelli.scafa.proto.sync.processor.DataHandler;
 import com.github.apetrelli.scafa.server.config.ServerConfiguration;
 import com.github.apetrelli.scafa.server.config.ini.AbstractIniConfiguration;
 
-public class SyncIniConfiguration extends AbstractIniConfiguration<ProxyHttpConnectionFactory> {
+public class SyncIniConfiguration extends AbstractIniConfiguration<GatewayHttpConnectionFactory<ProxyHttpConnection>> {
     
-    private SocketFactory<SyncSocket> socketFactory;
+    private SocketFactory<HttpSyncSocket<HttpRequest>> socketFactory;
     private DataSenderFactory dataSenderFactory;
     private ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory;
     private RunnableStarter runnableStarter;
     private HttpStateMachine<HttpHandler, Void> stateMachine;
 
-	public static SyncIniConfiguration create(String profile, SocketFactory<SyncSocket> socketFactory,
+	public static SyncIniConfiguration create(String profile, SocketFactory<HttpSyncSocket<HttpRequest>> socketFactory,
 			DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory,
 			RunnableStarter runnableStarter, HttpStateMachine<HttpHandler, Void> stateMachine) throws IOException {
         Ini ini = AbstractIniConfiguration.loadIni(profile);
@@ -52,7 +55,7 @@ public class SyncIniConfiguration extends AbstractIniConfiguration<ProxyHttpConn
 		return configuration;
     }
 
-	protected SyncIniConfiguration(Ini ini, SocketFactory<SyncSocket> socketFactory,
+	protected SyncIniConfiguration(Ini ini, SocketFactory<HttpSyncSocket<HttpRequest>> socketFactory,
 			DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory,
 			RunnableStarter runnableStarter, HttpStateMachine<HttpHandler, Void> stateMachine) {
         super(ini);
@@ -64,7 +67,7 @@ public class SyncIniConfiguration extends AbstractIniConfiguration<ProxyHttpConn
     }
 
 	@Override
-	protected ServerConfiguration<ProxyHttpConnectionFactory> createServerConfiguration(Section section) {
+	protected ServerConfiguration<GatewayHttpConnectionFactory<ProxyHttpConnection>> createServerConfiguration(Section section) {
 		return new SyncIniServerConfiguration(section, socketFactory, dataSenderFactory,
 				clientProcessorFactory, runnableStarter, stateMachine);
 	}

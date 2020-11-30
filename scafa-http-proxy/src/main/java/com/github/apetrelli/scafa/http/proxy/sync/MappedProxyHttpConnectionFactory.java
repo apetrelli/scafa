@@ -17,20 +17,11 @@
  */
 package com.github.apetrelli.scafa.http.proxy.sync;
 
-import java.io.IOException;
-
-import com.github.apetrelli.scafa.http.HttpRequest;
+import com.github.apetrelli.scafa.http.gateway.sync.MappedGatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
-import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.sync.SyncSocket;
 
-public interface MappedProxyHttpConnectionFactory {
-
-    ProxyHttpConnection create(SyncSocket sourceChannel, HttpRequest request);
+public interface MappedProxyHttpConnectionFactory extends MappedGatewayHttpConnectionFactory<ProxyHttpConnection> {
 
     ProxyHttpConnection create(SyncSocket sourceChannel, HttpConnectRequest request);
-
-    void disconnectAll() throws IOException;
-
-    void dispose(HostPort target);
 }

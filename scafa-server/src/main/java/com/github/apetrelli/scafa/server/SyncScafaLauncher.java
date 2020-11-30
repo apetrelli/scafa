@@ -22,11 +22,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.http.HttpProcessingContext;
+import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.impl.HttpProcessingContextFactory;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
 import com.github.apetrelli.scafa.http.proxy.sync.connection.DefaultHttpConnectionFactoryFactory;
 import com.github.apetrelli.scafa.http.proxy.sync.handler.ProxyHttpHandlerFactory;
 import com.github.apetrelli.scafa.http.sync.HttpHandler;
+import com.github.apetrelli.scafa.http.sync.HttpSyncSocket;
+import com.github.apetrelli.scafa.http.sync.direct.DirectHttpSyncSocketFactory;
 import com.github.apetrelli.scafa.http.sync.impl.SyncHttpSink;
 import com.github.apetrelli.scafa.http.sync.output.DataSenderFactory;
 import com.github.apetrelli.scafa.http.sync.output.impl.DefaultDataSenderFactory;
@@ -63,7 +66,8 @@ public class SyncScafaLauncher extends AbstractScafaLauncher {
         		DefaultProcessorFactory<HttpProcessingContext, HttpHandler> defaultProcessorFactory = new DefaultProcessorFactory<>(
                         new StatefulInputProcessorFactory<>(stateMachine), new HttpProcessingContextFactory())) {
             DataSenderFactory dataSenderFactory = new DefaultDataSenderFactory();
-            SocketFactory<SyncSocket> socketFactory = new DirectClientSyncSocketFactory();
+			SocketFactory<HttpSyncSocket<HttpRequest>> socketFactory = new DirectHttpSyncSocketFactory(
+					new DirectClientSyncSocketFactory(), dataSenderFactory);
 			SyncIniConfiguration configuration = SyncIniConfiguration.create(profile, socketFactory, dataSenderFactory,
 					clientProcessorFactory, runnableStarter, stateMachine);
             Integer port = configuration.getPort();

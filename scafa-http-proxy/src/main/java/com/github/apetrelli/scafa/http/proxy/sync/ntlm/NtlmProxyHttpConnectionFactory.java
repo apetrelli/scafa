@@ -19,11 +19,11 @@ package com.github.apetrelli.scafa.http.proxy.sync.ntlm;
 
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
+import com.github.apetrelli.scafa.http.gateway.sync.MappedGatewayHttpConnectionFactory;
+import com.github.apetrelli.scafa.http.gateway.sync.connection.AbstractGatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
 import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
-import com.github.apetrelli.scafa.http.proxy.sync.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.sync.ProxyHttpConnection;
-import com.github.apetrelli.scafa.http.proxy.sync.ProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.sync.HttpHandler;
 import com.github.apetrelli.scafa.http.sync.HttpSyncSocket;
 import com.github.apetrelli.scafa.http.sync.direct.DirectHttpSyncSocket;
@@ -35,21 +35,9 @@ import com.github.apetrelli.scafa.proto.sync.RunnableStarter;
 import com.github.apetrelli.scafa.proto.sync.SyncSocket;
 import com.github.apetrelli.scafa.proto.sync.processor.DataHandler;
 
-public class NtlmProxyHttpConnectionFactory implements ProxyHttpConnectionFactory {
-
-	private SocketFactory<SyncSocket> socketFactory;
-
+public class NtlmProxyHttpConnectionFactory extends AbstractGatewayHttpConnectionFactory<ProxyHttpConnection> {
+	
 	private DataSenderFactory dataSenderFactory;
-	
-	private ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory;
-	
-	private RunnableStarter runnableStarter;
-
-	private HostPort proxySocketAddress;
-
-	private String interfaceName;
-
-	private boolean forceIpV4;
 
 	private String domain, username, password;
 
@@ -57,17 +45,12 @@ public class NtlmProxyHttpConnectionFactory implements ProxyHttpConnectionFactor
 
 	private HttpStateMachine<HttpHandler, Void> stateMachine;
 
-	public NtlmProxyHttpConnectionFactory(SocketFactory<SyncSocket> socketFactory, DataSenderFactory dataSenderFactory,
+	public NtlmProxyHttpConnectionFactory(SocketFactory<HttpSyncSocket<HttpRequest>> socketFactory, DataSenderFactory dataSenderFactory,
 			ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory, RunnableStarter runnableStarter,
 			HostPort proxySocketAddress, String interfaceName, boolean forceIpV4, String domain, String username,
 			String password, HttpRequestManipulator manipulator, HttpStateMachine<HttpHandler, Void> stateMachine) {
-		this.socketFactory = socketFactory;
+		super(socketFactory, clientProcessorFactory, runnableStarter, proxySocketAddress, interfaceName, forceIpV4);
 		this.dataSenderFactory = dataSenderFactory;
-		this.clientProcessorFactory = clientProcessorFactory;
-		this.runnableStarter = runnableStarter;
-		this.proxySocketAddress = proxySocketAddress;
-		this.interfaceName = interfaceName;
-		this.forceIpV4 = forceIpV4;
 		this.domain = domain;
 		this.username = username;
 		this.password = password;
@@ -76,13 +59,10 @@ public class NtlmProxyHttpConnectionFactory implements ProxyHttpConnectionFactor
 	}
 
 	@Override
-	public ProxyHttpConnection create(MappedProxyHttpConnectionFactory factory, SyncSocket sourceChannel,
-			HostPort socketAddress) {
-		SyncSocket socket = socketFactory.create(proxySocketAddress, interfaceName, forceIpV4);
-		HttpSyncSocket<HttpRequest> httpSocket = new DirectHttpSyncSocket<>(socket, dataSenderFactory);
+	protected ProxyHttpConnection createConnection(MappedGatewayHttpConnectionFactory<ProxyHttpConnection> factory,
+			SyncSocket sourceChannel, HttpSyncSocket<HttpRequest> httpSocket, HostPort socketAddress) {
 		HttpSyncSocket<HttpResponse> httpSourceSocket = new DirectHttpSyncSocket<>(sourceChannel, dataSenderFactory);
 		return new NtlmProxyHttpConnection(factory, clientProcessorFactory, runnableStarter, httpSourceSocket,
 				httpSocket, socketAddress, domain, username, password, stateMachine, manipulator);
 	}
-
 }

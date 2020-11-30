@@ -18,13 +18,11 @@
 package com.github.apetrelli.scafa.http.proxy.sync.connection;
 
 import com.github.apetrelli.scafa.http.HttpRequest;
+import com.github.apetrelli.scafa.http.gateway.sync.MappedGatewayHttpConnectionFactory;
+import com.github.apetrelli.scafa.http.gateway.sync.connection.AbstractGatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
-import com.github.apetrelli.scafa.http.proxy.sync.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.sync.ProxyHttpConnection;
-import com.github.apetrelli.scafa.http.proxy.sync.ProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.sync.HttpSyncSocket;
-import com.github.apetrelli.scafa.http.sync.direct.DirectHttpSyncSocket;
-import com.github.apetrelli.scafa.http.sync.output.DataSenderFactory;
 import com.github.apetrelli.scafa.proto.aio.SocketFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
@@ -32,43 +30,20 @@ import com.github.apetrelli.scafa.proto.sync.RunnableStarter;
 import com.github.apetrelli.scafa.proto.sync.SyncSocket;
 import com.github.apetrelli.scafa.proto.sync.processor.DataHandler;
 
-public class AnonymousProxyHttpConnectionFactory implements ProxyHttpConnectionFactory {
-
-	private SocketFactory<SyncSocket> socketFactory;
-
-	private DataSenderFactory dataSenderFactory;
-	
-	private ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory;
-	
-	private RunnableStarter runnableStarter;
-
-	private HostPort proxySocketAddress;
-
-	private String interfaceName;
-
-	private boolean forceIpV4;
+public class AnonymousProxyHttpConnectionFactory extends AbstractGatewayHttpConnectionFactory<ProxyHttpConnection> {
 
 	private HttpRequestManipulator manipulator;
 
-	public AnonymousProxyHttpConnectionFactory(SocketFactory<SyncSocket> socketFactory,
-			DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory,
-			RunnableStarter runnableStarter, 
+	public AnonymousProxyHttpConnectionFactory(SocketFactory<HttpSyncSocket<HttpRequest>> socketFactory,
+			ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory, RunnableStarter runnableStarter,
 			HostPort proxySocketAddress, String interfaceName, boolean forceIpV4, HttpRequestManipulator manipulator) {
-		this.socketFactory = socketFactory;
-		this.dataSenderFactory = dataSenderFactory;
-		this.clientProcessorFactory = clientProcessorFactory;
-		this.runnableStarter = runnableStarter;
-		this.proxySocketAddress = proxySocketAddress;
-		this.interfaceName = interfaceName;
-		this.forceIpV4 = forceIpV4;
+		super(socketFactory, clientProcessorFactory, runnableStarter, proxySocketAddress, interfaceName, forceIpV4);
 		this.manipulator = manipulator;
 	}
 
 	@Override
-	public ProxyHttpConnection create(MappedProxyHttpConnectionFactory factory, SyncSocket sourceChannel,
-			HostPort socketAddress) {
-		SyncSocket socket = socketFactory.create(proxySocketAddress, interfaceName, forceIpV4);
-		HttpSyncSocket<HttpRequest> httpSocket = new DirectHttpSyncSocket<>(socket, dataSenderFactory);
+	protected ProxyHttpConnection createConnection(MappedGatewayHttpConnectionFactory<ProxyHttpConnection> factory,
+			SyncSocket sourceChannel, HttpSyncSocket<HttpRequest> httpSocket, HostPort socketAddress) {
 		return new AnonymousProxyHttpConnection(factory, clientProcessorFactory, runnableStarter, sourceChannel,
 				httpSocket, socketAddress, manipulator);
 	}

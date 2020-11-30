@@ -4,9 +4,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 import com.github.apetrelli.scafa.http.HttpRequest;
+import com.github.apetrelli.scafa.http.gateway.sync.MappedGatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
 import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
-import com.github.apetrelli.scafa.http.proxy.sync.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.sync.HttpSyncSocket;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
@@ -18,7 +18,7 @@ public class BasicAuthProxyHttpConnection extends AbstractUpstreamProxyHttpConne
 
 	private String authString;
 
-	public BasicAuthProxyHttpConnection(MappedProxyHttpConnectionFactory factory,
+	public BasicAuthProxyHttpConnection(MappedGatewayHttpConnectionFactory<?> factory,
 			ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory,
 			RunnableStarter runnableStarter, SyncSocket sourceChannel,
 			HttpSyncSocket<HttpRequest> socket, HostPort destinationSocketAddress, HttpRequestManipulator manipulator,

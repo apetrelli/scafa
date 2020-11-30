@@ -21,9 +21,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.http.HttpRequest;
+import com.github.apetrelli.scafa.http.gateway.sync.MappedGatewayHttpConnectionFactory;
+import com.github.apetrelli.scafa.http.gateway.sync.connection.AbstractGatewayHttpConnection;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
 import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
-import com.github.apetrelli.scafa.http.proxy.sync.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.sync.ProxyHttpConnection;
 import com.github.apetrelli.scafa.http.sync.HttpSyncSocket;
 import com.github.apetrelli.scafa.proto.client.HostPort;
@@ -32,13 +33,13 @@ import com.github.apetrelli.scafa.proto.sync.RunnableStarter;
 import com.github.apetrelli.scafa.proto.sync.SyncSocket;
 import com.github.apetrelli.scafa.proto.sync.processor.DataHandler;
 
-public abstract class AbstractUpstreamProxyHttpConnection extends AbstractProxyHttpConnection<SyncSocket> implements ProxyHttpConnection {
+public abstract class AbstractUpstreamProxyHttpConnection extends AbstractGatewayHttpConnection<SyncSocket> implements ProxyHttpConnection {
 
     private static final Logger LOG = Logger.getLogger(AbstractUpstreamProxyHttpConnection.class.getName());
 
     protected HttpRequestManipulator manipulator;
 
-	public AbstractUpstreamProxyHttpConnection(MappedProxyHttpConnectionFactory factory,
+	public AbstractUpstreamProxyHttpConnection(MappedGatewayHttpConnectionFactory<?> factory,
 			ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory, 
 			RunnableStarter runnableStarter, SyncSocket sourceChannel,
 			HttpSyncSocket<HttpRequest> socket, HostPort destinationSocketAddress,
