@@ -1,20 +1,12 @@
 package com.github.apetrelli.scafa.web;
 
-import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-
-import org.ini4j.Ini;
 
 import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpHandler;
@@ -45,78 +37,54 @@ import com.github.apetrelli.scafa.proto.processor.impl.DefaultProcessorFactory;
 import com.github.apetrelli.scafa.proto.processor.impl.PassthroughInputProcessorFactory;
 import com.github.apetrelli.scafa.proto.processor.impl.SimpleInputFactory;
 import com.github.apetrelli.scafa.proto.processor.impl.StatefulInputProcessorFactory;
+import com.github.apetrelli.scafa.web.config.Configuration;
 import com.github.apetrelli.scafa.web.config.PathConfiguration;
 import com.github.apetrelli.scafa.web.config.SocketConfiguration;
 import com.github.apetrelli.scafa.web.config.StaticPathConfiguration;
-import com.github.apetrelli.scafa.web.config.ini.AbstractIniConfiguration;
 import com.github.apetrelli.scafa.web.handler.WebCompositeHttpHandlerFactoryBuilder;
 
-public class ScafaWebServerLauncher {
+public class ScafaWebServerLauncher extends AbstractScafaWebServerLauncher {
 	
 	private static final Logger LOG = Logger.getLogger(ScafaWebServerLauncher.class.getName());
 	
-	private Map<String, String> mimeTypeConfig;
-	
 	private List<ScafaListener<HttpHandler, HttpAsyncSocket<HttpResponse>>> listeners;
 	
-	public ScafaWebServerLauncher() throws IOException {
-		mimeTypeConfig = new HashMap<>();
-		try (InputStream is = getClass().getResourceAsStream("/mime.types");
-				InputStreamReader isr = new InputStreamReader(is, StandardCharsets.US_ASCII);
-				BufferedReader br = new BufferedReader(isr)) {
-			String line;
-			while ((line = br.readLine()) != null) {
-				if (!line.startsWith("#")) {
-					String[] pieces = line.split("\\s+");
-					if (pieces.length >= 2) {
-						String mimeType = pieces[0];
-						for (int i = 1; i < pieces.length; i++) {
-							mimeTypeConfig.put(pieces[i], mimeType);
-						}
-					}
-				}
-			}
-		}
-	}
-	
-	public void launch(String rootFilesystemDirectory) {
-		try {
-			Ini ini = new Ini(new File(rootFilesystemDirectory, "config.ini"));
-			AbstractIniConfiguration config = new AbstractIniConfiguration(ini, rootFilesystemDirectory);
-			HttpStateMachine<HttpHandler, CompletableFuture<Void>> stateMachine = new HttpStateMachine<>(new AsyncHttpSink());
-			StatefulInputProcessorFactory<HttpHandler, HttpProcessingContext> inputProcessorFactory = new StatefulInputProcessorFactory<>(stateMachine);
-			HttpProcessingContextFactory processingContextFactory = new HttpProcessingContextFactory();
-			DataSenderFactory dataSenderFactory = new DefaultDataSenderFactory();
-			SocketFactory<HttpAsyncSocket<HttpRequest>> socketFactory = new DirectHttpAsyncSocketFactory(new DirectClientAsyncSocketFactory(), dataSenderFactory);
-			DefaultProcessorFactory<HttpProcessingContext, HttpHandler> defaultProcessorFactory = new DefaultProcessorFactory<>(
-			        inputProcessorFactory, processingContextFactory);
-			HttpServer server = new DefaultHttpServer(dataSenderFactory);
-			NotFoundHttpServerHandlerFactory notFoundFactory = new NotFoundHttpServerHandlerFactory(server);
-			HandlerFactory<HttpHandler, HttpAsyncSocket<HttpResponse>> defaultHandlerFactory = new HttpServerHandlerAdapterFactory(notFoundFactory);
-			ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory = new DefaultProcessorFactory<>(
-            		new PassthroughInputProcessorFactory(), new SimpleInputFactory());
-			listeners = config.getSocketConfigurations().stream().map(x -> createListener(x, dataSenderFactory,
-					socketFactory, defaultProcessorFactory, clientProcessorFactory, server, defaultHandlerFactory))
-					.collect(Collectors.toList());
-			listeners.forEach(x -> {
-				try {
-					x.listen();
-				} catch (IOException e) {
-		            LOG.log(Level.SEVERE, "Cannot start listener", e);
-				}
-			});
-		} catch (IOException e) {
-            LOG.log(Level.SEVERE, "Cannot start web server", e);
-		}
-	}
-	
+	@Override
 	public void stop() {
 		listeners.forEach(ScafaListener::stop);
 	}
 
-	private ScafaListener<HttpHandler, HttpAsyncSocket<HttpResponse>> createListener(SocketConfiguration socketConfig,
-			DataSenderFactory dataSenderFactory, SocketFactory<HttpAsyncSocket<HttpRequest>> socketFactory,
-			DefaultProcessorFactory<HttpProcessingContext, HttpHandler> defaultProcessorFactory, 
+	@Override
+	protected void launch(Configuration config) {
+		HttpStateMachine<HttpHandler, CompletableFuture<Void>> stateMachine = new HttpStateMachine<>(new AsyncHttpSink());
+		StatefulInputProcessorFactory<HttpHandler, HttpProcessingContext> inputProcessorFactory = new StatefulInputProcessorFactory<>(stateMachine);
+		HttpProcessingContextFactory processingContextFactory = new HttpProcessingContextFactory();
+		DataSenderFactory dataSenderFactory = new DefaultDataSenderFactory();
+		SocketFactory<HttpAsyncSocket<HttpRequest>> socketFactory = new DirectHttpAsyncSocketFactory(new DirectClientAsyncSocketFactory(), dataSenderFactory);
+		DefaultProcessorFactory<HttpProcessingContext, HttpHandler> defaultProcessorFactory = new DefaultProcessorFactory<>(
+		        inputProcessorFactory, processingContextFactory);
+		HttpServer server = new DefaultHttpServer(dataSenderFactory);
+		NotFoundHttpServerHandlerFactory notFoundFactory = new NotFoundHttpServerHandlerFactory(server);
+		HandlerFactory<HttpHandler, HttpAsyncSocket<HttpResponse>> defaultHandlerFactory = new HttpServerHandlerAdapterFactory(notFoundFactory);
+		ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory = new DefaultProcessorFactory<>(
+				new PassthroughInputProcessorFactory(), new SimpleInputFactory());
+		listeners = config.getSocketConfigurations().stream()
+				.map(x -> createListener(config.getMimeTypeConfig(), x, dataSenderFactory, socketFactory,
+						defaultProcessorFactory, clientProcessorFactory, server, defaultHandlerFactory))
+				.collect(Collectors.toList());
+		listeners.forEach(x -> {
+			try {
+				x.listen();
+			} catch (IOException e) {
+		        LOG.log(Level.SEVERE, "Cannot start listener", e);
+			}
+		});
+	}
+
+	private ScafaListener<HttpHandler, HttpAsyncSocket<HttpResponse>> createListener(Map<String, String> mimeTypeConfig,
+			SocketConfiguration socketConfig, DataSenderFactory dataSenderFactory,
+			SocketFactory<HttpAsyncSocket<HttpRequest>> socketFactory,
+			DefaultProcessorFactory<HttpProcessingContext, HttpHandler> defaultProcessorFactory,
 			ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory, HttpServer server,
 			HandlerFactory<HttpHandler, HttpAsyncSocket<HttpResponse>> defaultHandlerFactory) {
         AsyncServerSocketFactory<AsyncSocket> serverSocketFactory = new DirectAsyncServerSocketFactory(socketConfig.getPort(), null, false);

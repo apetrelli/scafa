@@ -8,13 +8,13 @@ import com.github.apetrelli.scafa.web.config.PathConfiguration;
 import com.github.apetrelli.scafa.web.config.Protocol;
 import com.github.apetrelli.scafa.web.config.SocketConfiguration;
 
-public class AbstractIniSocketConfiguration implements SocketConfiguration {
+public class IniSocketConfiguration implements SocketConfiguration {
 
 	private Section section;
 	
 	private List<PathConfiguration> paths;
 	
-	public AbstractIniSocketConfiguration(Section section) {
+	public IniSocketConfiguration(Section section) {
 		this.section = section;
 	}
 
