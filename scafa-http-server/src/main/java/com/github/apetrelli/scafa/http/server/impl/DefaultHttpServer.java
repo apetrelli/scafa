@@ -37,17 +37,15 @@ public class DefaultHttpServer implements HttpServer {
 	@Override
 	public CompletableFuture<Void> response(HttpAsyncSocket<HttpResponse> channel, HttpResponse response,
 			BufferContextReader payloadReader, ByteBuffer writeBuffer) {
-		HttpResponse realResponse = new HttpResponse(response);
-		realResponse.setHeader("Transfer-Encoding", "chunked");
-		return responseWithPayload(channel, realResponse, payloadReader, writeBuffer);
+		response.setHeader("Transfer-Encoding", "chunked");
+		return responseWithPayload(channel, response, payloadReader, writeBuffer);
 	}
 
 	@Override
 	public CompletableFuture<Void> response(HttpAsyncSocket<HttpResponse> channel, HttpResponse response,
 			BufferContextReader payloadReader, long size, ByteBuffer writeBuffer) {
-		HttpResponse realResponse = new HttpResponse(response);
-		realResponse.setHeader("Content-Length", Long.toString(size));
-		return responseWithPayload(channel, realResponse, payloadReader, writeBuffer);
+		response.setHeader("Content-Length", Long.toString(size));
+		return responseWithPayload(channel, response, payloadReader, writeBuffer);
 	}
 	
 	@Override

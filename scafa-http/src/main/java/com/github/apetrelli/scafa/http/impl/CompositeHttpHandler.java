@@ -2,6 +2,7 @@ package com.github.apetrelli.scafa.http.impl;
 
 import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
+import java.util.regex.Pattern;
 
 import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpRequest;
@@ -10,12 +11,12 @@ import com.github.apetrelli.scafa.http.HttpResponse;
 public class CompositeHttpHandler implements HttpHandler {
 
 	public static class PatternHandlerPair {
-		private String pattern;
+		private Pattern pattern;
 
 		private HttpHandler handler;
 
 		public PatternHandlerPair(String pattern, HttpHandler handler) {
-			this.pattern = pattern;
+			this.pattern = Pattern.compile(pattern);
 			this.handler = handler;
 		}
 	}
@@ -56,7 +57,7 @@ public class CompositeHttpHandler implements HttpHandler {
 		HttpHandler foundHandler = defaultHandler;
 		boolean found = false;
 		for (int i = 0; i < pairs.length && !found; i++) {
-			if (request.getParsedResource().getResource().matches(pairs[i].pattern)) {
+			if (pairs[i].pattern.matcher(request.getParsedResource().getResource()).matches()) {
 				foundHandler = pairs[i].handler;
 				found = true;
 			}
