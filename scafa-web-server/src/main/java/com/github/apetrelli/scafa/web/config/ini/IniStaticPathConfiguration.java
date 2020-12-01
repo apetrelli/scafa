@@ -4,11 +4,11 @@ import org.ini4j.Profile.Section;
 
 import com.github.apetrelli.scafa.web.config.StaticPathConfiguration;
 
-public class AbstractIniStaticPathConfiguration extends AbstractIniPathConfiguration implements StaticPathConfiguration {
+public class IniStaticPathConfiguration extends IniPathConfiguration implements StaticPathConfiguration {
 
 	private String rootFilesystemPath;
 	
-	public AbstractIniStaticPathConfiguration(Section section, String rootFilesystemPath) {
+	public IniStaticPathConfiguration(Section section, String rootFilesystemPath) {
 		super(section);
 		this.rootFilesystemPath = rootFilesystemPath;
 	}

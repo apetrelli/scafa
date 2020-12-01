@@ -4,11 +4,11 @@ import org.ini4j.Profile.Section;
 
 import com.github.apetrelli.scafa.web.config.PathConfiguration;
 
-public class AbstractIniPathConfiguration implements PathConfiguration {
+public class IniPathConfiguration implements PathConfiguration {
 
 	protected Section section;
 
-	public AbstractIniPathConfiguration(Section section) {
+	public IniPathConfiguration(Section section) {
 		this.section = section;
 	}
 

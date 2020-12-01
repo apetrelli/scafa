@@ -4,9 +4,9 @@ import org.ini4j.Profile.Section;
 
 import com.github.apetrelli.scafa.web.config.GatewayPathConfiguration;
 
-public class AbstractIniGatewayPathConfiguration extends AbstractIniPathConfiguration implements GatewayPathConfiguration {
+public class IniGatewayPathConfiguration extends IniPathConfiguration implements GatewayPathConfiguration {
 
-	public AbstractIniGatewayPathConfiguration(Section section) {
+	public IniGatewayPathConfiguration(Section section) {
 		super(section);
 	}
 
