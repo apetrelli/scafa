@@ -11,4 +11,5 @@ module com.github.apetrelli.scafa.http {
 	exports com.github.apetrelli.scafa.http.sync.impl;
 	exports com.github.apetrelli.scafa.http.sync.output;
 	exports com.github.apetrelli.scafa.http.sync.output.impl;
+	exports com.github.apetrelli.scafa.http.sync.server;
 }

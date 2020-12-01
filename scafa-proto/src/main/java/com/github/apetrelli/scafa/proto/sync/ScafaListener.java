@@ -31,7 +31,7 @@ public class ScafaListener<H, S extends SyncSocket> {
     
     private SyncServerSocketFactory<S> asyncServerSocketFactory;
     
-    private ProcessorFactory<H, S> processorFactory;
+    private ProcessorFactory<H, SyncSocket> processorFactory;
 
     private HandlerFactory<H, S> handlerFactory;
     
@@ -39,7 +39,7 @@ public class ScafaListener<H, S extends SyncSocket> {
 
     private SyncServerSocket<S> server;
 
-	public ScafaListener(SyncServerSocketFactory<S> asyncServerSocketFactory, ProcessorFactory<H, S> processorFactory,
+	public ScafaListener(SyncServerSocketFactory<S> asyncServerSocketFactory, ProcessorFactory<H, SyncSocket> processorFactory,
 			HandlerFactory<H, S> handlerFactory, RunnableStarter runnableStarter) {
 		this.asyncServerSocketFactory = asyncServerSocketFactory;
         this.processorFactory = processorFactory;
