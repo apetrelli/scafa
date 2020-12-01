@@ -2,6 +2,7 @@ package com.github.apetrelli.scafa.proto.sync;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -13,8 +14,8 @@ public class VirtualThreadRunnableStarter implements RunnableStarter {
 	private ExecutorService scheduler = Executors.newVirtualThreadExecutor();
 
 	@Override
-	public void start(Runnable runnable) {
-		scheduler.submit(runnable);
+	public Future<?> start(Runnable runnable) {
+		return scheduler.submit(runnable);
 	}
 
 	@Override

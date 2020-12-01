@@ -1,6 +1,8 @@
 package com.github.apetrelli.scafa.proto.sync;
 
+import java.util.concurrent.Future;
+
 public interface RunnableStarter extends AutoCloseable {
 
-	void start(Runnable runnable);
+	Future<?> start(Runnable runnable);
 }
