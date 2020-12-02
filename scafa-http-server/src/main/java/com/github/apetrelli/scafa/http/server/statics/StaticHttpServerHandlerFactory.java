@@ -13,6 +13,7 @@ import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.server.HttpServer;
 import com.github.apetrelli.scafa.http.server.HttpServerHandler;
 import com.github.apetrelli.scafa.http.server.HttpServerHandlerFactory;
+import com.github.apetrelli.scafa.proto.util.AsciiString;
 
 public class StaticHttpServerHandlerFactory implements HttpServerHandlerFactory {
 
@@ -20,14 +21,14 @@ public class StaticHttpServerHandlerFactory implements HttpServerHandlerFactory 
 
 	private String indexResource;
 
-	private Map<String, String> mimeTypeConfig;
+	private Map<String, AsciiString> mimeTypeConfig;
 
 	private HttpServer server;
 	
 	private Map<String, Path> localResource2path;
 
 	public StaticHttpServerHandlerFactory(String basePath, String baseFilesystemPath, String indexResource,
-			Map<String, String> mimeTypeConfig, HttpServer server) {
+			Map<String, AsciiString> mimeTypeConfig, HttpServer server) {
 		this.basePath = basePath;
 		this.indexResource = indexResource;
 		this.mimeTypeConfig = mimeTypeConfig;

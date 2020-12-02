@@ -17,6 +17,14 @@
  */
 package com.github.apetrelli.scafa.http.proxy.ntlm;
 
+import static com.github.apetrelli.scafa.http.HttpHeaders.CONTENT_LENGTH;
+import static com.github.apetrelli.scafa.http.HttpHeaders.CONTENT_LENGTH_0;
+import static com.github.apetrelli.scafa.http.HttpHeaders.KEEP_ALIVE;
+import static com.github.apetrelli.scafa.http.HttpHeaders.PROXY_AUTHENTICATE;
+import static com.github.apetrelli.scafa.http.HttpHeaders.PROXY_AUTHENTICATE_NTLM;
+import static com.github.apetrelli.scafa.http.HttpHeaders.PROXY_AUTHORIZATION;
+import static com.github.apetrelli.scafa.http.HttpHeaders.PROXY_CONNECTION;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
@@ -36,6 +44,7 @@ import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.processor.DataHandler;
 import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
 import com.github.apetrelli.scafa.proto.processor.impl.StatefulInputProcessor;
+import com.github.apetrelli.scafa.proto.util.AsciiString;
 
 import jcifs.ntlmssp.NtlmFlags;
 import jcifs.ntlmssp.Type1Message;
@@ -45,7 +54,7 @@ import jcifs.util.Base64;
 
 public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection {
 
-    private static final String NTLM = "NTLM ";
+	private static final String NTLM = "NTLM ";
 
 	private static final int TYPE_1_FLAGS = NtlmFlags.NTLMSSP_NEGOTIATE_128 | NtlmFlags.NTLMSSP_NEGOTIATE_ALWAYS_SIGN
             | NtlmFlags.NTLMSSP_NEGOTIATE_LM_KEY | NtlmFlags.NTLMSSP_NEGOTIATE_TARGET_INFO
@@ -95,18 +104,18 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
 
     private CompletableFuture<Void> authenticateOnConnect(HttpRequest request) {
         HttpRequest modifiedRequest = new HttpRequest(request);
-        modifiedRequest.setHeader("Proxy-Connection", "keep-alive");
+        modifiedRequest.setHeader(PROXY_CONNECTION, KEEP_ALIVE);
         StatefulInputProcessor<HttpHandler, NtlmHttpProcessingContext> processor = new StatefulInputProcessor<>(tentativeHandler, stateMachine);
         return ntlmAuthenticate(modifiedRequest, modifiedRequest, tentativeHandler, processor);
     }
 
     private CompletableFuture<Void> authenticate(HttpRequest request) {
         HttpRequest finalRequest = new HttpRequest(request);
-        finalRequest.setHeader("Proxy-Connection", "keep-alive");
+        finalRequest.setHeader(PROXY_CONNECTION, KEEP_ALIVE);
         HttpRequest modifiedRequest = new HttpRequest(finalRequest);
-        String length = request.getHeader("CONTENT-LENGTH");
+        AsciiString length = request.getHeader(CONTENT_LENGTH);
         if (length != null) {
-            modifiedRequest.setHeader("Content-Length", "0");
+            modifiedRequest.setHeader(CONTENT_LENGTH, CONTENT_LENGTH_0);
         }
         StatefulInputProcessor<HttpHandler, NtlmHttpProcessingContext> processor = new StatefulInputProcessor<>(
                 tentativeHandler, stateMachine);
@@ -115,7 +124,7 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
 					if (x >= 0) {
 						if (tentativeHandler.isNeedsAuthorizing()) {
 							tentativeHandler.setOnlyCaptureMode(true);
-							if (tentativeHandler.getResponse().getHeaders("PROXY-AUTHENTICATE").contains("NTLM")) {
+							if (tentativeHandler.getResponse().getHeaders(PROXY_AUTHENTICATE).contains(PROXY_AUTHENTICATE_NTLM)) {
 								return ntlmAuthenticate(modifiedRequest, finalRequest, tentativeHandler, processor);
 							} else {
 								return CompletionHandlerFuture.completeEmpty();
@@ -134,7 +143,7 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
     private CompletableFuture<Void> ntlmAuthenticate(HttpRequest modifiedRequest, HttpRequest finalRequest, CapturingHandler handler,
             StatefulInputProcessor<HttpHandler, NtlmHttpProcessingContext> processor) {
         Type1Message message1 = new Type1Message(TYPE_1_FLAGS, null, null);
-        modifiedRequest.setHeader("PROXY-AUTHORIZATION", NTLM + Base64.encode(message1.toByteArray()));
+        modifiedRequest.setHeader(PROXY_AUTHORIZATION, new AsciiString(NTLM + Base64.encode(message1.toByteArray())));
         return socket.sendHeader(modifiedRequest).thenCompose(x -> readResponse(handler, processor))
         		.thenCompose(result -> {
         			CompletableFuture<Void> retValue = null;
@@ -142,15 +151,16 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
         				try {
         					switch (handler.getResponse().getCode()) {
         					case 407:
-        						String authenticate = handler.getResponse().getHeader("PROXY-AUTHENTICATE");
+        						AsciiString authenticate = handler.getResponse().getHeader(PROXY_AUTHENTICATE);
         						if (authenticate != null) {
-        							if (authenticate.startsWith(NTLM)) {
-                                        String base64 = authenticate.substring(5);
+        							String authenticateString = authenticate.toString();
+        							if (authenticateString.startsWith(NTLM)) {
+                                        String base64 = authenticateString.substring(5);
                                         Type2Message message2 = new Type2Message(Base64.decode(base64));
                                         Type3Message message3 = new Type3Message(message2, password, domain, username, null,
                                                 message2.getFlags());
-                                        finalRequest.setHeader("Proxy-Authorization",
-                                                NTLM + Base64.encode(message3.toByteArray()));
+                                        finalRequest.setHeader(PROXY_AUTHORIZATION,
+                                                new AsciiString(NTLM + Base64.encode(message3.toByteArray())));
                                         return socket.sendHeader(finalRequest).thenAccept(x -> {
                                         	authenticated = true;
                                         	prepareChannel();

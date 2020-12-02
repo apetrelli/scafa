@@ -1,5 +1,10 @@
 package com.github.apetrelli.scafa.http.server.statics;
 
+import static com.github.apetrelli.scafa.http.HttpHeaders.CONTENT_LENGTH;
+import static com.github.apetrelli.scafa.http.HttpHeaders.CONTENT_LENGTH_0;
+import static com.github.apetrelli.scafa.http.HttpHeaders.SCAFA;
+import static com.github.apetrelli.scafa.http.HttpHeaders.SERVER;
+
 import java.util.concurrent.CompletableFuture;
 
 import com.github.apetrelli.scafa.http.HttpAsyncSocket;
@@ -28,8 +33,8 @@ public class NotFoundHttpServerHandler extends HttpServerHandlerSupport {
 
 	private CompletableFuture<Void> sendSimpleMessage(int httpCode, String message) {
 		HttpResponse response = new HttpResponse("HTTP/1.1", httpCode, message);
-		response.setHeader("Server", "Scafa");
-		response.setHeader("Content-Length", "0");
+		response.setHeader(SERVER, SCAFA);
+		response.setHeader(CONTENT_LENGTH, CONTENT_LENGTH_0);
 		return server.response(channel, response);
 	}
 }

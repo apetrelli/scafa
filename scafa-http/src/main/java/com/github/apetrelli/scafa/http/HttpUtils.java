@@ -6,7 +6,13 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
+import com.github.apetrelli.scafa.proto.util.AsciiString;
+
 public class HttpUtils {
+
+	public static final HeaderName TRANSFER_ENCODING = new HeaderName("Transfer-Encoding");
+
+	public static final AsciiString CHUNKED = new AsciiString("chunked");
 	
 	private HttpUtils() {
 	}

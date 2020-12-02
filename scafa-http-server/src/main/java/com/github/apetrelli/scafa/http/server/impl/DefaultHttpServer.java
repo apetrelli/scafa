@@ -1,5 +1,9 @@
 package com.github.apetrelli.scafa.http.server.impl;
 
+import static com.github.apetrelli.scafa.http.HttpHeaders.CHUNKED;
+import static com.github.apetrelli.scafa.http.HttpHeaders.CONTENT_LENGTH;
+import static com.github.apetrelli.scafa.http.HttpHeaders.TRANSFER_ENCODING;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
@@ -17,6 +21,7 @@ import com.github.apetrelli.scafa.http.server.HttpServer;
 import com.github.apetrelli.scafa.proto.aio.BufferContext;
 import com.github.apetrelli.scafa.proto.aio.BufferContextReader;
 import com.github.apetrelli.scafa.proto.aio.impl.PathBufferContextReader;
+import com.github.apetrelli.scafa.proto.util.AsciiString;
 import com.github.apetrelli.scafa.tls.util.IOUtils;
 
 public class DefaultHttpServer implements HttpServer {
@@ -37,14 +42,14 @@ public class DefaultHttpServer implements HttpServer {
 	@Override
 	public CompletableFuture<Void> response(HttpAsyncSocket<HttpResponse> channel, HttpResponse response,
 			BufferContextReader payloadReader, ByteBuffer writeBuffer) {
-		response.setHeader("Transfer-Encoding", "chunked");
+		response.setHeader(TRANSFER_ENCODING, CHUNKED);
 		return responseWithPayload(channel, response, payloadReader, writeBuffer);
 	}
 
 	@Override
 	public CompletableFuture<Void> response(HttpAsyncSocket<HttpResponse> channel, HttpResponse response,
 			BufferContextReader payloadReader, long size, ByteBuffer writeBuffer) {
-		response.setHeader("Content-Length", Long.toString(size));
+		response.setHeader(CONTENT_LENGTH, new AsciiString(Long.toString(size)));
 		return responseWithPayload(channel, response, payloadReader, writeBuffer);
 	}
 	

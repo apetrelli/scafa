@@ -15,13 +15,14 @@ import java.util.Map;
 import org.ini4j.Ini;
 import org.ini4j.Profile.Section;
 
+import com.github.apetrelli.scafa.proto.util.AsciiString;
 import com.github.apetrelli.scafa.web.config.Configuration;
 import com.github.apetrelli.scafa.web.config.PathConfiguration;
 import com.github.apetrelli.scafa.web.config.SocketConfiguration;
 
 public class IniConfiguration implements Configuration{
 	
-	private Map<String, String> mimeTypeConfig;
+	private Map<String, AsciiString> mimeTypeConfig;
 	
 	private List<SocketConfiguration> sockets;
 	
@@ -31,7 +32,7 @@ public class IniConfiguration implements Configuration{
 	}
 	
 	@Override
-	public Map<String, String> getMimeTypeConfig() {
+	public Map<String, AsciiString> getMimeTypeConfig() {
 		return mimeTypeConfig;
 	}
 	
@@ -52,7 +53,7 @@ public class IniConfiguration implements Configuration{
 					if (pieces.length >= 2) {
 						String mimeType = pieces[0];
 						for (int i = 1; i < pieces.length; i++) {
-							mimeTypeConfig.put(pieces[i], mimeType);
+							mimeTypeConfig.put(pieces[i], new AsciiString(mimeType));
 						}
 					}
 				}

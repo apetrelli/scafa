@@ -17,6 +17,8 @@
  */
 package com.github.apetrelli.scafa.http;
 
+import static com.github.apetrelli.scafa.http.HttpHeaders.HOST;
+
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -29,6 +31,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.proto.client.HostPort;
+import com.github.apetrelli.scafa.proto.util.AsciiString;
 
 public class HttpRequest extends HeaderHolder {
 
@@ -100,10 +103,10 @@ public class HttpRequest extends HeaderHolder {
 
     public HostPort getHostPort() throws IOException {
         HostPort retValue;
-        String hostString = getHeader("HOST");
+        AsciiString hostString = getHeader(HOST);
         String url = getResource();
         if (hostString != null) {
-            String[] hostStringSplit = hostString.split(":");
+            String[] hostStringSplit = hostString.toString().split(":");
             Integer port = null;
             if (hostStringSplit.length == 1) {
             	if (url.startsWith("http") || url.startsWith("ftp")) {

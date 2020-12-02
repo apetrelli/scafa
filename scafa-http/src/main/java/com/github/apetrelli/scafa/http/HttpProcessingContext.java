@@ -1,9 +1,14 @@
 package com.github.apetrelli.scafa.http;
 
+import static com.github.apetrelli.scafa.http.HttpHeaders.CHUNKED;
+import static com.github.apetrelli.scafa.http.HttpHeaders.CONTENT_LENGTH;
+import static com.github.apetrelli.scafa.http.HttpHeaders.TRANSFER_ENCODING;
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.proto.processor.ProcessingContext;
+import com.github.apetrelli.scafa.proto.util.AsciiString;
 
 public class HttpProcessingContext extends ProcessingContext<HttpStatus> {
 
@@ -153,7 +158,7 @@ public class HttpProcessingContext extends ProcessingContext<HttpStatus> {
         if (pos > 0) {
             String key = header.substring(0, pos).trim();
             String value = header.substring(pos + 2, header.length()).trim();
-            holder.addHeader(key, value);
+            holder.addHeader(new HeaderName(key), new AsciiString(value));
         } else {
             LOG.severe("The header is invalid: " + header);
         }
@@ -161,10 +166,10 @@ public class HttpProcessingContext extends ProcessingContext<HttpStatus> {
 
     public void evaluateBodyMode() {
         setBodyMode(HttpBodyMode.EMPTY);
-        String lengthString = holder.getHeader("CONTENT-LENGTH");
+        AsciiString lengthString = holder.getHeader(CONTENT_LENGTH);
         if (lengthString != null) {
             try {
-                long length = Long.parseLong(lengthString.trim());
+                long length = Long.parseLong(lengthString.toString().trim());
                 if (length > 0L) {
                     setBodyMode(HttpBodyMode.BODY);
                     setBodySize(length);
@@ -173,8 +178,8 @@ public class HttpProcessingContext extends ProcessingContext<HttpStatus> {
                 LOG.log(Level.SEVERE, "The provided length is not an integer: " + lengthString, e);
             }
         } else { // Check chunked transfer
-            String encoding = holder.getHeader("TRANSFER-ENCODING");
-            if ("chunked".equals(encoding)) {
+            AsciiString encoding = holder.getHeader(TRANSFER_ENCODING);
+            if (CHUNKED.equals(encoding)) {
                 setBodyMode(HttpBodyMode.CHUNKED);
             }
         }

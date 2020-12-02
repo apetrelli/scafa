@@ -1,5 +1,8 @@
 package com.github.apetrelli.scafa.http.client.impl;
 
+import static com.github.apetrelli.scafa.http.HttpHeaders.CLOSE_CONNECTION;
+import static com.github.apetrelli.scafa.http.HttpHeaders.CONNECTION;
+
 import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -14,7 +17,7 @@ import com.github.apetrelli.scafa.proto.aio.CompletionHandlerFuture;
 
 public class ClientPipelineHttpHandler extends HttpHandlerSupport implements HttpHandler {
 
-    private static final HttpClientHandler NULL_HANDLER = new NullHttpClientHandler();
+	private static final HttpClientHandler NULL_HANDLER = new NullHttpClientHandler();
 
     private ConcurrentLinkedQueue<HttpPipelineContext> contexts = new ConcurrentLinkedQueue<>();
 
@@ -76,7 +79,7 @@ public class ClientPipelineHttpHandler extends HttpHandlerSupport implements Htt
         HttpResponse response = currentContext.getResponse();
         return currentContext.getHandler().onEnd(currentContext.getRequest(), response)
         		.thenCompose(x -> {
-                    if (response != null && "close".equals(response.getHeader("Connection"))) {
+                    if (response != null && CLOSE_CONNECTION.equals(response.getHeader(CONNECTION))) {
                         return connection.disconnect();
                     } else {
                     	return CompletionHandlerFuture.completeEmpty();

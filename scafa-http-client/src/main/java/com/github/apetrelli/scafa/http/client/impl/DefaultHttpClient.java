@@ -1,5 +1,9 @@
 package com.github.apetrelli.scafa.http.client.impl;
 
+import static com.github.apetrelli.scafa.http.HttpHeaders.CHUNKED;
+import static com.github.apetrelli.scafa.http.HttpHeaders.CONTENT_LENGTH;
+import static com.github.apetrelli.scafa.http.HttpHeaders.TRANSFER_ENCODING;
+
 import java.io.IOException;
 import java.nio.channels.AsynchronousFileChannel;
 import java.nio.file.Path;
@@ -25,6 +29,7 @@ import com.github.apetrelli.scafa.proto.aio.impl.PathBufferContextReader;
 import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
 import com.github.apetrelli.scafa.proto.processor.impl.DefaultProcessorFactory;
 import com.github.apetrelli.scafa.proto.processor.impl.StatefulInputProcessorFactory;
+import com.github.apetrelli.scafa.proto.util.AsciiString;
 import com.github.apetrelli.scafa.tls.util.IOUtils;
 
 public class DefaultHttpClient implements HttpClient {
@@ -66,14 +71,14 @@ public class DefaultHttpClient implements HttpClient {
 	@Override
 	public void request(HttpRequest request, BufferContextReader payloadReader, HttpClientHandler handler) {
 		HttpRequest realRequest = new HttpRequest(request);
-		realRequest.setHeader("Transfer-Encoding", "chunked");
+		realRequest.setHeader(TRANSFER_ENCODING, CHUNKED);
 		requestWithPayload(realRequest, payloadReader, handler);
 	}
 
 	@Override
 	public void request(HttpRequest request, BufferContextReader payloadReader, long size, HttpClientHandler handler) {
 		HttpRequest realRequest = new HttpRequest(request);
-		realRequest.setHeader("Content-Length", Long.toString(size));
+		realRequest.setHeader(CONTENT_LENGTH, new AsciiString(Long.toString(size)));
 		requestWithPayload(realRequest, payloadReader, handler);
 	}
 
