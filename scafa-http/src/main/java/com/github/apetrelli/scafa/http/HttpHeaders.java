@@ -43,4 +43,13 @@ public class HttpHeaders {
 	
 	public static final AsciiString SCAFA = new AsciiString("Scafa");
 
+	public static final AsciiString GET = new AsciiString("GET");
+	
+	public static final AsciiString CONNECT = new AsciiString("CONNECT");
+
+	public static final AsciiString OK = new AsciiString("OK");
+
+	public static final AsciiString FOUND = new AsciiString("Found");
+
+	public static final AsciiString HTTP_1_1 = new AsciiString("HTTP/1.1");
 }

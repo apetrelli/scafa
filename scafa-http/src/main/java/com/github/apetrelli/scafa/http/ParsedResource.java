@@ -3,10 +3,13 @@ package com.github.apetrelli.scafa.http;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.github.apetrelli.scafa.proto.util.AsciiString;
 
 public class ParsedResource {
 
@@ -14,10 +17,12 @@ public class ParsedResource {
 
 	private Map<String, List<String>> parameters = new LinkedHashMap<>();
 
-	public ParsedResource(String unparsedResource) {
+	public ParsedResource(AsciiString unparsedResourceAscii) {
+		String unparsedResource = unparsedResourceAscii.toString();
 		int position = unparsedResource.indexOf("?");
 		if (position >= 0) {
-			resource = unparsedResource.substring(0, position);
+			String escapedResource = unparsedResource.substring(0, position);
+			resource = URLDecoder.decode(escapedResource, StandardCharsets.UTF_8);
 			String[] pairs = unparsedResource.substring(position + 1).split("&");
 			for (int i = 0; i < pairs.length; i++) {
 				String[] pair = pairs[i].split("=");
@@ -33,17 +38,13 @@ public class ParsedResource {
 					parameters.put(key, values);
 				}
 				if (pair.length == 2) {
-					try {
-						values.add(URLDecoder.decode(pair[1], "UTF-8"));
-					} catch (UnsupportedEncodingException e) {
-						values.add(pair[1]);
-					}
+					values.add(URLDecoder.decode(pair[1], StandardCharsets.UTF_8));
 				} else {
 					values.add("");
 				}
 			}
 		} else {
-			resource = unparsedResource;
+			resource = URLDecoder.decode(unparsedResource, StandardCharsets.UTF_8);
 		}
 	}
 
@@ -66,7 +67,7 @@ public class ParsedResource {
 
 	@Override
 	public String toString() {
-		return resource + (parameters.isEmpty() ? "" : "?") + encodeParameters();
+		return URLEncoder.encode(resource, StandardCharsets.UTF_8) + (parameters.isEmpty() ? "" : "?") + encodeParameters();
 	}
 
 	private String encodeParameters() {
@@ -79,20 +80,10 @@ public class ParsedResource {
 				} else {
 					firstDone = true;
 				}
-				String encodedKey;
-				try {
-					encodedKey = URLEncoder.encode(entry.getKey(), "UTF-8");
-				} catch (UnsupportedEncodingException e) {
-					encodedKey = entry.getKey();
-				}
+				String encodedKey = URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8);
 				builder.append(encodedKey);
 				builder.append("=");
-				String encodedValue;
-				try {
-					encodedValue = URLEncoder.encode(value, "UTF-8");
-				} catch (UnsupportedEncodingException e) {
-					encodedValue = value;
-				}
+				String encodedValue = URLEncoder.encode(value, StandardCharsets.UTF_8);
 				builder.append(encodedValue);
 			}
 		}

@@ -17,6 +17,8 @@
  */
 package com.github.apetrelli.scafa.http.proxy.impl;
 
+import static com.github.apetrelli.scafa.http.HttpHeaders.CONNECT;
+
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
@@ -45,7 +47,7 @@ public class DefaultProxyHttpHandler extends DefaultGatewayHttpHandler<ProxyHttp
 
     @Override
     public CompletableFuture<Void> onRequestHeader(HttpRequest request) {
-        if ("CONNECT".equalsIgnoreCase(request.getMethod())) {
+        if (CONNECT.equals(request.getMethod())) {
             HttpConnectRequest connectRequest;
             try {
                 connectRequest = new HttpConnectRequest(request);

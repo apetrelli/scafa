@@ -1,5 +1,7 @@
 package com.github.apetrelli.scafa.http.impl;
 
+import static com.github.apetrelli.scafa.http.HttpHeaders.CONNECT;
+
 import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
@@ -25,7 +27,7 @@ public class AsyncHttpSink implements HttpSink<HttpHandler, CompletableFuture<Vo
 		HttpRequest request = context.getRequest();
 		HttpResponse response = context.getResponse();
 		if (request != null) {
-			if ("CONNECT".equalsIgnoreCase(request.getMethod())) {
+			if (CONNECT.equals(request.getMethod())) {
 				context.setHttpConnected(true);
 			}
 			return handler.onRequestHeader(new HttpRequest(request));
@@ -76,7 +78,6 @@ public class AsyncHttpSink implements HttpSink<HttpHandler, CompletableFuture<Vo
 	}
 
 	public CompletableFuture<Void> endChunkCount(HttpProcessingContext context, HttpHandler handler) {
-		context.evaluateChunkLength();
 		long chunkCount = context.getChunkLength();
 		return handler.onChunkStart(context.getTotalChunkedTransferLength(), chunkCount).thenCompose(x -> {
 			if (chunkCount == 0L) {

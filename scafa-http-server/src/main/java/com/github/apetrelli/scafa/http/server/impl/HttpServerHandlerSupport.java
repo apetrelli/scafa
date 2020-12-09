@@ -2,6 +2,7 @@ package com.github.apetrelli.scafa.http.server.impl;
 
 import static com.github.apetrelli.scafa.http.HttpHeaders.CONTENT_LENGTH;
 import static com.github.apetrelli.scafa.http.HttpHeaders.CONTENT_TYPE;
+import static com.github.apetrelli.scafa.http.HttpHeaders.HTTP_1_1;
 import static com.github.apetrelli.scafa.http.HttpHeaders.SCAFA;
 import static com.github.apetrelli.scafa.http.HttpHeaders.SERVER;
 import static com.github.apetrelli.scafa.http.HttpHeaders.TEXT_PLAIN;
@@ -19,6 +20,7 @@ import com.github.apetrelli.scafa.proto.aio.CompletionHandlerFuture;
 import com.github.apetrelli.scafa.proto.util.AsciiString;
 
 public class HttpServerHandlerSupport implements HttpServerHandler {
+	private static final AsciiString UNEXPECTED_EXCEPTION = new AsciiString("Unexpected exception");
 	protected HttpAsyncSocket<HttpResponse> channel;
 
 	public HttpServerHandlerSupport(HttpAsyncSocket<HttpResponse> channel) {
@@ -48,7 +50,7 @@ public class HttpServerHandlerSupport implements HttpServerHandler {
 
 	@Override
 	public void onRequestError(HttpRequest request, Throwable exc) {
-		HttpResponse response = new HttpResponse("HTTP/1.1", 500, "Unexpected exception");
+		HttpResponse response = new HttpResponse(HTTP_1_1, 500, UNEXPECTED_EXCEPTION);
 		response.setHeader(SERVER, SCAFA);
 		response.setHeader(CONTENT_TYPE, TEXT_PLAIN);
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();

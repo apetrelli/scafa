@@ -4,6 +4,9 @@ import static com.github.apetrelli.scafa.http.HttpHeaders.CHUNKED;
 import static com.github.apetrelli.scafa.http.HttpHeaders.CONTENT_LENGTH;
 import static com.github.apetrelli.scafa.http.HttpHeaders.TRANSFER_ENCODING;
 
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -11,8 +14,16 @@ import com.github.apetrelli.scafa.proto.processor.ProcessingContext;
 import com.github.apetrelli.scafa.proto.util.AsciiString;
 
 public class HttpProcessingContext extends ProcessingContext<HttpStatus> {
+	
+	public enum HttpMessageType {
+		REQUEST, RESPONSE;
+	}
 
 	private static final Logger LOG = Logger.getLogger(HttpProcessingContext.class.getName());
+	
+	private static final AsciiString HTTP_RESPONSE_PREFIX = new AsciiString("HTTP/");
+	
+	private HttpMessageType messageType;
 
     private HttpBodyMode bodyMode = HttpBodyMode.EMPTY;
 
@@ -30,13 +41,27 @@ public class HttpProcessingContext extends ProcessingContext<HttpStatus> {
 
     private boolean httpConnected = false;
 
-    private StringBuilder lineBuilder = new StringBuilder();
-
     private HttpRequest request;
 
     private HttpResponse response;
 
     private HeaderHolder holder;
+    
+    private byte[] carry;
+    
+    private AsciiString method;
+    
+    private AsciiString resource;
+    
+    private AsciiString httpVersion;
+    
+    private Integer code;
+    
+    private AsciiString message;
+    
+    private HeaderName headerName;
+    
+    private AsciiString headerValue;
 
 	public HttpProcessingContext(HttpStatus status) {
 		super(status);
@@ -110,58 +135,82 @@ public class HttpProcessingContext extends ProcessingContext<HttpStatus> {
     public void setHttpConnected(boolean httpConnected) {
         this.httpConnected = httpConnected;
     }
-
-    public void appendToLine(byte currentByte) {
-        lineBuilder.append((char) currentByte);
+    
+    public void setCarry(byte[] carry) {
+		this.carry = carry;
+	}
+    
+    public void evaluateFirstToken(int from, int to) {
+    	AsciiString string = new AsciiString(reconstructArray(from, to));
+    	byte[] stringArray = string.getArray();
+		if (stringArray.length >= HTTP_RESPONSE_PREFIX.length() && Arrays.equals(stringArray, 0,
+				HTTP_RESPONSE_PREFIX.length(), HTTP_RESPONSE_PREFIX.getArray(), 0, HTTP_RESPONSE_PREFIX.length())) {
+    		httpVersion = string;
+    		messageType = HttpMessageType.RESPONSE;
+    	} else {
+    		method = string;
+    		messageType = HttpMessageType.REQUEST;
+    	}
     }
-
-    public void evaluateRequestLine() {
-        String requestLine = lineBuilder.toString();
-        clearLineBuilder();
-        String[] pieces = requestLine.split("\\s+");
-        if (pieces.length >= 2) {
-            if (pieces[0].startsWith("HTTP/")) {
-                String httpVersion = pieces[0];
-                int responseCode;
-                try {
-                    responseCode = Integer.parseInt(pieces[1]);
-                } catch (NumberFormatException e) {
-                    responseCode = 500;
-                    LOG.log(Level.SEVERE, e, () -> "The response code is not a number: " + pieces[1]);
-                }
-                String responseMessage = null;
-                if (pieces.length > 2) {
-	                StringBuilder builder = new StringBuilder();
-	                builder.append(pieces[2]);
-	                for (int i = 3; i < pieces.length; i++) {
-	                    builder.append(" ").append(pieces[i]);
-	                }
-	                responseMessage = builder.toString();
-                }
-                response = new HttpResponse(httpVersion, responseCode, responseMessage);
-                holder = response;
-            } else if (pieces.length == 3) {
-                request = new HttpRequest(pieces[0], pieces[1], pieces[2]);
-                holder = request;
-            } else {
-                throw new HttpException("The request or response line is invalid: " + requestLine);
+    
+    public void evaluateSecondToken(int from, int to) {
+    	AsciiString string = new AsciiString(reconstructArray(from, to));
+    	switch (messageType) {
+    	case REQUEST:
+        	resource = string;
+        	break;
+    	case RESPONSE:
+            try {
+                code = Integer.decode(string.toString());
+            } catch (NumberFormatException e) {
+                code = 500;
+                LOG.log(Level.SEVERE, e, () -> "The response code is not a number: " + string);
             }
-        } else {
-            throw new HttpException("The request or response line is invalid: " + requestLine);
-        }
+        	break;
+    	default:
+    		throw new IllegalStateException("Not a request nor a response");
+    	}
+    }
+    
+    public void evaluateFinalContent(int from, int to) {
+    	AsciiString string = new AsciiString(reconstructArray(from, to));
+    	switch (messageType) {
+    	case REQUEST:
+        	httpVersion = string;
+        	break;
+    	case RESPONSE:
+    		message = string;
+        	break;
+    	default:
+    		throw new IllegalStateException("Not a request nor a response");
+    	}
+    }
+    
+    public void evaluateRequestLine() {
+    	switch (messageType) {
+    	case REQUEST:
+        	request = new HttpRequest(method, resource, httpVersion);
+        	holder = request;
+        	break;
+    	case RESPONSE:
+        	response = new HttpResponse(httpVersion, code, message);
+        	holder = response;
+        	break;
+    	default:
+    		throw new IllegalStateException("Not a request nor a response");
+    	}
+    }
+    
+    public void evaluateHeaderName(int from, int to) {
+    	headerName = new HeaderName(reconstructArray(from, to));
+    }
+    
+    public void evaluateHeaderValue(int from, int to) {
+    	headerValue = new AsciiString(reconstructArray(from, to));
     }
 
     public void addHeaderLine() {
-        String header = lineBuilder.toString();
-        clearLineBuilder();
-        int pos = header.indexOf(": ");
-        if (pos > 0) {
-            String key = header.substring(0, pos).trim();
-            String value = header.substring(pos + 2, header.length()).trim();
-            holder.addHeader(new HeaderName(key), new AsciiString(value));
-        } else {
-            LOG.severe("The header is invalid: " + header);
-        }
+    	holder.addHeader(headerName, headerValue);
     }
 
     public void evaluateBodyMode() {
@@ -185,22 +234,18 @@ public class HttpProcessingContext extends ProcessingContext<HttpStatus> {
         }
     }
 
-    public void evaluateChunkLength() {
-        if (lineBuilder.length() > 0) {
-            String chunkCountHex = lineBuilder.toString();
-            clearLineBuilder();
-            try {
-                long chunkCount = Long.parseLong(chunkCountHex, 16);
-                LOG.log(Level.FINEST, "Preparing to read {0} bytes of a chunk", chunkCount);
-                setChunkLength(chunkCount);
-            } catch (NumberFormatException e) {
-                throw new HttpException("Invalid chunk count " + chunkCountHex, e);
-            }
-        } else {
-            throw new HttpException("Chunk count as empty string, invalid");
+    public void evaluateChunkLength(int from, int to) {
+    	String chunkCountHex = new String(reconstructArray(from, to), StandardCharsets.US_ASCII);
+        try {
+            long chunkCount = Long.parseLong(chunkCountHex, 16);
+            LOG.log(Level.FINEST, "Preparing to read {0} bytes of a chunk", chunkCount);
+            setChunkLength(chunkCount);
+        } catch (NumberFormatException e) {
+            throw new HttpException("Invalid chunk count " + chunkCountHex, e);
         }
     }
     public void reset() {
+    	messageType = null;
         bodyMode = HttpBodyMode.EMPTY;
         countdown = 0L;
         bodySize = 0L;
@@ -208,7 +253,7 @@ public class HttpProcessingContext extends ProcessingContext<HttpStatus> {
         totalChunkedTransferLength = 0L;
         chunkOffset = 0L;
         chunkLength = 0L;
-        clearLineBuilder();
+        carry = null;
         request = null;
         response = null;
         holder = null;
@@ -222,8 +267,20 @@ public class HttpProcessingContext extends ProcessingContext<HttpStatus> {
 		return response;
 	}
 
-    private void clearLineBuilder() {
-        lineBuilder.delete(0, lineBuilder.length());
-    }
+	private byte[] reconstructArray(int from, int to) {
+		byte[] array;
+    	ByteBuffer buffer = getBuffer();
+		int length = to - from;
+		if (carry != null) {
+    		array = new byte[carry.length + length];
+    		System.arraycopy(carry, 0, array, 0, carry.length);
+    		System.arraycopy(buffer.array(), buffer.arrayOffset() + from, array, carry.length, length);
+    		carry = null;
+    	} else {
+    		array = new byte[length];
+    		System.arraycopy(buffer.array(), buffer.arrayOffset() + from, array, 0, length);
+    	}
+		return array;
+	}
 
 }

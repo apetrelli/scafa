@@ -21,14 +21,16 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
+import com.github.apetrelli.scafa.proto.util.AsciiString;
+
 public class HttpResponse extends HeaderHolder {
-    private String httpVersion;
+    private AsciiString httpVersion;
 
     private int code;
 
-    private String message;
+    private AsciiString message;
 
-    public HttpResponse(String httpVersion, int code, String message) {
+    public HttpResponse(AsciiString httpVersion, int code, AsciiString message) {
         this.httpVersion = httpVersion;
         this.code = code;
         this.message = message;
@@ -42,11 +44,11 @@ public class HttpResponse extends HeaderHolder {
         copyBase(toCopy);
     }
 
-    public String getHttpVersion() {
+    public AsciiString getHttpVersion() {
         return httpVersion;
     }
 
-    public void setHttpVersion(String httpVersion) {
+    public void setHttpVersion(AsciiString httpVersion) {
         if (this.httpVersion != null) {
             byteSize -= this.httpVersion.length();
         }
@@ -62,11 +64,11 @@ public class HttpResponse extends HeaderHolder {
         this.code = code;
     }
 
-    public String getMessage() {
+    public AsciiString getMessage() {
         return message;
     }
 
-    public void setMessage(String message) {
+    public void setMessage(AsciiString message) {
         if (this.message != null) {
             byteSize -= this.message.length();
         }
@@ -84,9 +86,9 @@ public class HttpResponse extends HeaderHolder {
     @Override
 	public void fill(ByteBuffer buffer) {
 		Charset charset = StandardCharsets.US_ASCII;
-        buffer.put(httpVersion.getBytes(charset)).put(SPACE).put(Integer.toString(code).getBytes(charset));
+        buffer.put(httpVersion.getArray()).put(SPACE).put(Integer.toString(code).getBytes(charset));
         if (message != null) {
-        	buffer.put(SPACE).put(message.getBytes(charset));
+        	buffer.put(SPACE).put(message.getArray());
         }
         buffer.put(CR).put(LF);
         loadInBuffer(buffer);

@@ -27,6 +27,13 @@ public class AsciiString {
 		return array.length;
 	}
 	
+	public boolean startsWith(AsciiString toCompare) {
+		if (toCompare.array.length <= array.length) {
+			return Arrays.equals(array, 0, toCompare.array.length, toCompare.array, 0, toCompare.array.length);
+		}
+		return false;
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
