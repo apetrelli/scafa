@@ -144,13 +144,6 @@ public class HttpRequest extends HeaderHolder {
     }
 
     @Override
-    public ByteBuffer toHeapByteBuffer() {
-        ByteBuffer buffer = ByteBuffer.allocate(byteSize);
-        fill(buffer);
-        return buffer;
-    }
-
-    @Override
 	public void fill(ByteBuffer buffer) {
         buffer.put(method.getArray()).put(SPACE).put(resource.getArray()).put(SPACE)
                 .put(httpVersion.getArray()).put(CR).put(LF);

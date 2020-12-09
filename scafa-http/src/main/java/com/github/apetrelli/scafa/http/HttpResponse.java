@@ -77,13 +77,6 @@ public class HttpResponse extends HeaderHolder {
     }
 
     @Override
-    public ByteBuffer toHeapByteBuffer() {
-        ByteBuffer buffer = ByteBuffer.allocate(byteSize);
-        fill(buffer);
-        return buffer;
-    }
-
-    @Override
 	public void fill(ByteBuffer buffer) {
 		Charset charset = StandardCharsets.US_ASCII;
         buffer.put(httpVersion.getArray()).put(SPACE).put(Integer.toString(code).getBytes(charset));

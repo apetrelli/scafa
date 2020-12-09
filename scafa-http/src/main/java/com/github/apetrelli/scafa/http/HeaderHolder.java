@@ -79,9 +79,11 @@ public abstract class HeaderHolder {
     	return Collections.unmodifiableCollection(headers.keySet());
     }
 
-    public abstract void fill(ByteBuffer buffer);
+	public ByteBuffer allocateOptimalBuffer() {
+		return ByteBuffer.allocate(byteSize);
+	}
 
-    public abstract ByteBuffer toHeapByteBuffer();
+    public abstract void fill(ByteBuffer buffer);
 
     protected void loadInBuffer(ByteBuffer buffer) {
         headers.entrySet().stream().forEach(t -> {
