@@ -25,23 +25,19 @@ import java.nio.ByteBuffer;
 import com.github.apetrelli.scafa.http.HttpException;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
+import com.github.apetrelli.scafa.http.gateway.sync.handler.DefaultGatewayHttpHandler;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
 import com.github.apetrelli.scafa.http.proxy.sync.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.sync.ProxyHttpConnection;
-import com.github.apetrelli.scafa.http.sync.impl.HttpHandlerSupport;
 import com.github.apetrelli.scafa.proto.sync.SyncSocket;
 
-public class DefaultProxyHttpHandler extends HttpHandlerSupport implements ProxyHttpHandler {
+public class DefaultProxyHttpHandler extends DefaultGatewayHttpHandler<ProxyHttpConnection> implements ProxyHttpHandler {
 
     private MappedProxyHttpConnectionFactory connectionFactory;
 
-    private SyncSocket sourceChannel;
-
-    private ProxyHttpConnection connection;
-
     public DefaultProxyHttpHandler(MappedProxyHttpConnectionFactory connectionFactory, SyncSocket sourceChannel) {
+    	super(connectionFactory, sourceChannel);
         this.connectionFactory = connectionFactory;
-        this.sourceChannel = sourceChannel;
     }
 
     @Override
@@ -61,7 +57,7 @@ public class DefaultProxyHttpHandler extends HttpHandlerSupport implements Proxy
             }
         } else {
 			connection = connectionFactory.create(sourceChannel, request);
-			connection.sendHeader(request);
+			connection.sendHeader(request, writeBuffer);
         }
     }
     
@@ -78,7 +74,7 @@ public class DefaultProxyHttpHandler extends HttpHandlerSupport implements Proxy
     @Override
     public void onConnectMethod(HttpConnectRequest connectRequest) {
 		connection = connectionFactory.create(sourceChannel, connectRequest);
-		connection.connect(connectRequest);
+		connection.connect(connectRequest, writeBuffer);
     }
     
     @Override

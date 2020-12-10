@@ -2,6 +2,7 @@ package com.github.apetrelli.scafa.http.proxy.sync.connection;
 
 import static com.github.apetrelli.scafa.http.HttpHeaders.PROXY_AUTHORIZATION;
 
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
@@ -32,14 +33,14 @@ public class BasicAuthProxyHttpConnection extends AbstractUpstreamProxyHttpConne
 	}
 
 	@Override
-	protected void doConnect(HttpConnectRequest request) {
+	protected void doConnect(HttpConnectRequest request, ByteBuffer buffer) {
 		request.addHeader(PROXY_AUTHORIZATION, authString);
-		super.doConnect(request);
+		super.doConnect(request, buffer);
 	}
 
 	@Override
-	protected void doSendHeader(HttpRequest request) {
+	protected void doSendHeader(HttpRequest request, ByteBuffer buffer) {
 		request.addHeader(PROXY_AUTHORIZATION, authString);
-		super.doSendHeader(request);
+		super.doSendHeader(request, buffer);
 	}
 }

@@ -55,10 +55,10 @@ public abstract class AbstractGatewayHttpConnection<T extends SyncSocket> extend
 	}
 	
 	@Override
-	public void sendHeader(HttpRequest request) {
+	public void sendHeader(HttpRequest request, ByteBuffer buffer) {
         HttpRequest modifiedRequest;
         modifiedRequest = createForwardedRequest(request);
-        doSendHeader(modifiedRequest);
+        doSendHeader(modifiedRequest, buffer);
     }
 	
 	@Override
@@ -82,8 +82,8 @@ public abstract class AbstractGatewayHttpConnection<T extends SyncSocket> extend
 
     protected abstract HttpRequest createForwardedRequest(HttpRequest request);
 
-    protected void doSendHeader(HttpRequest request) {
-        socket.sendHeader(request);
+    protected void doSendHeader(HttpRequest request, ByteBuffer buffer) {
+        socket.sendHeader(request, buffer);
     }
 
 	@Override

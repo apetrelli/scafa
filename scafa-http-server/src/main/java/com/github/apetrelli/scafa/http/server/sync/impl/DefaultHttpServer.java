@@ -28,8 +28,8 @@ public class DefaultHttpServer implements HttpServer {
 	}
 	
 	@Override
-	public void response(HttpSyncSocket<HttpResponse> channel, HttpResponse response) {
-		channel.sendHeader(response);
+	public void response(HttpSyncSocket<HttpResponse> channel, HttpResponse response, ByteBuffer writeBuffer) {
+		channel.sendHeader(response, writeBuffer);
 	}
 	
 	@Override
@@ -61,7 +61,7 @@ public class DefaultHttpServer implements HttpServer {
 	private void responseWithPayload(HttpSyncSocket<HttpResponse> channel, HttpResponse realResponse,
 			InputStream payload, ByteBuffer writeBuffer) {
 		DataSender sender = dataSenderFactory.create(realResponse, channel);
-		channel.sendHeader(realResponse);
+		channel.sendHeader(realResponse, writeBuffer);
 		transferPayload(payload, sender, writeBuffer);
 	}
 

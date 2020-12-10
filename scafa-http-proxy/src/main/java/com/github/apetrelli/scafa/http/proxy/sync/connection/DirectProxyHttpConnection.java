@@ -21,6 +21,7 @@ import static com.github.apetrelli.scafa.http.HttpHeaders.OK;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -51,11 +52,11 @@ public class DirectProxyHttpConnection extends AbstractGatewayHttpConnection<Htt
     }
     
     @Override
-    public void connect(HttpConnectRequest request) {
+    public void connect(HttpConnectRequest request, ByteBuffer buffer) {
         // Already connected, need only to send a 200.
         AsciiString httpVersion = request.getHttpVersion();
         HttpResponse response = new HttpResponse(httpVersion, HttpCodes.OK, OK);
-        sourceChannel.sendHeader(response);
+        sourceChannel.sendHeader(response, buffer);
         sourceChannel.endData();
     }
 

@@ -17,6 +17,7 @@
  */
 package com.github.apetrelli.scafa.http.proxy.sync.connection;
 
+import java.nio.ByteBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -49,16 +50,16 @@ public abstract class AbstractUpstreamProxyHttpConnection extends AbstractGatewa
     }
     
     @Override
-    public void connect(HttpConnectRequest request) {
+    public void connect(HttpConnectRequest request, ByteBuffer buffer) {
         if (LOG.isLoggable(Level.INFO)) {
             LOG.log(Level.INFO, "Connected thread {0} to port {1} and host {2}:{3}", new Object[] {
                     Thread.currentThread().getName(), socket.getAddress(), request.getHost(), request.getPort()});
         }
-        doConnect(request);
+        doConnect(request, buffer);
     }
 
-    protected void doConnect(HttpConnectRequest request) {
-        socket.sendHeader(request);
+    protected void doConnect(HttpConnectRequest request, ByteBuffer buffer) {
+        socket.sendHeader(request, buffer);
     }
 
     @Override

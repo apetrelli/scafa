@@ -32,13 +32,16 @@ public class DefaultGatewayHttpHandler<T extends HttpSyncSocket<HttpRequest>> ex
     protected SyncSocket sourceChannel;
 
     protected T connection;
+    
+    protected ByteBuffer writeBuffer;
 
     private MappedGatewayHttpConnectionFactory<T> connectionFactory;
 
     public DefaultGatewayHttpHandler(MappedGatewayHttpConnectionFactory<T> connectionFactory, SyncSocket sourceChannel) {
         this.connectionFactory = connectionFactory;
         this.sourceChannel = sourceChannel;
-    }
+        writeBuffer = ByteBuffer.allocate(16384);
+}
     
     @Override
     public void onResponseHeader(HttpResponse response) {
@@ -48,7 +51,7 @@ public class DefaultGatewayHttpHandler<T extends HttpSyncSocket<HttpRequest>> ex
     @Override
     public void onRequestHeader(HttpRequest request) {
     	connection = connectionFactory.create(sourceChannel, request);
-    	connection.sendHeader(request);
+    	connection.sendHeader(request, writeBuffer);
     }
     
     @Override

@@ -17,11 +17,13 @@
  */
 package com.github.apetrelli.scafa.http.proxy.sync;
 
+import java.nio.ByteBuffer;
+
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
 import com.github.apetrelli.scafa.http.sync.HttpSyncSocket;
 
 public interface ProxyHttpConnection extends HttpSyncSocket<HttpRequest> {
 
-    void connect(HttpConnectRequest request);
+    void connect(HttpConnectRequest request, ByteBuffer buffer);
 }

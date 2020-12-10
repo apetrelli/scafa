@@ -7,7 +7,7 @@ import com.github.apetrelli.scafa.proto.sync.SyncSocket;
 
 public interface HttpSyncSocket<H extends HeaderHolder> extends SyncSocket {
 
-	void sendHeader(H holder);
+	void sendHeader(H holder, ByteBuffer buffer);
 	
 	void sendData(ByteBuffer buffer);
 

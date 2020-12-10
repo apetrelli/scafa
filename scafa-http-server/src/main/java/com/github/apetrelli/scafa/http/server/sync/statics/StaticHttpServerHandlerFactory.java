@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -32,6 +33,7 @@ public class StaticHttpServerHandlerFactory implements HttpServerHandlerFactory 
 		this.indexResource = indexResource;
 		this.mimeTypeConfig = mimeTypeConfig;
 		this.server = server;
+		localResource2path = new HashMap<>();
 		scavengeDirectory(FileSystems.getDefault().getPath(baseFilesystemPath), "");
 	}
 

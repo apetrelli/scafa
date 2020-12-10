@@ -31,15 +31,22 @@ public class TentativeHandler extends CapturingHandler {
     private boolean onlyCaptureMode = false;
 
     private HttpSyncSocket<HttpResponse> sourceChannel;
+    
+    private ByteBuffer writeBuffer;
 
     public TentativeHandler(HttpSyncSocket<HttpResponse> sourceChannel) {
         this.sourceChannel = sourceChannel;
     }
+    
+    public void setWriteBuffer(ByteBuffer writeBuffer) {
+		this.writeBuffer = writeBuffer;
+	}
 
     @Override
     public void reset() {
         needsAuthorizing = false;
         onlyCaptureMode = false;
+        writeBuffer = null;
         super.reset();
     }
 
@@ -57,7 +64,7 @@ public class TentativeHandler extends CapturingHandler {
         if (onlyCaptureMode || PROXY_AUTHENTICATION_REQUIRED.equals(response.getCode())) {
             needsAuthorizing = true;
         } else {
-            sourceChannel.sendHeader(response);
+            sourceChannel.sendHeader(response, writeBuffer);
         }
     }
     

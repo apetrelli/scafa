@@ -23,9 +23,12 @@ public class HttpServerHandlerSupport implements HttpServerHandler {
 	private static final AsciiString UNEXPECTED_EXCEPTION = new AsciiString("Unexpected exception");
 
 	protected HttpSyncSocket<HttpResponse> channel;
+	
+	protected ByteBuffer writeBuffer;
 
 	public HttpServerHandlerSupport(HttpSyncSocket<HttpResponse> channel) {
 		this.channel = channel;
+		writeBuffer = ByteBuffer.allocate(16384);
 	}
 
 	@Override
@@ -59,7 +62,7 @@ public class HttpServerHandlerSupport implements HttpServerHandler {
 		}
 		byte[] bytes = baos.toByteArray();
 		response.addHeader(CONTENT_LENGTH, new AsciiString(Integer.toString(bytes.length)));
-		channel.sendHeader(response);
+		channel.sendHeader(response, writeBuffer);
 		ByteBuffer buffer = ByteBuffer.wrap(bytes);
 		channel.sendData(buffer);
 	}

@@ -25,6 +25,7 @@ public interface SyncSocket {
 	default void flipAndFlushBuffer(ByteBuffer buffer) {
 	    buffer.flip();
 	    flushBuffer(buffer);
+	    buffer.clear();
 	}
 
 	boolean isOpen();

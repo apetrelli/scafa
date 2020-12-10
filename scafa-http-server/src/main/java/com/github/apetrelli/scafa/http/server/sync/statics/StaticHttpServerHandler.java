@@ -74,7 +74,7 @@ public class StaticHttpServerHandler extends HttpServerHandlerSupport {
 				if (localResource.isEmpty() && !basePath.equals("/")) {
 					HttpResponse response = createSimpleResponse(HttpCodes.FOUND, FOUND);
 					response.setHeader(LOCATION, basePathSlash);
-					server.response(channel, response);
+					server.response(channel, response, writeBuffer);
 				} else {
 					while (localResource.startsWith("/")) {
 						localResource = localResource.substring(1);
@@ -118,7 +118,7 @@ public class StaticHttpServerHandler extends HttpServerHandlerSupport {
 
 	private void sendSimpleMessage(AsciiString httpCode, AsciiString message) {
 		HttpResponse response = createSimpleResponse(httpCode, message);
-		server.response(channel, response);
+		server.response(channel, response, writeBuffer);
 	}
 
 	private HttpResponse createSimpleResponse(AsciiString httpCode, AsciiString message) {
