@@ -19,8 +19,6 @@ import static com.github.apetrelli.scafa.http.HttpHeaders.SCAFA;
 import static com.github.apetrelli.scafa.http.HttpHeaders.SERVER;
 
 import java.nio.ByteBuffer;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 
@@ -45,8 +43,6 @@ public class StaticHttpServerHandler extends HttpServerHandlerSupport {
 	
 	private AsciiString basePathSlash;
 
-	private String baseFilesystemPath;
-
 	private String indexResource;
 
 	private Map<String, AsciiString> mimeTypeConfig;
@@ -54,14 +50,16 @@ public class StaticHttpServerHandler extends HttpServerHandlerSupport {
 	private HttpServer server;
 	
 	private ByteBuffer writeBuffer;
+	
+	private Map<String, Path> localResource2path;
 
-	public StaticHttpServerHandler(HttpSyncSocket<HttpResponse> channel, String basePath, String baseFilesystemPath,
+	public StaticHttpServerHandler(HttpSyncSocket<HttpResponse> channel, String basePath, Map<String, Path> localResource2path,
 			String indexResource, Map<String, AsciiString> mimeTypeConfig, HttpServer server) {
 		super(channel);
 		this.basePath = basePath;
 		basePathAscii = new AsciiString(basePath);
 		basePathSlash = new AsciiString(basePath + "/"); // NOSONAR
-		this.baseFilesystemPath = baseFilesystemPath;
+		this.localResource2path = localResource2path;
 		this.indexResource = indexResource;
 		this.mimeTypeConfig = mimeTypeConfig;
 		this.server = server;
@@ -85,8 +83,8 @@ public class StaticHttpServerHandler extends HttpServerHandlerSupport {
 						localResource = indexResource;
 					}
 					if (!localResource.contains("..")) {
-						Path path = FileSystems.getDefault().getPath(baseFilesystemPath, localResource);
-						if (Files.exists(path)) {
+						Path path = localResource2path.get(localResource);
+						if (path != null) {
 							HttpResponse response = new HttpResponse(HTTP_1_1, HttpCodes.OK, OK);
 							response.setHeader(SERVER, SCAFA);
 							response.setHeader(DATE, HttpUtils.getCurrentHttpDate());
