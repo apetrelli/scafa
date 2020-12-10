@@ -79,7 +79,7 @@ public class StaticHttpServerHandler extends HttpServerHandlerSupport {
 						if (path != null) {
 							HttpResponse response = new HttpResponse(HTTP_1_1, 200, FOUND);
 							response.setHeader(SERVER, SCAFA);
-							response.setHeader(DATE, new AsciiString(HttpUtils.getCurrentHttpDate()));
+							response.setHeader(DATE, HttpUtils.getCurrentHttpDate());
 							AsciiString connection = request.getHeader(CONNECTION);
 							if (!CLOSE_CONNECTION.equals(connection)) {
 								connection = KEEP_ALIVE;
