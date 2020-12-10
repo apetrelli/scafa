@@ -14,7 +14,6 @@ import static com.github.apetrelli.scafa.http.HttpHeaders.LOCATION;
 import static com.github.apetrelli.scafa.http.HttpHeaders.SCAFA;
 import static com.github.apetrelli.scafa.http.HttpHeaders.SERVER;
 
-import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -45,8 +44,6 @@ public class StaticHttpServerHandler extends HttpServerHandlerSupport {
 
 	private HttpServer server;
 	
-	private ByteBuffer writeBuffer;
-	
 	private Map<String, Path> localResource2path;
 
 	public StaticHttpServerHandler(HttpAsyncSocket<HttpResponse> channel, String basePath, Map<String, Path> localResource2path,
@@ -59,7 +56,6 @@ public class StaticHttpServerHandler extends HttpServerHandlerSupport {
 		this.indexResource = indexResource;
 		this.mimeTypeConfig = mimeTypeConfig;
 		this.server = server;
-		writeBuffer = ByteBuffer.allocate(16384);
 	}
 	
 	@Override
@@ -70,7 +66,7 @@ public class StaticHttpServerHandler extends HttpServerHandlerSupport {
 				if (localResource.isEmpty() && !basePath.equals("/")) {
 					HttpResponse response = createSimpleResponse(302, FOUND);
 					response.setHeader(LOCATION, basePathSlash);
-					return server.response(channel, response);
+					return server.response(channel, response, writeBuffer);
 				} else {
 					while (localResource.startsWith("/")) {
 						localResource = localResource.substring(1);
@@ -118,7 +114,7 @@ public class StaticHttpServerHandler extends HttpServerHandlerSupport {
 
 	private CompletableFuture<Void> sendSimpleMessage(int httpCode, AsciiString message) {
 		HttpResponse response = createSimpleResponse(httpCode, message);
-		return server.response(channel, response);
+		return server.response(channel, response, writeBuffer);
 	}
 
 	private HttpResponse createSimpleResponse(int httpCode, AsciiString message) {

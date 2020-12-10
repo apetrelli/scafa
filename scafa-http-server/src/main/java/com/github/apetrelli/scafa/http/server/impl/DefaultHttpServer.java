@@ -35,8 +35,8 @@ public class DefaultHttpServer implements HttpServer {
 	}
 	
 	@Override
-	public CompletableFuture<Void> response(HttpAsyncSocket<HttpResponse> channel, HttpResponse response) {
-		return channel.sendHeader(response);
+	public CompletableFuture<Void> response(HttpAsyncSocket<HttpResponse> channel, HttpResponse response, ByteBuffer writeBuffer) {
+		return channel.sendHeader(response, writeBuffer);
 	}
 	
 	@Override
@@ -78,7 +78,7 @@ public class DefaultHttpServer implements HttpServer {
 		DataSender sender = dataSenderFactory.create(realResponse, channel);
 		BufferContext fileContext = new BufferContext();
 		fileContext.setBuffer(writeBuffer);
-		return channel.sendHeader(realResponse).thenCompose(x -> transferPayload(payloadReader, sender, fileContext));
+		return channel.sendHeader(realResponse, writeBuffer).thenCompose(x -> transferPayload(payloadReader, sender, fileContext));
 	}
 
 	private CompletableFuture<Void> transferPayload(BufferContextReader payloadReader, DataSender sender,

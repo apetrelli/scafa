@@ -33,12 +33,15 @@ public class DefaultGatewayHttpHandler<T extends HttpAsyncSocket<HttpRequest>> e
     protected AsyncSocket sourceChannel;
 
     protected T connection;
+    
+    protected ByteBuffer writeBuffer;
 
     private MappedGatewayHttpConnectionFactory<T> connectionFactory;
 
     public DefaultGatewayHttpHandler(MappedGatewayHttpConnectionFactory<T> connectionFactory, AsyncSocket sourceChannel) {
         this.connectionFactory = connectionFactory;
         this.sourceChannel = sourceChannel;
+        writeBuffer = ByteBuffer.allocate(16384);
     }
     
     @Override
@@ -49,7 +52,7 @@ public class DefaultGatewayHttpHandler<T extends HttpAsyncSocket<HttpRequest>> e
     @Override
     public CompletableFuture<Void> onRequestHeader(HttpRequest request) {
 		return connectionFactory.create(sourceChannel, request).thenAccept(x -> connection = x)
-				.thenCompose(x -> connection.sendHeader(request));
+				.thenCompose(x -> connection.sendHeader(request, writeBuffer));
     }
     
     @Override

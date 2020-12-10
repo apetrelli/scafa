@@ -10,7 +10,7 @@ import com.github.apetrelli.scafa.proto.aio.BufferContextReader;
 
 public interface HttpServer {
 
-	CompletableFuture<Void> response(HttpAsyncSocket<HttpResponse> channel, HttpResponse response);
+	CompletableFuture<Void> response(HttpAsyncSocket<HttpResponse> channel, HttpResponse response, ByteBuffer writeBuffer);
 
 	CompletableFuture<Void> response(HttpAsyncSocket<HttpResponse> channel, HttpResponse response, BufferContextReader payloadReader, ByteBuffer writeBuffer);
 

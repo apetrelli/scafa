@@ -21,6 +21,7 @@ import static com.github.apetrelli.scafa.http.HttpHeaders.OK;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -49,11 +50,11 @@ public class DirectProxyHttpConnection extends AbstractGatewayHttpConnection<Htt
     }
     
     @Override
-    public CompletableFuture<Void> connect(HttpConnectRequest request) {
+    public CompletableFuture<Void> connect(HttpConnectRequest request, ByteBuffer writeBuffer) {
         // Already connected, need only to send a 200.
         AsciiString httpVersion = request.getHttpVersion();
         HttpResponse response = new HttpResponse(httpVersion, 200, OK);
-        return sourceChannel.sendHeader(response).thenCompose(x -> sourceChannel.endData());
+        return sourceChannel.sendHeader(response, writeBuffer).thenCompose(x -> sourceChannel.endData());
     }
 
     protected HttpRequest createForwardedRequest(HttpRequest request) {

@@ -22,9 +22,12 @@ import com.github.apetrelli.scafa.proto.util.AsciiString;
 public class HttpServerHandlerSupport implements HttpServerHandler {
 	private static final AsciiString UNEXPECTED_EXCEPTION = new AsciiString("Unexpected exception");
 	protected HttpAsyncSocket<HttpResponse> channel;
+	
+	protected ByteBuffer writeBuffer;
 
 	public HttpServerHandlerSupport(HttpAsyncSocket<HttpResponse> channel) {
 		this.channel = channel;
+		writeBuffer = ByteBuffer.allocate(16384);
 	}
 
 	@Override
@@ -59,7 +62,7 @@ public class HttpServerHandlerSupport implements HttpServerHandler {
 		}
 		byte[] bytes = baos.toByteArray();
 		response.addHeader(CONTENT_LENGTH, new AsciiString(Integer.toString(bytes.length)));
-		channel.sendHeader(response).thenCompose(x -> {
+		channel.sendHeader(response, writeBuffer).thenCompose(x -> {
 			ByteBuffer buffer = ByteBuffer.wrap(bytes);
 			return channel.sendData(buffer);
 		});

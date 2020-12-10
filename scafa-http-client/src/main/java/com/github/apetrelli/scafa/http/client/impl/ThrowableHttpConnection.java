@@ -47,7 +47,7 @@ public class ThrowableHttpConnection implements HttpClientConnection {
 	}
 	
 	@Override
-	public CompletableFuture<Void> sendHeader(HttpRequest request) {
+	public CompletableFuture<Void> sendHeader(HttpRequest request, ByteBuffer writeBuffer) {
         clientHandler.onRequestError(request, throwable);
         return CompletableFuture.failedFuture(throwable);
     }

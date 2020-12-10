@@ -29,8 +29,7 @@ public class DirectHttpAsyncSocket<H extends HeaderHolder> extends AsyncSocketWr
 	}
 	
 	@Override
-	public CompletableFuture<Void> sendHeader(H holder) {
-		ByteBuffer buffer = holder.allocateOptimalBuffer();
+	public CompletableFuture<Void> sendHeader(H holder, ByteBuffer buffer) {
 		holder.fill(buffer);
 		dataSender = dataSenderFactory.create(holder, socket);
 		if (LOG.isLoggable(Level.FINEST)) {

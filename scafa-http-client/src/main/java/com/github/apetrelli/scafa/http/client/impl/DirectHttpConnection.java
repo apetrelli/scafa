@@ -35,8 +35,8 @@ public class DirectHttpConnection extends AbstractClientConnection<HttpAsyncSock
 	}
 	
 	@Override
-	public CompletableFuture<Void> sendHeader(HttpRequest request) {
-        return socket.sendHeader(request);
+	public CompletableFuture<Void> sendHeader(HttpRequest request, ByteBuffer writeBuffer) {
+        return socket.sendHeader(request, writeBuffer);
 	}
 	
 	@Override

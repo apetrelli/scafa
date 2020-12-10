@@ -31,15 +31,22 @@ public class TentativeHandler extends CapturingHandler {
     private boolean onlyCaptureMode = false;
 
     private HttpAsyncSocket<HttpResponse> sourceChannel;
+    
+    private ByteBuffer writeBuffer;
 
     public TentativeHandler(HttpAsyncSocket<HttpResponse> sourceChannel) {
         this.sourceChannel = sourceChannel;
     }
+    
+    public void setWriteBuffer(ByteBuffer writeBuffer) {
+		this.writeBuffer = writeBuffer;
+	}
 
     @Override
     public void reset() {
         needsAuthorizing = false;
         onlyCaptureMode = false;
+        writeBuffer = null;
         super.reset();
     }
 
@@ -58,7 +65,7 @@ public class TentativeHandler extends CapturingHandler {
             needsAuthorizing = true;
             return CompletionHandlerFuture.completeEmpty();
         } else {
-            return sourceChannel.sendHeader(response);
+            return sourceChannel.sendHeader(response, writeBuffer);
         }
     }
     

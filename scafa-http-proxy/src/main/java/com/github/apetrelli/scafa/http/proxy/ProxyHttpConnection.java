@@ -17,6 +17,7 @@
  */
 package com.github.apetrelli.scafa.http.proxy;
 
+import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
 
 import com.github.apetrelli.scafa.http.HttpAsyncSocket;
@@ -24,5 +25,5 @@ import com.github.apetrelli.scafa.http.HttpRequest;
 
 public interface ProxyHttpConnection extends HttpAsyncSocket<HttpRequest> {
 
-    CompletableFuture<Void> connect(HttpConnectRequest request);
+    CompletableFuture<Void> connect(HttpConnectRequest request, ByteBuffer writeBuffer);
 }

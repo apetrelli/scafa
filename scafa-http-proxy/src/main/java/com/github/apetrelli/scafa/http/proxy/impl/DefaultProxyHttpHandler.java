@@ -63,6 +63,6 @@ public class DefaultProxyHttpHandler extends DefaultGatewayHttpHandler<ProxyHttp
     @Override
     public CompletableFuture<Void> onConnectMethod(HttpConnectRequest connectRequest) {
 		return connectionFactory.create(sourceChannel, connectRequest).thenAccept(x -> connection = x)
-				.thenCompose(x -> connection.connect(connectRequest));
+				.thenCompose(x -> connection.connect(connectRequest, writeBuffer));
     }
 }

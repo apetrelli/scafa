@@ -49,6 +49,6 @@ public class AsyncSocketWrapper<T extends AsyncSocket> implements AsyncSocket {
 	
 	@Override
 	public CompletableFuture<Void> flipAndFlushBuffer(ByteBuffer buffer) {
-		return flipAndFlushBuffer(buffer);
+		return socket.flipAndFlushBuffer(buffer);
 	}
 }

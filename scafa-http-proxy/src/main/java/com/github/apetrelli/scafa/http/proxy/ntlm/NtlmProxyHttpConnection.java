@@ -86,30 +86,30 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
     }
 
     @Override
-    protected CompletableFuture<Void> doSendHeader(HttpRequest request) {
+    protected CompletableFuture<Void> doSendHeader(HttpRequest request, ByteBuffer writeBuffer) {
         if (!authenticated) {
-            return authenticate(request);
+            return authenticate(request, writeBuffer);
         } else {
-            return socket.sendHeader(request);
+            return socket.sendHeader(request, writeBuffer);
         }
     }
     @Override
-    protected CompletableFuture<Void> doConnect(HttpConnectRequest request) {
+    protected CompletableFuture<Void> doConnect(HttpConnectRequest request, ByteBuffer writeBuffer) {
         if (!authenticated) {
-            return authenticateOnConnect(request);
+            return authenticateOnConnect(request, writeBuffer);
         } else {
-            return socket.sendHeader(request);
+            return socket.sendHeader(request, writeBuffer);
         }
     }
 
-    private CompletableFuture<Void> authenticateOnConnect(HttpRequest request) {
+    private CompletableFuture<Void> authenticateOnConnect(HttpRequest request, ByteBuffer writeBuffer) {
         HttpRequest modifiedRequest = new HttpRequest(request);
         modifiedRequest.setHeader(PROXY_CONNECTION, KEEP_ALIVE);
         StatefulInputProcessor<HttpHandler, NtlmHttpProcessingContext> processor = new StatefulInputProcessor<>(tentativeHandler, stateMachine);
-        return ntlmAuthenticate(modifiedRequest, modifiedRequest, tentativeHandler, processor);
+        return ntlmAuthenticate(modifiedRequest, modifiedRequest, tentativeHandler, processor, writeBuffer);
     }
 
-    private CompletableFuture<Void> authenticate(HttpRequest request) {
+    private CompletableFuture<Void> authenticate(HttpRequest request, ByteBuffer writeBuffer) {
         HttpRequest finalRequest = new HttpRequest(request);
         finalRequest.setHeader(PROXY_CONNECTION, KEEP_ALIVE);
         HttpRequest modifiedRequest = new HttpRequest(finalRequest);
@@ -119,13 +119,13 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
         }
         StatefulInputProcessor<HttpHandler, NtlmHttpProcessingContext> processor = new StatefulInputProcessor<>(
                 tentativeHandler, stateMachine);
-		return socket.sendHeader(modifiedRequest).thenCompose(x -> readResponse(tentativeHandler, processor))
+		return socket.sendHeader(modifiedRequest, writeBuffer).thenCompose(x -> readResponse(tentativeHandler, processor, writeBuffer))
 				.thenCompose(x -> {
 					if (x >= 0) {
 						if (tentativeHandler.isNeedsAuthorizing()) {
 							tentativeHandler.setOnlyCaptureMode(true);
 							if (tentativeHandler.getResponse().getHeaders(PROXY_AUTHENTICATE).contains(PROXY_AUTHENTICATE_NTLM)) {
-								return ntlmAuthenticate(modifiedRequest, finalRequest, tentativeHandler, processor);
+								return ntlmAuthenticate(modifiedRequest, finalRequest, tentativeHandler, processor, writeBuffer);
 							} else {
 								return CompletionHandlerFuture.completeEmpty();
 							}
@@ -140,11 +140,11 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
 				});
     }
 
-    private CompletableFuture<Void> ntlmAuthenticate(HttpRequest modifiedRequest, HttpRequest finalRequest, CapturingHandler handler,
-            StatefulInputProcessor<HttpHandler, NtlmHttpProcessingContext> processor) {
+    private CompletableFuture<Void> ntlmAuthenticate(HttpRequest modifiedRequest, HttpRequest finalRequest, TentativeHandler handler,
+            StatefulInputProcessor<HttpHandler, NtlmHttpProcessingContext> processor, ByteBuffer writeBuffer) {
         Type1Message message1 = new Type1Message(TYPE_1_FLAGS, null, null);
         modifiedRequest.setHeader(PROXY_AUTHORIZATION, new AsciiString(NTLM + Base64.encode(message1.toByteArray())));
-        return socket.sendHeader(modifiedRequest).thenCompose(x -> readResponse(handler, processor))
+        return socket.sendHeader(modifiedRequest, writeBuffer).thenCompose(x -> readResponse(handler, processor, writeBuffer))
         		.thenCompose(result -> {
         			CompletableFuture<Void> retValue = null;
         			if (result >= 0) {
@@ -161,7 +161,7 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
                                                 message2.getFlags());
                                         finalRequest.setHeader(PROXY_AUTHORIZATION,
                                                 new AsciiString(NTLM + Base64.encode(message3.toByteArray())));
-                                        return socket.sendHeader(finalRequest).thenAccept(x -> {
+                                        return socket.sendHeader(finalRequest, writeBuffer).thenAccept(x -> {
                                         	authenticated = true;
                                         	prepareChannel();
                                         });
@@ -188,12 +188,13 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
                         retValue = CompletableFuture.failedFuture(new IOException("Connection Closed"));
         			}
         			return retValue;
-        		});
+        		}).whenComplete((x, y) -> handler.reset());
     }
 
-    private CompletableFuture<Integer> readResponse(CapturingHandler handler,
-            StatefulInputProcessor<HttpHandler, NtlmHttpProcessingContext> processor) {
+    private CompletableFuture<Integer> readResponse(TentativeHandler handler,
+            StatefulInputProcessor<HttpHandler, NtlmHttpProcessingContext> processor, ByteBuffer writeBuffer) {
         handler.reset();
+        handler.setWriteBuffer(writeBuffer);
         NtlmHttpProcessingContext context = processingContextFactory.create();
         return readResponse(handler, processor, context);
     }

@@ -1,5 +1,6 @@
 package com.github.apetrelli.scafa.http.proxy.impl;
 
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.concurrent.CompletableFuture;
@@ -32,14 +33,14 @@ public class BasicAuthProxyHttpConnection extends AbstractUpstreamProxyHttpConne
     }
 
     @Override
-    protected CompletableFuture<Void> doConnect(HttpConnectRequest request) {
+    protected CompletableFuture<Void> doConnect(HttpConnectRequest request, ByteBuffer writeBuffer) {
         request.addHeader(PROXY_AUTHORIZATION, authString);
-        return super.doConnect(request);
+        return super.doConnect(request, writeBuffer);
     }
     
     @Override
-    protected CompletableFuture<Void> doSendHeader(HttpRequest request) {
+    protected CompletableFuture<Void> doSendHeader(HttpRequest request, ByteBuffer writeBuffer) {
         request.addHeader(PROXY_AUTHORIZATION, authString);
-        return super.doSendHeader(request);
+        return super.doSendHeader(request, writeBuffer);
     }
 }
