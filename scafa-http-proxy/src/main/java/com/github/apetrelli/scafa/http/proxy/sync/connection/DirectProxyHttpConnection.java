@@ -17,11 +17,14 @@
  */
 package com.github.apetrelli.scafa.http.proxy.sync.connection;
 
+import static com.github.apetrelli.scafa.http.HttpHeaders.OK;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.github.apetrelli.scafa.http.HttpCodes;
 import com.github.apetrelli.scafa.http.HttpException;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
@@ -34,6 +37,7 @@ import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
 import com.github.apetrelli.scafa.proto.sync.RunnableStarter;
 import com.github.apetrelli.scafa.proto.sync.SyncSocket;
 import com.github.apetrelli.scafa.proto.sync.processor.DataHandler;
+import com.github.apetrelli.scafa.proto.util.AsciiString;
 
 
 public class DirectProxyHttpConnection extends AbstractGatewayHttpConnection<HttpSyncSocket<HttpResponse>> implements ProxyHttpConnection {
@@ -49,8 +53,8 @@ public class DirectProxyHttpConnection extends AbstractGatewayHttpConnection<Htt
     @Override
     public void connect(HttpConnectRequest request) {
         // Already connected, need only to send a 200.
-        String httpVersion = request.getHttpVersion();
-        HttpResponse response = new HttpResponse(httpVersion, 200, "OK");
+        AsciiString httpVersion = request.getHttpVersion();
+        HttpResponse response = new HttpResponse(httpVersion, HttpCodes.OK, OK);
         sourceChannel.sendHeader(response);
         sourceChannel.endData();
     }
@@ -58,12 +62,12 @@ public class DirectProxyHttpConnection extends AbstractGatewayHttpConnection<Htt
     protected HttpRequest createForwardedRequest(HttpRequest request) {
         URL realurl;
 		try {
-			realurl = new URL(request.getResource());
+			realurl = new URL(request.getResource().toString());
 		} catch (MalformedURLException e) {
 			throw new HttpException(e);
 		}
         HttpRequest modifiedRequest = new HttpRequest(request);
-        modifiedRequest.setResource(realurl.getFile());
+        modifiedRequest.setResource(new AsciiString(realurl.getFile()));
         if (LOG.isLoggable(Level.INFO)) {
             LOG.log(Level.INFO, "Direct connection: connected thread {0} to port {1} and URL {2}",
                     new Object[] { Thread.currentThread().getName(), socket.getAddress(), request.getResource() });

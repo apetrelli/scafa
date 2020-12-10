@@ -1,5 +1,9 @@
 package com.github.apetrelli.scafa.http.server.sync.impl;
 
+import static com.github.apetrelli.scafa.http.HttpHeaders.CHUNKED;
+import static com.github.apetrelli.scafa.http.HttpHeaders.CONTENT_LENGTH;
+import static com.github.apetrelli.scafa.http.HttpHeaders.TRANSFER_ENCODING;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -12,6 +16,7 @@ import com.github.apetrelli.scafa.http.sync.HttpSyncSocket;
 import com.github.apetrelli.scafa.http.sync.output.DataSender;
 import com.github.apetrelli.scafa.http.sync.output.DataSenderFactory;
 import com.github.apetrelli.scafa.proto.sync.IORuntimeException;
+import com.github.apetrelli.scafa.proto.util.AsciiString;
 
 
 public class DefaultHttpServer implements HttpServer {
@@ -31,7 +36,7 @@ public class DefaultHttpServer implements HttpServer {
 	public void response(HttpSyncSocket<HttpResponse> channel, HttpResponse response,
 			InputStream payload, ByteBuffer writeBuffer) {
 		HttpResponse realResponse = new HttpResponse(response);
-		realResponse.setHeader("Transfer-Encoding", "chunked");
+		realResponse.setHeader(TRANSFER_ENCODING, CHUNKED);
 		responseWithPayload(channel, realResponse, payload, writeBuffer);
 	}
 
@@ -39,7 +44,7 @@ public class DefaultHttpServer implements HttpServer {
 	public void response(HttpSyncSocket<HttpResponse> channel, HttpResponse response,
 			InputStream payload, long size, ByteBuffer writeBuffer) {
 		HttpResponse realResponse = new HttpResponse(response);
-		realResponse.setHeader("Content-Length", Long.toString(size));
+		realResponse.setHeader(CONTENT_LENGTH, new AsciiString(Long.toString(size)));
 		responseWithPayload(channel, realResponse, payload, writeBuffer);
 	}
 	

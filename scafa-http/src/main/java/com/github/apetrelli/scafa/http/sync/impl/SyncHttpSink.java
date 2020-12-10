@@ -1,5 +1,7 @@
 package com.github.apetrelli.scafa.http.sync.impl;
 
+import static com.github.apetrelli.scafa.http.HttpHeaders.CONNECT;
+
 import java.nio.ByteBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -23,7 +25,7 @@ public class SyncHttpSink implements HttpSink<HttpHandler, Void> {
 		HttpRequest request = context.getRequest();
 		HttpResponse response = context.getResponse();
 		if (request != null) {
-			if ("CONNECT".equalsIgnoreCase(request.getMethod())) {
+			if (CONNECT.equals(request.getMethod())) {
 				context.setHttpConnected(true);
 			}
 			handler.onRequestHeader(new HttpRequest(request));
@@ -72,7 +74,6 @@ public class SyncHttpSink implements HttpSink<HttpHandler, Void> {
 	}
 
 	public Void endChunkCount(HttpProcessingContext context, HttpHandler handler) {
-		context.evaluateChunkLength();
 		long chunkCount = context.getChunkLength();
 		handler.onChunkStart(context.getTotalChunkedTransferLength(), chunkCount);
 		if (chunkCount == 0L) {

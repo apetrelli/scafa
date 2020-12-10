@@ -13,4 +13,5 @@ module com.github.apetrelli.scafa.proto {
 	exports com.github.apetrelli.scafa.proto.sync.processor;
 	exports com.github.apetrelli.scafa.proto.sync.processor.impl;
 	exports com.github.apetrelli.scafa.proto.sync.socket;
+	exports com.github.apetrelli.scafa.proto.util;
 }

@@ -56,10 +56,10 @@ public abstract class AbstractGatewayHttpConnection<T extends AsyncSocket> exten
 	}
 	
 	@Override
-	public CompletableFuture<Void> sendHeader(HttpRequest request) {
+	public CompletableFuture<Void> sendHeader(HttpRequest request, ByteBuffer writeBuffer) {
         HttpRequest modifiedRequest;
         modifiedRequest = createForwardedRequest(request);
-        return doSendHeader(modifiedRequest);
+        return doSendHeader(modifiedRequest, writeBuffer);
     }
 	
 	@Override
@@ -84,8 +84,8 @@ public abstract class AbstractGatewayHttpConnection<T extends AsyncSocket> exten
 
     protected abstract HttpRequest createForwardedRequest(HttpRequest request);
 
-    protected CompletableFuture<Void> doSendHeader(HttpRequest request) {
-        return socket.sendHeader(request);
+    protected CompletableFuture<Void> doSendHeader(HttpRequest request, ByteBuffer writeBuffer) {
+        return socket.sendHeader(request, writeBuffer);
     }
 
 	@Override

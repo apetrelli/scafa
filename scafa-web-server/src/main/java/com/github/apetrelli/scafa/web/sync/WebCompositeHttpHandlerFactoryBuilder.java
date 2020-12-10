@@ -23,6 +23,7 @@ import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
 import com.github.apetrelli.scafa.proto.sync.RunnableStarter;
 import com.github.apetrelli.scafa.proto.sync.SyncSocket;
 import com.github.apetrelli.scafa.proto.sync.processor.DataHandler;
+import com.github.apetrelli.scafa.proto.util.AsciiString;
 
 public class WebCompositeHttpHandlerFactoryBuilder {
 	
@@ -35,9 +36,9 @@ public class WebCompositeHttpHandlerFactoryBuilder {
 		
 		private String indexResource = "index.html";
 
-		private Map<String, String> mimeTypeConfig;
+		private Map<String, AsciiString> mimeTypeConfig;
 		
-		private StaticHttpServerHandlerFactoryBuilder(Map<String, String> mimeTypeConfig) {
+		private StaticHttpServerHandlerFactoryBuilder(Map<String, AsciiString> mimeTypeConfig) {
 			this.mimeTypeConfig = mimeTypeConfig;
 		}
 
@@ -58,7 +59,7 @@ public class WebCompositeHttpHandlerFactoryBuilder {
 			return this;
 		}
 		
-		public StaticHttpServerHandlerFactoryBuilder withMimeTypeConfig(Map<String, String> mimeTypeConfig) {
+		public StaticHttpServerHandlerFactoryBuilder withMimeTypeConfig(Map<String, AsciiString> mimeTypeConfig) {
 			this.mimeTypeConfig = mimeTypeConfig;
 			return this;
 		}
@@ -113,7 +114,7 @@ public class WebCompositeHttpHandlerFactoryBuilder {
     
     private RunnableStarter runnableStarter;
 
-	private Map<String, String> mimeTypeConfig;
+	private Map<String, AsciiString> mimeTypeConfig;
 	
 	public CompositeHttpHandlerFactory build() {
 		return innerBuilder.build();
@@ -139,7 +140,7 @@ public class WebCompositeHttpHandlerFactoryBuilder {
 		return this;
 	}
 	
-	public WebCompositeHttpHandlerFactoryBuilder withMimeTypeConfig(Map<String, String> mimeTypeConfig) {
+	public WebCompositeHttpHandlerFactoryBuilder withMimeTypeConfig(Map<String, AsciiString> mimeTypeConfig) {
 		this.mimeTypeConfig = mimeTypeConfig;
 		return this;
 	}

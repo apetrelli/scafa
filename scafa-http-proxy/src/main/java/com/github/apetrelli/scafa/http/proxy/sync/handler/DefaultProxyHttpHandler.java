@@ -17,6 +17,8 @@
  */
 package com.github.apetrelli.scafa.http.proxy.sync.handler;
 
+import static com.github.apetrelli.scafa.http.HttpHeaders.CONNECT;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
@@ -49,7 +51,7 @@ public class DefaultProxyHttpHandler extends HttpHandlerSupport implements Proxy
 
     @Override
     public void onRequestHeader(HttpRequest request) {
-        if ("CONNECT".equalsIgnoreCase(request.getMethod())) {
+        if (CONNECT.equals(request.getMethod())) {
             HttpConnectRequest connectRequest;
             try {
                 connectRequest = new HttpConnectRequest(request);

@@ -37,6 +37,7 @@ import com.github.apetrelli.scafa.proto.processor.impl.DefaultProcessorFactory;
 import com.github.apetrelli.scafa.proto.processor.impl.PassthroughInputProcessorFactory;
 import com.github.apetrelli.scafa.proto.processor.impl.SimpleInputFactory;
 import com.github.apetrelli.scafa.proto.processor.impl.StatefulInputProcessorFactory;
+import com.github.apetrelli.scafa.proto.util.AsciiString;
 import com.github.apetrelli.scafa.web.config.Configuration;
 import com.github.apetrelli.scafa.web.config.PathConfiguration;
 import com.github.apetrelli.scafa.web.config.SocketConfiguration;
@@ -81,7 +82,7 @@ public class ScafaWebServerLauncher extends AbstractScafaWebServerLauncher {
 		});
 	}
 
-	private ScafaListener<HttpHandler, HttpAsyncSocket<HttpResponse>> createListener(Map<String, String> mimeTypeConfig,
+	private ScafaListener<HttpHandler, HttpAsyncSocket<HttpResponse>> createListener(Map<String, AsciiString> mimeTypeConfig,
 			SocketConfiguration socketConfig, DataSenderFactory dataSenderFactory,
 			SocketFactory<HttpAsyncSocket<HttpRequest>> socketFactory,
 			DefaultProcessorFactory<HttpProcessingContext, HttpHandler> defaultProcessorFactory,

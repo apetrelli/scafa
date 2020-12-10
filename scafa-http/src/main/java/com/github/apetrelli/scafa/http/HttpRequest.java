@@ -17,18 +17,19 @@
  */
 package com.github.apetrelli.scafa.http;
 
+import static com.github.apetrelli.scafa.http.HttpHeaders.HOST;
+
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.proto.client.HostPort;
+import com.github.apetrelli.scafa.proto.util.AsciiString;
 
 public class HttpRequest extends HeaderHolder {
 
@@ -36,11 +37,11 @@ public class HttpRequest extends HeaderHolder {
 
     private static final Map<String, Integer> protocol2port = new HashMap<>();
 
-    private String method;
+    private AsciiString method;
 
-    private String resource;
+    private AsciiString resource;
 
-    private String httpVersion;
+    private AsciiString httpVersion;
 
     static {
         protocol2port.put("http", 80);
@@ -48,7 +49,7 @@ public class HttpRequest extends HeaderHolder {
         protocol2port.put("ftp", 80); // This works only with a proxy.
     }
 
-    public HttpRequest(String method, String resource, String httpVersion) {
+    public HttpRequest(AsciiString method, AsciiString resource, AsciiString httpVersion) {
         this.method = method;
         this.resource = resource;
         this.httpVersion = httpVersion;
@@ -62,11 +63,11 @@ public class HttpRequest extends HeaderHolder {
         copyBase(toCopy);
     }
 
-    public String getMethod() {
+    public AsciiString getMethod() {
         return method;
     }
 
-    public void setMethod(String method) {
+    public void setMethod(AsciiString method) {
         if (this.method != null) {
             byteSize -= this.method.length();
         }
@@ -74,11 +75,11 @@ public class HttpRequest extends HeaderHolder {
         byteSize += this.method.length();
     }
 
-    public String getResource() {
+    public AsciiString getResource() {
         return resource;
     }
 
-    public void setResource(String resource) {
+    public void setResource(AsciiString resource) {
         if (this.resource != null) {
             byteSize -= this.resource.length();
         }
@@ -86,11 +87,11 @@ public class HttpRequest extends HeaderHolder {
         byteSize += this.resource.length();
     }
 
-    public String getHttpVersion() {
+    public AsciiString getHttpVersion() {
         return httpVersion;
     }
 
-    public void setHttpVersion(String httpVersion) {
+    public void setHttpVersion(AsciiString httpVersion) {
         if (this.httpVersion != null) {
             byteSize -= this.httpVersion.length();
         }
@@ -100,10 +101,10 @@ public class HttpRequest extends HeaderHolder {
 
     public HostPort getHostPort() throws IOException {
         HostPort retValue;
-        String hostString = getHeader("HOST");
-        String url = getResource();
+        AsciiString hostString = getHeader(HOST);
+        String url = getResource().toString();
         if (hostString != null) {
-            String[] hostStringSplit = hostString.split(":");
+            String[] hostStringSplit = hostString.toString().split(":");
             Integer port = null;
             if (hostStringSplit.length == 1) {
             	if (url.startsWith("http") || url.startsWith("ftp")) {
@@ -143,17 +144,9 @@ public class HttpRequest extends HeaderHolder {
     }
 
     @Override
-    public ByteBuffer toHeapByteBuffer() {
-        ByteBuffer buffer = ByteBuffer.allocate(byteSize);
-        fill(buffer);
-        return buffer;
-    }
-
-    @Override
 	public void fill(ByteBuffer buffer) {
-		Charset charset = StandardCharsets.US_ASCII;
-        buffer.put(method.getBytes(charset)).put(SPACE).put(resource.getBytes(charset)).put(SPACE)
-                .put(httpVersion.getBytes(charset)).put(CR).put(LF);
+        buffer.put(method.getArray()).put(SPACE).put(resource.getArray()).put(SPACE)
+                .put(httpVersion.getArray()).put(CR).put(LF);
         loadInBuffer(buffer);
 	}
 

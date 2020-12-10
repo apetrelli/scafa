@@ -1,5 +1,7 @@
 package com.github.apetrelli.scafa.http.gateway.sync.direct;
 
+import static com.github.apetrelli.scafa.http.HttpHeaders.HOST;
+
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.gateway.sync.MappedGatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.gateway.sync.connection.AbstractGatewayHttpConnection;
@@ -9,6 +11,7 @@ import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
 import com.github.apetrelli.scafa.proto.sync.RunnableStarter;
 import com.github.apetrelli.scafa.proto.sync.SyncSocket;
 import com.github.apetrelli.scafa.proto.sync.processor.DataHandler;
+import com.github.apetrelli.scafa.proto.util.AsciiString;
 
 public class DirectGatewayHttpConnection extends AbstractGatewayHttpConnection<SyncSocket> {
 
@@ -22,7 +25,7 @@ public class DirectGatewayHttpConnection extends AbstractGatewayHttpConnection<S
 	protected HttpRequest createForwardedRequest(HttpRequest request) {
 		HttpRequest realRequest = new HttpRequest(request);
 		int port = destinationSocketAddress.getPort();
-		realRequest.setHeader("Host", destinationSocketAddress.getHost() + (port == 80 ? "" : ":" + port));
+		realRequest.setHeader(HOST, new AsciiString(destinationSocketAddress.getHost() + (port == 80 ? "" : ":" + port)));
 		return realRequest;
 	}
 }

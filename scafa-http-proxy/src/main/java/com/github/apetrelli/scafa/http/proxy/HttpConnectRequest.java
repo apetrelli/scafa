@@ -29,7 +29,7 @@ public class HttpConnectRequest extends HttpRequest {
 
     public HttpConnectRequest(HttpRequest toCopy) throws IOException {
         super(toCopy);
-        String url = toCopy.getResource();
+        String url = toCopy.getResource().toString();
         String[] strings = url.split(":");
         if (strings.length != 2) {
             throw new IOException("Invalid host:port " + url);

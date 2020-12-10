@@ -30,7 +30,8 @@ public class DirectHttpSyncSocket<H extends HeaderHolder> extends SyncSocketWrap
 	@Override
 	public void sendHeader(H holder) {
 		dataSender = dataSenderFactory.create(holder, socket);
-		ByteBuffer buffer = holder.toHeapByteBuffer();
+		ByteBuffer buffer = holder.allocateOptimalBuffer();
+		holder.fill(buffer);
 		if (LOG.isLoggable(Level.FINEST)) {
 			String request = new String(buffer.array(), 0, buffer.limit());
 			LOG.finest("-- Raw request/response header");

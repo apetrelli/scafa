@@ -28,7 +28,7 @@ public interface AsyncSocket {
 	
 	default CompletableFuture<Void> flipAndFlushBuffer(ByteBuffer buffer) {
 	    buffer.flip();
-	    return flushBuffer(buffer);
+	    return flushBuffer(buffer).thenRun(buffer::clear);
 	}
 
 	boolean isOpen();

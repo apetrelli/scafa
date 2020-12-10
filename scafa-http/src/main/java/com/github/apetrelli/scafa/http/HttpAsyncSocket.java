@@ -7,7 +7,7 @@ import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 
 public interface HttpAsyncSocket<H extends HeaderHolder> extends AsyncSocket {
 
-	CompletableFuture<Void> sendHeader(H holder);
+	CompletableFuture<Void> sendHeader(H holder, ByteBuffer buffer);
 	
 	CompletableFuture<Void> sendData(ByteBuffer buffer);
 

@@ -1,5 +1,7 @@
 package com.github.apetrelli.scafa.http.proxy.sync.connection;
 
+import static com.github.apetrelli.scafa.http.HttpHeaders.PROXY_AUTHORIZATION;
+
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
@@ -13,10 +15,11 @@ import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
 import com.github.apetrelli.scafa.proto.sync.RunnableStarter;
 import com.github.apetrelli.scafa.proto.sync.SyncSocket;
 import com.github.apetrelli.scafa.proto.sync.processor.DataHandler;
+import com.github.apetrelli.scafa.proto.util.AsciiString;
 
 public class BasicAuthProxyHttpConnection extends AbstractUpstreamProxyHttpConnection {
 
-	private String authString;
+	private AsciiString authString;
 
 	public BasicAuthProxyHttpConnection(MappedGatewayHttpConnectionFactory<?> factory,
 			ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory,
@@ -25,18 +28,18 @@ public class BasicAuthProxyHttpConnection extends AbstractUpstreamProxyHttpConne
 			String username, String password) {
 		super(factory, clientProcessorFactory, runnableStarter, sourceChannel, socket, destinationSocketAddress, manipulator);
 		String auth = username + ":" + password;
-		authString = "Basic " + Base64.getEncoder().encodeToString(auth.getBytes(StandardCharsets.ISO_8859_1));
+		authString = new AsciiString("Basic " + Base64.getEncoder().encodeToString(auth.getBytes(StandardCharsets.ISO_8859_1)));
 	}
 
 	@Override
 	protected void doConnect(HttpConnectRequest request) {
-		request.addHeader("Proxy-Authorization", authString);
+		request.addHeader(PROXY_AUTHORIZATION, authString);
 		super.doConnect(request);
 	}
 
 	@Override
 	protected void doSendHeader(HttpRequest request) {
-		request.addHeader("Proxy-Authorization", authString);
+		request.addHeader(PROXY_AUTHORIZATION, authString);
 		super.doSendHeader(request);
 	}
 }

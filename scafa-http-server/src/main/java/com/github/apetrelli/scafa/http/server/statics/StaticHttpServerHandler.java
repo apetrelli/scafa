@@ -1,53 +1,77 @@
 package com.github.apetrelli.scafa.http.server.statics;
 
-import java.nio.ByteBuffer;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
+import static com.github.apetrelli.scafa.http.HttpCodes.BAD_REQUEST;
+import static com.github.apetrelli.scafa.http.HttpCodes.METHOD_NOT_ALLOWED;
+import static com.github.apetrelli.scafa.http.HttpCodes.NOT_FOUND;
+import static com.github.apetrelli.scafa.http.HttpHeaders.CLOSE_CONNECTION;
+import static com.github.apetrelli.scafa.http.HttpHeaders.CONNECTION;
+import static com.github.apetrelli.scafa.http.HttpHeaders.CONTENT_LENGTH;
+import static com.github.apetrelli.scafa.http.HttpHeaders.CONTENT_LENGTH_0;
+import static com.github.apetrelli.scafa.http.HttpHeaders.CONTENT_TYPE;
+import static com.github.apetrelli.scafa.http.HttpHeaders.DATE;
+import static com.github.apetrelli.scafa.http.HttpHeaders.FOUND;
+import static com.github.apetrelli.scafa.http.HttpHeaders.GET;
+import static com.github.apetrelli.scafa.http.HttpHeaders.HTTP_1_1;
+import static com.github.apetrelli.scafa.http.HttpHeaders.KEEP_ALIVE;
+import static com.github.apetrelli.scafa.http.HttpHeaders.LOCATION;
+import static com.github.apetrelli.scafa.http.HttpHeaders.OK;
+import static com.github.apetrelli.scafa.http.HttpHeaders.SCAFA;
+import static com.github.apetrelli.scafa.http.HttpHeaders.SERVER;
+
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import com.github.apetrelli.scafa.http.HttpAsyncSocket;
+import com.github.apetrelli.scafa.http.HttpCodes;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.HttpUtils;
 import com.github.apetrelli.scafa.http.server.HttpServer;
 import com.github.apetrelli.scafa.http.server.impl.HttpServerHandlerSupport;
+import com.github.apetrelli.scafa.proto.util.AsciiString;
 
 public class StaticHttpServerHandler extends HttpServerHandlerSupport {
 
-	private String basePath;
+	private static final AsciiString NO_PATH_TRAVERSAL = new AsciiString("No path traversal");
 
-	private String baseFilesystemPath;
+	private static final AsciiString ONLY_GET_ALLOWED = new AsciiString("Only GET allowed");
+
+	private String basePath;
+	
+	private AsciiString basePathAscii;
+	
+	private AsciiString basePathSlash;
 
 	private String indexResource;
 
-	private Map<String, String> mimeTypeConfig;
+	private Map<String, AsciiString> mimeTypeConfig;
 
 	private HttpServer server;
 	
-	private ByteBuffer writeBuffer;
+	private Map<String, Path> localResource2path;
 
-	public StaticHttpServerHandler(HttpAsyncSocket<HttpResponse> channel, String basePath, String baseFilesystemPath,
-			String indexResource, Map<String, String> mimeTypeConfig, HttpServer server) {
+	public StaticHttpServerHandler(HttpAsyncSocket<HttpResponse> channel, String basePath, Map<String, Path> localResource2path,
+			String indexResource, Map<String, AsciiString> mimeTypeConfig, HttpServer server) {
 		super(channel);
 		this.basePath = basePath;
-		this.baseFilesystemPath = baseFilesystemPath;
+		basePathAscii = new AsciiString(basePath);
+		basePathSlash = new AsciiString(basePath + "/"); // NOSONAR
+		this.localResource2path = localResource2path;
 		this.indexResource = indexResource;
 		this.mimeTypeConfig = mimeTypeConfig;
 		this.server = server;
-		writeBuffer = ByteBuffer.allocate(16384);
 	}
 	
 	@Override
 	public CompletableFuture<Void> onRequestEnd(HttpRequest request) {
-		if ("GET".equals(request.getMethod())) {
-			if (request.getResource().startsWith(basePath)) {
+		if (GET.equals(request.getMethod())) {
+			if (request.getResource().startsWith(basePathAscii)) {
 				String localResource = request.getParsedResource().getResource().substring(basePath.length());
 				if (localResource.isEmpty() && !basePath.equals("/")) {
-					HttpResponse response = createSimpleResponse(302, "Found");
-					response.setHeader("Location", basePath + "/");
-					return server.response(channel, response);
+					HttpResponse response = createSimpleResponse(HttpCodes.FOUND, FOUND);
+					response.setHeader(LOCATION, basePathSlash);
+					return server.response(channel, response, writeBuffer);
 				} else {
 					while (localResource.startsWith("/")) {
 						localResource = localResource.substring(1);
@@ -56,48 +80,52 @@ public class StaticHttpServerHandler extends HttpServerHandlerSupport {
 						localResource = indexResource;
 					}
 					if (!localResource.contains("..")) {
-						Path path = FileSystems.getDefault().getPath(baseFilesystemPath, localResource);
-						if (Files.exists(path)) {
-							HttpResponse response = new HttpResponse("HTTP/1.1", 200, "Found");
-							response.setHeader("Server", "Scafa");
-							response.setHeader("Date", HttpUtils.getCurrentHttpDate());
-							String connection = request.getHeader("Connection");
-							if (!"close".equals(connection)) {
-								connection = "keep-alive";
+						Path path = localResource2path.get(localResource);
+						if (path != null) {
+							HttpResponse response = new HttpResponse(HTTP_1_1, HttpCodes.OK, OK);
+							response.setHeader(SERVER, SCAFA);
+							response.setHeader(DATE, HttpUtils.getCurrentHttpDate());
+							AsciiString connection = request.getHeader(CONNECTION);
+							if (!CLOSE_CONNECTION.equals(connection)) {
+								connection = KEEP_ALIVE;
 							}
-							response.setHeader("Connection", connection);
+							response.setHeader(CONNECTION, connection);
 							int dotPosition = localResource.lastIndexOf('.');
 							if (dotPosition >= 0) {
-								String contentType = mimeTypeConfig.get(localResource.substring(dotPosition + 1).toLowerCase());
+								AsciiString contentType = mimeTypeConfig.get(localResource.substring(dotPosition + 1).toLowerCase());
 								if (contentType != null) {
-									response.setHeader("Content-Type", contentType);
+									response.setHeader(CONTENT_TYPE, contentType);
 								}
 							}
 							return server.response(channel, response, path, writeBuffer);
 						} else {
-							return sendSimpleMessage(404, "The resource " + localResource + " does not exist");
+							return sendSimpleMessage(NOT_FOUND, "The resource " + localResource + " does not exist");
 						}
 					} else {
-						return sendSimpleMessage(400, "No path traversal");
+						return sendSimpleMessage(BAD_REQUEST, NO_PATH_TRAVERSAL);
 					}
 				}
 			} else {
-				return sendSimpleMessage(404, "Resource " + request.getResource() +  " not found");
+				return sendSimpleMessage(NOT_FOUND, "Resource " + request.getResource() +  " not found");
 			}
 		} else {
-			return sendSimpleMessage(405, "Only GET allowed");
+			return sendSimpleMessage(METHOD_NOT_ALLOWED, ONLY_GET_ALLOWED);
 		}
 	}
 
-	private CompletableFuture<Void> sendSimpleMessage(int httpCode, String message) {
-		HttpResponse response = createSimpleResponse(httpCode, message);
-		return server.response(channel, response);
+	private CompletableFuture<Void> sendSimpleMessage(AsciiString httpCode, String message) {
+		return sendSimpleMessage(httpCode, new AsciiString(message));
 	}
 
-	private HttpResponse createSimpleResponse(int httpCode, String message) {
-		HttpResponse response = new HttpResponse("HTTP/1.1", httpCode, message);
-		response.setHeader("Server", "Scafa");
-		response.setHeader("Content-Length", "0");
+	private CompletableFuture<Void> sendSimpleMessage(AsciiString httpCode, AsciiString message) {
+		HttpResponse response = createSimpleResponse(httpCode, message);
+		return server.response(channel, response, writeBuffer);
+	}
+
+	private HttpResponse createSimpleResponse(AsciiString httpCode, AsciiString message) {
+		HttpResponse response = new HttpResponse(HTTP_1_1, httpCode, message);
+		response.setHeader(SERVER, SCAFA);
+		response.setHeader(CONTENT_LENGTH, CONTENT_LENGTH_0);
 		return response;
 	}
 }
