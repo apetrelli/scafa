@@ -1,5 +1,8 @@
 package com.github.apetrelli.scafa.http.server.statics;
 
+import static com.github.apetrelli.scafa.http.HttpCodes.BAD_REQUEST;
+import static com.github.apetrelli.scafa.http.HttpCodes.METHOD_NOT_ALLOWED;
+import static com.github.apetrelli.scafa.http.HttpCodes.NOT_FOUND;
 import static com.github.apetrelli.scafa.http.HttpHeaders.CLOSE_CONNECTION;
 import static com.github.apetrelli.scafa.http.HttpHeaders.CONNECTION;
 import static com.github.apetrelli.scafa.http.HttpHeaders.CONTENT_LENGTH;
@@ -11,6 +14,7 @@ import static com.github.apetrelli.scafa.http.HttpHeaders.GET;
 import static com.github.apetrelli.scafa.http.HttpHeaders.HTTP_1_1;
 import static com.github.apetrelli.scafa.http.HttpHeaders.KEEP_ALIVE;
 import static com.github.apetrelli.scafa.http.HttpHeaders.LOCATION;
+import static com.github.apetrelli.scafa.http.HttpHeaders.OK;
 import static com.github.apetrelli.scafa.http.HttpHeaders.SCAFA;
 import static com.github.apetrelli.scafa.http.HttpHeaders.SERVER;
 
@@ -19,6 +23,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import com.github.apetrelli.scafa.http.HttpAsyncSocket;
+import com.github.apetrelli.scafa.http.HttpCodes;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.HttpUtils;
@@ -64,7 +69,7 @@ public class StaticHttpServerHandler extends HttpServerHandlerSupport {
 			if (request.getResource().startsWith(basePathAscii)) {
 				String localResource = request.getParsedResource().getResource().substring(basePath.length());
 				if (localResource.isEmpty() && !basePath.equals("/")) {
-					HttpResponse response = createSimpleResponse(302, FOUND);
+					HttpResponse response = createSimpleResponse(HttpCodes.FOUND, FOUND);
 					response.setHeader(LOCATION, basePathSlash);
 					return server.response(channel, response, writeBuffer);
 				} else {
@@ -77,7 +82,7 @@ public class StaticHttpServerHandler extends HttpServerHandlerSupport {
 					if (!localResource.contains("..")) {
 						Path path = localResource2path.get(localResource);
 						if (path != null) {
-							HttpResponse response = new HttpResponse(HTTP_1_1, 200, FOUND);
+							HttpResponse response = new HttpResponse(HTTP_1_1, HttpCodes.OK, OK);
 							response.setHeader(SERVER, SCAFA);
 							response.setHeader(DATE, HttpUtils.getCurrentHttpDate());
 							AsciiString connection = request.getHeader(CONNECTION);
@@ -94,30 +99,30 @@ public class StaticHttpServerHandler extends HttpServerHandlerSupport {
 							}
 							return server.response(channel, response, path, writeBuffer);
 						} else {
-							return sendSimpleMessage(404, "The resource " + localResource + " does not exist");
+							return sendSimpleMessage(NOT_FOUND, "The resource " + localResource + " does not exist");
 						}
 					} else {
-						return sendSimpleMessage(400, NO_PATH_TRAVERSAL);
+						return sendSimpleMessage(BAD_REQUEST, NO_PATH_TRAVERSAL);
 					}
 				}
 			} else {
-				return sendSimpleMessage(404, "Resource " + request.getResource() +  " not found");
+				return sendSimpleMessage(NOT_FOUND, "Resource " + request.getResource() +  " not found");
 			}
 		} else {
-			return sendSimpleMessage(405, ONLY_GET_ALLOWED);
+			return sendSimpleMessage(METHOD_NOT_ALLOWED, ONLY_GET_ALLOWED);
 		}
 	}
 
-	private CompletableFuture<Void> sendSimpleMessage(int httpCode, String message) {
+	private CompletableFuture<Void> sendSimpleMessage(AsciiString httpCode, String message) {
 		return sendSimpleMessage(httpCode, new AsciiString(message));
 	}
 
-	private CompletableFuture<Void> sendSimpleMessage(int httpCode, AsciiString message) {
+	private CompletableFuture<Void> sendSimpleMessage(AsciiString httpCode, AsciiString message) {
 		HttpResponse response = createSimpleResponse(httpCode, message);
 		return server.response(channel, response, writeBuffer);
 	}
 
-	private HttpResponse createSimpleResponse(int httpCode, AsciiString message) {
+	private HttpResponse createSimpleResponse(AsciiString httpCode, AsciiString message) {
 		HttpResponse response = new HttpResponse(HTTP_1_1, httpCode, message);
 		response.setHeader(SERVER, SCAFA);
 		response.setHeader(CONTENT_LENGTH, CONTENT_LENGTH_0);

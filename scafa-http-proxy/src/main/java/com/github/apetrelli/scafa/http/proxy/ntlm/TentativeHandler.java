@@ -17,6 +17,8 @@
  */
 package com.github.apetrelli.scafa.http.proxy.ntlm;
 
+import static com.github.apetrelli.scafa.http.HttpCodes.PROXY_AUTHENTICATION_REQUIRED;
+
 import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
 
@@ -61,7 +63,7 @@ public class TentativeHandler extends CapturingHandler {
     @Override
     public CompletableFuture<Void> onResponseHeader(HttpResponse response) {
         this.response = response;
-        if (onlyCaptureMode || response.getCode() == 407) {
+        if (onlyCaptureMode || PROXY_AUTHENTICATION_REQUIRED.equals(response.getCode())) {
             needsAuthorizing = true;
             return CompletionHandlerFuture.completeEmpty();
         } else {

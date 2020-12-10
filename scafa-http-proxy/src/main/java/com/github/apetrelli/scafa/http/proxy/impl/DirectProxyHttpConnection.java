@@ -27,6 +27,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.http.HttpAsyncSocket;
+import com.github.apetrelli.scafa.http.HttpCodes;
 import com.github.apetrelli.scafa.http.HttpException;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
@@ -53,7 +54,7 @@ public class DirectProxyHttpConnection extends AbstractGatewayHttpConnection<Htt
     public CompletableFuture<Void> connect(HttpConnectRequest request, ByteBuffer writeBuffer) {
         // Already connected, need only to send a 200.
         AsciiString httpVersion = request.getHttpVersion();
-        HttpResponse response = new HttpResponse(httpVersion, 200, OK);
+        HttpResponse response = new HttpResponse(httpVersion, HttpCodes.OK, OK);
         return sourceChannel.sendHeader(response, writeBuffer).thenCompose(x -> sourceChannel.endData());
     }
 

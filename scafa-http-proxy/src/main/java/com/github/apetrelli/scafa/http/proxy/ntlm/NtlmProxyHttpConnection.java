@@ -149,8 +149,8 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
         			CompletableFuture<Void> retValue = null;
         			if (result >= 0) {
         				try {
-        					switch (handler.getResponse().getCode()) {
-        					case 407:
+        					switch (handler.getResponse().getCode().toString()) {
+        					case "407":
         						AsciiString authenticate = handler.getResponse().getHeader(PROXY_AUTHENTICATE);
         						if (authenticate != null) {
         							String authenticateString = authenticate.toString();
@@ -172,7 +172,7 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
         							retValue = CompletionHandlerFuture.completeEmpty();
         						}
         						break;
-                            case 200:
+                            case "200":
                                 authenticated = true;
                                 prepareChannel();
                                 retValue = CompletionHandlerFuture.completeEmpty();

@@ -18,19 +18,17 @@
 package com.github.apetrelli.scafa.http;
 
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 
 import com.github.apetrelli.scafa.proto.util.AsciiString;
 
 public class HttpResponse extends HeaderHolder {
     private AsciiString httpVersion;
 
-    private int code;
+    private AsciiString code;
 
     private AsciiString message;
 
-    public HttpResponse(AsciiString httpVersion, int code, AsciiString message) {
+    public HttpResponse(AsciiString httpVersion, AsciiString code, AsciiString message) {
         this.httpVersion = httpVersion;
         this.code = code;
         this.message = message;
@@ -56,11 +54,11 @@ public class HttpResponse extends HeaderHolder {
         byteSize += this.httpVersion.length();
     }
 
-    public int getCode() {
+    public AsciiString getCode() {
         return code;
     }
 
-    public void setCode(int code) {
+    public void setCode(AsciiString code) {
         this.code = code;
     }
 
@@ -78,8 +76,7 @@ public class HttpResponse extends HeaderHolder {
 
     @Override
 	public void fill(ByteBuffer buffer) {
-		Charset charset = StandardCharsets.US_ASCII;
-        buffer.put(httpVersion.getArray()).put(SPACE).put(Integer.toString(code).getBytes(charset));
+        buffer.put(httpVersion.getArray()).put(SPACE).put(code.getArray());
         if (message != null) {
         	buffer.put(SPACE).put(message.getArray());
         }

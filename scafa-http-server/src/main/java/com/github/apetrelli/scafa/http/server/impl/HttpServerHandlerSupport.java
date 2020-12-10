@@ -1,5 +1,6 @@
 package com.github.apetrelli.scafa.http.server.impl;
 
+import static com.github.apetrelli.scafa.http.HttpCodes.INTERNAL_SERVER_ERROR;
 import static com.github.apetrelli.scafa.http.HttpHeaders.CONTENT_LENGTH;
 import static com.github.apetrelli.scafa.http.HttpHeaders.CONTENT_TYPE;
 import static com.github.apetrelli.scafa.http.HttpHeaders.HTTP_1_1;
@@ -53,7 +54,7 @@ public class HttpServerHandlerSupport implements HttpServerHandler {
 
 	@Override
 	public void onRequestError(HttpRequest request, Throwable exc) {
-		HttpResponse response = new HttpResponse(HTTP_1_1, 500, UNEXPECTED_EXCEPTION);
+		HttpResponse response = new HttpResponse(HTTP_1_1, INTERNAL_SERVER_ERROR, UNEXPECTED_EXCEPTION);
 		response.setHeader(SERVER, SCAFA);
 		response.setHeader(CONTENT_TYPE, TEXT_PLAIN);
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();

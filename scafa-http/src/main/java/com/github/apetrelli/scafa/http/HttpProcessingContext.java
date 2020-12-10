@@ -55,7 +55,7 @@ public class HttpProcessingContext extends ProcessingContext<HttpStatus> {
     
     private AsciiString httpVersion;
     
-    private Integer code;
+    private AsciiString code;
     
     private AsciiString message;
     
@@ -160,12 +160,7 @@ public class HttpProcessingContext extends ProcessingContext<HttpStatus> {
         	resource = string;
         	break;
     	case RESPONSE:
-            try {
-                code = Integer.decode(string.toString());
-            } catch (NumberFormatException e) {
-                code = 500;
-                LOG.log(Level.SEVERE, e, () -> "The response code is not a number: " + string);
-            }
+            code = string;
         	break;
     	default:
     		throw new IllegalStateException("Not a request nor a response");
