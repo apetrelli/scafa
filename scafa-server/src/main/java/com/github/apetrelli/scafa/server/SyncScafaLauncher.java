@@ -39,7 +39,7 @@ import com.github.apetrelli.scafa.proto.processor.impl.SimpleInputFactory;
 import com.github.apetrelli.scafa.proto.sync.ScafaListener;
 import com.github.apetrelli.scafa.proto.sync.SyncServerSocketFactory;
 import com.github.apetrelli.scafa.proto.sync.SyncSocket;
-import com.github.apetrelli.scafa.proto.sync.VirtualThreadRunnableStarter;
+import com.github.apetrelli.scafa.proto.sync.ThreadRunnableStarter;
 import com.github.apetrelli.scafa.proto.sync.processor.DataHandler;
 import com.github.apetrelli.scafa.proto.sync.processor.impl.DefaultProcessorFactory;
 import com.github.apetrelli.scafa.proto.sync.processor.impl.PassthroughInputProcessorFactory;
@@ -60,7 +60,7 @@ public class SyncScafaLauncher extends AbstractScafaLauncher {
     @Override
     public void launch(String profile) {
     	HttpStateMachine<HttpHandler, Void> stateMachine = new HttpStateMachine<>(new SyncHttpSink());
-        try (VirtualThreadRunnableStarter runnableStarter = new VirtualThreadRunnableStarter();
+        try (ThreadRunnableStarter runnableStarter = new ThreadRunnableStarter();
         		DefaultProcessorFactory<Input, DataHandler> clientProcessorFactory = new DefaultProcessorFactory<>(
                 		new PassthroughInputProcessorFactory(), new SimpleInputFactory());
         		DefaultProcessorFactory<HttpProcessingContext, HttpHandler> defaultProcessorFactory = new DefaultProcessorFactory<>(

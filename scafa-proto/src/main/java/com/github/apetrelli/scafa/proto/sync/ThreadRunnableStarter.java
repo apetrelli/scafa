@@ -7,11 +7,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class VirtualThreadRunnableStarter implements RunnableStarter {
+public class ThreadRunnableStarter implements RunnableStarter {
 
-	private static final Logger LOG = Logger.getLogger(VirtualThreadRunnableStarter.class.getName());
+	private static final Logger LOG = Logger.getLogger(ThreadRunnableStarter.class.getName());
 	
-	private ExecutorService scheduler = Executors.newVirtualThreadExecutor();
+	private ExecutorService scheduler = Executors.newCachedThreadPool();
 
 	@Override
 	public Future<?> start(Runnable runnable) {
