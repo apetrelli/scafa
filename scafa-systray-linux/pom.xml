@@ -31,7 +31,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
-        <version>2.6</version>
         <configuration>
           <archive>
             <manifest>
@@ -69,6 +68,7 @@
                 </goals>
                 <phase>package</phase>
                 <configuration>
+                  <skip>true</skip><!-- Temporary skip until GraalVM work is resumed -->
                   <buildArgs>
                     --verbose
                     --no-server
@@ -93,6 +93,7 @@
           			</goals>
           			<phase>package</phase>
           			<configuration>
+						<skip>true</skip><!-- Temporary skip until GraalVM work is resumed -->
            				<target>
        						<copy file="${project.build.directory}/scafa" toDir="${project.build.directory}/deb/usr/bin" verbose="true" />
        						<copy toDir="${project.build.directory}/deb" verbose="true">
