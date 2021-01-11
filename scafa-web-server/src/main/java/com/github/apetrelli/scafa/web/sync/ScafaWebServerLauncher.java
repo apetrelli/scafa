@@ -3,8 +3,6 @@ package com.github.apetrelli.scafa.web.sync;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletionException;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -35,7 +33,7 @@ import com.github.apetrelli.scafa.proto.sync.RunnableStarter;
 import com.github.apetrelli.scafa.proto.sync.ScafaListener;
 import com.github.apetrelli.scafa.proto.sync.SyncServerSocketFactory;
 import com.github.apetrelli.scafa.proto.sync.SyncSocket;
-import com.github.apetrelli.scafa.proto.sync.ThreadRunnableStarter;
+import com.github.apetrelli.scafa.proto.sync.VirtualThreadRunnableStarter;
 import com.github.apetrelli.scafa.proto.sync.processor.DataHandler;
 import com.github.apetrelli.scafa.proto.sync.processor.impl.DefaultProcessorFactory;
 import com.github.apetrelli.scafa.proto.sync.processor.impl.PassthroughInputProcessorFactory;
@@ -63,7 +61,7 @@ public class ScafaWebServerLauncher extends AbstractScafaWebServerLauncher {
 	@Override
 	protected void launch(Configuration config) {
 		HttpStateMachine<HttpHandler, Void> stateMachine = new HttpStateMachine<>(new SyncHttpSink());
-		try (ThreadRunnableStarter runnableStarter = new ThreadRunnableStarter();
+		try (VirtualThreadRunnableStarter runnableStarter = new VirtualThreadRunnableStarter();
 				DefaultProcessorFactory<HttpProcessingContext, HttpHandler> defaultProcessorFactory = new DefaultProcessorFactory<>(
 						new StatefulInputProcessorFactory<>(stateMachine), new HttpProcessingContextFactory());
 				DefaultProcessorFactory<Input, DataHandler> clientProcessorFactory = new DefaultProcessorFactory<>(
@@ -87,15 +85,7 @@ public class ScafaWebServerLauncher extends AbstractScafaWebServerLauncher {
 					LOG.log(Level.SEVERE, "Cannot start listener", e);
 				}
 			})).collect(Collectors.toList());
-			futures.forEach(t -> {
-				try {
-					t.get();
-				} catch (InterruptedException e) {
-					Thread.currentThread().interrupt();
-				} catch (ExecutionException e) {
-					throw new CompletionException(e);
-				}
-			});
+			futures.forEach(Future::join);
 		}
 	}
 
