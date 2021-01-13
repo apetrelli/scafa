@@ -17,7 +17,7 @@
     <dependency>
       <groupId>org.eclipse.platform</groupId>
       <artifactId>org.eclipse.swt.gtk.linux.x86_64</artifactId>
-      <version>3.113.0</version>
+      <version>3.115.100</version>
       <exclusions>
         <exclusion>
           <groupId>org.eclipse.platform</groupId>
@@ -60,7 +60,7 @@
           <plugin>
             <groupId>org.graalvm.nativeimage</groupId>
             <artifactId>native-image-maven-plugin</artifactId>
-            <version>19.3.0.2</version>
+            <version>20.3.0</version>
             <executions>
               <execution>
                 <goals>
@@ -68,12 +68,10 @@
                 </goals>
                 <phase>package</phase>
                 <configuration>
-                  <skip>true</skip><!-- Temporary skip until GraalVM work is resumed -->
                   <buildArgs>
                     --verbose
                     --no-server
                     -H:EnableURLProtocols=http
-                    -H:+TraceClassInitialization
                     -H:+AllowVMInspection
                     --initialize-at-build-time=org.eclipse.swt.internal.DPIUtil
                   </buildArgs>
@@ -93,7 +91,6 @@
           			</goals>
           			<phase>package</phase>
           			<configuration>
-						<skip>true</skip><!-- Temporary skip until GraalVM work is resumed -->
            				<target>
        						<copy file="${project.build.directory}/scafa" toDir="${project.build.directory}/deb/usr/bin" verbose="true" />
        						<copy toDir="${project.build.directory}/deb" verbose="true">

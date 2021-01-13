@@ -29,7 +29,7 @@
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.swt.gtk.linux.x86_64</artifactId>
-			<version>3.113.0</version>
+			<version>3.115.100</version>
 			<scope>provided</scope>
 			<exclusions>
 				<exclusion>
