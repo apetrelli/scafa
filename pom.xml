@@ -72,6 +72,7 @@
     <module>scafa-http-proxy</module>
     <module>scafa-tls</module>
     <module>scafa-web-server</module>
+    <module>scafa-web-server-linux</module>
   </modules>
   <build>
     <plugins>

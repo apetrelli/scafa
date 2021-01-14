@@ -1,0 +1,22 @@
+[
+{
+  "name":"java.lang.Integer",
+  "methods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
+},
+{
+  "name":"org.ini4j.spi.BeanTool",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.ini4j.spi.EscapeTool",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.ini4j.spi.IniBuilder",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.ini4j.spi.IniParser",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+}
+]
