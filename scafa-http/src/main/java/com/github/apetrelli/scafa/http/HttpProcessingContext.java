@@ -7,6 +7,7 @@ import static com.github.apetrelli.scafa.http.HttpHeaders.TRANSFER_ENCODING;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.function.IntPredicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -22,6 +23,10 @@ public class HttpProcessingContext extends ProcessingContext<HttpStatus> {
 	private static final Logger LOG = Logger.getLogger(HttpProcessingContext.class.getName());
 	
 	private static final AsciiString HTTP_RESPONSE_PREFIX = new AsciiString("HTTP/");
+	
+	private ByteBuffer headerBuffer;
+	
+	private int start = 0;
 	
 	private HttpMessageType messageType;
 
@@ -47,8 +52,6 @@ public class HttpProcessingContext extends ProcessingContext<HttpStatus> {
 
     private HeaderHolder holder;
     
-    private byte[] carry;
-    
     private AsciiString method;
     
     private AsciiString resource;
@@ -65,6 +68,28 @@ public class HttpProcessingContext extends ProcessingContext<HttpStatus> {
 
 	public HttpProcessingContext(HttpStatus status) {
 		super(status);
+	}
+	
+	public void setHeaderBuffer(ByteBuffer headerBuffer) {
+		this.headerBuffer = headerBuffer;
+	}
+	
+	public void markStart(int offset) {
+		start = headerBuffer.arrayOffset() + headerBuffer.position() + offset;
+	}
+	
+	public byte getAndTransferToHeader() {
+		byte currentByte = getBuffer().get();
+		headerBuffer.put(currentByte);
+		return currentByte;
+	}
+	
+	public byte transferToHeaderBuffer(byte currentByte, IntPredicate tester) {
+		while (buffer.hasRemaining() && tester.test(currentByte)) {
+		    currentByte = buffer.get();
+		    headerBuffer.put(currentByte);
+		}
+		return currentByte;
 	}
 
     public HttpBodyMode getBodyMode() {
@@ -136,12 +161,8 @@ public class HttpProcessingContext extends ProcessingContext<HttpStatus> {
         this.httpConnected = httpConnected;
     }
     
-    public void setCarry(byte[] carry) {
-		this.carry = carry;
-	}
-    
-    public void evaluateFirstToken(int from, int to) {
-    	AsciiString string = new AsciiString(reconstructArray(from, to));
+    public void evaluateFirstToken(int endOffset) {
+    	AsciiString string = new AsciiString(headerBuffer.array(), start, headerBuffer.arrayOffset() + headerBuffer.position() + endOffset);
     	byte[] stringArray = string.getArray();
 		if (stringArray.length >= HTTP_RESPONSE_PREFIX.length() && Arrays.equals(stringArray, 0,
 				HTTP_RESPONSE_PREFIX.length(), HTTP_RESPONSE_PREFIX.getArray(), 0, HTTP_RESPONSE_PREFIX.length())) {
@@ -153,8 +174,8 @@ public class HttpProcessingContext extends ProcessingContext<HttpStatus> {
     	}
     }
     
-    public void evaluateSecondToken(int from, int to) {
-    	AsciiString string = new AsciiString(reconstructArray(from, to));
+    public void evaluateSecondToken(int endOffset) {
+    	AsciiString string = new AsciiString(headerBuffer.array(), start, headerBuffer.arrayOffset() + headerBuffer.position() + endOffset);
     	switch (messageType) {
     	case REQUEST:
         	resource = string;
@@ -167,8 +188,8 @@ public class HttpProcessingContext extends ProcessingContext<HttpStatus> {
     	}
     }
     
-    public void evaluateFinalContent(int from, int to) {
-    	AsciiString string = new AsciiString(reconstructArray(from, to));
+    public void evaluateFinalContent(int endOffset) {
+    	AsciiString string = new AsciiString(headerBuffer.array(), start, headerBuffer.arrayOffset() + headerBuffer.position() + endOffset);
     	switch (messageType) {
     	case REQUEST:
         	httpVersion = string;
@@ -196,12 +217,12 @@ public class HttpProcessingContext extends ProcessingContext<HttpStatus> {
     	}
     }
     
-    public void evaluateHeaderName(int from, int to) {
-    	headerName = new HeaderName(reconstructArray(from, to));
+    public void evaluateHeaderName(int endOffset) {
+    	headerName = new HeaderName(headerBuffer.array(), start, headerBuffer.arrayOffset() + headerBuffer.position() + endOffset);
     }
     
-    public void evaluateHeaderValue(int from, int to) {
-    	headerValue = new AsciiString(reconstructArray(from, to));
+    public void evaluateHeaderValue(int endOffset) {
+    	headerValue = new AsciiString(headerBuffer.array(), start, headerBuffer.arrayOffset() + headerBuffer.position() + endOffset);
     }
 
     public void addHeaderLine() {
@@ -230,7 +251,8 @@ public class HttpProcessingContext extends ProcessingContext<HttpStatus> {
     }
 
     public void evaluateChunkLength(int from, int to) {
-    	String chunkCountHex = new String(reconstructArray(from, to), StandardCharsets.US_ASCII);
+		String chunkCountHex = new String(getBuffer().array(), getBuffer().arrayOffset() + from,
+				getBuffer().arrayOffset() + to, StandardCharsets.US_ASCII);
         try {
             long chunkCount = Long.parseLong(chunkCountHex, 16);
             LOG.log(Level.FINEST, "Preparing to read {0} bytes of a chunk", chunkCount);
@@ -240,6 +262,8 @@ public class HttpProcessingContext extends ProcessingContext<HttpStatus> {
         }
     }
     public void reset() {
+    	headerBuffer.clear();
+    	start = 0;
     	messageType = null;
         bodyMode = HttpBodyMode.EMPTY;
         countdown = 0L;
@@ -248,7 +272,6 @@ public class HttpProcessingContext extends ProcessingContext<HttpStatus> {
         totalChunkedTransferLength = 0L;
         chunkOffset = 0L;
         chunkLength = 0L;
-        carry = null;
         request = null;
         response = null;
         holder = null;
@@ -260,22 +283,6 @@ public class HttpProcessingContext extends ProcessingContext<HttpStatus> {
 
     public HttpResponse getResponse() {
 		return response;
-	}
-
-	private byte[] reconstructArray(int from, int to) {
-		byte[] array;
-    	ByteBuffer buffer = getBuffer();
-		int length = to - from;
-		if (carry != null) {
-    		array = new byte[carry.length + length];
-    		System.arraycopy(carry, 0, array, 0, carry.length);
-    		System.arraycopy(buffer.array(), buffer.arrayOffset() + from, array, carry.length, length);
-    		carry = null;
-    	} else {
-    		array = new byte[length];
-    		System.arraycopy(buffer.array(), buffer.arrayOffset() + from, array, 0, length);
-    	}
-		return array;
 	}
 
 }
