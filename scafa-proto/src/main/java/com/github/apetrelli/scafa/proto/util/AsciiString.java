@@ -5,40 +5,56 @@ import java.util.Arrays;
 
 public class AsciiString {
 
-	private byte[] array;
+	protected byte[] array;
+	
+	protected int from;
+	
+	protected int to;
 	
 	public AsciiString(byte[] array) {
-		this.array = array;
+		this(array, 0, array.length);
 	}
 	
 	public AsciiString(byte[] array, int from, int to) {
-		array = Arrays.copyOfRange(array, from, to);
+		this.array = array;
+		this.from = from;
+		this.to = to;
 	}
 	
 	public AsciiString(String string) {
-		array = string.getBytes(StandardCharsets.US_ASCII);
+		this(string.getBytes(StandardCharsets.US_ASCII));
 	}
 	
 	public byte[] getArray() {
 		return array;
 	}
 	
+	public int getFrom() {
+		return from;
+	}
+	
+	public int getTo() {
+		return to;
+	}
+	
 	public int length() {
-		return array.length;
+		return to - from;
 	}
 	
 	public boolean startsWith(AsciiString toCompare) {
-		if (toCompare.array.length <= array.length) {
-			return Arrays.equals(array, 0, toCompare.array.length, toCompare.array, 0, toCompare.array.length);
+		if (toCompare.length() <= length()) {
+			return Arrays.equals(array, from, from + (toCompare.to - toCompare.from), toCompare.array, toCompare.from,
+					toCompare.to);
 		}
 		return false;
 	}
 	
 	@Override
 	public int hashCode() {
-		final int prime = 31;
 		int result = 1;
-		result = prime * result + Arrays.hashCode(array);
+		for (int i = from; i < to; i++) {
+			result = 31 * result + array[i];
+		}
 		return result;
 	}
 
@@ -51,11 +67,11 @@ public class AsciiString {
 		if (getClass() != obj.getClass())
 			return false;
 		AsciiString other = (AsciiString) obj;
-		return Arrays.equals(array, other.array);
+		return Arrays.equals(array, from, to, other.array, other.from, other.to);
 	}
 
 	@Override
 	public String toString() {
-		return new String(array, StandardCharsets.US_ASCII);
+		return new String(array, from, to - from, StandardCharsets.US_ASCII);
 	}
 }

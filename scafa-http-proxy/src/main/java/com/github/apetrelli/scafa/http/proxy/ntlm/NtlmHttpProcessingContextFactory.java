@@ -12,6 +12,8 @@ public class NtlmHttpProcessingContextFactory implements ProcessingContextFactor
 		NtlmHttpProcessingContext context = new NtlmHttpProcessingContext(HttpStatus.IDLE);
         ByteBuffer buffer = ByteBuffer.allocate(16384);
         context.setBuffer(buffer);
+        ByteBuffer headerBuffer = ByteBuffer.allocate(16384);
+        context.setHeaderBuffer(headerBuffer);
 		return context;
 	}
 
