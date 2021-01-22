@@ -17,8 +17,8 @@
  */
 package com.github.apetrelli.scafa.http.gateway.direct;
 
-import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpRequest;
+import com.github.apetrelli.scafa.http.async.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.gateway.GatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.gateway.GatewayHttpConnectionFactoryFactory;
 import com.github.apetrelli.scafa.http.gateway.MappedGatewayHttpConnectionFactory;

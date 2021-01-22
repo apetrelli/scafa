@@ -17,8 +17,8 @@
  */
 package com.github.apetrelli.scafa.http.proxy.impl;
 
-import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpRequest;
+import com.github.apetrelli.scafa.http.async.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.gateway.MappedGatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
 import com.github.apetrelli.scafa.proto.async.processor.DataHandler;

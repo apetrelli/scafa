@@ -22,8 +22,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpRequest;
+import com.github.apetrelli.scafa.http.async.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.gateway.MappedGatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.gateway.direct.ChannelDisconnectorHandler;
 import com.github.apetrelli.scafa.proto.async.client.AbstractClientConnection;

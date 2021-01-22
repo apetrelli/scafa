@@ -14,10 +14,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.async.proto.aio.PathBufferContextReader;
-import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpResponse;
-import com.github.apetrelli.scafa.http.output.DataSender;
-import com.github.apetrelli.scafa.http.output.DataSenderFactory;
+import com.github.apetrelli.scafa.http.async.HttpAsyncSocket;
+import com.github.apetrelli.scafa.http.async.output.DataSender;
+import com.github.apetrelli.scafa.http.async.output.DataSenderFactory;
 import com.github.apetrelli.scafa.http.server.HttpServer;
 import com.github.apetrelli.scafa.proto.async.buffer.BufferContext;
 import com.github.apetrelli.scafa.proto.async.buffer.BufferContextReader;

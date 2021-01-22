@@ -11,9 +11,9 @@ import static com.github.apetrelli.scafa.http.HttpHeaders.SERVER;
 
 import java.util.concurrent.CompletableFuture;
 
-import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
+import com.github.apetrelli.scafa.http.async.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.server.HttpServer;
 import com.github.apetrelli.scafa.http.server.impl.HttpServerHandlerSupport;
 import com.github.apetrelli.scafa.proto.util.AsciiString;

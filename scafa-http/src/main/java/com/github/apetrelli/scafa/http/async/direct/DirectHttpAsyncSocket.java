@@ -1,4 +1,4 @@
-package com.github.apetrelli.scafa.http.impl;
+package com.github.apetrelli.scafa.http.async.direct;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -7,10 +7,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.http.HeaderHolder;
-import com.github.apetrelli.scafa.http.HttpAsyncSocket;
-import com.github.apetrelli.scafa.http.output.DataSender;
-import com.github.apetrelli.scafa.http.output.DataSenderFactory;
-import com.github.apetrelli.scafa.http.output.impl.DirectDataSender;
+import com.github.apetrelli.scafa.http.async.HttpAsyncSocket;
+import com.github.apetrelli.scafa.http.async.output.DataSender;
+import com.github.apetrelli.scafa.http.async.output.DataSenderFactory;
+import com.github.apetrelli.scafa.http.async.output.impl.DirectDataSender;
 import com.github.apetrelli.scafa.proto.async.socket.AsyncSocket;
 import com.github.apetrelli.scafa.proto.async.socket.AsyncSocketWrapper;
 

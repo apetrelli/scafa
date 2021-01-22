@@ -3,8 +3,13 @@ module com.github.apetrelli.scafa.http {
 	requires java.logging;
 	exports com.github.apetrelli.scafa.http;
 	exports com.github.apetrelli.scafa.http.impl;
-	exports com.github.apetrelli.scafa.http.output;
-	exports com.github.apetrelli.scafa.http.output.impl;
+	exports com.github.apetrelli.scafa.http.async;
+	exports com.github.apetrelli.scafa.http.async.composite;
+	exports com.github.apetrelli.scafa.http.async.direct;
+	exports com.github.apetrelli.scafa.http.async.impl;
+	exports com.github.apetrelli.scafa.http.async.output;
+	exports com.github.apetrelli.scafa.http.async.output.impl;
+	exports com.github.apetrelli.scafa.http.async.server;
 	exports com.github.apetrelli.scafa.http.sync;
 	exports com.github.apetrelli.scafa.http.sync.composite;
 	exports com.github.apetrelli.scafa.http.sync.direct;

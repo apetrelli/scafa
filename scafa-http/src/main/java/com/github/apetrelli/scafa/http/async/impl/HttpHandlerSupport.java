@@ -15,14 +15,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.apetrelli.scafa.http.impl;
+package com.github.apetrelli.scafa.http.async.impl;
 
 import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
 
-import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
+import com.github.apetrelli.scafa.http.async.HttpHandler;
 import com.github.apetrelli.scafa.proto.async.util.CompletionHandlerFuture;
 import com.github.apetrelli.scafa.proto.processor.HandlerSupport;
 

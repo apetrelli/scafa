@@ -20,8 +20,8 @@ package com.github.apetrelli.scafa.http.proxy;
 import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
 
-import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpRequest;
+import com.github.apetrelli.scafa.http.async.HttpAsyncSocket;
 
 public interface ProxyHttpConnection extends HttpAsyncSocket<HttpRequest> {
 

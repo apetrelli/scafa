@@ -1,10 +1,10 @@
-package com.github.apetrelli.scafa.http.impl;
+package com.github.apetrelli.scafa.http.async.server;
 
 import java.io.IOException;
 
 import com.github.apetrelli.scafa.http.HeaderHolder;
-import com.github.apetrelli.scafa.http.HttpAsyncSocket;
-import com.github.apetrelli.scafa.http.output.DataSenderFactory;
+import com.github.apetrelli.scafa.http.async.HttpAsyncSocket;
+import com.github.apetrelli.scafa.http.async.output.DataSenderFactory;
 import com.github.apetrelli.scafa.proto.async.socket.AsyncServerSocket;
 import com.github.apetrelli.scafa.proto.async.socket.AsyncServerSocketFactory;
 import com.github.apetrelli.scafa.proto.async.socket.AsyncSocket;

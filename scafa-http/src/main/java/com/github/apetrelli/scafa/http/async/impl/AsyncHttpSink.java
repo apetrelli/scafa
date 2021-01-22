@@ -1,4 +1,4 @@
-package com.github.apetrelli.scafa.http.impl;
+package com.github.apetrelli.scafa.http.async.impl;
 
 import static com.github.apetrelli.scafa.http.HttpHeaders.CONNECT;
 
@@ -7,11 +7,11 @@ import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpProcessingContext;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.HttpSink;
+import com.github.apetrelli.scafa.http.async.HttpHandler;
 import com.github.apetrelli.scafa.proto.async.util.CompletionHandlerFuture;
 
 public class AsyncHttpSink implements HttpSink<HttpHandler, CompletableFuture<Void>> {

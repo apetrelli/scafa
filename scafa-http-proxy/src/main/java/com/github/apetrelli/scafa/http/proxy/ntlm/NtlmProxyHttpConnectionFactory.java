@@ -19,15 +19,15 @@ package com.github.apetrelli.scafa.http.proxy.ntlm;
 
 import java.util.concurrent.CompletableFuture;
 
-import com.github.apetrelli.scafa.http.HttpAsyncSocket;
-import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
+import com.github.apetrelli.scafa.http.async.HttpAsyncSocket;
+import com.github.apetrelli.scafa.http.async.HttpHandler;
+import com.github.apetrelli.scafa.http.async.direct.DirectHttpAsyncSocket;
+import com.github.apetrelli.scafa.http.async.output.DataSenderFactory;
 import com.github.apetrelli.scafa.http.gateway.MappedGatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.gateway.impl.AbstractGatewayHttpConnectionFactory;
-import com.github.apetrelli.scafa.http.impl.DirectHttpAsyncSocket;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
-import com.github.apetrelli.scafa.http.output.DataSenderFactory;
 import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.proto.SocketFactory;

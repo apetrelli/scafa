@@ -1,4 +1,4 @@
-package com.github.apetrelli.scafa.http.output;
+package com.github.apetrelli.scafa.http.async.output;
 
 import com.github.apetrelli.scafa.http.HeaderHolder;
 import com.github.apetrelli.scafa.proto.async.socket.AsyncSocket;

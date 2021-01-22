@@ -2,17 +2,17 @@ package com.github.apetrelli.scafa.web.handler;
 
 import java.util.Map;
 
-import com.github.apetrelli.scafa.http.HttpAsyncSocket;
-import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
+import com.github.apetrelli.scafa.http.async.HttpAsyncSocket;
+import com.github.apetrelli.scafa.http.async.HttpHandler;
+import com.github.apetrelli.scafa.http.async.composite.CompositeHttpHandlerFactory;
+import com.github.apetrelli.scafa.http.async.composite.CompositeHttpHandlerFactory.CompositeHttpHandlerFactoryBuilder;
 import com.github.apetrelli.scafa.http.gateway.GatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.gateway.GatewayHttpConnectionFactoryFactory;
 import com.github.apetrelli.scafa.http.gateway.direct.DefaultGatewayHttpConnectionFactoryFactory;
 import com.github.apetrelli.scafa.http.gateway.direct.DirectGatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.gateway.impl.DefaultGatewayHttpHandlerFactory;
-import com.github.apetrelli.scafa.http.impl.CompositeHttpHandlerFactory;
-import com.github.apetrelli.scafa.http.impl.CompositeHttpHandlerFactory.CompositeHttpHandlerFactoryBuilder;
 import com.github.apetrelli.scafa.http.server.HttpServer;
 import com.github.apetrelli.scafa.http.server.impl.HttpServerHandlerAdapterFactory;
 import com.github.apetrelli.scafa.http.server.statics.StaticHttpServerHandlerFactory;
