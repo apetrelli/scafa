@@ -4,7 +4,7 @@ import java.nio.ByteBuffer;
 
 public class SimpleInput implements Input {
 
-	private ByteBuffer buffer;
+	protected ByteBuffer buffer;
 
 	@Override
 	public ByteBuffer getBuffer() {

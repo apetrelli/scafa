@@ -1,7 +1,6 @@
 package com.github.apetrelli.scafa.http.impl;
 
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 
 import com.github.apetrelli.scafa.http.HttpBodyMode;
 import com.github.apetrelli.scafa.http.HttpException;
@@ -48,8 +47,8 @@ public class HttpStateMachine<H, R> implements ProtocolStateMachine<H, HttpProce
 				onRequestFinalContent(context, SPACE);
 				break;
 			case REQUEST_LINE_CR:
-	            context.getBuffer().get(); // discard CR.
-				context.evaluateFinalContent(0, context.getBuffer().position());
+	            context.getAndTransferToHeader(); // discard CR.
+				context.evaluateFinalContent(0);
 				endRequestLine(context);
 				break;
 			case REQUEST_LINE_LF:
@@ -60,15 +59,15 @@ public class HttpStateMachine<H, R> implements ProtocolStateMachine<H, HttpProce
 	            context.getBuffer().get(); // discard LF.
 				break;
 			case POSSIBLE_HEADER_CR:
-	            context.getBuffer().get(); // discard CR.
+	            context.getAndTransferToHeader(); // discard CR.
 	            context.evaluateBodyMode();
 				break;
 			case SEND_HEADER_AND_END:
-	            context.getBuffer().get(); // discard LF.
+	            context.getAndTransferToHeader(); // discard LF.
 				retValue = sink.endHeaderAndRequest(context, handler);
 				break;
 			case POSSIBLE_HEADER_LF:
-	            context.getBuffer().get(); // discard LF.
+	            context.getAndTransferToHeader(); // discard LF.
 	            retValue = sink.endHeader(context, handler);
 				break;
 			case HEADER_NAME:
@@ -78,8 +77,8 @@ public class HttpStateMachine<H, R> implements ProtocolStateMachine<H, HttpProce
 				onHeaderValue(context, SPACE);
 				break;
 			case HEADER_CR:
-	            context.getBuffer().get(); // discard CR
-				context.evaluateHeaderValue(0, context.getBuffer().position());
+	            context.getAndTransferToHeader(); // discard CR
+				context.evaluateHeaderValue(0);
 	            context.addHeaderLine();
 				break;
 			case BODY:
@@ -264,131 +263,104 @@ public class HttpStateMachine<H, R> implements ProtocolStateMachine<H, HttpProce
 	private void onChunkCount(HttpProcessingContext context) {
 		ByteBuffer buffer = context.getBuffer();
 		int from = buffer.position();
-		byte currentByte = skipContent(buffer, (byte) 0);
+		byte currentByte = skipContentBody(buffer, (byte) 0);
 		if (currentByte == CR) {
 			context.evaluateChunkLength(from, buffer.position() - 1);
-		} else {
-			setCarry(context, from);
 		}
 	}
 
 	private void onHeader(HttpProcessingContext context) {
-		ByteBuffer buffer = context.getBuffer();
-		int from = buffer.position();
+		context.markStart(0);
 		byte currentByte = 0;
-		while (buffer.hasRemaining() && currentByte != COLON && currentByte != CR && currentByte != SPACE) {
-		    currentByte = buffer.get();
-		}
+		currentByte = context.transferToHeaderBuffer(currentByte, x -> x != COLON && x != CR && x != SPACE);
 		if (currentByte == COLON) {
-			context.evaluateHeaderName(from, buffer.position() - 1);
+			context.evaluateHeaderName(-1);
 			context.setStatus(HttpStatus.HEADER_VALUE);
-			if (buffer.hasRemaining()) {
-				currentByte = buffer.get(); // Go to next whitespace, or real header value.
+			if (context.getBuffer().hasRemaining()) {
+				currentByte = context.getAndTransferToHeader(); // Go to next whitespace, or real header value.
 				onHeaderValue(context, currentByte);
 			}
 		} else if (currentByte == CR || currentByte == SPACE) {
 			throw new HttpException("The header line is invalid");
-		} else {
-			setCarry(context, from);
 		}
 	}
 
 	private void onHeaderValue(HttpProcessingContext context, byte currentByte) {
-		ByteBuffer buffer = context.getBuffer();
-		currentByte = skipWhitespace(buffer, currentByte);
+		currentByte = skipWhitespace(context, currentByte);
 		if (currentByte == CR) {
 			throw new HttpException("The header line ended incorrectly after first token");
 		} else if (currentByte != SPACE) {
-			int from = buffer.position() - 1; // The first byte has been already consumed.
-			currentByte = skipContent(buffer, currentByte);
+			context.markStart(-1); // The first byte has been already consumed.
+			currentByte = skipContent(context, currentByte);
 			if (currentByte == CR) {
-				context.evaluateHeaderValue(from, buffer.position() - 1);
+				context.evaluateHeaderValue(-1);
 			    context.addHeaderLine();
-			} else {
-				setCarry(context, from);
 			}
 			
-		} // No carry as it is only whitespace
+		}
 	}
 
 	private void onRequestLine(HttpProcessingContext context) {
-		ByteBuffer buffer = context.getBuffer();
-		int from = buffer.position();
-		byte currentByte = skipToken(buffer, (byte) 0);
+		context.markStart(0);
+		byte currentByte = skipToken(context, (byte) 0);
 		if (currentByte == SPACE) {
-			context.evaluateFirstToken(from, buffer.position() - 1);
+			context.evaluateFirstToken(-1);
 			context.setStatus(HttpStatus.REQUEST_LINE_SECOND_TOKEN);
 			onRequestSecondToken(context, currentByte);
 		} else if (currentByte == CR) {
 			throw new HttpException("The request line ended incorrectly");
-		} else { // No more bytes in buffer
-			setCarry(context, from);
 		}
 	}
 
 	private void onRequestSecondToken(HttpProcessingContext context, byte currentByte) {
-		ByteBuffer buffer = context.getBuffer();
-		currentByte = skipWhitespace(buffer, currentByte);
+		currentByte = skipWhitespace(context, currentByte);
 		if (currentByte == CR) {
 			throw new HttpException("The request line ended incorrectly after first token");
 		} else if (currentByte != SPACE) {
-			int from = buffer.position() - 1; // The first byte has been already consumed.
-			currentByte = skipToken(buffer, currentByte);
+			context.markStart(-1); // The first byte has been already consumed.
+			currentByte = skipToken(context, currentByte);
 			if (currentByte == SPACE) {
-				context.evaluateSecondToken(from, buffer.position() - 1);
+				context.evaluateSecondToken(-1);
 				context.setStatus(HttpStatus.REQUEST_LINE_FINAL_CONTENT);
 				onRequestFinalContent(context, currentByte);
 			} else if (currentByte == CR) {
 				throw new HttpException("The request line ended incorrectly at the second token");
-			} else {
-				setCarry(context, from);
 			}
 			
 		} // No carry as it is only whitespace
 	}
 
 	private void onRequestFinalContent(HttpProcessingContext context, byte currentByte) {
-		ByteBuffer buffer = context.getBuffer();
-		currentByte = skipWhitespace(buffer, currentByte);
+		currentByte = skipWhitespace(context, currentByte);
 		if (currentByte == CR) {
 			throw new HttpException("The request line ended incorrectly after first token");
 		} else if (currentByte != SPACE) {
-			int from = buffer.position() - 1; // The first byte has been already consumed.
-			currentByte = skipContent(buffer, currentByte);
+			context.markStart(-1); // The first byte has been already consumed.
+			currentByte = skipContent(context, currentByte);
 			if (currentByte == CR) {
-				context.evaluateFinalContent(from, buffer.position() - 1);
+				context.evaluateFinalContent(-1);
 				endRequestLine(context);
-			} else {
-				setCarry(context, from);
 			}
 		}
 	}
 
-	private byte skipWhitespace(ByteBuffer buffer, byte currentByte) {
-		while (buffer.hasRemaining() && currentByte == SPACE) {
-		    currentByte = buffer.get();
-		}
-		return currentByte;
+	private byte skipWhitespace(HttpProcessingContext context, byte currentByte) {
+		return context.transferToHeaderBuffer(currentByte, x -> x == SPACE);
 	}
 
-	private byte skipToken(ByteBuffer buffer, byte currentByte) {
-		while (buffer.hasRemaining() && currentByte != CR && currentByte != SPACE) {
-		    currentByte = buffer.get();
-		}
-		return currentByte;
+	private byte skipToken(HttpProcessingContext context, byte currentByte) {
+		return context.transferToHeaderBuffer(currentByte, x -> x != CR && x != SPACE);
 	}
 
-	private byte skipContent(ByteBuffer buffer, byte currentByte) {
+	private byte skipContentBody(ByteBuffer buffer, byte currentByte) {
 		while (buffer.hasRemaining() && currentByte != CR) {
 		    currentByte = buffer.get();
 		}
 		return currentByte;
 	}
 
-	private void setCarry(HttpProcessingContext context, int from) {
-		ByteBuffer buffer = context.getBuffer();
-		int arrayOffset = buffer.arrayOffset();
-		context.setCarry(Arrays.copyOfRange(buffer.array(), arrayOffset + from, arrayOffset + buffer.limit()));
+	private byte skipContent(HttpProcessingContext context, byte currentByte) {
+		return context.transferToHeaderBuffer(currentByte, x -> x != CR);
 	}
 
 	private void endRequestLine(HttpProcessingContext context) {

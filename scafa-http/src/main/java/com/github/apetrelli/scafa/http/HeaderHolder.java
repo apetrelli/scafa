@@ -42,7 +42,8 @@ public abstract class HeaderHolder {
     protected int byteSize;
 
     public void addHeader(HeaderName header, AsciiString value) {
-    	List<AsciiString> values = headers.computeIfAbsent(header, x -> new ArrayList<>());
+    	// Usually there is one header value per header name, so it makes sense.
+    	List<AsciiString> values = headers.computeIfAbsent(header, x -> new ArrayList<>(1));
         values.add(value);
         byteSize += header.length() + 2 + value.length() + 2;
     }

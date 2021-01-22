@@ -13,6 +13,8 @@ public class HttpProcessingContextFactory implements ProcessingContextFactory<Ht
 		HttpProcessingContext context = new HttpProcessingContext(HttpStatus.IDLE);
         ByteBuffer buffer = ByteBuffer.allocate(16384);
         context.setBuffer(buffer);
+        ByteBuffer headerBuffer = ByteBuffer.allocate(16384);
+        context.setHeaderBuffer(headerBuffer);
 		return context;
 	}
 
