@@ -1,4 +1,4 @@
-package com.github.apetrelli.scafa.proto.async;
+package com.github.apetrelli.scafa.proto.async.socket;
 
 import java.io.IOException;
 

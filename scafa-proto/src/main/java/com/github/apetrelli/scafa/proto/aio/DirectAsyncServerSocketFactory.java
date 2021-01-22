@@ -1,13 +1,13 @@
-package com.github.apetrelli.scafa.proto.aio.impl;
+package com.github.apetrelli.scafa.proto.aio;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.channels.AsynchronousServerSocketChannel;
 
-import com.github.apetrelli.scafa.proto.async.AsyncServerSocket;
-import com.github.apetrelli.scafa.proto.async.AsyncServerSocketFactory;
-import com.github.apetrelli.scafa.proto.async.AsyncSocket;
+import com.github.apetrelli.scafa.proto.async.socket.AsyncServerSocket;
+import com.github.apetrelli.scafa.proto.async.socket.AsyncServerSocketFactory;
+import com.github.apetrelli.scafa.proto.async.socket.AsyncSocket;
 import com.github.apetrelli.scafa.proto.util.NetworkUtils;
 
 public class DirectAsyncServerSocketFactory implements AsyncServerSocketFactory<AsyncSocket> {

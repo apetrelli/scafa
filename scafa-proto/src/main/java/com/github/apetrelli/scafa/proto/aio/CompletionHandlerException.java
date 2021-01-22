@@ -1,4 +1,4 @@
-package com.github.apetrelli.scafa.proto.aio.impl;
+package com.github.apetrelli.scafa.proto.aio;
 
 public class CompletionHandlerException extends RuntimeException {
 

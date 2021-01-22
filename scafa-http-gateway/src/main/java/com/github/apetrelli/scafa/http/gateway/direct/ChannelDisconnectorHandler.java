@@ -4,8 +4,8 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
 
 import com.github.apetrelli.scafa.http.gateway.MappedGatewayHttpConnectionFactory;
-import com.github.apetrelli.scafa.proto.async.AsyncSocket;
 import com.github.apetrelli.scafa.proto.async.processor.DataHandler;
+import com.github.apetrelli.scafa.proto.async.socket.AsyncSocket;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.processor.HandlerSupport;
 

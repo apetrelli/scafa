@@ -5,9 +5,9 @@ import java.io.IOException;
 import com.github.apetrelli.scafa.http.HeaderHolder;
 import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.output.DataSenderFactory;
-import com.github.apetrelli.scafa.proto.async.AsyncServerSocket;
-import com.github.apetrelli.scafa.proto.async.AsyncServerSocketFactory;
-import com.github.apetrelli.scafa.proto.async.AsyncSocket;
+import com.github.apetrelli.scafa.proto.async.socket.AsyncServerSocket;
+import com.github.apetrelli.scafa.proto.async.socket.AsyncServerSocketFactory;
+import com.github.apetrelli.scafa.proto.async.socket.AsyncSocket;
 
 public class HttpAsyncServerSocketFactory<H extends HeaderHolder> implements AsyncServerSocketFactory<HttpAsyncSocket<H>> {
 

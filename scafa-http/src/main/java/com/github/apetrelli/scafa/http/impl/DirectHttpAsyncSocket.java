@@ -11,8 +11,8 @@ import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.output.DataSender;
 import com.github.apetrelli.scafa.http.output.DataSenderFactory;
 import com.github.apetrelli.scafa.http.output.impl.DirectDataSender;
-import com.github.apetrelli.scafa.proto.aio.impl.AsyncSocketWrapper;
-import com.github.apetrelli.scafa.proto.async.AsyncSocket;
+import com.github.apetrelli.scafa.proto.async.socket.AsyncSocket;
+import com.github.apetrelli.scafa.proto.async.socket.AsyncSocketWrapper;
 
 public class DirectHttpAsyncSocket<H extends HeaderHolder> extends AsyncSocketWrapper<AsyncSocket> implements HttpAsyncSocket<H> {
 

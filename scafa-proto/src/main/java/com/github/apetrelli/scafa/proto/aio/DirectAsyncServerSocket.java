@@ -1,4 +1,4 @@
-package com.github.apetrelli.scafa.proto.aio.impl;
+package com.github.apetrelli.scafa.proto.aio;
 
 import java.io.IOException;
 import java.nio.channels.AsynchronousServerSocketChannel;
@@ -6,8 +6,8 @@ import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 import java.util.concurrent.CompletableFuture;
 
-import com.github.apetrelli.scafa.proto.async.AsyncServerSocket;
-import com.github.apetrelli.scafa.proto.async.AsyncSocket;
+import com.github.apetrelli.scafa.proto.async.socket.AsyncServerSocket;
+import com.github.apetrelli.scafa.proto.async.socket.AsyncSocket;
 
 public class DirectAsyncServerSocket implements AsyncServerSocket<AsyncSocket> {
 
