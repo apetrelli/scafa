@@ -10,7 +10,7 @@ import java.util.concurrent.CompletableFuture;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.CompletionHandlerFuture;
 import com.github.apetrelli.scafa.proto.client.HostPort;
-import com.github.apetrelli.scafa.tls.TlsConnectionException;
+import com.github.apetrelli.scafa.proto.sync.IORuntimeException;
 
 public class DirectAsyncSocket implements AsyncSocket {
 	
@@ -36,7 +36,7 @@ public class DirectAsyncSocket implements AsyncSocket {
 				retValue = new HostPort(realAddress.getHostName(), realAddress.getPort());
 			}
 		} catch (IOException e) {
-			throw new TlsConnectionException(e);
+			throw new IORuntimeException(e);
 		}
 		return retValue;
 	}

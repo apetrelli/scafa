@@ -1,5 +1,4 @@
 module com.github.apetrelli.scafa.proto {
-	requires transitive com.github.apetrelli.scafa.tls;
 	requires java.logging;
 	exports com.github.apetrelli.scafa.proto.aio;
 	exports com.github.apetrelli.scafa.proto.aio.impl;

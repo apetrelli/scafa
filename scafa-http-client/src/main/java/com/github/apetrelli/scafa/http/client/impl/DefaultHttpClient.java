@@ -31,7 +31,7 @@ import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
 import com.github.apetrelli.scafa.proto.processor.impl.DefaultProcessorFactory;
 import com.github.apetrelli.scafa.proto.processor.impl.StatefulInputProcessorFactory;
 import com.github.apetrelli.scafa.proto.util.AsciiString;
-import com.github.apetrelli.scafa.tls.util.IOUtils;
+import com.github.apetrelli.scafa.proto.util.IOUtils;
 
 public class DefaultHttpClient implements HttpClient {
 

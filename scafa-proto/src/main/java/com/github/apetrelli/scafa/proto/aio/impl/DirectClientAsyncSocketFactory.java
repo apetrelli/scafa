@@ -6,7 +6,7 @@ import java.nio.channels.AsynchronousSocketChannel;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.SocketFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
-import com.github.apetrelli.scafa.tls.TlsConnectionException;
+import com.github.apetrelli.scafa.proto.sync.IORuntimeException;
 
 public class DirectClientAsyncSocketFactory implements SocketFactory<AsyncSocket>{
 	
@@ -16,7 +16,7 @@ public class DirectClientAsyncSocketFactory implements SocketFactory<AsyncSocket
 			AsynchronousSocketChannel channel = AsynchronousSocketChannel.open();
 			return new DirectClientAsyncSocket(channel, hostPort, interfaceName, forceIpV4);
 		} catch (IOException e) {
-			throw new TlsConnectionException(e);
+			throw new IORuntimeException(e);
 		}
 	}
 
