@@ -1,5 +1,7 @@
 package com.github.apetrelli.scafa.proto.sync;
 
+import com.github.apetrelli.scafa.proto.IORuntimeException;
+
 public class SocketRuntimeException extends IORuntimeException {
 
 	private static final long serialVersionUID = -8382637752982334809L;

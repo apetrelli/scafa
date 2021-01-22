@@ -7,8 +7,8 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
 
+import com.github.apetrelli.scafa.proto.IORuntimeException;
 import com.github.apetrelli.scafa.proto.client.HostPort;
-import com.github.apetrelli.scafa.proto.sync.IORuntimeException;
 import com.github.apetrelli.scafa.proto.sync.SocketRuntimeException;
 import com.github.apetrelli.scafa.proto.sync.SyncSocket;
 

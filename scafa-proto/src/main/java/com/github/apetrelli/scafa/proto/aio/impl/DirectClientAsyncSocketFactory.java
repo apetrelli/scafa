@@ -3,10 +3,10 @@ package com.github.apetrelli.scafa.proto.aio.impl;
 import java.io.IOException;
 import java.nio.channels.AsynchronousSocketChannel;
 
+import com.github.apetrelli.scafa.proto.IORuntimeException;
 import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.SocketFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
-import com.github.apetrelli.scafa.proto.sync.IORuntimeException;
 
 public class DirectClientAsyncSocketFactory implements SocketFactory<AsyncSocket>{
 	

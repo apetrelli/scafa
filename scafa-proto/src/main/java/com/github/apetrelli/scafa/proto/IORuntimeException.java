@@ -1,4 +1,4 @@
-package com.github.apetrelli.scafa.proto.sync;
+package com.github.apetrelli.scafa.proto;
 
 public class IORuntimeException extends RuntimeException {
 

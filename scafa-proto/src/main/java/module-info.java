@@ -1,5 +1,6 @@
 module com.github.apetrelli.scafa.proto {
 	requires java.logging;
+	exports com.github.apetrelli.scafa.proto;
 	exports com.github.apetrelli.scafa.proto.aio;
 	exports com.github.apetrelli.scafa.proto.aio.impl;
 	exports com.github.apetrelli.scafa.proto.client;

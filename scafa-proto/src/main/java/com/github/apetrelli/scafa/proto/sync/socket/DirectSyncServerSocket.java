@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import com.github.apetrelli.scafa.proto.sync.IORuntimeException;
+import com.github.apetrelli.scafa.proto.IORuntimeException;
 import com.github.apetrelli.scafa.proto.sync.SyncServerSocket;
 import com.github.apetrelli.scafa.proto.sync.SyncSocket;
 
