@@ -1,4 +1,4 @@
-package com.github.apetrelli.scafa.proto.aio;
+package com.github.apetrelli.scafa.proto;
 
 import com.github.apetrelli.scafa.proto.client.HostPort;
 

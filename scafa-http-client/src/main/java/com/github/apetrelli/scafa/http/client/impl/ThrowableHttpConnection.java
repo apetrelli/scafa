@@ -23,7 +23,7 @@ import java.util.concurrent.CompletableFuture;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.client.HttpClientConnection;
 import com.github.apetrelli.scafa.http.client.HttpClientHandler;
-import com.github.apetrelli.scafa.proto.aio.CompletionHandlerFuture;
+import com.github.apetrelli.scafa.proto.async.util.CompletionHandlerFuture;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 
 public class ThrowableHttpConnection implements HttpClientConnection {

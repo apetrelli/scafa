@@ -16,11 +16,11 @@ import com.github.apetrelli.scafa.http.impl.CompositeHttpHandlerFactory.Composit
 import com.github.apetrelli.scafa.http.server.HttpServer;
 import com.github.apetrelli.scafa.http.server.impl.HttpServerHandlerAdapterFactory;
 import com.github.apetrelli.scafa.http.server.statics.StaticHttpServerHandlerFactory;
-import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
-import com.github.apetrelli.scafa.proto.aio.HandlerFactory;
-import com.github.apetrelli.scafa.proto.aio.SocketFactory;
+import com.github.apetrelli.scafa.proto.SocketFactory;
+import com.github.apetrelli.scafa.proto.async.AsyncSocket;
+import com.github.apetrelli.scafa.proto.async.processor.DataHandler;
 import com.github.apetrelli.scafa.proto.client.HostPort;
-import com.github.apetrelli.scafa.proto.processor.DataHandler;
+import com.github.apetrelli.scafa.proto.processor.HandlerFactory;
 import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
 import com.github.apetrelli.scafa.proto.util.AsciiString;
 

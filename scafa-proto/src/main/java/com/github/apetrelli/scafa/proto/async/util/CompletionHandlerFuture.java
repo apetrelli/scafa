@@ -1,4 +1,4 @@
-package com.github.apetrelli.scafa.proto.aio;
+package com.github.apetrelli.scafa.proto.async.util;
 
 import java.util.concurrent.CompletableFuture;
 

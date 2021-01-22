@@ -1,4 +1,4 @@
-package com.github.apetrelli.scafa.proto.processor;
+package com.github.apetrelli.scafa.proto.data.impl;
 
 public class ProcessingContext<ST> extends SimpleInput {
 

@@ -17,7 +17,7 @@ import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.server.HttpServerHandler;
-import com.github.apetrelli.scafa.proto.aio.CompletionHandlerFuture;
+import com.github.apetrelli.scafa.proto.async.util.CompletionHandlerFuture;
 import com.github.apetrelli.scafa.proto.util.AsciiString;
 
 public class HttpServerHandlerSupport implements HttpServerHandler {

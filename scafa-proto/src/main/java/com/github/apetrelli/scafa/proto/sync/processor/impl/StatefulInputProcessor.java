@@ -19,7 +19,7 @@ package com.github.apetrelli.scafa.proto.sync.processor.impl;
 
 import java.nio.ByteBuffer;
 
-import com.github.apetrelli.scafa.proto.processor.ProcessingContext;
+import com.github.apetrelli.scafa.proto.data.impl.ProcessingContext;
 import com.github.apetrelli.scafa.proto.processor.ProtocolStateMachine;
 import com.github.apetrelli.scafa.proto.sync.processor.InputProcessor;
 

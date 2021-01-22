@@ -4,7 +4,7 @@ import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.gateway.sync.GatewayHttpConnectionFactoryFactory;
 import com.github.apetrelli.scafa.http.sync.HttpHandler;
 import com.github.apetrelli.scafa.http.sync.HttpSyncSocket;
-import com.github.apetrelli.scafa.proto.aio.HandlerFactory;
+import com.github.apetrelli.scafa.proto.processor.HandlerFactory;
 import com.github.apetrelli.scafa.proto.sync.SyncSocket;
 
 public class DefaultGatewayHttpHandlerFactory<T extends HttpSyncSocket<HttpRequest>> implements HandlerFactory<HttpHandler, SyncSocket> {

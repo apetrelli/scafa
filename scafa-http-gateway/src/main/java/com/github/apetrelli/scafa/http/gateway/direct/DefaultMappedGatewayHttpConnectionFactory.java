@@ -28,7 +28,7 @@ import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.gateway.GatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.gateway.MappedGatewayHttpConnectionFactory;
-import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
+import com.github.apetrelli.scafa.proto.async.AsyncSocket;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 
 public class DefaultMappedGatewayHttpConnectionFactory<T extends HttpAsyncSocket<HttpRequest>> implements MappedGatewayHttpConnectionFactory<T> {

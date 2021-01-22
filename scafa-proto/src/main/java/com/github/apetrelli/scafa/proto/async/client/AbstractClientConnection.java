@@ -1,9 +1,9 @@
-package com.github.apetrelli.scafa.proto.client.impl;
+package com.github.apetrelli.scafa.proto.async.client;
 
 import java.util.concurrent.CompletableFuture;
 
-import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
 import com.github.apetrelli.scafa.proto.aio.impl.AsyncSocketWrapper;
+import com.github.apetrelli.scafa.proto.async.AsyncSocket;
 
 public abstract class AbstractClientConnection<T extends AsyncSocket> extends AsyncSocketWrapper<T> implements AsyncSocket {
 

@@ -11,7 +11,7 @@ import java.util.function.IntPredicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.github.apetrelli.scafa.proto.processor.ProcessingContext;
+import com.github.apetrelli.scafa.proto.data.impl.ProcessingContext;
 import com.github.apetrelli.scafa.proto.util.AsciiString;
 
 public class HttpProcessingContext extends ProcessingContext<HttpStatus> {

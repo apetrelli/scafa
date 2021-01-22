@@ -17,7 +17,7 @@
  */
 package com.github.apetrelli.scafa.proto.sync.processor;
 
-import com.github.apetrelli.scafa.proto.processor.Input;
+import com.github.apetrelli.scafa.proto.data.Input;
 
 public interface InputProcessor<P extends Input> {
 

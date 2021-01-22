@@ -3,7 +3,7 @@ package com.github.apetrelli.scafa.http.sync.direct;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.sync.HttpSyncSocket;
 import com.github.apetrelli.scafa.http.sync.output.DataSenderFactory;
-import com.github.apetrelli.scafa.proto.aio.SocketFactory;
+import com.github.apetrelli.scafa.proto.SocketFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.sync.SyncSocket;
 

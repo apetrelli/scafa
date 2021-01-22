@@ -7,7 +7,7 @@ import com.github.apetrelli.scafa.http.proxy.sync.ProxyHttpConnection;
 import com.github.apetrelli.scafa.http.proxy.sync.connection.DirectHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.sync.HttpSyncSocket;
 import com.github.apetrelli.scafa.http.sync.output.DataSenderFactory;
-import com.github.apetrelli.scafa.proto.aio.SocketFactory;
+import com.github.apetrelli.scafa.proto.SocketFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
 import com.github.apetrelli.scafa.proto.sync.RunnableStarter;

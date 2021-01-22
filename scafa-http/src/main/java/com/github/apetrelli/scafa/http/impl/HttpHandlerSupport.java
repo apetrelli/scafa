@@ -23,7 +23,7 @@ import java.util.concurrent.CompletableFuture;
 import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
-import com.github.apetrelli.scafa.proto.aio.CompletionHandlerFuture;
+import com.github.apetrelli.scafa.proto.async.util.CompletionHandlerFuture;
 import com.github.apetrelli.scafa.proto.processor.HandlerSupport;
 
 public class HttpHandlerSupport extends HandlerSupport implements HttpHandler {

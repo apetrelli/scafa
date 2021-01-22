@@ -3,7 +3,7 @@ package com.github.apetrelli.scafa.proto.aio.impl;
 import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
 
-import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
+import com.github.apetrelli.scafa.proto.async.AsyncSocket;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 
 public class AsyncSocketWrapper<T extends AsyncSocket> implements AsyncSocket {

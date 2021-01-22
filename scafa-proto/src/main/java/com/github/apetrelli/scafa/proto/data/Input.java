@@ -15,9 +15,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.apetrelli.scafa.proto.processor;
+package com.github.apetrelli.scafa.proto.data;
 
-public interface InputProcessorFactory<H, P extends Input> {
+import java.nio.ByteBuffer;
 
-    InputProcessor<P> create(H handler);
+public interface Input {
+
+    ByteBuffer getBuffer();
+
+    byte peekNextByte();
 }

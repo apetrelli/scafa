@@ -13,7 +13,7 @@ import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.client.HttpClientConnection;
 import com.github.apetrelli.scafa.http.client.HttpClientHandler;
 import com.github.apetrelli.scafa.http.impl.HttpHandlerSupport;
-import com.github.apetrelli.scafa.proto.aio.CompletionHandlerFuture;
+import com.github.apetrelli.scafa.proto.async.util.CompletionHandlerFuture;
 
 public class ClientPipelineHttpHandler extends HttpHandlerSupport implements HttpHandler {
 

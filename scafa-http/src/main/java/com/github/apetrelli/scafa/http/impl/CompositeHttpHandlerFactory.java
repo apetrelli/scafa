@@ -7,7 +7,7 @@ import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.impl.CompositeHttpHandler.PatternHandlerPair;
-import com.github.apetrelli.scafa.proto.aio.HandlerFactory;
+import com.github.apetrelli.scafa.proto.processor.HandlerFactory;
 
 public class CompositeHttpHandlerFactory implements HandlerFactory<HttpHandler, HttpAsyncSocket<HttpResponse>> {
 

@@ -19,7 +19,7 @@ package com.github.apetrelli.scafa.http.proxy.sync.handler;
 
 import com.github.apetrelli.scafa.http.proxy.sync.ProxyHttpConnectionFactoryFactory;
 import com.github.apetrelli.scafa.http.sync.HttpHandler;
-import com.github.apetrelli.scafa.proto.aio.HandlerFactory;
+import com.github.apetrelli.scafa.proto.processor.HandlerFactory;
 import com.github.apetrelli.scafa.proto.sync.SyncSocket;
 
 public class ProxyHttpHandlerFactory implements HandlerFactory<HttpHandler, SyncSocket> {

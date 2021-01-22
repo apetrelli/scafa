@@ -1,6 +1,8 @@
-package com.github.apetrelli.scafa.proto.processor;
+package com.github.apetrelli.scafa.proto.data.impl;
 
 import java.nio.ByteBuffer;
+
+import com.github.apetrelli.scafa.proto.data.Input;
 
 public class SimpleInput implements Input {
 

@@ -1,7 +1,7 @@
 package com.github.apetrelli.scafa.http.output.impl;
 
 import com.github.apetrelli.scafa.http.output.DataSender;
-import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
+import com.github.apetrelli.scafa.proto.async.AsyncSocket;
 
 public abstract class AbstractDataSender implements DataSender {
 

@@ -24,7 +24,7 @@ import java.util.concurrent.CompletableFuture;
 
 import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpResponse;
-import com.github.apetrelli.scafa.proto.aio.CompletionHandlerFuture;
+import com.github.apetrelli.scafa.proto.async.util.CompletionHandlerFuture;
 
 public class TentativeHandler extends CapturingHandler {
 

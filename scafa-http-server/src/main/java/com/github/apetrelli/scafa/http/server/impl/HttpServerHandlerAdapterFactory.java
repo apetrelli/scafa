@@ -4,7 +4,7 @@ import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.server.HttpServerHandlerFactory;
-import com.github.apetrelli.scafa.proto.aio.HandlerFactory;
+import com.github.apetrelli.scafa.proto.processor.HandlerFactory;
 
 public class HttpServerHandlerAdapterFactory implements HandlerFactory<HttpHandler, HttpAsyncSocket<HttpResponse>> {
 

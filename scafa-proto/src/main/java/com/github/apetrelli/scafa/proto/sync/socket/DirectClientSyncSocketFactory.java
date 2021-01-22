@@ -2,7 +2,7 @@ package com.github.apetrelli.scafa.proto.sync.socket;
 
 import java.net.Socket;
 
-import com.github.apetrelli.scafa.proto.aio.SocketFactory;
+import com.github.apetrelli.scafa.proto.SocketFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.sync.SyncSocket;
 

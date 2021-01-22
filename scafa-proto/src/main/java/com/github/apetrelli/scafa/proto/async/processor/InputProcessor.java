@@ -15,9 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.apetrelli.scafa.proto.processor;
+package com.github.apetrelli.scafa.proto.async.processor;
 
 import java.util.concurrent.CompletableFuture;
+
+import com.github.apetrelli.scafa.proto.data.Input;
 
 public interface InputProcessor<P extends Input> {
 

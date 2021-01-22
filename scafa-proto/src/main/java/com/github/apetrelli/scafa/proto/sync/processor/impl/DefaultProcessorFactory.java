@@ -21,9 +21,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.github.apetrelli.scafa.proto.data.Input;
+import com.github.apetrelli.scafa.proto.data.ProcessingContextFactory;
 import com.github.apetrelli.scafa.proto.processor.Handler;
-import com.github.apetrelli.scafa.proto.processor.Input;
-import com.github.apetrelli.scafa.proto.processor.ProcessingContextFactory;
 import com.github.apetrelli.scafa.proto.processor.Processor;
 import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
 import com.github.apetrelli.scafa.proto.sync.SyncSocket;

@@ -17,20 +17,20 @@ import com.github.apetrelli.scafa.http.impl.DirectHttpAsyncSocketFactory;
 import com.github.apetrelli.scafa.http.impl.HttpProcessingContextFactory;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
 import com.github.apetrelli.scafa.http.output.impl.DefaultDataSenderFactory;
-import com.github.apetrelli.scafa.proto.aio.AsyncServerSocketFactory;
-import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
-import com.github.apetrelli.scafa.proto.aio.HandlerFactory;
+import com.github.apetrelli.scafa.proto.SocketFactory;
 import com.github.apetrelli.scafa.proto.aio.ScafaListener;
-import com.github.apetrelli.scafa.proto.aio.SocketFactory;
 import com.github.apetrelli.scafa.proto.aio.impl.DirectAsyncServerSocketFactory;
 import com.github.apetrelli.scafa.proto.aio.impl.DirectClientAsyncSocketFactory;
+import com.github.apetrelli.scafa.proto.async.AsyncServerSocketFactory;
+import com.github.apetrelli.scafa.proto.async.AsyncSocket;
+import com.github.apetrelli.scafa.proto.async.processor.DataHandler;
+import com.github.apetrelli.scafa.proto.async.processor.impl.DefaultProcessorFactory;
+import com.github.apetrelli.scafa.proto.async.processor.impl.PassthroughInputProcessorFactory;
+import com.github.apetrelli.scafa.proto.async.processor.impl.StatefulInputProcessorFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
-import com.github.apetrelli.scafa.proto.processor.DataHandler;
-import com.github.apetrelli.scafa.proto.processor.Input;
-import com.github.apetrelli.scafa.proto.processor.impl.DefaultProcessorFactory;
-import com.github.apetrelli.scafa.proto.processor.impl.PassthroughInputProcessorFactory;
-import com.github.apetrelli.scafa.proto.processor.impl.SimpleInputFactory;
-import com.github.apetrelli.scafa.proto.processor.impl.StatefulInputProcessorFactory;
+import com.github.apetrelli.scafa.proto.data.Input;
+import com.github.apetrelli.scafa.proto.data.impl.SimpleInputFactory;
+import com.github.apetrelli.scafa.proto.processor.HandlerFactory;
 
 public class DirectHttpGateway {
 

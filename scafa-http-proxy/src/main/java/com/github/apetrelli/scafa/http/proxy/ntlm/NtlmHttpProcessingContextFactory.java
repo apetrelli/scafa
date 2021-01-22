@@ -3,7 +3,7 @@ package com.github.apetrelli.scafa.http.proxy.ntlm;
 import java.nio.ByteBuffer;
 
 import com.github.apetrelli.scafa.http.HttpStatus;
-import com.github.apetrelli.scafa.proto.processor.ProcessingContextFactory;
+import com.github.apetrelli.scafa.proto.data.ProcessingContextFactory;
 
 public class NtlmHttpProcessingContextFactory implements ProcessingContextFactory<NtlmHttpProcessingContext> {
 

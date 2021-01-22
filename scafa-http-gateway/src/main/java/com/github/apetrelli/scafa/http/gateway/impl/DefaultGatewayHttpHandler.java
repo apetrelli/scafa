@@ -26,7 +26,7 @@ import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.gateway.MappedGatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.impl.HttpHandlerSupport;
-import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
+import com.github.apetrelli.scafa.proto.async.AsyncSocket;
 
 public class DefaultGatewayHttpHandler<T extends HttpAsyncSocket<HttpRequest>> extends HttpHandlerSupport implements HttpHandler {
 

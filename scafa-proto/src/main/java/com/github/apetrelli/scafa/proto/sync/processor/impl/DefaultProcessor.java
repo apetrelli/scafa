@@ -22,9 +22,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.proto.IORuntimeException;
+import com.github.apetrelli.scafa.proto.data.Input;
+import com.github.apetrelli.scafa.proto.data.ProcessingContextFactory;
 import com.github.apetrelli.scafa.proto.processor.Handler;
-import com.github.apetrelli.scafa.proto.processor.Input;
-import com.github.apetrelli.scafa.proto.processor.ProcessingContextFactory;
 import com.github.apetrelli.scafa.proto.processor.Processor;
 import com.github.apetrelli.scafa.proto.sync.SocketRuntimeException;
 import com.github.apetrelli.scafa.proto.sync.SyncSocket;

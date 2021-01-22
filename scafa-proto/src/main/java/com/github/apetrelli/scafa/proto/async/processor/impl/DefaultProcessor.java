@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.apetrelli.scafa.proto.processor.impl;
+package com.github.apetrelli.scafa.proto.async.processor.impl;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -26,12 +26,12 @@ import java.util.concurrent.CompletionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
+import com.github.apetrelli.scafa.proto.async.AsyncSocket;
+import com.github.apetrelli.scafa.proto.async.processor.InputProcessor;
+import com.github.apetrelli.scafa.proto.async.processor.InputProcessorFactory;
+import com.github.apetrelli.scafa.proto.data.Input;
+import com.github.apetrelli.scafa.proto.data.ProcessingContextFactory;
 import com.github.apetrelli.scafa.proto.processor.Handler;
-import com.github.apetrelli.scafa.proto.processor.Input;
-import com.github.apetrelli.scafa.proto.processor.InputProcessor;
-import com.github.apetrelli.scafa.proto.processor.InputProcessorFactory;
-import com.github.apetrelli.scafa.proto.processor.ProcessingContextFactory;
 import com.github.apetrelli.scafa.proto.processor.Processor;
 
 public class DefaultProcessor<P extends Input, H extends Handler> implements Processor<H> {

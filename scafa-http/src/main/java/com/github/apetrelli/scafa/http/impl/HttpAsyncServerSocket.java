@@ -6,8 +6,8 @@ import java.util.concurrent.CompletableFuture;
 import com.github.apetrelli.scafa.http.HeaderHolder;
 import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.output.DataSenderFactory;
-import com.github.apetrelli.scafa.proto.aio.AsyncServerSocket;
-import com.github.apetrelli.scafa.proto.aio.AsyncSocket;
+import com.github.apetrelli.scafa.proto.async.AsyncServerSocket;
+import com.github.apetrelli.scafa.proto.async.AsyncSocket;
 
 public class HttpAsyncServerSocket<H extends HeaderHolder> implements AsyncServerSocket<HttpAsyncSocket<H>> {
 

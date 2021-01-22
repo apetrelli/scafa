@@ -4,7 +4,7 @@ import java.nio.ByteBuffer;
 
 import com.github.apetrelli.scafa.http.HttpProcessingContext;
 import com.github.apetrelli.scafa.http.HttpStatus;
-import com.github.apetrelli.scafa.proto.processor.ProcessingContextFactory;
+import com.github.apetrelli.scafa.proto.data.ProcessingContextFactory;
 
 public class HttpProcessingContextFactory implements ProcessingContextFactory<HttpProcessingContext> {
 
