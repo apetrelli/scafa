@@ -1,14 +1,6 @@
 module com.github.apetrelli.scafa.proto {
 	requires java.logging;
 	exports com.github.apetrelli.scafa.proto;
-	exports com.github.apetrelli.scafa.proto.aio;
-	exports com.github.apetrelli.scafa.proto.async;
-	exports com.github.apetrelli.scafa.proto.async.buffer;
-	exports com.github.apetrelli.scafa.proto.async.client;
-	exports com.github.apetrelli.scafa.proto.async.processor;
-	exports com.github.apetrelli.scafa.proto.async.processor.impl;
-	exports com.github.apetrelli.scafa.proto.async.socket;
-	exports com.github.apetrelli.scafa.proto.async.util;
 	exports com.github.apetrelli.scafa.proto.client;
 	exports com.github.apetrelli.scafa.proto.data;
 	exports com.github.apetrelli.scafa.proto.data.impl;
