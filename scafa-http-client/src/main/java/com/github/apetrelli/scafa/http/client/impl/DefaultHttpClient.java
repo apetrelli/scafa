@@ -11,6 +11,8 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.concurrent.CompletableFuture;
 
+import com.github.apetrelli.scafa.async.proto.aio.DirectClientAsyncSocketFactory;
+import com.github.apetrelli.scafa.async.proto.aio.PathBufferContextReader;
 import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpProcessingContext;
 import com.github.apetrelli.scafa.http.HttpRequest;
@@ -21,8 +23,6 @@ import com.github.apetrelli.scafa.http.impl.AsyncHttpSink;
 import com.github.apetrelli.scafa.http.impl.HttpProcessingContextFactory;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
 import com.github.apetrelli.scafa.http.output.impl.DefaultDataSenderFactory;
-import com.github.apetrelli.scafa.proto.aio.DirectClientAsyncSocketFactory;
-import com.github.apetrelli.scafa.proto.aio.PathBufferContextReader;
 import com.github.apetrelli.scafa.proto.async.buffer.BufferContext;
 import com.github.apetrelli.scafa.proto.async.buffer.BufferContextReader;
 import com.github.apetrelli.scafa.proto.async.processor.impl.DefaultProcessorFactory;

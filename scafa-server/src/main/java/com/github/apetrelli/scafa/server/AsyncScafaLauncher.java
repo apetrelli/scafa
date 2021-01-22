@@ -22,6 +22,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.github.apetrelli.scafa.async.proto.aio.DirectAsyncServerSocketFactory;
+import com.github.apetrelli.scafa.async.proto.aio.DirectClientAsyncSocketFactory;
 import com.github.apetrelli.scafa.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpProcessingContext;
@@ -35,8 +37,6 @@ import com.github.apetrelli.scafa.http.output.impl.DefaultDataSenderFactory;
 import com.github.apetrelli.scafa.http.proxy.impl.DefaultHttpConnectionFactoryFactory;
 import com.github.apetrelli.scafa.http.proxy.impl.ProxyHttpHandlerFactory;
 import com.github.apetrelli.scafa.proto.SocketFactory;
-import com.github.apetrelli.scafa.proto.aio.DirectAsyncServerSocketFactory;
-import com.github.apetrelli.scafa.proto.aio.DirectClientAsyncSocketFactory;
 import com.github.apetrelli.scafa.proto.async.ScafaListener;
 import com.github.apetrelli.scafa.proto.async.processor.DataHandler;
 import com.github.apetrelli.scafa.proto.async.processor.impl.DefaultProcessorFactory;

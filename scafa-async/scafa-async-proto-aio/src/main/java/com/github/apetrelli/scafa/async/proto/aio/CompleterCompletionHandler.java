@@ -1,4 +1,4 @@
-package com.github.apetrelli.scafa.proto.aio;
+package com.github.apetrelli.scafa.async.proto.aio;
 
 import java.nio.channels.CompletionHandler;
 import java.util.concurrent.CompletableFuture;
