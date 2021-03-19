@@ -1,4 +1,4 @@
-package com.github.apetrelli.scafa.proto.async.util;
+package com.github.apetrelli.scafa.async.proto.util;
 
 import java.util.concurrent.CompletableFuture;
 

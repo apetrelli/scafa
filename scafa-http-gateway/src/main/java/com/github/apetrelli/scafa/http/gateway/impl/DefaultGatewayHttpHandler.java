@@ -20,13 +20,13 @@ package com.github.apetrelli.scafa.http.gateway.impl;
 import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
 
+import com.github.apetrelli.scafa.async.proto.socket.AsyncSocket;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.async.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.async.HttpHandler;
 import com.github.apetrelli.scafa.http.async.impl.HttpHandlerSupport;
 import com.github.apetrelli.scafa.http.gateway.MappedGatewayHttpConnectionFactory;
-import com.github.apetrelli.scafa.proto.async.socket.AsyncSocket;
 
 public class DefaultGatewayHttpHandler<T extends HttpAsyncSocket<HttpRequest>> extends HttpHandlerSupport implements HttpHandler {
 

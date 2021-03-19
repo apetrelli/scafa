@@ -1,9 +1,9 @@
-package com.github.apetrelli.scafa.proto.async.socket;
+package com.github.apetrelli.scafa.async.proto.socket;
 
 import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
 
-import com.github.apetrelli.scafa.proto.async.util.CompletionHandlerFuture;
+import com.github.apetrelli.scafa.async.proto.util.CompletionHandlerFuture;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 
 public interface AsyncSocket {

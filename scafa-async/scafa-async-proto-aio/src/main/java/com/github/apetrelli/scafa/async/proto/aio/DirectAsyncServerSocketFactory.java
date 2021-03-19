@@ -5,9 +5,9 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.channels.AsynchronousServerSocketChannel;
 
-import com.github.apetrelli.scafa.proto.async.socket.AsyncServerSocket;
-import com.github.apetrelli.scafa.proto.async.socket.AsyncServerSocketFactory;
-import com.github.apetrelli.scafa.proto.async.socket.AsyncSocket;
+import com.github.apetrelli.scafa.async.proto.socket.AsyncServerSocket;
+import com.github.apetrelli.scafa.async.proto.socket.AsyncServerSocketFactory;
+import com.github.apetrelli.scafa.async.proto.socket.AsyncSocket;
 import com.github.apetrelli.scafa.proto.util.NetworkUtils;
 
 public class DirectAsyncServerSocketFactory implements AsyncServerSocketFactory<AsyncSocket> {

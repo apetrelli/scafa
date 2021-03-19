@@ -7,13 +7,13 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import com.github.apetrelli.scafa.async.proto.util.CompletionHandlerFuture;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.async.HttpHandler;
 import com.github.apetrelli.scafa.http.async.impl.HttpHandlerSupport;
 import com.github.apetrelli.scafa.http.client.HttpClientConnection;
 import com.github.apetrelli.scafa.http.client.HttpClientHandler;
-import com.github.apetrelli.scafa.proto.async.util.CompletionHandlerFuture;
 
 public class ClientPipelineHttpHandler extends HttpHandlerSupport implements HttpHandler {
 

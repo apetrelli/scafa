@@ -3,8 +3,8 @@ package com.github.apetrelli.scafa.http.async;
 import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
 
+import com.github.apetrelli.scafa.async.proto.socket.AsyncSocket;
 import com.github.apetrelli.scafa.http.HeaderHolder;
-import com.github.apetrelli.scafa.proto.async.socket.AsyncSocket;
 
 public interface HttpAsyncSocket<H extends HeaderHolder> extends AsyncSocket {
 

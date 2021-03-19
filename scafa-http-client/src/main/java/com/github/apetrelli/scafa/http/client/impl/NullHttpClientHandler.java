@@ -5,10 +5,10 @@ import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.github.apetrelli.scafa.async.proto.util.CompletionHandlerFuture;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.client.HttpClientHandler;
-import com.github.apetrelli.scafa.proto.async.util.CompletionHandlerFuture;
 
 public class NullHttpClientHandler implements HttpClientHandler {
 

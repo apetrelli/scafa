@@ -20,9 +20,9 @@ package com.github.apetrelli.scafa.http.gateway;
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
+import com.github.apetrelli.scafa.async.proto.socket.AsyncSocket;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.async.HttpAsyncSocket;
-import com.github.apetrelli.scafa.proto.async.socket.AsyncSocket;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 
 public interface MappedGatewayHttpConnectionFactory<T extends HttpAsyncSocket<HttpRequest>> {

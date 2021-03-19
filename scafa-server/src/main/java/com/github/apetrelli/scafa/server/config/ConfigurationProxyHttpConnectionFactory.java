@@ -1,5 +1,7 @@
 package com.github.apetrelli.scafa.server.config;
 
+import com.github.apetrelli.scafa.async.proto.processor.DataHandler;
+import com.github.apetrelli.scafa.async.proto.socket.AsyncSocket;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.async.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.async.output.DataSenderFactory;
@@ -8,8 +10,6 @@ import com.github.apetrelli.scafa.http.gateway.MappedGatewayHttpConnectionFactor
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.http.proxy.impl.DirectHttpConnectionFactory;
 import com.github.apetrelli.scafa.proto.SocketFactory;
-import com.github.apetrelli.scafa.proto.async.processor.DataHandler;
-import com.github.apetrelli.scafa.proto.async.socket.AsyncSocket;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
 

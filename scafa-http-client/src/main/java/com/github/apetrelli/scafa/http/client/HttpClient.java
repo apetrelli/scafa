@@ -2,9 +2,9 @@ package com.github.apetrelli.scafa.http.client;
 
 import java.nio.file.Path;
 
+import com.github.apetrelli.scafa.async.proto.buffer.BufferContextReader;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.client.impl.DefaultHttpClient;
-import com.github.apetrelli.scafa.proto.async.buffer.BufferContextReader;
 
 public interface HttpClient {
 

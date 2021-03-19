@@ -5,8 +5,8 @@ import java.nio.channels.AsynchronousFileChannel;
 import java.nio.channels.CompletionHandler;
 import java.util.concurrent.CompletableFuture;
 
-import com.github.apetrelli.scafa.proto.async.buffer.BufferContext;
-import com.github.apetrelli.scafa.proto.async.buffer.BufferContextReader;
+import com.github.apetrelli.scafa.async.proto.buffer.BufferContext;
+import com.github.apetrelli.scafa.async.proto.buffer.BufferContextReader;
 import com.github.apetrelli.scafa.proto.util.IOUtils;
 
 public class PathBufferContextReader implements BufferContextReader {

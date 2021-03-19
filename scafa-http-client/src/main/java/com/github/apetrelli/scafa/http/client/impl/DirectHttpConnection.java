@@ -3,13 +3,13 @@ package com.github.apetrelli.scafa.http.client.impl;
 import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
 
+import com.github.apetrelli.scafa.async.proto.client.AbstractClientConnection;
+import com.github.apetrelli.scafa.async.proto.socket.AsyncSocket;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.async.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.async.HttpHandler;
 import com.github.apetrelli.scafa.http.client.HttpClientConnection;
 import com.github.apetrelli.scafa.http.client.HttpClientHandler;
-import com.github.apetrelli.scafa.proto.async.client.AbstractClientConnection;
-import com.github.apetrelli.scafa.proto.async.socket.AsyncSocket;
 import com.github.apetrelli.scafa.proto.processor.Processor;
 import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
 

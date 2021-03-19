@@ -1,4 +1,4 @@
-package com.github.apetrelli.scafa.proto.async.buffer;
+package com.github.apetrelli.scafa.async.proto.buffer;
 
 import java.nio.ByteBuffer;
 

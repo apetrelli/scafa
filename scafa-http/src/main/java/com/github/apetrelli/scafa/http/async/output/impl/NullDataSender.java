@@ -3,8 +3,8 @@ package com.github.apetrelli.scafa.http.async.output.impl;
 import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
 
+import com.github.apetrelli.scafa.async.proto.util.CompletionHandlerFuture;
 import com.github.apetrelli.scafa.http.async.output.DataSender;
-import com.github.apetrelli.scafa.proto.async.util.CompletionHandlerFuture;
 
 public class NullDataSender implements DataSender {
 	

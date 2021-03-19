@@ -23,6 +23,8 @@ import java.util.concurrent.CompletableFuture;
 import org.ini4j.Ini;
 import org.ini4j.Profile.Section;
 
+import com.github.apetrelli.scafa.async.proto.processor.DataHandler;
+import com.github.apetrelli.scafa.async.proto.socket.AsyncSocket;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.async.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.async.HttpHandler;
@@ -31,8 +33,6 @@ import com.github.apetrelli.scafa.http.gateway.GatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.proto.SocketFactory;
-import com.github.apetrelli.scafa.proto.async.processor.DataHandler;
-import com.github.apetrelli.scafa.proto.async.socket.AsyncSocket;
 import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
 import com.github.apetrelli.scafa.server.config.ServerConfiguration;
 import com.github.apetrelli.scafa.server.config.ini.AbstractIniConfiguration;

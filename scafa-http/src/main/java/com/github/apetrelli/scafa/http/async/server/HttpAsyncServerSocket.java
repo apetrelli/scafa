@@ -3,12 +3,12 @@ package com.github.apetrelli.scafa.http.async.server;
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
+import com.github.apetrelli.scafa.async.proto.socket.AsyncServerSocket;
+import com.github.apetrelli.scafa.async.proto.socket.AsyncSocket;
 import com.github.apetrelli.scafa.http.HeaderHolder;
 import com.github.apetrelli.scafa.http.async.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.async.direct.DirectHttpAsyncSocket;
 import com.github.apetrelli.scafa.http.async.output.DataSenderFactory;
-import com.github.apetrelli.scafa.proto.async.socket.AsyncServerSocket;
-import com.github.apetrelli.scafa.proto.async.socket.AsyncSocket;
 
 public class HttpAsyncServerSocket<H extends HeaderHolder> implements AsyncServerSocket<HttpAsyncSocket<H>> {
 

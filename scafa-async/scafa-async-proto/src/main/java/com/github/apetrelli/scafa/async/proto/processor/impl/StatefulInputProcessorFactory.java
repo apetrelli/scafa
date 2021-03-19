@@ -15,12 +15,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.apetrelli.scafa.proto.async.processor.impl;
+package com.github.apetrelli.scafa.async.proto.processor.impl;
 
 import java.util.concurrent.CompletableFuture;
 
-import com.github.apetrelli.scafa.proto.async.processor.InputProcessor;
-import com.github.apetrelli.scafa.proto.async.processor.InputProcessorFactory;
+import com.github.apetrelli.scafa.async.proto.processor.InputProcessor;
+import com.github.apetrelli.scafa.async.proto.processor.InputProcessorFactory;
 import com.github.apetrelli.scafa.proto.data.impl.ProcessingContext;
 import com.github.apetrelli.scafa.proto.processor.ProtocolStateMachine;
 

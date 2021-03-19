@@ -22,6 +22,7 @@ import static com.github.apetrelli.scafa.http.HttpHeaders.CONNECT;
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
+import com.github.apetrelli.scafa.async.proto.socket.AsyncSocket;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.gateway.impl.DefaultGatewayHttpHandler;
@@ -29,7 +30,6 @@ import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
 import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpHandler;
-import com.github.apetrelli.scafa.proto.async.socket.AsyncSocket;
 
 public class DefaultProxyHttpHandler extends DefaultGatewayHttpHandler<ProxyHttpConnection> implements ProxyHttpHandler {
 

@@ -1,4 +1,4 @@
-package com.github.apetrelli.scafa.proto.async.socket;
+package com.github.apetrelli.scafa.async.proto.socket;
 
 import java.io.Closeable;
 import java.util.concurrent.CompletableFuture;

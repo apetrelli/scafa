@@ -6,8 +6,8 @@ import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 import java.util.concurrent.CompletableFuture;
 
-import com.github.apetrelli.scafa.proto.async.socket.AsyncServerSocket;
-import com.github.apetrelli.scafa.proto.async.socket.AsyncSocket;
+import com.github.apetrelli.scafa.async.proto.socket.AsyncServerSocket;
+import com.github.apetrelli.scafa.async.proto.socket.AsyncSocket;
 
 public class DirectAsyncServerSocket implements AsyncServerSocket<AsyncSocket> {
 

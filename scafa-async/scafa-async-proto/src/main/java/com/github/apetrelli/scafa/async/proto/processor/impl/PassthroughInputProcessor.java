@@ -1,9 +1,9 @@
-package com.github.apetrelli.scafa.proto.async.processor.impl;
+package com.github.apetrelli.scafa.async.proto.processor.impl;
 
 import java.util.concurrent.CompletableFuture;
 
-import com.github.apetrelli.scafa.proto.async.processor.DataHandler;
-import com.github.apetrelli.scafa.proto.async.processor.InputProcessor;
+import com.github.apetrelli.scafa.async.proto.processor.DataHandler;
+import com.github.apetrelli.scafa.async.proto.processor.InputProcessor;
 import com.github.apetrelli.scafa.proto.data.Input;
 
 public class PassthroughInputProcessor<P extends Input> implements InputProcessor<P> {

@@ -5,7 +5,12 @@ import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.github.apetrelli.scafa.async.proto.ScafaListener;
 import com.github.apetrelli.scafa.async.proto.aio.DirectAsyncServerSocketFactory;
+import com.github.apetrelli.scafa.async.proto.processor.impl.DefaultProcessorFactory;
+import com.github.apetrelli.scafa.async.proto.processor.impl.StatefulInputProcessorFactory;
+import com.github.apetrelli.scafa.async.proto.socket.AsyncServerSocketFactory;
+import com.github.apetrelli.scafa.async.proto.socket.AsyncSocket;
 import com.github.apetrelli.scafa.http.HttpProcessingContext;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.async.HttpAsyncSocket;
@@ -17,11 +22,6 @@ import com.github.apetrelli.scafa.http.async.server.HttpAsyncServerSocketFactory
 import com.github.apetrelli.scafa.http.impl.HttpProcessingContextFactory;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
 import com.github.apetrelli.scafa.http.server.impl.HttpServerHandlerAdapterFactory;
-import com.github.apetrelli.scafa.proto.async.ScafaListener;
-import com.github.apetrelli.scafa.proto.async.processor.impl.DefaultProcessorFactory;
-import com.github.apetrelli.scafa.proto.async.processor.impl.StatefulInputProcessorFactory;
-import com.github.apetrelli.scafa.proto.async.socket.AsyncServerSocketFactory;
-import com.github.apetrelli.scafa.proto.async.socket.AsyncSocket;
 
 public class ScafaHttpServer {
 

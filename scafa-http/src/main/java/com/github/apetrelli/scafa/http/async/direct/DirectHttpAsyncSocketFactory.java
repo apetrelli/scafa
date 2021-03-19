@@ -1,10 +1,10 @@
 package com.github.apetrelli.scafa.http.async.direct;
 
+import com.github.apetrelli.scafa.async.proto.socket.AsyncSocket;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.async.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.async.output.DataSenderFactory;
 import com.github.apetrelli.scafa.proto.SocketFactory;
-import com.github.apetrelli.scafa.proto.async.socket.AsyncSocket;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 
 public class DirectHttpAsyncSocketFactory implements SocketFactory<HttpAsyncSocket<HttpRequest>> {

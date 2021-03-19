@@ -7,9 +7,9 @@ import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.util.concurrent.CompletableFuture;
 
+import com.github.apetrelli.scafa.async.proto.socket.AsyncSocket;
+import com.github.apetrelli.scafa.async.proto.util.CompletionHandlerFuture;
 import com.github.apetrelli.scafa.proto.IORuntimeException;
-import com.github.apetrelli.scafa.proto.async.socket.AsyncSocket;
-import com.github.apetrelli.scafa.proto.async.util.CompletionHandlerFuture;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 
 public class DirectAsyncSocket implements AsyncSocket {
