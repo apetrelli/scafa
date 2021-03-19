@@ -21,57 +21,56 @@ import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.data.Input;
 import com.github.apetrelli.scafa.proto.data.impl.SimpleInputFactory;
 import com.github.apetrelli.scafa.proto.processor.HandlerFactory;
+import com.github.apetrelli.scafa.sync.proto.RunnableStarter;
 import com.github.apetrelli.scafa.sync.proto.ScafaListener;
 import com.github.apetrelli.scafa.sync.proto.SyncServerSocketFactory;
 import com.github.apetrelli.scafa.sync.proto.SyncSocket;
-import com.github.apetrelli.scafa.sync.proto.jnet.DirectClientSyncSocketFactory;
-import com.github.apetrelli.scafa.sync.proto.jnet.DirectSyncServerSocketFactory;
 import com.github.apetrelli.scafa.sync.proto.processor.DataHandler;
 import com.github.apetrelli.scafa.sync.proto.processor.impl.DefaultProcessorFactory;
 import com.github.apetrelli.scafa.sync.proto.processor.impl.PassthroughInputProcessorFactory;
 import com.github.apetrelli.scafa.sync.proto.processor.impl.StatefulInputProcessorFactory;
-import com.github.apetrelli.scafa.sync.proto.thread.ThreadRunnableStarter;
 
 public class DirectHttpGateway {
 
 	private static final Logger LOG = Logger.getLogger(DirectHttpGateway.class.getName());
 
-	private int port;
+	private SocketFactory<SyncSocket> clientSocketFactory;
 
-	private String interfaceName;
+	private SyncServerSocketFactory<SyncSocket> serverSocketFactory;
 
-	private boolean forceIpV4;
+	private RunnableStarter runnableStarter;
 
 	private HostPort destinationSocketAddress;
 
 	private ScafaListener<HttpHandler, SyncSocket> listener;
 
-	public DirectHttpGateway(int port, String interfaceName, boolean forceIpV4, HostPort destinationSocketAddress) {
-		this.port = port;
-		this.interfaceName = interfaceName;
-		this.forceIpV4 = forceIpV4;
+	public DirectHttpGateway(SocketFactory<SyncSocket> clientSocketFactory,
+			SyncServerSocketFactory<SyncSocket> serverSocketFactory, RunnableStarter runnableStarter,
+			HostPort destinationSocketAddress) {
+		this.clientSocketFactory = clientSocketFactory;
+		this.serverSocketFactory = serverSocketFactory;
+		this.runnableStarter = runnableStarter;
 		this.destinationSocketAddress = destinationSocketAddress;
 	}
 
 	public void launch() {
-    	HttpStateMachine<HttpHandler, Void> stateMachine = new HttpStateMachine<>(new SyncHttpSink());
-        StatefulInputProcessorFactory<HttpHandler, HttpProcessingContext> inputProcessorFactory = new StatefulInputProcessorFactory<>(stateMachine);
-        HttpProcessingContextFactory processingContextFactory = new HttpProcessingContextFactory();
-		SocketFactory<HttpSyncSocket<HttpRequest>> socketFactory = new DirectHttpSyncSocketFactory(
-				new DirectClientSyncSocketFactory(), new DefaultDataSenderFactory());
-        DefaultProcessorFactory<Input, DataHandler> clientProcessorFactory = new DefaultProcessorFactory<>(
-        		new PassthroughInputProcessorFactory(), new SimpleInputFactory());
-		ThreadRunnableStarter runnableStarter = new ThreadRunnableStarter();
-		GatewayHttpConnectionFactory<HttpSyncSocket<HttpRequest>> connectionFactory = new DirectGatewayHttpConnectionFactory(socketFactory,
-				clientProcessorFactory, runnableStarter, destinationSocketAddress);
-        GatewayHttpConnectionFactoryFactory<HttpSyncSocket<HttpRequest>> factoryFactory = new DefaultGatewayHttpConnectionFactoryFactory<>(connectionFactory);
-        HandlerFactory<HttpHandler, SyncSocket> handlerFactory = new DefaultGatewayHttpHandlerFactory<>(factoryFactory);
-        SyncServerSocketFactory<SyncSocket> asyncServerSocketFactory = new DirectSyncServerSocketFactory(port, interfaceName, forceIpV4);
-        DefaultProcessorFactory<HttpProcessingContext, HttpHandler> defaultProcessorFactory = new DefaultProcessorFactory<>(
-                inputProcessorFactory, processingContextFactory);
-		listener = new ScafaListener<>(asyncServerSocketFactory, defaultProcessorFactory,
-				handlerFactory, runnableStarter);
-        try {
+		HttpStateMachine<HttpHandler, Void> stateMachine = new HttpStateMachine<>(new SyncHttpSink());
+		StatefulInputProcessorFactory<HttpHandler, HttpProcessingContext> inputProcessorFactory = new StatefulInputProcessorFactory<>(
+				stateMachine);
+		HttpProcessingContextFactory processingContextFactory = new HttpProcessingContextFactory();
+		SocketFactory<HttpSyncSocket<HttpRequest>> socketFactory = new DirectHttpSyncSocketFactory(clientSocketFactory,
+				new DefaultDataSenderFactory());
+		DefaultProcessorFactory<Input, DataHandler> clientProcessorFactory = new DefaultProcessorFactory<>(
+				new PassthroughInputProcessorFactory(), new SimpleInputFactory());
+		GatewayHttpConnectionFactory<HttpSyncSocket<HttpRequest>> connectionFactory = new DirectGatewayHttpConnectionFactory(
+				socketFactory, clientProcessorFactory, runnableStarter, destinationSocketAddress);
+		GatewayHttpConnectionFactoryFactory<HttpSyncSocket<HttpRequest>> factoryFactory = new DefaultGatewayHttpConnectionFactoryFactory<>(
+				connectionFactory);
+		HandlerFactory<HttpHandler, SyncSocket> handlerFactory = new DefaultGatewayHttpHandlerFactory<>(factoryFactory);
+		DefaultProcessorFactory<HttpProcessingContext, HttpHandler> defaultProcessorFactory = new DefaultProcessorFactory<>(
+				inputProcessorFactory, processingContextFactory);
+		listener = new ScafaListener<>(serverSocketFactory, defaultProcessorFactory, handlerFactory, runnableStarter);
+		try {
 			listener.listen();
 		} catch (IOException e) {
 			LOG.log(Level.SEVERE, "Cannot start listener", e);
@@ -80,8 +79,8 @@ public class DirectHttpGateway {
 	}
 
 	public void stop() {
-        if (listener != null) {
-            listener.stop();
-        }
+		if (listener != null) {
+			listener.stop();
+		}
 	}
 }

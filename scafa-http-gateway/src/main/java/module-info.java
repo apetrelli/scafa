@@ -1,9 +1,8 @@
 module com.github.apetrelli.scafa.http.gateway {
 	requires java.logging;
 	requires transitive com.github.apetrelli.scafa.http;
-	requires com.github.apetrelli.scafa.async.proto.aio;
-	requires com.github.apetrelli.scafa.sync.proto.jnet;
-	requires com.github.apetrelli.scafa.sync.proto.thread;
+	requires com.github.apetrelli.scafa.async.proto;
+	requires com.github.apetrelli.scafa.sync.proto;
 	exports com.github.apetrelli.scafa.http.gateway;
 	exports com.github.apetrelli.scafa.http.gateway.direct;
 	exports com.github.apetrelli.scafa.http.gateway.impl;
