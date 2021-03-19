@@ -35,7 +35,6 @@ import com.github.apetrelli.scafa.proto.sync.RunnableStarter;
 import com.github.apetrelli.scafa.proto.sync.ScafaListener;
 import com.github.apetrelli.scafa.proto.sync.SyncServerSocketFactory;
 import com.github.apetrelli.scafa.proto.sync.SyncSocket;
-import com.github.apetrelli.scafa.proto.sync.ThreadRunnableStarter;
 import com.github.apetrelli.scafa.proto.sync.processor.DataHandler;
 import com.github.apetrelli.scafa.proto.sync.processor.impl.DefaultProcessorFactory;
 import com.github.apetrelli.scafa.proto.sync.processor.impl.PassthroughInputProcessorFactory;
@@ -43,6 +42,7 @@ import com.github.apetrelli.scafa.proto.sync.processor.impl.StatefulInputProcess
 import com.github.apetrelli.scafa.proto.sync.socket.DirectClientSyncSocketFactory;
 import com.github.apetrelli.scafa.proto.sync.socket.DirectSyncServerSocketFactory;
 import com.github.apetrelli.scafa.proto.util.AsciiString;
+import com.github.apetrelli.scafa.sync.proto.thread.ThreadRunnableStarter;
 import com.github.apetrelli.scafa.web.AbstractScafaWebServerLauncher;
 import com.github.apetrelli.scafa.web.config.Configuration;
 import com.github.apetrelli.scafa.web.config.PathConfiguration;

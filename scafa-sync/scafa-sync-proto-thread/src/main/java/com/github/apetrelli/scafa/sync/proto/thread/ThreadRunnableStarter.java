@@ -1,4 +1,4 @@
-package com.github.apetrelli.scafa.proto.sync;
+package com.github.apetrelli.scafa.sync.proto.thread;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -6,6 +6,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.github.apetrelli.scafa.proto.sync.RunnableStarter;
 
 public class ThreadRunnableStarter implements RunnableStarter {
 
