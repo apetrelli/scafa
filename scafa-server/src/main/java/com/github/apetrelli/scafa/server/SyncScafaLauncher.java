@@ -43,10 +43,10 @@ import com.github.apetrelli.scafa.proto.sync.processor.DataHandler;
 import com.github.apetrelli.scafa.proto.sync.processor.impl.DefaultProcessorFactory;
 import com.github.apetrelli.scafa.proto.sync.processor.impl.PassthroughInputProcessorFactory;
 import com.github.apetrelli.scafa.proto.sync.processor.impl.StatefulInputProcessorFactory;
-import com.github.apetrelli.scafa.proto.sync.socket.DirectClientSyncSocketFactory;
-import com.github.apetrelli.scafa.proto.sync.socket.DirectSyncServerSocketFactory;
 import com.github.apetrelli.scafa.server.config.SyncConfigurationProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.server.config.ini.sync.SyncIniConfiguration;
+import com.github.apetrelli.scafa.sync.proto.jnet.DirectClientSyncSocketFactory;
+import com.github.apetrelli.scafa.sync.proto.jnet.DirectSyncServerSocketFactory;
 import com.github.apetrelli.scafa.sync.proto.thread.ThreadRunnableStarter;
 
 

@@ -11,7 +11,7 @@ import com.github.apetrelli.scafa.http.sync.output.DataSender;
 import com.github.apetrelli.scafa.http.sync.output.DataSenderFactory;
 import com.github.apetrelli.scafa.http.sync.output.impl.DirectDataSender;
 import com.github.apetrelli.scafa.proto.sync.SyncSocket;
-import com.github.apetrelli.scafa.proto.sync.socket.SyncSocketWrapper;
+import com.github.apetrelli.scafa.proto.sync.SyncSocketWrapper;
 
 public class DirectHttpSyncSocket<H extends HeaderHolder> extends SyncSocketWrapper<SyncSocket> implements HttpSyncSocket<H> {
 

@@ -1,7 +1,7 @@
 package com.github.apetrelli.scafa.proto.sync.client;
 
 import com.github.apetrelli.scafa.proto.sync.SyncSocket;
-import com.github.apetrelli.scafa.proto.sync.socket.SyncSocketWrapper;
+import com.github.apetrelli.scafa.proto.sync.SyncSocketWrapper;
 
 public abstract class AbstractClientConnection<T extends SyncSocket> extends SyncSocketWrapper<T> implements SyncSocket {
 
