@@ -1,5 +1,5 @@
 module com.github.apetrelli.scafa.sync.proto.jnet {
 	requires java.logging;
-	requires transitive com.github.apetrelli.scafa.proto;
+	requires transitive com.github.apetrelli.scafa.sync.proto;
 	exports com.github.apetrelli.scafa.sync.proto.jnet;
 }

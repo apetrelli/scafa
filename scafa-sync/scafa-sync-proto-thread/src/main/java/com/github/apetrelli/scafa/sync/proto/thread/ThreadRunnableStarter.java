@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.github.apetrelli.scafa.proto.sync.RunnableStarter;
+import com.github.apetrelli.scafa.sync.proto.RunnableStarter;
 
 public class ThreadRunnableStarter implements RunnableStarter {
 

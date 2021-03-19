@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.apetrelli.scafa.proto.sync.processor;
+package com.github.apetrelli.scafa.sync.proto.processor;
 
 import com.github.apetrelli.scafa.proto.data.Input;
 

@@ -2,7 +2,7 @@ package com.github.apetrelli.scafa.http.sync.output.impl;
 
 import java.nio.ByteBuffer;
 
-import com.github.apetrelli.scafa.proto.sync.SyncSocket;
+import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 
 public class DirectDataSender extends AbstractDataSender {
 

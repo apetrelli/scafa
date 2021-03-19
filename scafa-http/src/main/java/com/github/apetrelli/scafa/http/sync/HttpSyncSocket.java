@@ -3,7 +3,7 @@ package com.github.apetrelli.scafa.http.sync;
 import java.nio.ByteBuffer;
 
 import com.github.apetrelli.scafa.http.HeaderHolder;
-import com.github.apetrelli.scafa.proto.sync.SyncSocket;
+import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 
 public interface HttpSyncSocket<H extends HeaderHolder> extends SyncSocket {
 

@@ -9,8 +9,8 @@ import java.nio.ByteBuffer;
 
 import com.github.apetrelli.scafa.proto.IORuntimeException;
 import com.github.apetrelli.scafa.proto.client.HostPort;
-import com.github.apetrelli.scafa.proto.sync.SocketRuntimeException;
-import com.github.apetrelli.scafa.proto.sync.SyncSocket;
+import com.github.apetrelli.scafa.sync.proto.SocketRuntimeException;
+import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 
 public class DirectSyncSocket implements SyncSocket {
 	

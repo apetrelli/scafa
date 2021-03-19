@@ -1,4 +1,4 @@
-package com.github.apetrelli.scafa.proto.sync.processor;
+package com.github.apetrelli.scafa.sync.proto.processor;
 
 import java.nio.ByteBuffer;
 

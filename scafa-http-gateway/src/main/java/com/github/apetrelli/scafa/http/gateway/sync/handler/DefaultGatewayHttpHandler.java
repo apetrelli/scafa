@@ -25,7 +25,7 @@ import com.github.apetrelli.scafa.http.gateway.sync.MappedGatewayHttpConnectionF
 import com.github.apetrelli.scafa.http.sync.HttpHandler;
 import com.github.apetrelli.scafa.http.sync.HttpSyncSocket;
 import com.github.apetrelli.scafa.http.sync.impl.HttpHandlerSupport;
-import com.github.apetrelli.scafa.proto.sync.SyncSocket;
+import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 
 public class DefaultGatewayHttpHandler<T extends HttpSyncSocket<HttpRequest>> extends HttpHandlerSupport implements HttpHandler {
 

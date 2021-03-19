@@ -6,7 +6,7 @@ import static com.github.apetrelli.scafa.http.HttpHeaders.TRANSFER_ENCODING;
 import com.github.apetrelli.scafa.http.HeaderHolder;
 import com.github.apetrelli.scafa.http.sync.output.DataSender;
 import com.github.apetrelli.scafa.http.sync.output.DataSenderFactory;
-import com.github.apetrelli.scafa.proto.sync.SyncSocket;
+import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 
 public class DefaultDataSenderFactory implements DataSenderFactory {
 

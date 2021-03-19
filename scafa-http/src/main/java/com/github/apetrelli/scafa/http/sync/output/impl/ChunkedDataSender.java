@@ -3,7 +3,7 @@ package com.github.apetrelli.scafa.http.sync.output.impl;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
-import com.github.apetrelli.scafa.proto.sync.SyncSocket;
+import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 
 public class ChunkedDataSender extends AbstractDataSender {
 

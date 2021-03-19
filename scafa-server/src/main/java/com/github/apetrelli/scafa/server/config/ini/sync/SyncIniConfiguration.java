@@ -31,11 +31,11 @@ import com.github.apetrelli.scafa.http.sync.HttpSyncSocket;
 import com.github.apetrelli.scafa.http.sync.output.DataSenderFactory;
 import com.github.apetrelli.scafa.proto.SocketFactory;
 import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
-import com.github.apetrelli.scafa.proto.sync.RunnableStarter;
-import com.github.apetrelli.scafa.proto.sync.SyncSocket;
-import com.github.apetrelli.scafa.proto.sync.processor.DataHandler;
 import com.github.apetrelli.scafa.server.config.ServerConfiguration;
 import com.github.apetrelli.scafa.server.config.ini.AbstractIniConfiguration;
+import com.github.apetrelli.scafa.sync.proto.RunnableStarter;
+import com.github.apetrelli.scafa.sync.proto.SyncSocket;
+import com.github.apetrelli.scafa.sync.proto.processor.DataHandler;
 
 public class SyncIniConfiguration extends AbstractIniConfiguration<GatewayHttpConnectionFactory<ProxyHttpConnection>> {
     

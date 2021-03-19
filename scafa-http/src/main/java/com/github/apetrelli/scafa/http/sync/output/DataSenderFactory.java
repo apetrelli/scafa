@@ -1,7 +1,7 @@
 package com.github.apetrelli.scafa.http.sync.output;
 
 import com.github.apetrelli.scafa.http.HeaderHolder;
-import com.github.apetrelli.scafa.proto.sync.SyncSocket;
+import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 
 public interface DataSenderFactory {
 

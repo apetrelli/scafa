@@ -15,24 +15,32 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.apetrelli.scafa.proto.sync.processor.impl;
+package com.github.apetrelli.scafa.sync.proto.processor.impl;
+
+import java.nio.ByteBuffer;
 
 import com.github.apetrelli.scafa.proto.data.impl.ProcessingContext;
 import com.github.apetrelli.scafa.proto.processor.ProtocolStateMachine;
-import com.github.apetrelli.scafa.proto.sync.processor.InputProcessor;
-import com.github.apetrelli.scafa.proto.sync.processor.InputProcessorFactory;
+import com.github.apetrelli.scafa.sync.proto.processor.InputProcessor;
 
-public class StatefulInputProcessorFactory<H, P extends ProcessingContext<?>> implements
-        InputProcessorFactory<H, P> {
+public class StatefulInputProcessor<H, P extends ProcessingContext<?>> implements InputProcessor<P> {
 
-	private ProtocolStateMachine<H, P, Void> stateMachine;
+    private ProtocolStateMachine<H, ? super P, Void> stateMachine;
 
-	public StatefulInputProcessorFactory(ProtocolStateMachine<H, P, Void> stateMachine) {
-		this.stateMachine = stateMachine;
-	}
+    private H handler;
 
-	@Override
-	public InputProcessor<P> create(H handler) {
-        return new StatefulInputProcessor<>(handler, stateMachine);
-	}
+    public StatefulInputProcessor(H handler, ProtocolStateMachine<H, ? super P, Void> stateMachine) {
+        this.handler = handler;
+        this.stateMachine = stateMachine;
+    }
+    
+    @Override
+    public P process(P context) {
+        ByteBuffer buffer = context.getBuffer();
+        while (buffer.hasRemaining()) {
+        	stateMachine.out(context, handler);
+        }
+        return context;
+    }
+
 }

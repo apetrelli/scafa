@@ -4,7 +4,7 @@ import java.net.Socket;
 
 import com.github.apetrelli.scafa.proto.SocketFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
-import com.github.apetrelli.scafa.proto.sync.SyncSocket;
+import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 
 public class DirectClientSyncSocketFactory implements SocketFactory<SyncSocket>{
 	

@@ -5,8 +5,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 import com.github.apetrelli.scafa.proto.IORuntimeException;
-import com.github.apetrelli.scafa.proto.sync.SyncServerSocket;
-import com.github.apetrelli.scafa.proto.sync.SyncSocket;
+import com.github.apetrelli.scafa.sync.proto.SyncServerSocket;
+import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 
 public class DirectSyncServerSocket implements SyncServerSocket<SyncSocket> {
 

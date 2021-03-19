@@ -1,8 +1,8 @@
-package com.github.apetrelli.scafa.proto.sync.processor.impl;
+package com.github.apetrelli.scafa.sync.proto.processor.impl;
 
 import com.github.apetrelli.scafa.proto.data.Input;
-import com.github.apetrelli.scafa.proto.sync.processor.DataHandler;
-import com.github.apetrelli.scafa.proto.sync.processor.InputProcessor;
+import com.github.apetrelli.scafa.sync.proto.processor.DataHandler;
+import com.github.apetrelli.scafa.sync.proto.processor.InputProcessor;
 
 public class PassthroughInputProcessor<P extends Input> implements InputProcessor<P> {
 

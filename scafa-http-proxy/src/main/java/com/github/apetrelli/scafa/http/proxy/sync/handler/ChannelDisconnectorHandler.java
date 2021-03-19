@@ -7,8 +7,8 @@ import java.util.logging.Logger;
 import com.github.apetrelli.scafa.http.proxy.sync.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.processor.HandlerSupport;
-import com.github.apetrelli.scafa.proto.sync.SyncSocket;
-import com.github.apetrelli.scafa.proto.sync.processor.DataHandler;
+import com.github.apetrelli.scafa.sync.proto.SyncSocket;
+import com.github.apetrelli.scafa.sync.proto.processor.DataHandler;
 
 public class ChannelDisconnectorHandler extends HandlerSupport implements DataHandler {
 	

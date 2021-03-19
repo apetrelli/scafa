@@ -1,4 +1,4 @@
-package com.github.apetrelli.scafa.proto.sync;
+package com.github.apetrelli.scafa.sync.proto;
 
 import com.github.apetrelli.scafa.proto.IORuntimeException;
 

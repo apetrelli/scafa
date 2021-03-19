@@ -6,8 +6,8 @@ import com.github.apetrelli.scafa.http.HeaderHolder;
 import com.github.apetrelli.scafa.http.sync.HttpSyncSocket;
 import com.github.apetrelli.scafa.http.sync.direct.DirectHttpSyncSocket;
 import com.github.apetrelli.scafa.http.sync.output.DataSenderFactory;
-import com.github.apetrelli.scafa.proto.sync.SyncServerSocket;
-import com.github.apetrelli.scafa.proto.sync.SyncSocket;
+import com.github.apetrelli.scafa.sync.proto.SyncServerSocket;
+import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 
 public class HttpSyncServerSocket<H extends HeaderHolder> implements SyncServerSocket<HttpSyncSocket<H>> {
 

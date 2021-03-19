@@ -5,10 +5,10 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 
-import com.github.apetrelli.scafa.proto.sync.SyncServerSocket;
-import com.github.apetrelli.scafa.proto.sync.SyncServerSocketFactory;
-import com.github.apetrelli.scafa.proto.sync.SyncSocket;
 import com.github.apetrelli.scafa.proto.util.NetworkUtils;
+import com.github.apetrelli.scafa.sync.proto.SyncServerSocket;
+import com.github.apetrelli.scafa.sync.proto.SyncServerSocketFactory;
+import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 
 public class DirectSyncServerSocketFactory implements SyncServerSocketFactory<SyncSocket> {
 

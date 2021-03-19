@@ -1,9 +1,9 @@
-package com.github.apetrelli.scafa.proto.sync.processor.impl;
+package com.github.apetrelli.scafa.sync.proto.processor.impl;
 
 import com.github.apetrelli.scafa.proto.data.Input;
-import com.github.apetrelli.scafa.proto.sync.processor.DataHandler;
-import com.github.apetrelli.scafa.proto.sync.processor.InputProcessor;
-import com.github.apetrelli.scafa.proto.sync.processor.InputProcessorFactory;
+import com.github.apetrelli.scafa.sync.proto.processor.DataHandler;
+import com.github.apetrelli.scafa.sync.proto.processor.InputProcessor;
+import com.github.apetrelli.scafa.sync.proto.processor.InputProcessorFactory;
 
 public class PassthroughInputProcessorFactory implements InputProcessorFactory<DataHandler, Input> {
     @Override
