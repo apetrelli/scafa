@@ -11,10 +11,11 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.concurrent.CompletableFuture;
 
+import com.github.apetrelli.scafa.async.file.BufferContext;
+import com.github.apetrelli.scafa.async.file.BufferContextReader;
+import com.github.apetrelli.scafa.async.file.aio.IOUtils;
+import com.github.apetrelli.scafa.async.file.aio.PathBufferContextReader;
 import com.github.apetrelli.scafa.async.proto.aio.DirectClientAsyncSocketFactory;
-import com.github.apetrelli.scafa.async.proto.aio.PathBufferContextReader;
-import com.github.apetrelli.scafa.async.proto.buffer.BufferContext;
-import com.github.apetrelli.scafa.async.proto.buffer.BufferContextReader;
 import com.github.apetrelli.scafa.async.proto.processor.impl.DefaultProcessorFactory;
 import com.github.apetrelli.scafa.async.proto.processor.impl.StatefulInputProcessorFactory;
 import com.github.apetrelli.scafa.async.proto.socket.AsyncSocket;
@@ -31,7 +32,6 @@ import com.github.apetrelli.scafa.http.impl.HttpProcessingContextFactory;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
 import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
 import com.github.apetrelli.scafa.proto.util.AsciiString;
-import com.github.apetrelli.scafa.proto.util.IOUtils;
 
 public class DefaultHttpClient implements HttpClient {
 
