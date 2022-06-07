@@ -4,10 +4,13 @@ module com.github.apetrelli.scafa.http.proxy {
 	requires java.logging;
     requires jcifs;
 	exports com.github.apetrelli.scafa.http.proxy;
-	exports com.github.apetrelli.scafa.http.proxy.impl;
 	exports com.github.apetrelli.scafa.http.proxy.ntlm;
-	exports com.github.apetrelli.scafa.http.proxy.sync;
-	exports com.github.apetrelli.scafa.http.proxy.sync.connection;
-	exports com.github.apetrelli.scafa.http.proxy.sync.handler;
-	exports com.github.apetrelli.scafa.http.proxy.sync.ntlm;
+	exports com.github.apetrelli.scafa.async.http.proxy;
+	exports com.github.apetrelli.scafa.async.http.proxy.connection;
+	exports com.github.apetrelli.scafa.async.http.proxy.handler;
+	exports com.github.apetrelli.scafa.async.http.proxy.ntlm;
+	exports com.github.apetrelli.scafa.sync.http.proxy;
+	exports com.github.apetrelli.scafa.sync.http.proxy.connection;
+	exports com.github.apetrelli.scafa.sync.http.proxy.handler;
+	exports com.github.apetrelli.scafa.sync.http.proxy.ntlm;
 }

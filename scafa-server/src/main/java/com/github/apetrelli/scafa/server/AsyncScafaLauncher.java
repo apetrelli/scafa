@@ -39,10 +39,10 @@ import com.github.apetrelli.scafa.async.http.direct.DirectHttpAsyncSocketFactory
 import com.github.apetrelli.scafa.async.http.impl.AsyncHttpSink;
 import com.github.apetrelli.scafa.async.http.output.DataSenderFactory;
 import com.github.apetrelli.scafa.async.http.output.impl.DefaultDataSenderFactory;
+import com.github.apetrelli.scafa.async.http.proxy.connection.DefaultHttpConnectionFactoryFactory;
+import com.github.apetrelli.scafa.async.http.proxy.handler.ProxyHttpHandlerFactory;
 import com.github.apetrelli.scafa.http.impl.HttpProcessingContextFactory;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
-import com.github.apetrelli.scafa.http.proxy.impl.DefaultHttpConnectionFactoryFactory;
-import com.github.apetrelli.scafa.http.proxy.impl.ProxyHttpHandlerFactory;
 import com.github.apetrelli.scafa.proto.SocketFactory;
 import com.github.apetrelli.scafa.proto.data.Input;
 import com.github.apetrelli.scafa.proto.data.impl.SimpleInputFactory;

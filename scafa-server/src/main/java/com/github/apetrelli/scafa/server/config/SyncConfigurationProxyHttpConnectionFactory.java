@@ -1,12 +1,12 @@
 package com.github.apetrelli.scafa.server.config;
 
 import com.github.apetrelli.scafa.http.HttpRequest;
-import com.github.apetrelli.scafa.http.proxy.sync.ProxyHttpConnection;
-import com.github.apetrelli.scafa.http.proxy.sync.connection.DirectHttpConnectionFactory;
 import com.github.apetrelli.scafa.sync.http.HttpSyncSocket;
 import com.github.apetrelli.scafa.sync.http.gateway.GatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.sync.http.gateway.MappedGatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.sync.http.output.DataSenderFactory;
+import com.github.apetrelli.scafa.sync.http.proxy.ProxyHttpConnection;
+import com.github.apetrelli.scafa.sync.http.proxy.connection.DirectHttpConnectionFactory;
 import com.github.apetrelli.scafa.proto.SocketFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;

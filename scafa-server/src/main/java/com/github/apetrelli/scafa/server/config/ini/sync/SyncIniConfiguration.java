@@ -24,11 +24,11 @@ import org.ini4j.Profile.Section;
 
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
-import com.github.apetrelli.scafa.http.proxy.sync.ProxyHttpConnection;
 import com.github.apetrelli.scafa.sync.http.HttpHandler;
 import com.github.apetrelli.scafa.sync.http.HttpSyncSocket;
 import com.github.apetrelli.scafa.sync.http.gateway.GatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.sync.http.output.DataSenderFactory;
+import com.github.apetrelli.scafa.sync.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.proto.SocketFactory;
 import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
 import com.github.apetrelli.scafa.server.config.ServerConfiguration;
