@@ -45,7 +45,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.github.apetrelli.scafa</groupId>
-			<artifactId>scafa-http-proxy</artifactId>
+			<artifactId>scafa-async-http-proxy</artifactId>
 			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
