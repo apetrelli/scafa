@@ -15,5 +15,6 @@
   	<module>scafa-async-file-aio</module>
   	<module>scafa-async-http</module>
   	<module>scafa-async-http-client</module>
+  	<module>scafa-async-http-gateway</module>
   </modules>
 </project>
