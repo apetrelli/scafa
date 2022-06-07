@@ -1,8 +1,8 @@
 package com.github.apetrelli.scafa.http.server.impl;
 
 import com.github.apetrelli.scafa.http.HttpResponse;
-import com.github.apetrelli.scafa.http.async.HttpAsyncSocket;
-import com.github.apetrelli.scafa.http.async.HttpHandler;
+import com.github.apetrelli.scafa.async.http.HttpAsyncSocket;
+import com.github.apetrelli.scafa.async.http.HttpHandler;
 import com.github.apetrelli.scafa.http.server.HttpServerHandlerFactory;
 import com.github.apetrelli.scafa.proto.processor.HandlerFactory;
 

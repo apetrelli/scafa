@@ -2,8 +2,8 @@ package com.github.apetrelli.scafa.http.gateway.impl;
 
 import com.github.apetrelli.scafa.async.proto.socket.AsyncSocket;
 import com.github.apetrelli.scafa.http.HttpRequest;
-import com.github.apetrelli.scafa.http.async.HttpAsyncSocket;
-import com.github.apetrelli.scafa.http.async.HttpHandler;
+import com.github.apetrelli.scafa.async.http.HttpAsyncSocket;
+import com.github.apetrelli.scafa.async.http.HttpHandler;
 import com.github.apetrelli.scafa.http.gateway.GatewayHttpConnectionFactoryFactory;
 import com.github.apetrelli.scafa.proto.processor.HandlerFactory;
 

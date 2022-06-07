@@ -1,4 +1,4 @@
-package com.github.apetrelli.scafa.http.async.direct;
+package com.github.apetrelli.scafa.async.http.direct;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -6,13 +6,13 @@ import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.github.apetrelli.scafa.async.http.HttpAsyncSocket;
+import com.github.apetrelli.scafa.async.http.output.DataSender;
+import com.github.apetrelli.scafa.async.http.output.DataSenderFactory;
+import com.github.apetrelli.scafa.async.http.output.impl.DirectDataSender;
 import com.github.apetrelli.scafa.async.proto.socket.AsyncSocket;
 import com.github.apetrelli.scafa.async.proto.socket.AsyncSocketWrapper;
 import com.github.apetrelli.scafa.http.HeaderHolder;
-import com.github.apetrelli.scafa.http.async.HttpAsyncSocket;
-import com.github.apetrelli.scafa.http.async.output.DataSender;
-import com.github.apetrelli.scafa.http.async.output.DataSenderFactory;
-import com.github.apetrelli.scafa.http.async.output.impl.DirectDataSender;
 
 public class DirectHttpAsyncSocket<H extends HeaderHolder> extends AsyncSocketWrapper<AsyncSocket> implements HttpAsyncSocket<H> {
 

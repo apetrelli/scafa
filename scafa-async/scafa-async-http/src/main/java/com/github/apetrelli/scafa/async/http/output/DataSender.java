@@ -1,4 +1,4 @@
-package com.github.apetrelli.scafa.http.async.output;
+package com.github.apetrelli.scafa.async.http.output;
 
 import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;

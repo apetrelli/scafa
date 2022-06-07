@@ -18,9 +18,9 @@ import com.github.apetrelli.scafa.async.file.BufferContextReader;
 import com.github.apetrelli.scafa.async.file.aio.IOUtils;
 import com.github.apetrelli.scafa.async.file.aio.PathBufferContextReader;
 import com.github.apetrelli.scafa.http.HttpResponse;
-import com.github.apetrelli.scafa.http.async.HttpAsyncSocket;
-import com.github.apetrelli.scafa.http.async.output.DataSender;
-import com.github.apetrelli.scafa.http.async.output.DataSenderFactory;
+import com.github.apetrelli.scafa.async.http.HttpAsyncSocket;
+import com.github.apetrelli.scafa.async.http.output.DataSender;
+import com.github.apetrelli.scafa.async.http.output.DataSenderFactory;
 import com.github.apetrelli.scafa.http.server.HttpServer;
 import com.github.apetrelli.scafa.proto.util.AsciiString;
 

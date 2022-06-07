@@ -19,7 +19,7 @@ package com.github.apetrelli.scafa.http.proxy;
 
 import java.util.concurrent.CompletableFuture;
 
-import com.github.apetrelli.scafa.http.async.HttpHandler;
+import com.github.apetrelli.scafa.async.http.HttpHandler;
 
 public interface ProxyHttpHandler extends HttpHandler {
 

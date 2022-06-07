@@ -23,9 +23,9 @@ import java.util.concurrent.CompletableFuture;
 import com.github.apetrelli.scafa.async.proto.socket.AsyncSocket;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
-import com.github.apetrelli.scafa.http.async.HttpAsyncSocket;
-import com.github.apetrelli.scafa.http.async.HttpHandler;
-import com.github.apetrelli.scafa.http.async.impl.HttpHandlerSupport;
+import com.github.apetrelli.scafa.async.http.HttpAsyncSocket;
+import com.github.apetrelli.scafa.async.http.HttpHandler;
+import com.github.apetrelli.scafa.async.http.impl.HttpHandlerSupport;
 import com.github.apetrelli.scafa.http.gateway.MappedGatewayHttpConnectionFactory;
 
 public class DefaultGatewayHttpHandler<T extends HttpAsyncSocket<HttpRequest>> extends HttpHandlerSupport implements HttpHandler {

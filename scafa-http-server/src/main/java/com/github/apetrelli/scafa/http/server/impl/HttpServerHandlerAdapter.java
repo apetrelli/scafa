@@ -5,8 +5,8 @@ import java.util.concurrent.CompletableFuture;
 
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
-import com.github.apetrelli.scafa.http.async.HttpHandler;
-import com.github.apetrelli.scafa.http.async.impl.HttpHandlerSupport;
+import com.github.apetrelli.scafa.async.http.HttpHandler;
+import com.github.apetrelli.scafa.async.http.impl.HttpHandlerSupport;
 import com.github.apetrelli.scafa.http.server.HttpServerHandler;
 
 public class HttpServerHandlerAdapter extends HttpHandlerSupport implements HttpHandler {

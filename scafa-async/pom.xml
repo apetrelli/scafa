@@ -13,5 +13,6 @@
   	<module>scafa-async-proto-aio</module>
   	<module>scafa-async-file</module>
   	<module>scafa-async-file-aio</module>
+  	<module>scafa-async-http</module>
   </modules>
 </project>

@@ -1,6 +1,7 @@
 module com.github.apetrelli.scafa.http.server {
 	requires java.logging;
 	requires transitive com.github.apetrelli.scafa.http;
+	requires transitive com.github.apetrelli.scafa.async.http;
 	requires com.github.apetrelli.scafa.async.proto.aio;
 	requires transitive com.github.apetrelli.scafa.async.file.aio;
 	exports com.github.apetrelli.scafa.http.server;

@@ -1,12 +1,12 @@
-package com.github.apetrelli.scafa.http.async.output.impl;
+package com.github.apetrelli.scafa.async.http.output.impl;
 
 import static com.github.apetrelli.scafa.http.HttpHeaders.CHUNKED;
 import static com.github.apetrelli.scafa.http.HttpHeaders.TRANSFER_ENCODING;
 
+import com.github.apetrelli.scafa.async.http.output.DataSender;
+import com.github.apetrelli.scafa.async.http.output.DataSenderFactory;
 import com.github.apetrelli.scafa.async.proto.socket.AsyncSocket;
 import com.github.apetrelli.scafa.http.HeaderHolder;
-import com.github.apetrelli.scafa.http.async.output.DataSender;
-import com.github.apetrelli.scafa.http.async.output.DataSenderFactory;
 
 public class DefaultDataSenderFactory implements DataSenderFactory {
 

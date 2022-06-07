@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import com.github.apetrelli.scafa.http.HttpResponse;
-import com.github.apetrelli.scafa.http.async.HttpAsyncSocket;
+import com.github.apetrelli.scafa.async.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.http.server.HttpServer;
 import com.github.apetrelli.scafa.http.server.HttpServerHandler;
 import com.github.apetrelli.scafa.http.server.HttpServerHandlerFactory;

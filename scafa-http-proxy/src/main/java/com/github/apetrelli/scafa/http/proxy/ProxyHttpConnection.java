@@ -21,7 +21,7 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
 
 import com.github.apetrelli.scafa.http.HttpRequest;
-import com.github.apetrelli.scafa.http.async.HttpAsyncSocket;
+import com.github.apetrelli.scafa.async.http.HttpAsyncSocket;
 
 public interface ProxyHttpConnection extends HttpAsyncSocket<HttpRequest> {
 

@@ -21,7 +21,7 @@ import java.util.concurrent.CompletableFuture;
 
 import com.github.apetrelli.scafa.async.proto.util.CompletionHandlerFuture;
 import com.github.apetrelli.scafa.http.HttpResponse;
-import com.github.apetrelli.scafa.http.async.impl.HttpHandlerSupport;
+import com.github.apetrelli.scafa.async.http.impl.HttpHandlerSupport;
 
 public class CapturingHandler extends HttpHandlerSupport {
 
