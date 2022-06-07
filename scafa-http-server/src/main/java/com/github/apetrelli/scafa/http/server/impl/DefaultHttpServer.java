@@ -16,7 +16,7 @@ import java.util.logging.Logger;
 import com.github.apetrelli.scafa.async.file.BufferContext;
 import com.github.apetrelli.scafa.async.file.BufferContextReader;
 import com.github.apetrelli.scafa.async.file.aio.IOUtils;
-import com.github.apetrelli.scafa.async.file.aio.PathBufferContextReader;
+import com.github.apetrelli.scafa.async.file.aio.AioPathBufferContextReader;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.async.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.async.http.output.DataSender;
@@ -59,7 +59,7 @@ public class DefaultHttpServer implements HttpServer {
 		AsynchronousFileChannel fileChannel = null;
 		try {
 			fileChannel = AsynchronousFileChannel.open(payload, StandardOpenOption.READ); // NOSONAR
-			PathBufferContextReader payloadReader = new PathBufferContextReader(fileChannel); // NOSONAR
+			AioPathBufferContextReader payloadReader = new AioPathBufferContextReader(fileChannel); // NOSONAR
 			return response(channel, response, payloadReader, fileChannel.size(), writeBuffer).thenRun(() -> {
 				try {
 					payloadReader.close();

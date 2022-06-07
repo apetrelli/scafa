@@ -4,17 +4,15 @@ import static com.github.apetrelli.scafa.http.HttpHeaders.CHUNKED;
 import static com.github.apetrelli.scafa.http.HttpHeaders.CONTENT_LENGTH;
 import static com.github.apetrelli.scafa.http.HttpHeaders.TRANSFER_ENCODING;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.AsynchronousFileChannel;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.concurrent.CompletableFuture;
 
 import com.github.apetrelli.scafa.async.file.BufferContext;
 import com.github.apetrelli.scafa.async.file.BufferContextReader;
-import com.github.apetrelli.scafa.async.file.aio.IOUtils;
-import com.github.apetrelli.scafa.async.file.aio.PathBufferContextReader;
+import com.github.apetrelli.scafa.async.file.PathBufferContextReader;
+import com.github.apetrelli.scafa.async.file.PathBufferContextReaderFactory;
+import com.github.apetrelli.scafa.async.file.PathIOException;
 import com.github.apetrelli.scafa.async.http.HttpHandler;
 import com.github.apetrelli.scafa.async.http.impl.AsyncHttpSink;
 import com.github.apetrelli.scafa.async.proto.processor.impl.DefaultProcessorFactory;
@@ -34,6 +32,8 @@ import com.github.apetrelli.scafa.proto.util.AsciiString;
 public class DefaultHttpClient implements HttpClient {
 
 	private MappedHttpConnectionFactory connectionFactory;
+	
+	private com.github.apetrelli.scafa.async.file.PathBufferContextReaderFactory pathBufferContextReaderFactory;
 
 	public static ProcessorFactory<HttpHandler, AsyncSocket> buildDefaultProcessorFactory() {
 		HttpProcessingContextFactory contextFactory = new HttpProcessingContextFactory();
@@ -42,8 +42,9 @@ public class DefaultHttpClient implements HttpClient {
 		return new DefaultProcessorFactory<>(inputProcessorFactory, contextFactory);
 	}
 	
-	public DefaultHttpClient(MappedHttpConnectionFactory connectionFactory) {
+	public DefaultHttpClient(MappedHttpConnectionFactory connectionFactory, PathBufferContextReaderFactory pathBufferContextReaderFactory) {
 		this.connectionFactory = connectionFactory;
+		this.pathBufferContextReaderFactory = pathBufferContextReaderFactory;
 	}
 
 	@Override
@@ -79,14 +80,11 @@ public class DefaultHttpClient implements HttpClient {
 
 	@Override
 	public void request(HttpRequest request, Path payload, HttpClientHandler handler) {
-		AsynchronousFileChannel fileChannel = null;
 		try {
-			fileChannel = AsynchronousFileChannel.open(payload, StandardOpenOption.READ); // NOSONAR
-			PathBufferContextReader payloadReader = new PathBufferContextReader(fileChannel); // NOSONAR
-			request(request, payloadReader, fileChannel.size(), handler);
-		} catch (IOException e1) {
-			IOUtils.closeQuietly(fileChannel);
-			handler.onRequestError(request, e1);
+			PathBufferContextReader payloadReader = pathBufferContextReaderFactory.create(payload);
+			request(request, payloadReader, payloadReader.size(), handler);
+		} catch (PathIOException e) {
+			handler.onRequestError(request, e);
 		}
 	}
 

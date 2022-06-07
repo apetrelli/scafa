@@ -6,13 +6,14 @@ import java.nio.channels.CompletionHandler;
 import java.util.concurrent.CompletableFuture;
 
 import com.github.apetrelli.scafa.async.file.BufferContext;
-import com.github.apetrelli.scafa.async.file.BufferContextReader;
+import com.github.apetrelli.scafa.async.file.PathBufferContextReader;
+import com.github.apetrelli.scafa.async.file.PathIOException;
 
-public class PathBufferContextReader implements BufferContextReader {
+public class AioPathBufferContextReader implements PathBufferContextReader {
 
 	private AsynchronousFileChannel channel;
 
-	public PathBufferContextReader(AsynchronousFileChannel channel) {
+	public AioPathBufferContextReader(AsynchronousFileChannel channel) {
 		this.channel = channel;
 	}
 	
@@ -40,6 +41,15 @@ public class PathBufferContextReader implements BufferContextReader {
 		});
 
 		return future;
+	}
+	
+	@Override
+	public long size() {
+		try {
+			return channel.size();
+		} catch (IOException e) {
+			throw new PathIOException(e);
+		}
 	}
 
 	@Override
