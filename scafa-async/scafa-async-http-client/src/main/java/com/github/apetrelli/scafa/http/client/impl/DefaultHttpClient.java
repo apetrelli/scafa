@@ -15,16 +15,14 @@ import com.github.apetrelli.scafa.async.file.BufferContext;
 import com.github.apetrelli.scafa.async.file.BufferContextReader;
 import com.github.apetrelli.scafa.async.file.aio.IOUtils;
 import com.github.apetrelli.scafa.async.file.aio.PathBufferContextReader;
-import com.github.apetrelli.scafa.async.proto.aio.DirectClientAsyncSocketFactory;
+import com.github.apetrelli.scafa.async.http.HttpHandler;
+import com.github.apetrelli.scafa.async.http.impl.AsyncHttpSink;
 import com.github.apetrelli.scafa.async.proto.processor.impl.DefaultProcessorFactory;
 import com.github.apetrelli.scafa.async.proto.processor.impl.StatefulInputProcessorFactory;
 import com.github.apetrelli.scafa.async.proto.socket.AsyncSocket;
 import com.github.apetrelli.scafa.async.proto.util.CompletionHandlerFuture;
 import com.github.apetrelli.scafa.http.HttpProcessingContext;
 import com.github.apetrelli.scafa.http.HttpRequest;
-import com.github.apetrelli.scafa.async.http.HttpHandler;
-import com.github.apetrelli.scafa.async.http.impl.AsyncHttpSink;
-import com.github.apetrelli.scafa.async.http.output.impl.DefaultDataSenderFactory;
 import com.github.apetrelli.scafa.http.client.HttpClient;
 import com.github.apetrelli.scafa.http.client.HttpClientConnection;
 import com.github.apetrelli.scafa.http.client.HttpClientHandler;
@@ -37,7 +35,7 @@ public class DefaultHttpClient implements HttpClient {
 
 	private MappedHttpConnectionFactory connectionFactory;
 
-	private static ProcessorFactory<HttpHandler, AsyncSocket> buildDefaultProcessorFactory() {
+	public static ProcessorFactory<HttpHandler, AsyncSocket> buildDefaultProcessorFactory() {
 		HttpProcessingContextFactory contextFactory = new HttpProcessingContextFactory();
 		StatefulInputProcessorFactory<HttpHandler, HttpProcessingContext> inputProcessorFactory = new StatefulInputProcessorFactory<>(
 				new HttpStateMachine<>(new AsyncHttpSink()));
@@ -46,11 +44,6 @@ public class DefaultHttpClient implements HttpClient {
 	
 	public DefaultHttpClient(MappedHttpConnectionFactory connectionFactory) {
 		this.connectionFactory = connectionFactory;
-	}
-
-	public DefaultHttpClient() {
-		this(new DefaultMappedHttpConnectionFactory(new DefaultDataSenderFactory(),
-				new DirectClientAsyncSocketFactory(), buildDefaultProcessorFactory()));
 	}
 
 	@Override

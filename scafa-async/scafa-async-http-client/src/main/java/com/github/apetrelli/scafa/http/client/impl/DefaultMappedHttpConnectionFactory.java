@@ -5,13 +5,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-import com.github.apetrelli.scafa.async.proto.aio.DirectClientAsyncSocketFactory;
-import com.github.apetrelli.scafa.async.proto.socket.AsyncSocket;
-import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.async.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.async.http.HttpHandler;
 import com.github.apetrelli.scafa.async.http.direct.DirectHttpAsyncSocket;
 import com.github.apetrelli.scafa.async.http.output.DataSenderFactory;
+import com.github.apetrelli.scafa.async.proto.socket.AsyncSocket;
+import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.client.HttpClientConnection;
 import com.github.apetrelli.scafa.proto.SocketFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
@@ -21,7 +20,7 @@ public class DefaultMappedHttpConnectionFactory implements MappedHttpConnectionF
 
     private DataSenderFactory dataSenderFactory;
     
-    private SocketFactory<AsyncSocket> socketFactory = new DirectClientAsyncSocketFactory();
+    private SocketFactory<AsyncSocket> socketFactory;
     
     private ProcessorFactory<HttpHandler, AsyncSocket> processorFactory;
 

@@ -4,15 +4,8 @@ import java.nio.file.Path;
 
 import com.github.apetrelli.scafa.async.file.BufferContextReader;
 import com.github.apetrelli.scafa.http.HttpRequest;
-import com.github.apetrelli.scafa.http.client.impl.DefaultHttpClient;
 
 public interface HttpClient {
-
-	static HttpClient DEFAULT_INSTANCE = new DefaultHttpClient();
-
-	public static HttpClient getDefault() {
-		return DEFAULT_INSTANCE;
-	}
 
 	void request(HttpRequest request, HttpClientHandler handler);
 
