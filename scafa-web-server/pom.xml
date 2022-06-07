@@ -16,11 +16,6 @@
 			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
-			<groupId>com.github.apetrelli.scafa</groupId>
-			<artifactId>scafa-http-gateway</artifactId>
-			<version>1.0.0-SNAPSHOT</version>
-		</dependency>
-		<dependency>
 			<groupId>org.ini4j</groupId>
 			<artifactId>ini4j</artifactId>
 			<version>0.5.4</version>
@@ -43,6 +38,11 @@
 		<dependency>
 			<groupId>com.github.apetrelli.scafa</groupId>
 			<artifactId>scafa-async-http-gateway</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>com.github.apetrelli.scafa</groupId>
+			<artifactId>scafa-sync-http-gateway</artifactId>
 			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
