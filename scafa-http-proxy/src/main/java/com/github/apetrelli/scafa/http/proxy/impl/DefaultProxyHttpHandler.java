@@ -22,10 +22,10 @@ import static com.github.apetrelli.scafa.http.HttpHeaders.CONNECT;
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
+import com.github.apetrelli.scafa.async.http.gateway.handler.DefaultGatewayHttpHandler;
 import com.github.apetrelli.scafa.async.proto.socket.AsyncSocket;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
-import com.github.apetrelli.scafa.http.gateway.impl.DefaultGatewayHttpHandler;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
 import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;

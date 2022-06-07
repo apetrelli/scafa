@@ -19,8 +19,8 @@ package com.github.apetrelli.scafa.http.proxy;
 
 import java.util.concurrent.CompletableFuture;
 
+import com.github.apetrelli.scafa.async.http.gateway.MappedGatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.async.proto.socket.AsyncSocket;
-import com.github.apetrelli.scafa.http.gateway.MappedGatewayHttpConnectionFactory;
 
 public interface MappedProxyHttpConnectionFactory extends MappedGatewayHttpConnectionFactory<ProxyHttpConnection> {
 

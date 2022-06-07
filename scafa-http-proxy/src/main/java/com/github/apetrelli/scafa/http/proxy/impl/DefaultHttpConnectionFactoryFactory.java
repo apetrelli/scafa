@@ -17,7 +17,7 @@
  */
 package com.github.apetrelli.scafa.http.proxy.impl;
 
-import com.github.apetrelli.scafa.http.gateway.GatewayHttpConnectionFactory;
+import com.github.apetrelli.scafa.async.http.gateway.GatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.http.proxy.ProxyHttpConnectionFactoryFactory;

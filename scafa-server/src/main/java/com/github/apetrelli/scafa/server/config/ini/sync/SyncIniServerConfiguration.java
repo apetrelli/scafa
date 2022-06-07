@@ -3,7 +3,6 @@ package com.github.apetrelli.scafa.server.config.ini.sync;
 import org.ini4j.Profile.Section;
 
 import com.github.apetrelli.scafa.http.HttpRequest;
-import com.github.apetrelli.scafa.http.gateway.sync.GatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
 import com.github.apetrelli.scafa.http.proxy.sync.ProxyHttpConnection;
 import com.github.apetrelli.scafa.http.proxy.sync.connection.AnonymousProxyHttpConnectionFactory;
@@ -12,6 +11,7 @@ import com.github.apetrelli.scafa.http.proxy.sync.connection.DirectHttpConnectio
 import com.github.apetrelli.scafa.http.proxy.sync.ntlm.NtlmProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.sync.http.HttpHandler;
 import com.github.apetrelli.scafa.sync.http.HttpSyncSocket;
+import com.github.apetrelli.scafa.sync.http.gateway.GatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.sync.http.output.DataSenderFactory;
 import com.github.apetrelli.scafa.proto.SocketFactory;
 import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;

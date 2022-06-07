@@ -17,8 +17,8 @@
  */
 package com.github.apetrelli.scafa.http.proxy.sync;
 
-import com.github.apetrelli.scafa.http.gateway.sync.MappedGatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
+import com.github.apetrelli.scafa.sync.http.gateway.MappedGatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 
 public interface MappedProxyHttpConnectionFactory extends MappedGatewayHttpConnectionFactory<ProxyHttpConnection> {
