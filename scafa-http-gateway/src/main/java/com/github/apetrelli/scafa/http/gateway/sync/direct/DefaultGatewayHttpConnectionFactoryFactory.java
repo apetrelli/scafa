@@ -21,7 +21,7 @@ import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.gateway.sync.GatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.gateway.sync.GatewayHttpConnectionFactoryFactory;
 import com.github.apetrelli.scafa.http.gateway.sync.MappedGatewayHttpConnectionFactory;
-import com.github.apetrelli.scafa.http.sync.HttpSyncSocket;
+import com.github.apetrelli.scafa.sync.http.HttpSyncSocket;
 
 public class DefaultGatewayHttpConnectionFactoryFactory<T extends HttpSyncSocket<HttpRequest>> implements GatewayHttpConnectionFactoryFactory<T> {
 

@@ -22,7 +22,7 @@ import static com.github.apetrelli.scafa.http.HttpCodes.PROXY_AUTHENTICATION_REQ
 import java.nio.ByteBuffer;
 
 import com.github.apetrelli.scafa.http.HttpResponse;
-import com.github.apetrelli.scafa.http.sync.HttpSyncSocket;
+import com.github.apetrelli.scafa.sync.http.HttpSyncSocket;
 
 public class TentativeHandler extends CapturingHandler {
 

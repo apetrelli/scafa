@@ -1,13 +1,13 @@
-package com.github.apetrelli.scafa.http.sync.composite;
+package com.github.apetrelli.scafa.sync.http.composite;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import com.github.apetrelli.scafa.http.HttpResponse;
-import com.github.apetrelli.scafa.http.sync.HttpHandler;
-import com.github.apetrelli.scafa.http.sync.HttpSyncSocket;
-import com.github.apetrelli.scafa.http.sync.composite.CompositeHttpHandler.PatternHandlerPair;
 import com.github.apetrelli.scafa.proto.processor.HandlerFactory;
+import com.github.apetrelli.scafa.sync.http.HttpHandler;
+import com.github.apetrelli.scafa.sync.http.HttpSyncSocket;
+import com.github.apetrelli.scafa.sync.http.composite.CompositeHttpHandler.PatternHandlerPair;
 
 public class CompositeHttpHandlerFactory implements HandlerFactory<HttpHandler, HttpSyncSocket<HttpResponse>> {
 

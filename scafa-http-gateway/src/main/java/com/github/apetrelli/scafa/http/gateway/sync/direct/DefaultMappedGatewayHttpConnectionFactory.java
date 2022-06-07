@@ -26,7 +26,7 @@ import java.util.logging.Logger;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.gateway.sync.GatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.gateway.sync.MappedGatewayHttpConnectionFactory;
-import com.github.apetrelli.scafa.http.sync.HttpSyncSocket;
+import com.github.apetrelli.scafa.sync.http.HttpSyncSocket;
 import com.github.apetrelli.scafa.proto.IORuntimeException;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.sync.proto.SyncSocket;

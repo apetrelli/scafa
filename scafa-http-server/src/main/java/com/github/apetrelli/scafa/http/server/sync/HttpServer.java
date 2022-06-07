@@ -5,7 +5,7 @@ import java.nio.ByteBuffer;
 import java.nio.file.Path;
 
 import com.github.apetrelli.scafa.http.HttpResponse;
-import com.github.apetrelli.scafa.http.sync.HttpSyncSocket;
+import com.github.apetrelli.scafa.sync.http.HttpSyncSocket;
 
 public interface HttpServer {
 

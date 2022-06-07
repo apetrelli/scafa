@@ -1,4 +1,4 @@
-package com.github.apetrelli.scafa.http.sync.impl;
+package com.github.apetrelli.scafa.sync.http.impl;
 
 import static com.github.apetrelli.scafa.http.HttpHeaders.CONNECT;
 
@@ -10,7 +10,7 @@ import com.github.apetrelli.scafa.http.HttpProcessingContext;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.HttpSink;
-import com.github.apetrelli.scafa.http.sync.HttpHandler;
+import com.github.apetrelli.scafa.sync.http.HttpHandler;
 
 public class SyncHttpSink implements HttpSink<HttpHandler, Void> {
 	

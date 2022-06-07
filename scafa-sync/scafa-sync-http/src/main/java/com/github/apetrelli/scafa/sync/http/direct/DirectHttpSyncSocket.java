@@ -1,4 +1,4 @@
-package com.github.apetrelli.scafa.http.sync.direct;
+package com.github.apetrelli.scafa.sync.http.direct;
 
 import java.nio.ByteBuffer;
 import java.util.logging.Level;
@@ -6,10 +6,10 @@ import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.http.HeaderHolder;
 import com.github.apetrelli.scafa.http.HttpException;
-import com.github.apetrelli.scafa.http.sync.HttpSyncSocket;
-import com.github.apetrelli.scafa.http.sync.output.DataSender;
-import com.github.apetrelli.scafa.http.sync.output.DataSenderFactory;
-import com.github.apetrelli.scafa.http.sync.output.impl.DirectDataSender;
+import com.github.apetrelli.scafa.sync.http.HttpSyncSocket;
+import com.github.apetrelli.scafa.sync.http.output.DataSender;
+import com.github.apetrelli.scafa.sync.http.output.DataSenderFactory;
+import com.github.apetrelli.scafa.sync.http.output.impl.DirectDataSender;
 import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 import com.github.apetrelli.scafa.sync.proto.SyncSocketWrapper;
 

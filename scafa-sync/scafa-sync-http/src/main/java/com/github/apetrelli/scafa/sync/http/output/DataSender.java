@@ -1,4 +1,4 @@
-package com.github.apetrelli.scafa.http.sync.output;
+package com.github.apetrelli.scafa.sync.http.output;
 
 import java.nio.ByteBuffer;
 

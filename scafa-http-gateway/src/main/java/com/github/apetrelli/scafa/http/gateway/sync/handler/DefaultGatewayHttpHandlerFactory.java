@@ -2,8 +2,8 @@ package com.github.apetrelli.scafa.http.gateway.sync.handler;
 
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.gateway.sync.GatewayHttpConnectionFactoryFactory;
-import com.github.apetrelli.scafa.http.sync.HttpHandler;
-import com.github.apetrelli.scafa.http.sync.HttpSyncSocket;
+import com.github.apetrelli.scafa.sync.http.HttpHandler;
+import com.github.apetrelli.scafa.sync.http.HttpSyncSocket;
 import com.github.apetrelli.scafa.proto.processor.HandlerFactory;
 import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 

@@ -12,10 +12,10 @@ import com.github.apetrelli.scafa.http.gateway.sync.handler.DefaultGatewayHttpHa
 import com.github.apetrelli.scafa.http.server.sync.HttpServer;
 import com.github.apetrelli.scafa.http.server.sync.impl.HttpServerHandlerAdapterFactory;
 import com.github.apetrelli.scafa.http.server.sync.statics.StaticHttpServerHandlerFactory;
-import com.github.apetrelli.scafa.http.sync.HttpHandler;
-import com.github.apetrelli.scafa.http.sync.HttpSyncSocket;
-import com.github.apetrelli.scafa.http.sync.composite.CompositeHttpHandlerFactory;
-import com.github.apetrelli.scafa.http.sync.composite.CompositeHttpHandlerFactory.CompositeHttpHandlerFactoryBuilder;
+import com.github.apetrelli.scafa.sync.http.HttpHandler;
+import com.github.apetrelli.scafa.sync.http.HttpSyncSocket;
+import com.github.apetrelli.scafa.sync.http.composite.CompositeHttpHandlerFactory;
+import com.github.apetrelli.scafa.sync.http.composite.CompositeHttpHandlerFactory.CompositeHttpHandlerFactoryBuilder;
 import com.github.apetrelli.scafa.proto.SocketFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.processor.HandlerFactory;

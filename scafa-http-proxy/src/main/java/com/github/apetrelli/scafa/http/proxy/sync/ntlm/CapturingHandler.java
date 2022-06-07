@@ -18,7 +18,7 @@
 package com.github.apetrelli.scafa.http.proxy.sync.ntlm;
 
 import com.github.apetrelli.scafa.http.HttpResponse;
-import com.github.apetrelli.scafa.http.sync.impl.HttpHandlerSupport;
+import com.github.apetrelli.scafa.sync.http.impl.HttpHandlerSupport;
 
 public class CapturingHandler extends HttpHandlerSupport {
 

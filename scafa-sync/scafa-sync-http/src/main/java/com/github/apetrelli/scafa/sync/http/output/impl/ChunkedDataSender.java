@@ -1,4 +1,4 @@
-package com.github.apetrelli.scafa.http.sync.output.impl;
+package com.github.apetrelli.scafa.sync.http.output.impl;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;

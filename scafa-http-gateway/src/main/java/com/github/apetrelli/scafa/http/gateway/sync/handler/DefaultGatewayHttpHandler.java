@@ -22,9 +22,9 @@ import java.nio.ByteBuffer;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.gateway.sync.MappedGatewayHttpConnectionFactory;
-import com.github.apetrelli.scafa.http.sync.HttpHandler;
-import com.github.apetrelli.scafa.http.sync.HttpSyncSocket;
-import com.github.apetrelli.scafa.http.sync.impl.HttpHandlerSupport;
+import com.github.apetrelli.scafa.sync.http.HttpHandler;
+import com.github.apetrelli.scafa.sync.http.HttpSyncSocket;
+import com.github.apetrelli.scafa.sync.http.impl.HttpHandlerSupport;
 import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 
 public class DefaultGatewayHttpHandler<T extends HttpSyncSocket<HttpRequest>> extends HttpHandlerSupport implements HttpHandler {

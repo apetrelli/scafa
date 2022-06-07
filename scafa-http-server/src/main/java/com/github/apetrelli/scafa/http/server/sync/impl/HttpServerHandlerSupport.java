@@ -15,7 +15,7 @@ import java.nio.ByteBuffer;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.server.sync.HttpServerHandler;
-import com.github.apetrelli.scafa.http.sync.HttpSyncSocket;
+import com.github.apetrelli.scafa.sync.http.HttpSyncSocket;
 import com.github.apetrelli.scafa.proto.util.AsciiString;
 
 public class HttpServerHandlerSupport implements HttpServerHandler {

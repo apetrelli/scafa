@@ -1,11 +1,11 @@
-package com.github.apetrelli.scafa.http.sync.server;
+package com.github.apetrelli.scafa.sync.http.server;
 
 import java.io.IOException;
 
 import com.github.apetrelli.scafa.http.HeaderHolder;
-import com.github.apetrelli.scafa.http.sync.HttpSyncSocket;
-import com.github.apetrelli.scafa.http.sync.direct.DirectHttpSyncSocket;
-import com.github.apetrelli.scafa.http.sync.output.DataSenderFactory;
+import com.github.apetrelli.scafa.sync.http.HttpSyncSocket;
+import com.github.apetrelli.scafa.sync.http.direct.DirectHttpSyncSocket;
+import com.github.apetrelli.scafa.sync.http.output.DataSenderFactory;
 import com.github.apetrelli.scafa.sync.proto.SyncServerSocket;
 import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 

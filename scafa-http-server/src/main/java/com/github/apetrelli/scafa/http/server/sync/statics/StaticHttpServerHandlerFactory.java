@@ -12,7 +12,7 @@ import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.server.sync.HttpServer;
 import com.github.apetrelli.scafa.http.server.sync.HttpServerHandler;
 import com.github.apetrelli.scafa.http.server.sync.HttpServerHandlerFactory;
-import com.github.apetrelli.scafa.http.sync.HttpSyncSocket;
+import com.github.apetrelli.scafa.sync.http.HttpSyncSocket;
 import com.github.apetrelli.scafa.proto.util.AsciiString;
 
 public class StaticHttpServerHandlerFactory implements HttpServerHandlerFactory {

@@ -2,8 +2,8 @@ package com.github.apetrelli.scafa.http.server.sync.impl;
 
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.server.sync.HttpServerHandlerFactory;
-import com.github.apetrelli.scafa.http.sync.HttpHandler;
-import com.github.apetrelli.scafa.http.sync.HttpSyncSocket;
+import com.github.apetrelli.scafa.sync.http.HttpHandler;
+import com.github.apetrelli.scafa.sync.http.HttpSyncSocket;
 import com.github.apetrelli.scafa.proto.processor.HandlerFactory;
 
 public class HttpServerHandlerAdapterFactory implements HandlerFactory<HttpHandler, HttpSyncSocket<HttpResponse>> {

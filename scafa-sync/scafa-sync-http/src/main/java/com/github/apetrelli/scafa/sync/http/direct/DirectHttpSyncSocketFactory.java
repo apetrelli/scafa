@@ -1,10 +1,10 @@
-package com.github.apetrelli.scafa.http.sync.direct;
+package com.github.apetrelli.scafa.sync.http.direct;
 
 import com.github.apetrelli.scafa.http.HttpRequest;
-import com.github.apetrelli.scafa.http.sync.HttpSyncSocket;
-import com.github.apetrelli.scafa.http.sync.output.DataSenderFactory;
 import com.github.apetrelli.scafa.proto.SocketFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
+import com.github.apetrelli.scafa.sync.http.HttpSyncSocket;
+import com.github.apetrelli.scafa.sync.http.output.DataSenderFactory;
 import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 
 public class DirectHttpSyncSocketFactory implements SocketFactory<HttpSyncSocket<HttpRequest>> {

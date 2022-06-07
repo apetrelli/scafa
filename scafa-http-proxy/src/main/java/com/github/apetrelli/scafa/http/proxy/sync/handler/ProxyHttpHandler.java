@@ -18,7 +18,7 @@
 package com.github.apetrelli.scafa.http.proxy.sync.handler;
 
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
-import com.github.apetrelli.scafa.http.sync.HttpHandler;
+import com.github.apetrelli.scafa.sync.http.HttpHandler;
 
 public interface ProxyHttpHandler extends HttpHandler {
 

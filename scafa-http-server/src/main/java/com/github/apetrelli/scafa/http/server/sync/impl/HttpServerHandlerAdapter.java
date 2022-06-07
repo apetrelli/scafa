@@ -5,8 +5,8 @@ import java.nio.ByteBuffer;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.server.sync.HttpServerHandler;
-import com.github.apetrelli.scafa.http.sync.HttpHandler;
-import com.github.apetrelli.scafa.http.sync.impl.HttpHandlerSupport;
+import com.github.apetrelli.scafa.sync.http.HttpHandler;
+import com.github.apetrelli.scafa.sync.http.impl.HttpHandlerSupport;
 
 
 public class HttpServerHandlerAdapter extends HttpHandlerSupport implements HttpHandler {

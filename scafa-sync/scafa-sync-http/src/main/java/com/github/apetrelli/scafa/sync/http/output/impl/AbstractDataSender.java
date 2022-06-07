@@ -1,6 +1,6 @@
-package com.github.apetrelli.scafa.http.sync.output.impl;
+package com.github.apetrelli.scafa.sync.http.output.impl;
 
-import com.github.apetrelli.scafa.http.sync.output.DataSender;
+import com.github.apetrelli.scafa.sync.http.output.DataSender;
 import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 
 public abstract class AbstractDataSender implements DataSender {

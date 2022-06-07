@@ -22,7 +22,7 @@ import java.nio.ByteBuffer;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.gateway.sync.MappedGatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.gateway.sync.handler.ChannelDisconnectorHandler;
-import com.github.apetrelli.scafa.http.sync.HttpSyncSocket;
+import com.github.apetrelli.scafa.sync.http.HttpSyncSocket;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.processor.Processor;
 import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;

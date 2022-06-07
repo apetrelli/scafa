@@ -15,14 +15,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.apetrelli.scafa.http.sync.impl;
+package com.github.apetrelli.scafa.sync.http.impl;
 
 import java.nio.ByteBuffer;
 
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
-import com.github.apetrelli.scafa.http.sync.HttpHandler;
 import com.github.apetrelli.scafa.proto.processor.HandlerSupport;
+import com.github.apetrelli.scafa.sync.http.HttpHandler;
 
 public class HttpHandlerSupport extends HandlerSupport implements HttpHandler {
 

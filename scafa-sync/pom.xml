@@ -14,5 +14,6 @@
 		<module>scafa-sync-proto</module>
 		<module>scafa-sync-proto-jnet</module>
 		<module>scafa-sync-proto-thread</module>
+		<module>scafa-sync-http</module>
 	</modules>
 </project>

@@ -10,9 +10,9 @@ import com.github.apetrelli.scafa.http.proxy.sync.connection.AnonymousProxyHttpC
 import com.github.apetrelli.scafa.http.proxy.sync.connection.BasicAuthProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.sync.connection.DirectHttpConnectionFactory;
 import com.github.apetrelli.scafa.http.proxy.sync.ntlm.NtlmProxyHttpConnectionFactory;
-import com.github.apetrelli.scafa.http.sync.HttpHandler;
-import com.github.apetrelli.scafa.http.sync.HttpSyncSocket;
-import com.github.apetrelli.scafa.http.sync.output.DataSenderFactory;
+import com.github.apetrelli.scafa.sync.http.HttpHandler;
+import com.github.apetrelli.scafa.sync.http.HttpSyncSocket;
+import com.github.apetrelli.scafa.sync.http.output.DataSenderFactory;
 import com.github.apetrelli.scafa.proto.SocketFactory;
 import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
 import com.github.apetrelli.scafa.server.config.ini.AbstractIniServerConfiguration;

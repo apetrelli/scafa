@@ -1,11 +1,11 @@
-package com.github.apetrelli.scafa.http.sync.output.impl;
+package com.github.apetrelli.scafa.sync.http.output.impl;
 
 import static com.github.apetrelli.scafa.http.HttpHeaders.CHUNKED;
 import static com.github.apetrelli.scafa.http.HttpHeaders.TRANSFER_ENCODING;
 
 import com.github.apetrelli.scafa.http.HeaderHolder;
-import com.github.apetrelli.scafa.http.sync.output.DataSender;
-import com.github.apetrelli.scafa.http.sync.output.DataSenderFactory;
+import com.github.apetrelli.scafa.sync.http.output.DataSender;
+import com.github.apetrelli.scafa.sync.http.output.DataSenderFactory;
 import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 
 public class DefaultDataSenderFactory implements DataSenderFactory {

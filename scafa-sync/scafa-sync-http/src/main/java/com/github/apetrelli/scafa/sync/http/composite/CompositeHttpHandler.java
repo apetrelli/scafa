@@ -1,11 +1,11 @@
-package com.github.apetrelli.scafa.http.sync.composite;
+package com.github.apetrelli.scafa.sync.http.composite;
 
 import java.nio.ByteBuffer;
 import java.util.regex.Pattern;
 
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
-import com.github.apetrelli.scafa.http.sync.HttpHandler;
+import com.github.apetrelli.scafa.sync.http.HttpHandler;
 
 public class CompositeHttpHandler implements HttpHandler {
 

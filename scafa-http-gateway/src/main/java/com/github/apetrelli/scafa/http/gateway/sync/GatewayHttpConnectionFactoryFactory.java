@@ -18,7 +18,7 @@
 package com.github.apetrelli.scafa.http.gateway.sync;
 
 import com.github.apetrelli.scafa.http.HttpRequest;
-import com.github.apetrelli.scafa.http.sync.HttpSyncSocket;
+import com.github.apetrelli.scafa.sync.http.HttpSyncSocket;
 
 public interface GatewayHttpConnectionFactoryFactory<T extends HttpSyncSocket<HttpRequest>> {
 
