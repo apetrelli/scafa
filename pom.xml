@@ -58,7 +58,7 @@
     <tag>HEAD</tag>
   </scm>
   <modules>
-    <module>scafa-server</module>
+    <module>scafa-proxy</module>
     <module>scafa-assembly</module>
     <module>scafa-systray</module>
     <module>scafa-headless</module>

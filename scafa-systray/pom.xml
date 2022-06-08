@@ -23,7 +23,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.github.apetrelli.scafa</groupId>
-			<artifactId>scafa-server</artifactId>
+			<artifactId>scafa-proxy</artifactId>
 			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
