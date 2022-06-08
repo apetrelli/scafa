@@ -15,9 +15,9 @@ import com.github.apetrelli.scafa.async.http.gateway.GatewayHttpConnectionFactor
 import com.github.apetrelli.scafa.async.http.gateway.direct.DefaultGatewayHttpConnectionFactoryFactory;
 import com.github.apetrelli.scafa.async.http.gateway.direct.DirectGatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.async.http.gateway.handler.DefaultGatewayHttpHandlerFactory;
-import com.github.apetrelli.scafa.http.server.HttpServer;
-import com.github.apetrelli.scafa.http.server.impl.HttpServerHandlerAdapterFactory;
-import com.github.apetrelli.scafa.http.server.statics.StaticHttpServerHandlerFactory;
+import com.github.apetrelli.scafa.async.http.server.HttpServer;
+import com.github.apetrelli.scafa.async.http.server.impl.HttpServerHandlerAdapterFactory;
+import com.github.apetrelli.scafa.async.http.server.statics.StaticHttpServerHandlerFactory;
 import com.github.apetrelli.scafa.proto.SocketFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.processor.HandlerFactory;

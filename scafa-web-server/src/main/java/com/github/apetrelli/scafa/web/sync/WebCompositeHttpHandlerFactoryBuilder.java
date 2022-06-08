@@ -4,9 +4,6 @@ import java.util.Map;
 
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
-import com.github.apetrelli.scafa.http.server.sync.HttpServer;
-import com.github.apetrelli.scafa.http.server.sync.impl.HttpServerHandlerAdapterFactory;
-import com.github.apetrelli.scafa.http.server.sync.statics.StaticHttpServerHandlerFactory;
 import com.github.apetrelli.scafa.sync.http.HttpHandler;
 import com.github.apetrelli.scafa.sync.http.HttpSyncSocket;
 import com.github.apetrelli.scafa.sync.http.composite.CompositeHttpHandlerFactory;
@@ -16,6 +13,9 @@ import com.github.apetrelli.scafa.sync.http.gateway.GatewayHttpConnectionFactory
 import com.github.apetrelli.scafa.sync.http.gateway.direct.DefaultGatewayHttpConnectionFactoryFactory;
 import com.github.apetrelli.scafa.sync.http.gateway.direct.DirectGatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.sync.http.gateway.handler.DefaultGatewayHttpHandlerFactory;
+import com.github.apetrelli.scafa.sync.http.server.HttpServer;
+import com.github.apetrelli.scafa.sync.http.server.impl.HttpServerHandlerAdapterFactory;
+import com.github.apetrelli.scafa.sync.http.server.statics.StaticHttpServerHandlerFactory;
 import com.github.apetrelli.scafa.proto.SocketFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.processor.HandlerFactory;

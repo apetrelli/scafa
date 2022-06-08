@@ -20,19 +20,20 @@ import com.github.apetrelli.scafa.async.proto.socket.AsyncSocket;
 import com.github.apetrelli.scafa.http.HttpProcessingContext;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
+import com.github.apetrelli.scafa.async.file.aio.AioPathBufferContextReaderFactory;
 import com.github.apetrelli.scafa.async.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.async.http.HttpHandler;
-import com.github.apetrelli.scafa.async.http.direct.DirectHttpAsyncSocketFactory;
 import com.github.apetrelli.scafa.async.http.impl.AsyncHttpSink;
 import com.github.apetrelli.scafa.async.http.output.DataSenderFactory;
 import com.github.apetrelli.scafa.async.http.output.impl.DefaultDataSenderFactory;
-import com.github.apetrelli.scafa.async.http.server.HttpAsyncServerSocketFactory;
+import com.github.apetrelli.scafa.async.http.server.HttpServer;
+import com.github.apetrelli.scafa.async.http.server.impl.DefaultHttpServer;
+import com.github.apetrelli.scafa.async.http.server.impl.HttpServerHandlerAdapterFactory;
+import com.github.apetrelli.scafa.async.http.server.statics.NotFoundHttpServerHandlerFactory;
+import com.github.apetrelli.scafa.async.http.socket.direct.DirectHttpAsyncSocketFactory;
+import com.github.apetrelli.scafa.async.http.socket.server.HttpAsyncServerSocketFactory;
 import com.github.apetrelli.scafa.http.impl.HttpProcessingContextFactory;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
-import com.github.apetrelli.scafa.http.server.HttpServer;
-import com.github.apetrelli.scafa.http.server.impl.DefaultHttpServer;
-import com.github.apetrelli.scafa.http.server.impl.HttpServerHandlerAdapterFactory;
-import com.github.apetrelli.scafa.http.server.statics.NotFoundHttpServerHandlerFactory;
 import com.github.apetrelli.scafa.proto.SocketFactory;
 import com.github.apetrelli.scafa.proto.data.impl.SimpleInputFactory;
 import com.github.apetrelli.scafa.proto.processor.HandlerFactory;
@@ -64,7 +65,7 @@ public class ScafaWebServerLauncher extends AbstractScafaWebServerLauncher {
 		SocketFactory<HttpAsyncSocket<HttpRequest>> socketFactory = new DirectHttpAsyncSocketFactory(new DirectClientAsyncSocketFactory(), dataSenderFactory);
 		DefaultProcessorFactory<HttpProcessingContext, HttpHandler> defaultProcessorFactory = new DefaultProcessorFactory<>(
 		        inputProcessorFactory, processingContextFactory);
-		HttpServer server = new DefaultHttpServer(dataSenderFactory);
+		HttpServer server = new DefaultHttpServer(dataSenderFactory, new AioPathBufferContextReaderFactory());
 		NotFoundHttpServerHandlerFactory notFoundFactory = new NotFoundHttpServerHandlerFactory(server);
 		HandlerFactory<HttpHandler, HttpAsyncSocket<HttpResponse>> defaultHandlerFactory = new HttpServerHandlerAdapterFactory(notFoundFactory);
 		ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory = new DefaultProcessorFactory<>(

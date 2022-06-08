@@ -4,9 +4,9 @@ module com.github.apetrelli.scafa.sync.http {
 	requires java.logging;
 	exports com.github.apetrelli.scafa.sync.http;
 	exports com.github.apetrelli.scafa.sync.http.composite;
-	exports com.github.apetrelli.scafa.sync.http.direct;
+	exports com.github.apetrelli.scafa.sync.http.socket.direct;
 	exports com.github.apetrelli.scafa.sync.http.impl;
 	exports com.github.apetrelli.scafa.sync.http.output;
 	exports com.github.apetrelli.scafa.sync.http.output.impl;
-	exports com.github.apetrelli.scafa.sync.http.server;
+	exports com.github.apetrelli.scafa.sync.http.socket.server;
 }

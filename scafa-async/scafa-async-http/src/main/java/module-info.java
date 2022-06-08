@@ -4,9 +4,9 @@ module com.github.apetrelli.scafa.async.http {
 	requires java.logging;
 	exports com.github.apetrelli.scafa.async.http;
 	exports com.github.apetrelli.scafa.async.http.composite;
-	exports com.github.apetrelli.scafa.async.http.direct;
+	exports com.github.apetrelli.scafa.async.http.socket.direct;
 	exports com.github.apetrelli.scafa.async.http.impl;
 	exports com.github.apetrelli.scafa.async.http.output;
 	exports com.github.apetrelli.scafa.async.http.output.impl;
-	exports com.github.apetrelli.scafa.async.http.server;
+	exports com.github.apetrelli.scafa.async.http.socket.server;
 }
