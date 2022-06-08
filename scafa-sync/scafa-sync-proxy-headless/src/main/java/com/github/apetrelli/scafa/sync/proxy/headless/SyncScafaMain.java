@@ -15,26 +15,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.apetrelli.scafa.headless;
+package com.github.apetrelli.scafa.sync.proxy.headless;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.github.apetrelli.scafa.sync.proxy.SyncScafaLauncher;
 
-import com.github.apetrelli.scafa.async.proxy.AsyncScafaLauncher;
-
-public class ScafaMain {
-
-    private static final Logger LOG = Logger.getLogger(ScafaMain.class.getName());
+public class SyncScafaMain {
 
     public static void main(String[] args) {
         String profile = null;
         if (args.length > 0) {
             profile = args[0];
         }
-        AsyncScafaLauncher launcher = new AsyncScafaLauncher();
-        launcher.initialize();
-        launcher.launch(profile);
 
+        SyncScafaLauncher launcher = new SyncScafaLauncher();
+        launcher.initialize();
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
@@ -42,12 +36,6 @@ public class ScafaMain {
             }
         });
 
-        while (true) {
-            try {
-                Thread.sleep(60000);
-            } catch (InterruptedException e) {
-                LOG.log(Level.INFO, "Main thread interrupted", e);
-            }
-        }
+        launcher.launch(profile);
     }
 }

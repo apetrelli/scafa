@@ -19,5 +19,6 @@
   	<module>scafa-async-http-proxy</module>
   	<module>scafa-async-http-server</module>
   	<module>scafa-async-proxy</module>
+  	<module>scafa-async-proxy-headless</module>
   </modules>
 </project>

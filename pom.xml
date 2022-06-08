@@ -61,7 +61,6 @@
     <module>scafa-proxy</module>
     <module>scafa-assembly</module>
     <module>scafa-systray</module>
-    <module>scafa-headless</module>
     <module>scafa-systray-linux</module>
     <module>scafa-systray-windows</module>
     <module>scafa-proto</module>
