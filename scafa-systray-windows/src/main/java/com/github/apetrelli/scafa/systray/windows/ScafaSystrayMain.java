@@ -19,13 +19,14 @@ package com.github.apetrelli.scafa.systray.windows;
 
 import org.eclipse.swt.internal.Library;
 
+import com.github.apetrelli.scafa.async.proxy.AsyncScafaLauncher;
 import com.github.apetrelli.scafa.systray.ScafaSystrayLauncher;
 
 public class ScafaSystrayMain {
 
     public static void main(String[] args) {
         Library.loadLibrary("swt");
-    	ScafaSystrayLauncher launcher = new ScafaSystrayLauncher();
+    	ScafaSystrayLauncher launcher = new ScafaSystrayLauncher(new AsyncScafaLauncher());
     	launcher.launch();
     }
 }

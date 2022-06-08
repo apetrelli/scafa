@@ -19,6 +19,7 @@ package com.github.apetrelli.scafa.systray.linux;
 
 import org.eclipse.swt.internal.Library;
 
+import com.github.apetrelli.scafa.async.proxy.AsyncScafaLauncher;
 import com.github.apetrelli.scafa.systray.ScafaSystrayLauncher;
 
 public class ScafaSystrayMain {
@@ -28,7 +29,7 @@ public class ScafaSystrayMain {
         Library.loadLibrary("swt-pi3");
         Library.loadLibrary("swt-cairo");
         Library.loadLibrary("swt-atk");
-    	ScafaSystrayLauncher launcher = new ScafaSystrayLauncher();
+    	ScafaSystrayLauncher launcher = new ScafaSystrayLauncher(new AsyncScafaLauncher());
     	launcher.launch();
     }
 }

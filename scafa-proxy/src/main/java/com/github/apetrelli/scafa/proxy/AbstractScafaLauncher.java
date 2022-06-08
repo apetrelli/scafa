@@ -30,12 +30,13 @@ import java.util.logging.Logger;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
-public abstract class AbstractScafaLauncher {
+public abstract class AbstractScafaLauncher implements ScafaProxyLauncher {
 
     private static final Logger LOG = Logger.getLogger(AbstractScafaLauncher.class.getName());
     private File scafaDirectory;
 
-    public void initialize() {
+    @Override
+	public void initialize() {
         File home = new File(System.getProperty("user.home"));
         scafaDirectory = new File(home, ".scafa");
         ensureConfigDirectoryPresent(scafaDirectory);
@@ -47,7 +48,8 @@ public abstract class AbstractScafaLauncher {
         }
     }
 
-    public String getLastUsedProfile() {
+    @Override
+	public String getLastUsedProfile() {
         File file = new File(scafaDirectory, "lastused.txt");
         if (file.exists()) {
             try {
@@ -66,7 +68,8 @@ public abstract class AbstractScafaLauncher {
         return "direct";
     }
 
-    public void saveLastUsedProfile(String profile) {
+    @Override
+	public void saveLastUsedProfile(String profile) {
         File file = new File(scafaDirectory, "lastused.txt");
         try {
             FileUtils.write(file, profile);
@@ -75,7 +78,8 @@ public abstract class AbstractScafaLauncher {
         }
     }
 
-    public String[] getProfiles() {
+    @Override
+	public String[] getProfiles() {
         File[] files = scafaDirectory.listFiles((File d, String n ) -> n.endsWith(".ini"));
         String[] profiles = new String[files.length];
         for (int i = 0; i < files.length; i++) {
@@ -84,10 +88,6 @@ public abstract class AbstractScafaLauncher {
         }
         return profiles;
     }
-
-    public abstract void launch(String profile);
-
-    public abstract void stop();
 
     private static void ensureConfigDirectoryPresent(File scafaDirectory) {
         if (!scafaDirectory.exists()) {
