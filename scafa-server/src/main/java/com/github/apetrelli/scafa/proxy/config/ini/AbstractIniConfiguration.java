@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.apetrelli.scafa.server.config.ini;
+package com.github.apetrelli.scafa.proxy.config.ini;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -25,9 +25,9 @@ import java.util.stream.Collectors;
 import org.ini4j.Ini;
 import org.ini4j.Profile.Section;
 
-import com.github.apetrelli.scafa.server.ConfigurationUtils;
-import com.github.apetrelli.scafa.server.config.Configuration;
-import com.github.apetrelli.scafa.server.config.ServerConfiguration;
+import com.github.apetrelli.scafa.proxy.ConfigurationUtils;
+import com.github.apetrelli.scafa.proxy.config.Configuration;
+import com.github.apetrelli.scafa.proxy.config.ServerConfiguration;
 
 public abstract class AbstractIniConfiguration<T> implements Configuration<T> {
 

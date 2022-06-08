@@ -1,4 +1,4 @@
-package com.github.apetrelli.scafa.server.config;
+package com.github.apetrelli.scafa.proxy.config;
 
 import java.util.List;
 

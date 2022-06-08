@@ -1,4 +1,4 @@
-package com.github.apetrelli.scafa.server.config.ini.async;
+package com.github.apetrelli.scafa.async.proxy.config.ini;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -19,7 +19,7 @@ import com.github.apetrelli.scafa.async.http.proxy.ntlm.NtlmProxyHttpConnectionF
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
 import com.github.apetrelli.scafa.proto.SocketFactory;
 import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
-import com.github.apetrelli.scafa.server.config.ini.AbstractIniServerConfiguration;
+import com.github.apetrelli.scafa.proxy.config.ini.AbstractIniServerConfiguration;
 
 public class AsyncIniServerConfiguration extends AbstractIniServerConfiguration<GatewayHttpConnectionFactory<ProxyHttpConnection>> {
     private static final String FORCE_IPV4 = "forceIPV4";

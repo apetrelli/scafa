@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.apetrelli.scafa.server.config.ini.async;
+package com.github.apetrelli.scafa.async.proxy.config.ini;
 
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
@@ -34,8 +34,8 @@ import com.github.apetrelli.scafa.async.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
 import com.github.apetrelli.scafa.proto.SocketFactory;
 import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
-import com.github.apetrelli.scafa.server.config.ServerConfiguration;
-import com.github.apetrelli.scafa.server.config.ini.AbstractIniConfiguration;
+import com.github.apetrelli.scafa.proxy.config.ServerConfiguration;
+import com.github.apetrelli.scafa.proxy.config.ini.AbstractIniConfiguration;
 
 public class AsyncIniConfiguration extends AbstractIniConfiguration<GatewayHttpConnectionFactory<ProxyHttpConnection>> {
     

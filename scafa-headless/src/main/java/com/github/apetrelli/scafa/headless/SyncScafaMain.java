@@ -17,7 +17,7 @@
  */
 package com.github.apetrelli.scafa.headless;
 
-import com.github.apetrelli.scafa.server.SyncScafaLauncher;
+import com.github.apetrelli.scafa.sync.proxy.SyncScafaLauncher;
 
 public class SyncScafaMain {
 

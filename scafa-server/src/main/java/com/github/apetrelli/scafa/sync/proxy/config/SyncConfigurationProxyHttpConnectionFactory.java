@@ -1,4 +1,4 @@
-package com.github.apetrelli.scafa.server.config;
+package com.github.apetrelli.scafa.sync.proxy.config;
 
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.sync.http.HttpSyncSocket;
@@ -10,6 +10,8 @@ import com.github.apetrelli.scafa.sync.http.proxy.connection.DirectHttpConnectio
 import com.github.apetrelli.scafa.proto.SocketFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
+import com.github.apetrelli.scafa.proxy.config.Configuration;
+import com.github.apetrelli.scafa.proxy.config.ServerConfiguration;
 import com.github.apetrelli.scafa.sync.proto.RunnableStarter;
 import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 import com.github.apetrelli.scafa.sync.proto.processor.DataHandler;

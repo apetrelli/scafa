@@ -1,4 +1,4 @@
-package com.github.apetrelli.scafa.server.config.ini;
+package com.github.apetrelli.scafa.proxy.config.ini;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
@@ -13,7 +13,7 @@ import org.ini4j.Profile.Section;
 
 import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
 import com.github.apetrelli.scafa.proto.client.HostPort;
-import com.github.apetrelli.scafa.server.config.ServerConfiguration;
+import com.github.apetrelli.scafa.proxy.config.ServerConfiguration;
 
 public class AbstractIniServerConfiguration<T> implements ServerConfiguration<T> {
 

@@ -1,4 +1,4 @@
-package com.github.apetrelli.scafa.server.config.ini.sync;
+package com.github.apetrelli.scafa.sync.proxy.config.ini;
 
 import org.ini4j.Profile.Section;
 
@@ -15,7 +15,7 @@ import com.github.apetrelli.scafa.sync.http.proxy.connection.DirectHttpConnectio
 import com.github.apetrelli.scafa.sync.http.proxy.ntlm.NtlmProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.proto.SocketFactory;
 import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
-import com.github.apetrelli.scafa.server.config.ini.AbstractIniServerConfiguration;
+import com.github.apetrelli.scafa.proxy.config.ini.AbstractIniServerConfiguration;
 import com.github.apetrelli.scafa.sync.proto.RunnableStarter;
 import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 import com.github.apetrelli.scafa.sync.proto.processor.DataHandler;

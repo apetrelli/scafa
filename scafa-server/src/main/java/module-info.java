@@ -8,5 +8,7 @@ module com.github.apetrelli.scafa.server {
     requires commons.io;
     requires transitive ini4j;
 	requires com.github.apetrelli.scafa.proto;
-    exports com.github.apetrelli.scafa.server;
+    exports com.github.apetrelli.scafa.proxy;
+    exports com.github.apetrelli.scafa.async.proxy;
+    exports com.github.apetrelli.scafa.sync.proxy;
 }

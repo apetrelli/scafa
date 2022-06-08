@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.apetrelli.scafa.server;
+package com.github.apetrelli.scafa.async.proxy;
 
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
@@ -31,6 +31,8 @@ import com.github.apetrelli.scafa.async.proto.processor.impl.PassthroughInputPro
 import com.github.apetrelli.scafa.async.proto.processor.impl.StatefulInputProcessorFactory;
 import com.github.apetrelli.scafa.async.proto.socket.AsyncServerSocketFactory;
 import com.github.apetrelli.scafa.async.proto.socket.AsyncSocket;
+import com.github.apetrelli.scafa.async.proxy.config.ConfigurationProxyHttpConnectionFactory;
+import com.github.apetrelli.scafa.async.proxy.config.ini.AsyncIniConfiguration;
 import com.github.apetrelli.scafa.http.HttpProcessingContext;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.async.http.HttpAsyncSocket;
@@ -46,8 +48,7 @@ import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
 import com.github.apetrelli.scafa.proto.SocketFactory;
 import com.github.apetrelli.scafa.proto.data.Input;
 import com.github.apetrelli.scafa.proto.data.impl.SimpleInputFactory;
-import com.github.apetrelli.scafa.server.config.ConfigurationProxyHttpConnectionFactory;
-import com.github.apetrelli.scafa.server.config.ini.async.AsyncIniConfiguration;
+import com.github.apetrelli.scafa.proxy.AbstractScafaLauncher;
 
 public class AsyncScafaLauncher extends AbstractScafaLauncher {
 

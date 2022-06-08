@@ -1,4 +1,4 @@
-package com.github.apetrelli.scafa.server.config;
+package com.github.apetrelli.scafa.async.proxy.config;
 
 import com.github.apetrelli.scafa.async.proto.processor.DataHandler;
 import com.github.apetrelli.scafa.async.proto.socket.AsyncSocket;
@@ -12,6 +12,8 @@ import com.github.apetrelli.scafa.async.http.proxy.connection.DirectHttpConnecti
 import com.github.apetrelli.scafa.proto.SocketFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
+import com.github.apetrelli.scafa.proxy.config.Configuration;
+import com.github.apetrelli.scafa.proxy.config.ServerConfiguration;
 
 public class ConfigurationProxyHttpConnectionFactory implements GatewayHttpConnectionFactory<ProxyHttpConnection> {
 

@@ -23,7 +23,7 @@ import org.eclipse.wb.swt.SWTResourceManager;
 import org.ini4j.Ini;
 import org.ini4j.Profile.Section;
 
-import com.github.apetrelli.scafa.server.ConfigurationUtils;
+import com.github.apetrelli.scafa.proxy.ConfigurationUtils;
 
 public class ConfigurationWindow {
 

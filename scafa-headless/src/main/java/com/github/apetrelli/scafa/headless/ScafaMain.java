@@ -20,7 +20,7 @@ package com.github.apetrelli.scafa.headless;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.github.apetrelli.scafa.server.AsyncScafaLauncher;
+import com.github.apetrelli.scafa.async.proxy.AsyncScafaLauncher;
 
 public class ScafaMain {
 

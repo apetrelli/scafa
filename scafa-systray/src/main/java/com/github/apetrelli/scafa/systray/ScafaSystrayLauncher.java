@@ -18,8 +18,8 @@ import org.eclipse.swt.widgets.Tray;
 import org.eclipse.swt.widgets.TrayItem;
 import org.eclipse.wb.swt.SWTResourceManager;
 
-import com.github.apetrelli.scafa.server.ConfigurationUtils;
-import com.github.apetrelli.scafa.server.AsyncScafaLauncher;
+import com.github.apetrelli.scafa.async.proxy.AsyncScafaLauncher;
+import com.github.apetrelli.scafa.proxy.ConfigurationUtils;
 import com.github.apetrelli.scafa.systray.edit.ConfigurationWindow;
 import com.github.apetrelli.scafa.systray.edit.PromptWindow;
 

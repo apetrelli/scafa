@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.apetrelli.scafa.server;
+package com.github.apetrelli.scafa.sync.proxy;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -36,8 +36,7 @@ import com.github.apetrelli.scafa.sync.http.socket.direct.DirectHttpSyncSocketFa
 import com.github.apetrelli.scafa.proto.SocketFactory;
 import com.github.apetrelli.scafa.proto.data.Input;
 import com.github.apetrelli.scafa.proto.data.impl.SimpleInputFactory;
-import com.github.apetrelli.scafa.server.config.SyncConfigurationProxyHttpConnectionFactory;
-import com.github.apetrelli.scafa.server.config.ini.sync.SyncIniConfiguration;
+import com.github.apetrelli.scafa.proxy.AbstractScafaLauncher;
 import com.github.apetrelli.scafa.sync.proto.ScafaListener;
 import com.github.apetrelli.scafa.sync.proto.SyncServerSocketFactory;
 import com.github.apetrelli.scafa.sync.proto.SyncSocket;
@@ -48,6 +47,8 @@ import com.github.apetrelli.scafa.sync.proto.processor.impl.DefaultProcessorFact
 import com.github.apetrelli.scafa.sync.proto.processor.impl.PassthroughInputProcessorFactory;
 import com.github.apetrelli.scafa.sync.proto.processor.impl.StatefulInputProcessorFactory;
 import com.github.apetrelli.scafa.sync.proto.thread.ThreadRunnableStarter;
+import com.github.apetrelli.scafa.sync.proxy.config.SyncConfigurationProxyHttpConnectionFactory;
+import com.github.apetrelli.scafa.sync.proxy.config.ini.SyncIniConfiguration;
 
 
 public class SyncScafaLauncher extends AbstractScafaLauncher {
