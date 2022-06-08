@@ -18,5 +18,6 @@
   	<module>scafa-async-http-gateway</module>
   	<module>scafa-async-http-proxy</module>
   	<module>scafa-async-http-server</module>
+  	<module>scafa-async-proxy</module>
   </modules>
 </project>
