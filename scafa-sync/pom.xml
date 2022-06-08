@@ -17,5 +17,6 @@
 		<module>scafa-sync-http</module>
 		<module>scafa-sync-http-gateway</module>
 		<module>scafa-sync-http-proxy</module>
+		<module>scafa-sync-http-server</module>
 	</modules>
 </project>

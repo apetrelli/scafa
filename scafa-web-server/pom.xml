@@ -12,7 +12,12 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.github.apetrelli.scafa</groupId>
-			<artifactId>scafa-http-server</artifactId>
+			<artifactId>scafa-async-http-server</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>com.github.apetrelli.scafa</groupId>
+			<artifactId>scafa-sync-http-server</artifactId>
 			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
@@ -33,6 +38,11 @@
 		<dependency>
 			<groupId>com.github.apetrelli.scafa</groupId>
 			<artifactId>scafa-sync-proto-jnet</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>com.github.apetrelli.scafa</groupId>
+			<artifactId>scafa-async-file-aio</artifactId>
 			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>

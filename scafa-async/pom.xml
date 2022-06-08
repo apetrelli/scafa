@@ -17,5 +17,6 @@
   	<module>scafa-async-http-client</module>
   	<module>scafa-async-http-gateway</module>
   	<module>scafa-async-http-proxy</module>
+  	<module>scafa-async-http-server</module>
   </modules>
 </project>
