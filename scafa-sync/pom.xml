@@ -20,5 +20,6 @@
 		<module>scafa-sync-http-server</module>
 		<module>scafa-sync-proxy</module>
 		<module>scafa-sync-proxy-headless</module>
+		<module>scafa-sync-web-server</module>
 	</modules>
 </project>

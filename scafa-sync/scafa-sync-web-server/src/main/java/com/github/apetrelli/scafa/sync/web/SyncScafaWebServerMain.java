@@ -1,10 +1,10 @@
-package com.github.apetrelli.scafa.web;
+package com.github.apetrelli.scafa.sync.web;
 
 public class SyncScafaWebServerMain {
 
 	public static void main(String[] args) {
 		
-		com.github.apetrelli.scafa.web.sync.ScafaWebServerLauncher launcher = new com.github.apetrelli.scafa.web.sync.ScafaWebServerLauncher();
+		com.github.apetrelli.scafa.sync.web.ScafaWebServerLauncher launcher = new com.github.apetrelli.scafa.sync.web.ScafaWebServerLauncher();
 
 		Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override

@@ -1,28 +1,29 @@
-package com.github.apetrelli.scafa.web.handler;
+package com.github.apetrelli.scafa.sync.web;
 
 import java.util.Map;
 
-import com.github.apetrelli.scafa.async.proto.processor.DataHandler;
-import com.github.apetrelli.scafa.async.proto.socket.AsyncSocket;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
-import com.github.apetrelli.scafa.async.http.HttpAsyncSocket;
-import com.github.apetrelli.scafa.async.http.HttpHandler;
-import com.github.apetrelli.scafa.async.http.composite.CompositeHttpHandlerFactory;
-import com.github.apetrelli.scafa.async.http.composite.CompositeHttpHandlerFactory.CompositeHttpHandlerFactoryBuilder;
-import com.github.apetrelli.scafa.async.http.gateway.GatewayHttpConnectionFactory;
-import com.github.apetrelli.scafa.async.http.gateway.GatewayHttpConnectionFactoryFactory;
-import com.github.apetrelli.scafa.async.http.gateway.direct.DefaultGatewayHttpConnectionFactoryFactory;
-import com.github.apetrelli.scafa.async.http.gateway.direct.DirectGatewayHttpConnectionFactory;
-import com.github.apetrelli.scafa.async.http.gateway.handler.DefaultGatewayHttpHandlerFactory;
-import com.github.apetrelli.scafa.async.http.server.HttpServer;
-import com.github.apetrelli.scafa.async.http.server.impl.HttpServerHandlerAdapterFactory;
-import com.github.apetrelli.scafa.async.http.server.statics.StaticHttpServerHandlerFactory;
+import com.github.apetrelli.scafa.sync.http.HttpHandler;
+import com.github.apetrelli.scafa.sync.http.HttpSyncSocket;
+import com.github.apetrelli.scafa.sync.http.composite.CompositeHttpHandlerFactory;
+import com.github.apetrelli.scafa.sync.http.composite.CompositeHttpHandlerFactory.CompositeHttpHandlerFactoryBuilder;
+import com.github.apetrelli.scafa.sync.http.gateway.GatewayHttpConnectionFactory;
+import com.github.apetrelli.scafa.sync.http.gateway.GatewayHttpConnectionFactoryFactory;
+import com.github.apetrelli.scafa.sync.http.gateway.direct.DefaultGatewayHttpConnectionFactoryFactory;
+import com.github.apetrelli.scafa.sync.http.gateway.direct.DirectGatewayHttpConnectionFactory;
+import com.github.apetrelli.scafa.sync.http.gateway.handler.DefaultGatewayHttpHandlerFactory;
+import com.github.apetrelli.scafa.sync.http.server.HttpServer;
+import com.github.apetrelli.scafa.sync.http.server.impl.HttpServerHandlerAdapterFactory;
+import com.github.apetrelli.scafa.sync.http.server.statics.StaticHttpServerHandlerFactory;
 import com.github.apetrelli.scafa.proto.SocketFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.processor.HandlerFactory;
 import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
 import com.github.apetrelli.scafa.proto.util.AsciiString;
+import com.github.apetrelli.scafa.sync.proto.RunnableStarter;
+import com.github.apetrelli.scafa.sync.proto.SyncSocket;
+import com.github.apetrelli.scafa.sync.proto.processor.DataHandler;
 
 public class WebCompositeHttpHandlerFactoryBuilder {
 	
@@ -94,10 +95,10 @@ public class WebCompositeHttpHandlerFactoryBuilder {
 		}
 		
 		public WebCompositeHttpHandlerFactoryBuilder and() {
-			GatewayHttpConnectionFactory<HttpAsyncSocket<HttpRequest>> connectionFactory = new DirectGatewayHttpConnectionFactory(socketFactory,
-					clientProcessorFactory, destinationSocketAddress);
-	        GatewayHttpConnectionFactoryFactory<HttpAsyncSocket<HttpRequest>> factoryFactory = new DefaultGatewayHttpConnectionFactoryFactory<>(connectionFactory);
-	        HandlerFactory<HttpHandler, AsyncSocket> handlerFactory = new DefaultGatewayHttpHandlerFactory<>(factoryFactory);
+			GatewayHttpConnectionFactory<HttpSyncSocket<HttpRequest>> connectionFactory = new DirectGatewayHttpConnectionFactory(socketFactory,
+					clientProcessorFactory, runnableStarter, destinationSocketAddress);
+	        GatewayHttpConnectionFactoryFactory<HttpSyncSocket<HttpRequest>> factoryFactory = new DefaultGatewayHttpConnectionFactoryFactory<>(connectionFactory);
+	        HandlerFactory<HttpHandler, SyncSocket> handlerFactory = new DefaultGatewayHttpHandlerFactory<>(factoryFactory);
 	        WebCompositeHttpHandlerFactoryBuilder.this.innerBuilder.withPattern(basePathPattern, handlerFactory);
 			return WebCompositeHttpHandlerFactoryBuilder.this;
 		}
@@ -107,9 +108,11 @@ public class WebCompositeHttpHandlerFactoryBuilder {
 	
 	private HttpServer httpServer;
 	
-    private SocketFactory<HttpAsyncSocket<HttpRequest>> socketFactory;
+    private SocketFactory<HttpSyncSocket<HttpRequest>> socketFactory;
 	
-    private ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory;
+    private ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory;
+    
+    private RunnableStarter runnableStarter;
 
 	private Map<String, AsciiString> mimeTypeConfig;
 	
@@ -122,13 +125,18 @@ public class WebCompositeHttpHandlerFactoryBuilder {
 		return this;
 	}
 	
-	public WebCompositeHttpHandlerFactoryBuilder withSocketFactory(SocketFactory<HttpAsyncSocket<HttpRequest>> socketFactory) {
+	public WebCompositeHttpHandlerFactoryBuilder withSocketFactory(SocketFactory<HttpSyncSocket<HttpRequest>> socketFactory) {
 		this.socketFactory = socketFactory;
 		return this;
 	}
 	
-	public WebCompositeHttpHandlerFactoryBuilder withClientProcessorFactory(ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory) {
+	public WebCompositeHttpHandlerFactoryBuilder withClientProcessorFactory(ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory) {
 		this.clientProcessorFactory = clientProcessorFactory;
+		return this;
+	}
+	
+	public WebCompositeHttpHandlerFactoryBuilder withRunnableStarter(RunnableStarter runnableStarter) {
+		this.runnableStarter = runnableStarter;
 		return this;
 	}
 	
@@ -138,7 +146,7 @@ public class WebCompositeHttpHandlerFactoryBuilder {
 	}
 	
 	public WebCompositeHttpHandlerFactoryBuilder withDefaultHandlerFactory(
-			HandlerFactory<HttpHandler, HttpAsyncSocket<HttpResponse>> defaultHandlerFactory) {
+			HandlerFactory<HttpHandler, HttpSyncSocket<HttpResponse>> defaultHandlerFactory) {
 		innerBuilder.withDefaultHandlerFactory(defaultHandlerFactory);
 		return this;
 	}

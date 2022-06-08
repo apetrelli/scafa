@@ -1,4 +1,4 @@
-package com.github.apetrelli.scafa.web.sync;
+package com.github.apetrelli.scafa.sync.web;
 
 import java.io.IOException;
 import java.util.List;

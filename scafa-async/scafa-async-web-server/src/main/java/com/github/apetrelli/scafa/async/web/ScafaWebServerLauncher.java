@@ -1,4 +1,4 @@
-package com.github.apetrelli.scafa.web;
+package com.github.apetrelli.scafa.async.web;
 
 import java.io.IOException;
 import java.util.List;
@@ -39,11 +39,11 @@ import com.github.apetrelli.scafa.proto.data.impl.SimpleInputFactory;
 import com.github.apetrelli.scafa.proto.processor.HandlerFactory;
 import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
 import com.github.apetrelli.scafa.proto.util.AsciiString;
+import com.github.apetrelli.scafa.web.AbstractScafaWebServerLauncher;
 import com.github.apetrelli.scafa.web.config.Configuration;
 import com.github.apetrelli.scafa.web.config.PathConfiguration;
 import com.github.apetrelli.scafa.web.config.SocketConfiguration;
 import com.github.apetrelli.scafa.web.config.StaticPathConfiguration;
-import com.github.apetrelli.scafa.web.handler.WebCompositeHttpHandlerFactoryBuilder;
 
 public class ScafaWebServerLauncher extends AbstractScafaWebServerLauncher {
 	

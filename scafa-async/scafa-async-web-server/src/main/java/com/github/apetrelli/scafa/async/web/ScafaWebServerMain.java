@@ -1,4 +1,4 @@
-package com.github.apetrelli.scafa.web;
+package com.github.apetrelli.scafa.async.web;
 
 import java.io.IOException;
 import java.util.logging.Level;
