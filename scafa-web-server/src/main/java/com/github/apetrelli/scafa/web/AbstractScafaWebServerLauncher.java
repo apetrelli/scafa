@@ -18,7 +18,7 @@ public abstract class AbstractScafaWebServerLauncher {
 		try {
 			Ini ini = new Ini(new File(rootFilesystemDirectory, "config.ini"));
 			IniConfiguration config = new IniConfiguration(ini, rootFilesystemDirectory,
-					getClass().getResource("/mime.types"));
+					AbstractScafaWebServerLauncher.class.getResource("mime.types"));
 			launch(config);
 		} catch (IOException e) {
             LOG.log(Level.SEVERE, "Cannot start web server", e);
