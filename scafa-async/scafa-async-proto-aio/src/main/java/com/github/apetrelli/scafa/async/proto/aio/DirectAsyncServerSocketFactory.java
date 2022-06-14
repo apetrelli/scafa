@@ -10,6 +10,9 @@ import com.github.apetrelli.scafa.async.proto.socket.AsyncServerSocketFactory;
 import com.github.apetrelli.scafa.async.proto.socket.AsyncSocket;
 import com.github.apetrelli.scafa.proto.util.NetworkUtils;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class DirectAsyncServerSocketFactory implements AsyncServerSocketFactory<AsyncSocket> {
 
     private final int portNumber;
@@ -17,12 +20,6 @@ public class DirectAsyncServerSocketFactory implements AsyncServerSocketFactory<
     private final String interfaceName;
 
     private final boolean forceIpV4;
-    
-	public DirectAsyncServerSocketFactory(int portNumber, String interfaceName, boolean forceIpV4) {
-		this.portNumber = portNumber;
-		this.interfaceName = interfaceName;
-		this.forceIpV4 = forceIpV4;
-	}
 	
 	public DirectAsyncServerSocketFactory(int portNumber) {
 		this(portNumber, null, false);

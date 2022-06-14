@@ -4,9 +4,10 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import lombok.extern.java.Log;
+
+@Log
 public class ScafaWebServerMain {
-	
-	private static final Logger LOG = Logger.getLogger(ScafaWebServerMain.class.getName());
 
 	public static void main(String[] args) throws IOException {
 		
@@ -30,7 +31,7 @@ public class ScafaWebServerMain {
             try {
                 Thread.sleep(60000);
             } catch (InterruptedException e) {
-                LOG.log(Level.INFO, "Main thread interrupted", e);
+                log.log(Level.INFO, "Main thread interrupted", e);
             }
         }
 	}

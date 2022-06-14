@@ -5,13 +5,12 @@ import java.util.concurrent.CompletableFuture;
 
 import com.github.apetrelli.scafa.proto.client.HostPort;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class AsyncSocketWrapper<T extends AsyncSocket> implements AsyncSocket {
 
-	protected T socket;
-	
-	public AsyncSocketWrapper(T socket) {
-		this.socket = socket;
-	}
+	protected final T socket;
 
 	public HostPort getAddress() {
 		return socket.getAddress();

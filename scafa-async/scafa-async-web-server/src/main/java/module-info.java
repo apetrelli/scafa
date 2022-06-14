@@ -5,5 +5,6 @@ module com.github.apetrelli.scafa.async.web {
 	requires com.github.apetrelli.scafa.async.file.aio;
 	requires com.github.apetrelli.scafa.async.proto.aio;
 	requires java.logging;
+	requires lombok;
     requires transitive ini4j;
 }

@@ -10,16 +10,14 @@ import com.github.apetrelli.scafa.async.proto.socket.AsyncServerSocket;
 import com.github.apetrelli.scafa.async.proto.socket.AsyncSocket;
 import com.github.apetrelli.scafa.http.HeaderHolder;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class HttpAsyncServerSocket<H extends HeaderHolder> implements AsyncServerSocket<HttpAsyncSocket<H>> {
 
 	private final AsyncServerSocket<AsyncSocket> serverSocket;
 
 	private final DataSenderFactory dataSenderFactory;
-
-	public HttpAsyncServerSocket(AsyncServerSocket<AsyncSocket> serverSocket, DataSenderFactory dataSenderFactory) {
-		this.serverSocket = serverSocket;
-		this.dataSenderFactory = dataSenderFactory;
-	}
 
 	@Override
 	public CompletableFuture<HttpAsyncSocket<H>> accept() {

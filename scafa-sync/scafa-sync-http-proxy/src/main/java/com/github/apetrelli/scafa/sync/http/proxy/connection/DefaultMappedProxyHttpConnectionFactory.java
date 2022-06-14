@@ -55,7 +55,11 @@ public class DefaultMappedProxyHttpConnectionFactory implements MappedProxyHttpC
 
     @Override
     public ProxyHttpConnection create(SyncSocket sourceChannel, HttpConnectRequest request) {
-        return create(sourceChannel, new HostPort(request.getHost(), request.getPort()));
+        try {
+			return create(sourceChannel, request.getHostPort());
+		} catch (IOException e) {
+            throw new HttpException("Problem with determining the proxy host to connect to.", e);
+		}
     }
 
     @Override

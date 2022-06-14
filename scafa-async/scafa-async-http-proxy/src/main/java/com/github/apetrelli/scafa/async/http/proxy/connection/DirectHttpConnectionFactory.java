@@ -30,31 +30,24 @@ import com.github.apetrelli.scafa.proto.SocketFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class DirectHttpConnectionFactory implements GatewayHttpConnectionFactory<ProxyHttpConnection> {
 
-	private SocketFactory<HttpAsyncSocket<HttpRequest>> socketFactory;
+	private final SocketFactory<HttpAsyncSocket<HttpRequest>> socketFactory;
 
-	private DataSenderFactory dataSenderFactory;
+	private final DataSenderFactory dataSenderFactory;
 	
-	private ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory;
+	private final ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory;
 
-	private String interfaceName;
+	private final String interfaceName;
 
-	private boolean forceIpV4;
+	private final boolean forceIpV4;
 
 	public DirectHttpConnectionFactory(SocketFactory<HttpAsyncSocket<HttpRequest>> socketFactory,
 			DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory) {
 		this(socketFactory, dataSenderFactory, clientProcessorFactory, null, false);
-	}
-
-	public DirectHttpConnectionFactory(SocketFactory<HttpAsyncSocket<HttpRequest>> socketFactory,
-			DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory,
-			String interfaceName, boolean forceIpV4) {
-		this.socketFactory = socketFactory;
-		this.dataSenderFactory = dataSenderFactory;
-		this.clientProcessorFactory = clientProcessorFactory;
-		this.interfaceName = interfaceName;
-		this.forceIpV4 = forceIpV4;
 	}
 
 	@Override

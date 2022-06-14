@@ -3,8 +3,15 @@ package com.github.apetrelli.scafa.async.http.gateway.direct;
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
+import com.github.apetrelli.scafa.async.http.HttpAsyncSocket;
+import com.github.apetrelli.scafa.async.http.HttpHandler;
+import com.github.apetrelli.scafa.async.http.gateway.GatewayHttpConnectionFactory;
+import com.github.apetrelli.scafa.async.http.gateway.GatewayHttpConnectionFactoryFactory;
+import com.github.apetrelli.scafa.async.http.gateway.handler.DefaultGatewayHttpHandlerFactory;
+import com.github.apetrelli.scafa.async.http.impl.AsyncHttpSink;
+import com.github.apetrelli.scafa.async.http.output.impl.DefaultDataSenderFactory;
+import com.github.apetrelli.scafa.async.http.socket.direct.DirectHttpAsyncSocketFactory;
 import com.github.apetrelli.scafa.async.proto.ScafaListener;
 import com.github.apetrelli.scafa.async.proto.processor.DataHandler;
 import com.github.apetrelli.scafa.async.proto.processor.impl.DefaultProcessorFactory;
@@ -14,14 +21,6 @@ import com.github.apetrelli.scafa.async.proto.socket.AsyncServerSocketFactory;
 import com.github.apetrelli.scafa.async.proto.socket.AsyncSocket;
 import com.github.apetrelli.scafa.http.HttpProcessingContext;
 import com.github.apetrelli.scafa.http.HttpRequest;
-import com.github.apetrelli.scafa.async.http.HttpAsyncSocket;
-import com.github.apetrelli.scafa.async.http.HttpHandler;
-import com.github.apetrelli.scafa.async.http.gateway.GatewayHttpConnectionFactory;
-import com.github.apetrelli.scafa.async.http.gateway.GatewayHttpConnectionFactoryFactory;
-import com.github.apetrelli.scafa.async.http.gateway.handler.DefaultGatewayHttpHandlerFactory;
-import com.github.apetrelli.scafa.async.http.impl.AsyncHttpSink;
-import com.github.apetrelli.scafa.async.http.output.impl.DefaultDataSenderFactory;
-import com.github.apetrelli.scafa.async.http.socket.direct.DirectHttpAsyncSocketFactory;
 import com.github.apetrelli.scafa.http.impl.HttpProcessingContextFactory;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
 import com.github.apetrelli.scafa.proto.SocketFactory;
@@ -30,24 +29,20 @@ import com.github.apetrelli.scafa.proto.data.Input;
 import com.github.apetrelli.scafa.proto.data.impl.SimpleInputFactory;
 import com.github.apetrelli.scafa.proto.processor.HandlerFactory;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
+
+@RequiredArgsConstructor
+@Log
 public class DirectHttpGateway {
 
-	private static final Logger LOG = Logger.getLogger(DirectHttpGateway.class.getName());
+	private final SocketFactory<AsyncSocket> clientSocketFactory;
 
-	private HostPort destinationSocketAddress;
+	private final AsyncServerSocketFactory<AsyncSocket> serverSocketFactory;
 
-	private SocketFactory<AsyncSocket> clientSocketFactory;
-
-	private AsyncServerSocketFactory<AsyncSocket> serverSocketFactory;
+	private final HostPort destinationSocketAddress;
 
 	private ScafaListener<HttpHandler, AsyncSocket> listener;
-	
-	public DirectHttpGateway(SocketFactory<AsyncSocket> clientSocketFactory,
-			AsyncServerSocketFactory<AsyncSocket> serverSocketFactory, HostPort destinationSocketAddress) {
-		this.clientSocketFactory = clientSocketFactory;
-		this.serverSocketFactory = serverSocketFactory;
-		this.destinationSocketAddress = destinationSocketAddress;
-	}
 
 	public void launch() {
     	HttpStateMachine<HttpHandler, CompletableFuture<Void>> stateMachine = new HttpStateMachine<>(new AsyncHttpSink());
@@ -68,7 +63,7 @@ public class DirectHttpGateway {
         try {
 			listener.listen();
 		} catch (IOException e) {
-			LOG.log(Level.SEVERE, "Cannot start listener", e);
+			log.log(Level.SEVERE, "Cannot start listener", e);
 		}
 
 	}

@@ -22,8 +22,8 @@ import static com.github.apetrelli.scafa.http.HttpHeaders.CONNECT;
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
+import com.github.apetrelli.scafa.async.http.gateway.MappedGatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.async.http.gateway.handler.DefaultGatewayHttpHandler;
-import com.github.apetrelli.scafa.async.http.proxy.MappedProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.async.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.async.proto.socket.AsyncSocket;
 import com.github.apetrelli.scafa.http.HttpRequest;
@@ -31,12 +31,9 @@ import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
 
 public class DefaultProxyHttpHandler extends DefaultGatewayHttpHandler<ProxyHttpConnection> implements ProxyHttpHandler {
-
-	private MappedProxyHttpConnectionFactory connectionFactory;
 	
-    public DefaultProxyHttpHandler(MappedProxyHttpConnectionFactory connectionFactory, AsyncSocket sourceChannel) {
+    public DefaultProxyHttpHandler(MappedGatewayHttpConnectionFactory<ProxyHttpConnection> connectionFactory, AsyncSocket sourceChannel) {
     	super(connectionFactory, sourceChannel);
-    	this.connectionFactory = connectionFactory;
     }
 
     @Override
@@ -61,7 +58,6 @@ public class DefaultProxyHttpHandler extends DefaultGatewayHttpHandler<ProxyHttp
     
     @Override
     public CompletableFuture<Void> onConnectMethod(HttpConnectRequest connectRequest) {
-		return connectionFactory.create(sourceChannel, connectRequest).thenAccept(x -> connection = x)
-				.thenCompose(x -> connection.connect(connectRequest, writeBuffer));
+		return createConnection(connectRequest).thenCompose(x -> x.connect(connectRequest, writeBuffer));
     }
 }

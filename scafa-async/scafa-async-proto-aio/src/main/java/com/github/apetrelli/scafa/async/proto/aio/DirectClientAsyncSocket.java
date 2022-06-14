@@ -16,11 +16,11 @@ public class DirectClientAsyncSocket extends DirectAsyncSocket implements AsyncS
 	
 	private static final Logger LOG = Logger.getLogger(DirectClientAsyncSocket.class.getName());
 
-	private HostPort socketAddress;
+	private final HostPort socketAddress;
 
-    private String interfaceName;
+    private final String interfaceName;
 
-    private boolean forceIpV4;
+    private final boolean forceIpV4;
     
 	public DirectClientAsyncSocket(AsynchronousSocketChannel channel, HostPort socketAddress,
 			String interfaceName, boolean forceIpV4) {

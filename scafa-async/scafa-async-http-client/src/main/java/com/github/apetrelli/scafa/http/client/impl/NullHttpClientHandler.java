@@ -3,16 +3,16 @@ package com.github.apetrelli.scafa.http.client.impl;
 import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.async.proto.util.CompletionHandlerFuture;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.client.HttpClientHandler;
 
-public class NullHttpClientHandler implements HttpClientHandler {
+import lombok.extern.java.Log;
 
-	private static final Logger LOG = Logger.getLogger(NullHttpClientHandler.class.getName());
+@Log
+public class NullHttpClientHandler implements HttpClientHandler {
 
 	@Override
 	public void onStart(){
@@ -48,7 +48,7 @@ public class NullHttpClientHandler implements HttpClientHandler {
 
 	@Override
 	public void onRequestError(HttpRequest request, Throwable exc) {
-		LOG.log(Level.SEVERE, "Error when sending the request", exc);
+		log.log(Level.SEVERE, "Error when sending the request", exc);
 	}
 
 }

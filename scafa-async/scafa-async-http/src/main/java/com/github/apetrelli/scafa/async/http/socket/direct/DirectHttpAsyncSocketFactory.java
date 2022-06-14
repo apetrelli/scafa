@@ -7,16 +7,14 @@ import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.proto.SocketFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class DirectHttpAsyncSocketFactory implements SocketFactory<HttpAsyncSocket<HttpRequest>> {
 
-	private SocketFactory<AsyncSocket> socketFactory;
+	private final SocketFactory<AsyncSocket> socketFactory;
 	
-	private DataSenderFactory dataSenderFactory;
-	
-	public DirectHttpAsyncSocketFactory(SocketFactory<AsyncSocket> socketFactory, DataSenderFactory dataSenderFactory) {
-		this.socketFactory = socketFactory;
-		this.dataSenderFactory = dataSenderFactory;
-	}
+	private final DataSenderFactory dataSenderFactory;
 
 	@Override
 	public HttpAsyncSocket<HttpRequest> create(HostPort hostPort, String interfaceName, boolean forceIpV4) {

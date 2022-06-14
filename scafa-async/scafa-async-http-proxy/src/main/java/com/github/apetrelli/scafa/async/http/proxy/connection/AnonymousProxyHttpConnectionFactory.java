@@ -31,7 +31,7 @@ import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
 
 public class AnonymousProxyHttpConnectionFactory extends AbstractGatewayHttpConnectionFactory<ProxyHttpConnection> {
 
-	private HttpRequestManipulator manipulator;
+	private final HttpRequestManipulator manipulator;
 
 	public AnonymousProxyHttpConnectionFactory(SocketFactory<HttpAsyncSocket<HttpRequest>> socketFactory,
 			ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory,

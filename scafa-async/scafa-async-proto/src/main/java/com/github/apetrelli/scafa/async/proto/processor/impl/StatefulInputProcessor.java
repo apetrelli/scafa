@@ -24,16 +24,14 @@ import com.github.apetrelli.scafa.async.proto.processor.InputProcessor;
 import com.github.apetrelli.scafa.proto.data.impl.ProcessingContext;
 import com.github.apetrelli.scafa.proto.processor.ProtocolStateMachine;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class StatefulInputProcessor<H, P extends ProcessingContext<?>> implements InputProcessor<P> {
 
-    private ProtocolStateMachine<H, ? super P, CompletableFuture<Void>> stateMachine;
+    private final H handler;
 
-    private H handler;
-
-	public StatefulInputProcessor(H handler, ProtocolStateMachine<H, ? super P, CompletableFuture<Void>> stateMachine) {
-        this.handler = handler;
-        this.stateMachine = stateMachine;
-    }
+    private final ProtocolStateMachine<H, ? super P, CompletableFuture<Void>> stateMachine;
     
     @Override
     public CompletableFuture<P> process(P context) {

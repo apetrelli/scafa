@@ -24,25 +24,25 @@ import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
+import com.github.apetrelli.scafa.async.http.HttpAsyncSocket;
+import com.github.apetrelli.scafa.async.http.gateway.MappedGatewayHttpConnectionFactory;
+import com.github.apetrelli.scafa.async.http.gateway.connection.AbstractGatewayHttpConnection;
+import com.github.apetrelli.scafa.async.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.async.proto.processor.DataHandler;
 import com.github.apetrelli.scafa.async.proto.socket.AsyncSocket;
 import com.github.apetrelli.scafa.http.HttpCodes;
 import com.github.apetrelli.scafa.http.HttpException;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
-import com.github.apetrelli.scafa.async.http.HttpAsyncSocket;
-import com.github.apetrelli.scafa.async.http.gateway.MappedGatewayHttpConnectionFactory;
-import com.github.apetrelli.scafa.async.http.gateway.connection.AbstractGatewayHttpConnection;
-import com.github.apetrelli.scafa.async.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
 import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
 import com.github.apetrelli.scafa.proto.util.AsciiString;
 
-public class DirectProxyHttpConnection extends AbstractGatewayHttpConnection<HttpAsyncSocket<HttpResponse>> implements ProxyHttpConnection {
+import lombok.extern.java.Log;
 
-	private static final Logger LOG = Logger.getLogger(DirectProxyHttpConnection.class.getName());
+@Log
+public class DirectProxyHttpConnection extends AbstractGatewayHttpConnection<HttpAsyncSocket<HttpResponse>> implements ProxyHttpConnection {
 
     public DirectProxyHttpConnection(MappedGatewayHttpConnectionFactory<?> factory,
     		ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory,
@@ -67,8 +67,8 @@ public class DirectProxyHttpConnection extends AbstractGatewayHttpConnection<Htt
 		}
         HttpRequest modifiedRequest = new HttpRequest(request);
         modifiedRequest.setResource(new AsciiString(realurl.getFile()));
-        if (LOG.isLoggable(Level.INFO)) {
-            LOG.log(Level.INFO, "Direct connection: connected thread {0} to port {1} and URL {2}",
+        if (log.isLoggable(Level.INFO)) {
+            log.log(Level.INFO, "Direct connection: connected thread {0} to port {1} and URL {2}",
                     new Object[] { Thread.currentThread().getName(), socket.getAddress(), request.getResource() });
         }
         return modifiedRequest;

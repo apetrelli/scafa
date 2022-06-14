@@ -21,7 +21,7 @@ public class BasicAuthProxyHttpConnection extends AbstractUpstreamProxyHttpConne
 
     private static final HeaderName PROXY_AUTHORIZATION = new HeaderName("Proxy-Authorization");
     
-	private AsciiString authString;
+	private final AsciiString authString;
 
 	public BasicAuthProxyHttpConnection(MappedGatewayHttpConnectionFactory<?> factory,
 			ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory, AsyncSocket sourceChannel,

@@ -29,24 +29,20 @@ import com.github.apetrelli.scafa.proto.processor.HandlerFactory;
 import com.github.apetrelli.scafa.proto.processor.Processor;
 import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class ScafaListener<H, S extends AsyncSocket> {
 
     private static final Logger LOG = Logger.getLogger(ScafaListener.class.getName());
     
-    private AsyncServerSocketFactory<S> asyncServerSocketFactory;
+    private final AsyncServerSocketFactory<S> asyncServerSocketFactory;
     
-    private ProcessorFactory<H, AsyncSocket> processorFactory;
+    private final ProcessorFactory<H, AsyncSocket> processorFactory;
 
-    private HandlerFactory<H, S> handlerFactory;
+    private final HandlerFactory<H, S> handlerFactory;
 
     private AsyncServerSocket<S> server;
-
-	public ScafaListener(AsyncServerSocketFactory<S> asyncServerSocketFactory, ProcessorFactory<H, AsyncSocket> processorFactory,
-			HandlerFactory<H, S> handlerFactory) {
-		this.asyncServerSocketFactory = asyncServerSocketFactory;
-        this.processorFactory = processorFactory;
-        this.handlerFactory = handlerFactory;
-    }
 
     public void listen() throws IOException {
     	this.server = asyncServerSocketFactory.create();

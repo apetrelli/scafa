@@ -17,9 +17,9 @@ import com.github.apetrelli.scafa.proxy.config.ServerConfiguration;
 
 public class ConfigurationProxyHttpConnectionFactory implements GatewayHttpConnectionFactory<ProxyHttpConnection> {
 
-    private Configuration<GatewayHttpConnectionFactory<ProxyHttpConnection>> configuration;
+    private final Configuration<GatewayHttpConnectionFactory<ProxyHttpConnection>> configuration;
 
-    private GatewayHttpConnectionFactory<ProxyHttpConnection> directHttpConnectionFactory;
+    private final GatewayHttpConnectionFactory<ProxyHttpConnection> directHttpConnectionFactory;
 
     public ConfigurationProxyHttpConnectionFactory(Configuration<GatewayHttpConnectionFactory<ProxyHttpConnection>> configuration,
     		SocketFactory<HttpAsyncSocket<HttpRequest>> socketFactory, DataSenderFactory dataSenderFactory,

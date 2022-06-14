@@ -22,33 +22,31 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
-import com.github.apetrelli.scafa.async.proto.socket.AsyncSocket;
-import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.async.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.async.http.gateway.GatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.async.http.gateway.MappedGatewayHttpConnectionFactory;
+import com.github.apetrelli.scafa.async.proto.socket.AsyncSocket;
+import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
+
+@RequiredArgsConstructor
+@Log
 public class DefaultMappedGatewayHttpConnectionFactory<T extends HttpAsyncSocket<HttpRequest>> implements MappedGatewayHttpConnectionFactory<T> {
 
-    private static final Logger LOG = Logger.getLogger(DefaultMappedGatewayHttpConnectionFactory.class.getName());
+    private final Map<HostPort, T> connectionCache = new HashMap<>();
 
-    private Map<HostPort, T> connectionCache = new HashMap<>();
-
-    private GatewayHttpConnectionFactory<T> connectionFactory;
-
-    public DefaultMappedGatewayHttpConnectionFactory(GatewayHttpConnectionFactory<T> connectionFactory) {
-        this.connectionFactory = connectionFactory;
-    }
+    private final GatewayHttpConnectionFactory<T> connectionFactory;
     
     @Override
     public CompletableFuture<T> create(AsyncSocket sourceChannel, HttpRequest request) {
         try {
             return create(sourceChannel, request.getHostPort());
         } catch (IOException e) {
-            LOG.log(Level.SEVERE, "Problem with determining the host to connect to.", e);
+            log.log(Level.SEVERE, "Problem with determining the host to connect to.", e);
             return CompletableFuture.failedFuture(e);
         }
     }
@@ -70,8 +68,8 @@ public class DefaultMappedGatewayHttpConnectionFactory<T extends HttpAsyncSocket
     private CompletableFuture<T> create(AsyncSocket sourceChannel, HostPort hostPort) {
     	T connection = connectionCache.get(hostPort);
         if (connection == null) {
-            if (LOG.isLoggable(Level.INFO)) {
-                LOG.log(Level.INFO, "Connecting thread {0} to address {1}",
+            if (log.isLoggable(Level.INFO)) {
+                log.log(Level.INFO, "Connecting thread {0} to address {1}",
                         new Object[] { Thread.currentThread().getName(), hostPort });
             }
             T newConnection = connectionFactory.create(this, sourceChannel, hostPort);

@@ -11,6 +11,7 @@
   <modules>
   	<module>scafa-async-proto</module>
   	<module>scafa-async-proto-aio</module>
+  	<module>scafa-async-proto-netty</module>
   	<module>scafa-async-file</module>
   	<module>scafa-async-file-aio</module>
   	<module>scafa-async-http</module>

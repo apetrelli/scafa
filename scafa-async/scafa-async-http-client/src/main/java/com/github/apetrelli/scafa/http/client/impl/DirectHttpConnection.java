@@ -15,11 +15,11 @@ import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
 
 public class DirectHttpConnection extends AbstractClientConnection<HttpAsyncSocket<HttpRequest>> implements HttpClientConnection {
 
-    private ClientPipelineHttpHandler responseHandler;
+    private final ClientPipelineHttpHandler responseHandler;
 
-    private MappedHttpConnectionFactory connectionFactory;
+    private final MappedHttpConnectionFactory connectionFactory;
     
-    private ProcessorFactory<HttpHandler, AsyncSocket> processorFactory;
+    private final ProcessorFactory<HttpHandler, AsyncSocket> processorFactory;
 
 	public DirectHttpConnection(HttpAsyncSocket<HttpRequest> socket, MappedHttpConnectionFactory connectionFactory,
 			ProcessorFactory<HttpHandler, AsyncSocket> processorFactory) {

@@ -7,13 +7,12 @@ import com.github.apetrelli.scafa.async.http.HttpHandler;
 import com.github.apetrelli.scafa.async.http.gateway.GatewayHttpConnectionFactoryFactory;
 import com.github.apetrelli.scafa.proto.processor.HandlerFactory;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class DefaultGatewayHttpHandlerFactory<T extends HttpAsyncSocket<HttpRequest>> implements HandlerFactory<HttpHandler, AsyncSocket> {
 
-	private GatewayHttpConnectionFactoryFactory<T> factory;
-
-	public DefaultGatewayHttpHandlerFactory(GatewayHttpConnectionFactoryFactory<T> factory) {
-		this.factory = factory;
-	}
+	private final GatewayHttpConnectionFactoryFactory<T> factory;
 
 	@Override
 	public HttpHandler create(AsyncSocket sourceChannel) {

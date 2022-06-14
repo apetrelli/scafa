@@ -9,13 +9,12 @@ import java.util.concurrent.CompletableFuture;
 import com.github.apetrelli.scafa.async.proto.socket.AsyncServerSocket;
 import com.github.apetrelli.scafa.async.proto.socket.AsyncSocket;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class DirectAsyncServerSocket implements AsyncServerSocket<AsyncSocket> {
 
-	private AsynchronousServerSocketChannel channel;
-
-	public DirectAsyncServerSocket(AsynchronousServerSocketChannel channel) {
-		this.channel = channel;
-	}
+	private final AsynchronousServerSocketChannel channel;
 
 	@Override
 	public CompletableFuture<AsyncSocket> accept() {

@@ -16,22 +16,18 @@ import com.github.apetrelli.scafa.proto.SocketFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class DefaultMappedHttpConnectionFactory implements MappedHttpConnectionFactory {
 
-    private DataSenderFactory dataSenderFactory;
+    private final DataSenderFactory dataSenderFactory;
     
-    private SocketFactory<AsyncSocket> socketFactory;
+    private final SocketFactory<AsyncSocket> socketFactory;
     
-    private ProcessorFactory<HttpHandler, AsyncSocket> processorFactory;
+    private final ProcessorFactory<HttpHandler, AsyncSocket> processorFactory;
 
-    private Map<HostPort, HttpClientConnection> connectionCache = new HashMap<>();
-
-	public DefaultMappedHttpConnectionFactory(DataSenderFactory dataSenderFactory,
-			SocketFactory<AsyncSocket> socketFactory, ProcessorFactory<HttpHandler, AsyncSocket> processorFactory) {
-        this.dataSenderFactory = dataSenderFactory;
-        this.socketFactory = socketFactory;
-        this.processorFactory = processorFactory;
-    }
+    private final Map<HostPort, HttpClientConnection> connectionCache = new HashMap<>();
 	
 	@Override
 	public CompletableFuture<HttpClientConnection> create(HttpRequest request) {

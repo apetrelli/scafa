@@ -17,18 +17,18 @@
  */
 package com.github.apetrelli.scafa.async.http.proxy.handler;
 
-import com.github.apetrelli.scafa.async.proto.socket.AsyncSocket;
 import com.github.apetrelli.scafa.async.http.HttpHandler;
-import com.github.apetrelli.scafa.async.http.proxy.ProxyHttpConnectionFactoryFactory;
+import com.github.apetrelli.scafa.async.http.gateway.GatewayHttpConnectionFactoryFactory;
+import com.github.apetrelli.scafa.async.http.proxy.ProxyHttpConnection;
+import com.github.apetrelli.scafa.async.proto.socket.AsyncSocket;
 import com.github.apetrelli.scafa.proto.processor.HandlerFactory;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class ProxyHttpHandlerFactory implements HandlerFactory<HttpHandler, AsyncSocket> {
 
-    private ProxyHttpConnectionFactoryFactory connectionFactoryFactory;
-
-    public ProxyHttpHandlerFactory(ProxyHttpConnectionFactoryFactory connectionFactoryFactory) {
-        this.connectionFactoryFactory = connectionFactoryFactory;
-    }
+    private final GatewayHttpConnectionFactoryFactory<ProxyHttpConnection> connectionFactoryFactory;
 
     @Override
     public HttpHandler create(AsyncSocket sourceChannel) {

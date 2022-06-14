@@ -28,11 +28,11 @@ import com.github.apetrelli.scafa.async.http.HttpAsyncSocket;
 
 public class TentativeHandler extends CapturingHandler {
 
+    private final HttpAsyncSocket<HttpResponse> sourceChannel;
+
     private boolean needsAuthorizing = false;
 
     private boolean onlyCaptureMode = false;
-
-    private HttpAsyncSocket<HttpResponse> sourceChannel;
     
     private ByteBuffer writeBuffer;
 

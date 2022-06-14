@@ -4,18 +4,16 @@ import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.client.HttpClientHandler;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class HttpPipelineContext {
 
-    private HttpClientHandler handler;
+    private final HttpRequest request;
 
-    private HttpRequest request;
+    private final HttpClientHandler handler;
 
     private HttpResponse response;
-
-    public HttpPipelineContext(HttpRequest request, HttpClientHandler handler) {
-        this.handler = handler;
-        this.request = request;
-    }
 
     public HttpClientHandler getHandler() {
         return handler;

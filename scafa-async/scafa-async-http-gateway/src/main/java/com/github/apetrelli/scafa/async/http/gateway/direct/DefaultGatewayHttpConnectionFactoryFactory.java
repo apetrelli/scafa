@@ -18,18 +18,18 @@
 package com.github.apetrelli.scafa.async.http.gateway.direct;
 
 import com.github.apetrelli.scafa.http.HttpRequest;
+
+import lombok.RequiredArgsConstructor;
+
 import com.github.apetrelli.scafa.async.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.async.http.gateway.GatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.async.http.gateway.GatewayHttpConnectionFactoryFactory;
 import com.github.apetrelli.scafa.async.http.gateway.MappedGatewayHttpConnectionFactory;
 
+@RequiredArgsConstructor
 public class DefaultGatewayHttpConnectionFactoryFactory<T extends HttpAsyncSocket<HttpRequest>> implements GatewayHttpConnectionFactoryFactory<T> {
 
-    private GatewayHttpConnectionFactory<T> connectionFactory;
-
-    public DefaultGatewayHttpConnectionFactoryFactory(GatewayHttpConnectionFactory<T> connectionFactory) {
-        this.connectionFactory = connectionFactory;
-    }
+    private final GatewayHttpConnectionFactory<T> connectionFactory;
 
     @Override
     public MappedGatewayHttpConnectionFactory<T> create() {

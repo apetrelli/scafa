@@ -39,10 +39,10 @@ import com.github.apetrelli.scafa.proxy.config.ini.AbstractIniConfiguration;
 
 public class AsyncIniConfiguration extends AbstractIniConfiguration<GatewayHttpConnectionFactory<ProxyHttpConnection>> {
     
-    private SocketFactory<HttpAsyncSocket<HttpRequest>> socketFactory;
-    private DataSenderFactory dataSenderFactory;
-    private ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory;
-    private HttpStateMachine<HttpHandler, CompletableFuture<Void>> stateMachine;
+    private final SocketFactory<HttpAsyncSocket<HttpRequest>> socketFactory;
+    private final DataSenderFactory dataSenderFactory;
+    private final ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory;
+    private final HttpStateMachine<HttpHandler, CompletableFuture<Void>> stateMachine;
 
     public static AsyncIniConfiguration create(String profile, SocketFactory<HttpAsyncSocket<HttpRequest>> socketFactory,
             DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory,

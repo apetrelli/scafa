@@ -29,22 +29,20 @@ import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
 import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
 import com.github.apetrelli.scafa.proto.util.AsciiString;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class DefaultHttpClient implements HttpClient {
 
-	private MappedHttpConnectionFactory connectionFactory;
+	private final MappedHttpConnectionFactory connectionFactory;
 	
-	private com.github.apetrelli.scafa.async.file.PathBufferContextReaderFactory pathBufferContextReaderFactory;
+	private final PathBufferContextReaderFactory pathBufferContextReaderFactory;
 
 	public static ProcessorFactory<HttpHandler, AsyncSocket> buildDefaultProcessorFactory() {
 		HttpProcessingContextFactory contextFactory = new HttpProcessingContextFactory();
 		StatefulInputProcessorFactory<HttpHandler, HttpProcessingContext> inputProcessorFactory = new StatefulInputProcessorFactory<>(
 				new HttpStateMachine<>(new AsyncHttpSink()));
 		return new DefaultProcessorFactory<>(inputProcessorFactory, contextFactory);
-	}
-	
-	public DefaultHttpClient(MappedHttpConnectionFactory connectionFactory, PathBufferContextReaderFactory pathBufferContextReaderFactory) {
-		this.connectionFactory = connectionFactory;
-		this.pathBufferContextReaderFactory = pathBufferContextReaderFactory;
 	}
 
 	@Override

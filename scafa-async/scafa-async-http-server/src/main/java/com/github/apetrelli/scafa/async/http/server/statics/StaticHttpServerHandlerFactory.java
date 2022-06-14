@@ -17,15 +17,15 @@ import com.github.apetrelli.scafa.proto.util.AsciiString;
 
 public class StaticHttpServerHandlerFactory implements HttpServerHandlerFactory {
 
-	private String basePath;
+	private final String basePath;
 
-	private String indexResource;
+	private final String indexResource;
 
-	private Map<String, AsciiString> mimeTypeConfig;
+	private final Map<String, AsciiString> mimeTypeConfig;
 
-	private HttpServer server;
+	private final HttpServer server;
 	
-	private Map<String, Path> localResource2path;
+	private final Map<String, Path> localResource2path;
 
 	public StaticHttpServerHandlerFactory(String basePath, String baseFilesystemPath, String indexResource,
 			Map<String, AsciiString> mimeTypeConfig, HttpServer server) {

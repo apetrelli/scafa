@@ -8,6 +8,9 @@ import com.github.apetrelli.scafa.async.http.HttpHandler;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class CompositeHttpHandler implements HttpHandler {
 
 	public static class PatternHandlerPair {
@@ -21,16 +24,11 @@ public class CompositeHttpHandler implements HttpHandler {
 		}
 	}
 
-	private PatternHandlerPair[] pairs;
+	private final HttpHandler defaultHandler;
 
-	private HttpHandler defaultHandler;
+	private final PatternHandlerPair[] pairs;
 
 	private HttpHandler currentHandler;
-
-	public CompositeHttpHandler(HttpHandler defaultHandler, PatternHandlerPair... pairs) {
-		this.defaultHandler = defaultHandler;
-		this.pairs = pairs;
-	}
 
 	@Override
 	public void onConnect() {

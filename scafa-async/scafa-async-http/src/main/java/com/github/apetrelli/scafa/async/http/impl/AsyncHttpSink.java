@@ -5,7 +5,6 @@ import static com.github.apetrelli.scafa.http.HttpHeaders.CONNECT;
 import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.async.http.HttpHandler;
 import com.github.apetrelli.scafa.async.proto.util.CompletionHandlerFuture;
@@ -14,9 +13,10 @@ import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.HttpSink;
 
+import lombok.extern.java.Log;
+
+@Log
 public class AsyncHttpSink implements HttpSink<HttpHandler, CompletableFuture<Void>> {
-	
-	private static final Logger LOG = Logger.getLogger(AsyncHttpSink.class.getName());
 	
 	@Override
 	public void onStart(HttpHandler handler) {
@@ -69,8 +69,8 @@ public class AsyncHttpSink implements HttpSink<HttpHandler, CompletableFuture<Vo
 				context.getChunkOffset(), context.getChunkLength()).thenCompose(x -> {
 					context.reduceChunk(sizeToSend);
 					buffer.limit(oldLimit);
-					if (LOG.isLoggable(Level.FINEST)) {
-						LOG.log(Level.FINEST, "Handling chunk from {0} to {1}",
+					if (log.isLoggable(Level.FINEST)) {
+						log.log(Level.FINEST, "Handling chunk from {0} to {1}",
 								new Object[] { context.getChunkOffset(), context.getChunkOffset() + sizeToSend });
 					}
 					return CompletionHandlerFuture.completeEmpty();

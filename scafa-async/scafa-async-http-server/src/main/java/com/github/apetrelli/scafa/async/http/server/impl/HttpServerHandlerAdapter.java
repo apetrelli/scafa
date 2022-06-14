@@ -5,19 +5,19 @@ import java.util.concurrent.CompletableFuture;
 
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
+
+import lombok.RequiredArgsConstructor;
+
 import com.github.apetrelli.scafa.async.http.HttpHandler;
 import com.github.apetrelli.scafa.async.http.impl.HttpHandlerSupport;
 import com.github.apetrelli.scafa.async.http.server.HttpServerHandler;
 
+@RequiredArgsConstructor
 public class HttpServerHandlerAdapter extends HttpHandlerSupport implements HttpHandler {
 
-	private HttpServerHandler handler;
+	private final HttpServerHandler handler;
 
 	private HttpRequest currentRequest;
-
-	public HttpServerHandlerAdapter(HttpServerHandler handler) {
-		this.handler = handler;
-	}
 
 	@Override
 	public void onStart() {

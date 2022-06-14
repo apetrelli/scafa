@@ -22,7 +22,7 @@ public class NotFoundHttpServerHandler extends HttpServerHandlerSupport {
 	
 	private static final AsciiString ONLY_GET_ALLOWED = new AsciiString("Only GET allowed");
 	
-	private HttpServer server;
+	private final HttpServer server;
 
 	public NotFoundHttpServerHandler(HttpAsyncSocket<HttpResponse> channel, HttpServer server) {
 		super(channel);

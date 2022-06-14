@@ -25,18 +25,15 @@ import com.github.apetrelli.scafa.proto.processor.Handler;
 import com.github.apetrelli.scafa.proto.processor.Processor;
 import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class DefaultProcessorFactory<P extends Input, H extends Handler>
 		implements ProcessorFactory<H, AsyncSocket> {
 
-	private InputProcessorFactory<H, P> inputProcessorFactory;
+	private final InputProcessorFactory<H, P> inputProcessorFactory;
 
-	private ProcessingContextFactory<P> processingContextFactory;
-
-	public DefaultProcessorFactory(InputProcessorFactory<H, P> inputProcessorFactory,
-			ProcessingContextFactory<P> processingContextFactory) {
-		this.inputProcessorFactory = inputProcessorFactory;
-		this.processingContextFactory = processingContextFactory;
-	}
+	private final ProcessingContextFactory<P> processingContextFactory;
 
 	@Override
 	public Processor<H> create(AsyncSocket client) {

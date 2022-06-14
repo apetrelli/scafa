@@ -6,13 +6,12 @@ import com.github.apetrelli.scafa.async.proto.processor.DataHandler;
 import com.github.apetrelli.scafa.async.proto.processor.InputProcessor;
 import com.github.apetrelli.scafa.proto.data.Input;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class PassthroughInputProcessor<P extends Input> implements InputProcessor<P> {
 
-	private DataHandler handler;
-
-	public PassthroughInputProcessor(DataHandler handler) {
-		this.handler = handler;
-	}
+	private final DataHandler handler;
 	
 	@Override
 	public CompletableFuture<P> process(P context) {

@@ -26,15 +26,14 @@ import com.github.apetrelli.scafa.http.client.HttpClientConnection;
 import com.github.apetrelli.scafa.http.client.HttpClientHandler;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class ThrowableHttpConnection implements HttpClientConnection {
 
-	private Throwable throwable;
+	private final Throwable throwable;
 	
 	private HttpClientHandler clientHandler;
-
-    public ThrowableHttpConnection(Throwable throwable) {
-		this.throwable = throwable;
-	}
     
     @Override
     public CompletableFuture<Void> connect() {

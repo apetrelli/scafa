@@ -31,9 +31,9 @@ import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
 
 public class BasicAuthProxyHttpConnectionFactory extends AbstractGatewayHttpConnectionFactory<ProxyHttpConnection> {
 
-	private String username, password;
+	private final String username, password;
 
-	private HttpRequestManipulator manipulator;
+	private final HttpRequestManipulator manipulator;
 
 	public BasicAuthProxyHttpConnectionFactory(SocketFactory<HttpAsyncSocket<HttpRequest>> socketFactory,
 			ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory, HostPort proxySocketAddress,

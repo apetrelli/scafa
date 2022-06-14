@@ -9,7 +9,6 @@ import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.async.file.BufferContext;
 import com.github.apetrelli.scafa.async.file.BufferContextReader;
@@ -23,18 +22,16 @@ import com.github.apetrelli.scafa.async.http.server.HttpServer;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.proto.util.AsciiString;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
+
+@RequiredArgsConstructor
+@Log
 public class DefaultHttpServer implements HttpServer {
-	
-	private static final Logger LOG = Logger.getLogger(DefaultHttpServer.class.getName());
 
-	private DataSenderFactory dataSenderFactory;
+	private final DataSenderFactory dataSenderFactory;
 	
-	private PathBufferContextReaderFactory pathBufferContextReaderFactory;
-
-	public DefaultHttpServer(DataSenderFactory dataSenderFactory, PathBufferContextReaderFactory pathBufferContextReaderFactory) {
-		this.dataSenderFactory = dataSenderFactory;
-		this.pathBufferContextReaderFactory = pathBufferContextReaderFactory;
-	}
+	private final PathBufferContextReaderFactory pathBufferContextReaderFactory;
 	
 	@Override
 	public CompletableFuture<Void> response(HttpAsyncSocket<HttpResponse> channel, HttpResponse response, ByteBuffer writeBuffer) {
@@ -66,7 +63,7 @@ public class DefaultHttpServer implements HttpServer {
 				try {
 					currentPayloadReader.close();
 				} catch (IOException e) {
-					LOG.log(Level.FINE, "Error when closing payload reader", e);
+					log.log(Level.FINE, "Error when closing payload reader", e);
 				}
 			});
 		} catch (PathIOException e) {

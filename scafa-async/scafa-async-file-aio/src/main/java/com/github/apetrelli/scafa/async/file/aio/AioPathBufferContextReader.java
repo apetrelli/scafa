@@ -9,13 +9,12 @@ import com.github.apetrelli.scafa.async.file.BufferContext;
 import com.github.apetrelli.scafa.async.file.PathBufferContextReader;
 import com.github.apetrelli.scafa.async.file.PathIOException;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class AioPathBufferContextReader implements PathBufferContextReader {
 
-	private AsynchronousFileChannel channel;
-
-	public AioPathBufferContextReader(AsynchronousFileChannel channel) {
-		this.channel = channel;
-	}
+	private final AsynchronousFileChannel channel;
 	
 	@Override
 	public CompletableFuture<Integer> read(BufferContext context) {

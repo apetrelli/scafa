@@ -18,7 +18,7 @@ public class DirectHttpAsyncSocket<H extends HeaderHolder> extends AsyncSocketWr
 
 	private static final Logger LOG = Logger.getLogger(DirectHttpAsyncSocket.class.getName());
 	
-	private DataSenderFactory dataSenderFactory;
+	private final DataSenderFactory dataSenderFactory;
 	
 	private DataSender dataSender;
 	

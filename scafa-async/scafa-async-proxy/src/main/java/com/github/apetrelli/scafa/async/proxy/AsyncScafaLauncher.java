@@ -22,6 +22,15 @@ import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.github.apetrelli.scafa.async.http.HttpAsyncSocket;
+import com.github.apetrelli.scafa.async.http.HttpHandler;
+import com.github.apetrelli.scafa.async.http.gateway.direct.DefaultGatewayHttpConnectionFactoryFactory;
+import com.github.apetrelli.scafa.async.http.impl.AsyncHttpSink;
+import com.github.apetrelli.scafa.async.http.output.DataSenderFactory;
+import com.github.apetrelli.scafa.async.http.output.impl.DefaultDataSenderFactory;
+import com.github.apetrelli.scafa.async.http.proxy.ProxyHttpConnection;
+import com.github.apetrelli.scafa.async.http.proxy.handler.ProxyHttpHandlerFactory;
+import com.github.apetrelli.scafa.async.http.socket.direct.DirectHttpAsyncSocketFactory;
 import com.github.apetrelli.scafa.async.proto.ScafaListener;
 import com.github.apetrelli.scafa.async.proto.aio.DirectAsyncServerSocketFactory;
 import com.github.apetrelli.scafa.async.proto.aio.DirectClientAsyncSocketFactory;
@@ -35,14 +44,6 @@ import com.github.apetrelli.scafa.async.proxy.config.ConfigurationProxyHttpConne
 import com.github.apetrelli.scafa.async.proxy.config.ini.AsyncIniConfiguration;
 import com.github.apetrelli.scafa.http.HttpProcessingContext;
 import com.github.apetrelli.scafa.http.HttpRequest;
-import com.github.apetrelli.scafa.async.http.HttpAsyncSocket;
-import com.github.apetrelli.scafa.async.http.HttpHandler;
-import com.github.apetrelli.scafa.async.http.impl.AsyncHttpSink;
-import com.github.apetrelli.scafa.async.http.output.DataSenderFactory;
-import com.github.apetrelli.scafa.async.http.output.impl.DefaultDataSenderFactory;
-import com.github.apetrelli.scafa.async.http.proxy.connection.DefaultHttpConnectionFactoryFactory;
-import com.github.apetrelli.scafa.async.http.proxy.handler.ProxyHttpHandlerFactory;
-import com.github.apetrelli.scafa.async.http.socket.direct.DirectHttpAsyncSocketFactory;
 import com.github.apetrelli.scafa.http.impl.HttpProcessingContextFactory;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
 import com.github.apetrelli.scafa.proto.SocketFactory;
@@ -68,7 +69,7 @@ public class AsyncScafaLauncher extends AbstractScafaLauncher {
 					clientProcessorFactory, stateMachine);
             Integer port = configuration.getPort();
             StatefulInputProcessorFactory<HttpHandler, HttpProcessingContext> inputProcessorFactory = new StatefulInputProcessorFactory<>(stateMachine);
-            DefaultHttpConnectionFactoryFactory connectionFactoryFactory = new DefaultHttpConnectionFactoryFactory(
+            DefaultGatewayHttpConnectionFactoryFactory<ProxyHttpConnection> connectionFactoryFactory = new DefaultGatewayHttpConnectionFactoryFactory<>(
                     new ConfigurationProxyHttpConnectionFactory(configuration, socketFactory, dataSenderFactory, clientProcessorFactory));
             HttpProcessingContextFactory processingContextFactory = new HttpProcessingContextFactory();
             ProxyHttpHandlerFactory proxyHttpHandlerFactory = new ProxyHttpHandlerFactory(connectionFactoryFactory);

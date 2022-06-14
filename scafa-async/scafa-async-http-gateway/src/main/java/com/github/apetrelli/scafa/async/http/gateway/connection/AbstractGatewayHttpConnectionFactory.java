@@ -10,27 +10,20 @@ import com.github.apetrelli.scafa.proto.SocketFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public abstract class AbstractGatewayHttpConnectionFactory<T extends HttpAsyncSocket<HttpRequest>> implements GatewayHttpConnectionFactory<T> {
 
-	protected SocketFactory<HttpAsyncSocket<HttpRequest>> socketFactory;
+	protected final SocketFactory<HttpAsyncSocket<HttpRequest>> socketFactory;
 	
-	protected ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory;
+	protected final ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory;
 	
-	protected HostPort destinationSocketAddress;
+	protected final HostPort destinationSocketAddress;
 
-	private String interfaceName;
+	private final String interfaceName;
 
-	private boolean forceIpV4;
-
-	public AbstractGatewayHttpConnectionFactory(SocketFactory<HttpAsyncSocket<HttpRequest>> socketFactory,
-			ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory, HostPort destinationSocketAddress,
-			String interfaceName, boolean forceIpV4) {
-		this.socketFactory = socketFactory;
-		this.clientProcessorFactory = clientProcessorFactory;
-		this.destinationSocketAddress = destinationSocketAddress;
-		this.interfaceName = interfaceName;
-		this.forceIpV4 = forceIpV4;
-	}
+	private final boolean forceIpV4;
 
 	@Override
 	public T create(MappedGatewayHttpConnectionFactory<T> factory,

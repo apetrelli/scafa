@@ -24,7 +24,6 @@ import java.nio.channels.ClosedChannelException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.async.proto.processor.InputProcessor;
 import com.github.apetrelli.scafa.async.proto.processor.InputProcessorFactory;
@@ -34,22 +33,18 @@ import com.github.apetrelli.scafa.proto.data.ProcessingContextFactory;
 import com.github.apetrelli.scafa.proto.processor.Handler;
 import com.github.apetrelli.scafa.proto.processor.Processor;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
+
+@RequiredArgsConstructor
+@Log
 public class DefaultProcessor<P extends Input, H extends Handler> implements Processor<H> {
 
-    private static final Logger LOG = Logger.getLogger(DefaultProcessor.class.getName());
+    private final AsyncSocket client;
 
-    private AsyncSocket client;
+    private final InputProcessorFactory<H, P> inputProcessorFactory;
 
-    private InputProcessorFactory<H, P> inputProcessorFactory;
-
-    private ProcessingContextFactory<P> processingContextFactory;
-
-	public DefaultProcessor(AsyncSocket client, InputProcessorFactory<H, P> inputProcessorFactory,
-			ProcessingContextFactory<P> processingContextFactory) {
-        this.client = client;
-        this.inputProcessorFactory = inputProcessorFactory;
-        this.processingContextFactory = processingContextFactory;
-    }
+    private final ProcessingContextFactory<P> processingContextFactory;
 
     @Override
     public void process(H handler) {
@@ -62,12 +57,12 @@ public class DefaultProcessor<P extends Input, H extends Handler> implements Pro
         			exc = ((CompletionException) exc).getCause();
         		}
                 if (exc instanceof AsynchronousCloseException || exc instanceof ClosedChannelException) {
-                    LOG.log(Level.INFO, "Channel closed", exc);
+                    log.log(Level.INFO, "Channel closed", exc);
                 } else if (exc instanceof IOException) {
-                    LOG.log(Level.INFO, "I/O exception, closing", exc);
+                	log.log(Level.INFO, "I/O exception, closing", exc);
                     disconnect(handler);
                 } else {
-                    LOG.log(Level.SEVERE, "Unrecognized exception, use the handler", exc);
+                	log.log(Level.SEVERE, "Unrecognized exception, use the handler", exc);
                     handler.onError(exc);
                 }
         	}
@@ -94,7 +89,7 @@ public class DefaultProcessor<P extends Input, H extends Handler> implements Pro
     private CompletableFuture<Void> disconnect(H handler) {
     	return client.disconnect().handle((x, y) -> {
     		if (y != null) {
-    			LOG.log(Level.SEVERE, "Error when disposing client", y);
+    			log.log(Level.SEVERE, "Error when disposing client", y);
     		}
             return x;
 		}).thenRun(handler::onDisconnect);

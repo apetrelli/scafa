@@ -20,34 +20,27 @@ package com.github.apetrelli.scafa.http.proxy;
 import java.io.IOException;
 
 import com.github.apetrelli.scafa.http.HttpRequest;
+import com.github.apetrelli.scafa.proto.client.HostPort;
 
 public class HttpConnectRequest extends HttpRequest {
 
-    private String host;
-
-    private int port;
-
     public HttpConnectRequest(HttpRequest toCopy) throws IOException {
         super(toCopy);
-        String url = toCopy.getResource().toString();
+    }
+
+    @Override
+    public HostPort getHostPort() throws IOException {
+        String url = getResource().toString();
         String[] strings = url.split(":");
         if (strings.length != 2) {
             throw new IOException("Invalid host:port " + url);
         }
-        host = strings[0];
+        String host = strings[0];
         try {
-            port = Integer.parseInt(strings[1]);
+            int port = Integer.parseInt(strings[1]);
+            return new HostPort(host, port);
         } catch (NumberFormatException e) {
             throw new IOException("Invalid port in host:port " + url, e);
         }
     }
-
-    public String getHost() {
-        return host;
-    }
-
-    public int getPort() {
-        return port;
-    }
-
 }

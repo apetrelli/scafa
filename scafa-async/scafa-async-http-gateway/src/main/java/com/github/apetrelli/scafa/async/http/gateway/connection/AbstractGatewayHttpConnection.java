@@ -37,21 +37,21 @@ public abstract class AbstractGatewayHttpConnection<T extends AsyncSocket> exten
 	
 	private static final Logger LOG = Logger.getLogger(AbstractGatewayHttpConnection.class.getName());
 
-    protected T sourceChannel;
+    protected final MappedGatewayHttpConnectionFactory<?> factory;
     
-    protected ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory;
+    protected final ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory;
 
-    protected HostPort destinationSocketAddress;
+    protected final T sourceChannel;
 
-    protected MappedGatewayHttpConnectionFactory<?> factory;
+    protected final HostPort destinationSocketAddress;
 
 	public AbstractGatewayHttpConnection(MappedGatewayHttpConnectionFactory<?> factory,
 			ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory, T sourceChannel,
 			HttpAsyncSocket<HttpRequest> socket, HostPort destinationSocketAddress) {
 		super(socket);
+		this.factory = factory;
 		this.clientProcessorFactory = clientProcessorFactory;
 		this.sourceChannel = sourceChannel;
-		this.factory = factory;
 		this.destinationSocketAddress = destinationSocketAddress;
 	}
 	

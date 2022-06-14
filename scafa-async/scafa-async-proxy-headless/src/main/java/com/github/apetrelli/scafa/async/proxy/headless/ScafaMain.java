@@ -22,9 +22,10 @@ import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.async.proxy.AsyncScafaLauncher;
 
-public class ScafaMain {
+import lombok.extern.java.Log;
 
-    private static final Logger LOG = Logger.getLogger(ScafaMain.class.getName());
+@Log
+public class ScafaMain {
 
     public static void main(String[] args) {
         String profile = null;
@@ -46,7 +47,7 @@ public class ScafaMain {
             try {
                 Thread.sleep(60000);
             } catch (InterruptedException e) {
-                LOG.log(Level.INFO, "Main thread interrupted", e);
+                log.log(Level.INFO, "Main thread interrupted", e);
             }
         }
     }

@@ -9,6 +9,9 @@ import com.github.apetrelli.scafa.async.http.composite.CompositeHttpHandler.Patt
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.proto.processor.HandlerFactory;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class CompositeHttpHandlerFactory implements HandlerFactory<HttpHandler, HttpAsyncSocket<HttpResponse>> {
 
 	public static class CompositeHttpHandlerFactoryBuilder {
@@ -45,15 +48,10 @@ public class CompositeHttpHandlerFactory implements HandlerFactory<HttpHandler, 
 			this.handlerFactory = handlerFactory;
 		}
 	}
-
-	private PatternHandlerFactoryPair[] pairs;
 	
-	private HandlerFactory<HttpHandler, ? super HttpAsyncSocket<HttpResponse>> defaultHandlerFactory;
+	private final HandlerFactory<HttpHandler, ? super HttpAsyncSocket<HttpResponse>> defaultHandlerFactory;
 
-	private CompositeHttpHandlerFactory(HandlerFactory<HttpHandler, ? super HttpAsyncSocket<HttpResponse>> defaultHandlerFactory, PatternHandlerFactoryPair[] pairs) {
-		this.pairs = pairs;
-		this.defaultHandlerFactory = defaultHandlerFactory;
-	}
+	private final PatternHandlerFactoryPair[] pairs;
 
 	@Override
 	public HttpHandler create(HttpAsyncSocket<HttpResponse> sourceChannel) {

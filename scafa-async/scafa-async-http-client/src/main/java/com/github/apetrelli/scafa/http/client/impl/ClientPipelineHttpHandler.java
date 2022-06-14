@@ -15,19 +15,18 @@ import com.github.apetrelli.scafa.async.http.impl.HttpHandlerSupport;
 import com.github.apetrelli.scafa.http.client.HttpClientConnection;
 import com.github.apetrelli.scafa.http.client.HttpClientHandler;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class ClientPipelineHttpHandler extends HttpHandlerSupport implements HttpHandler {
 
 	private static final HttpClientHandler NULL_HANDLER = new NullHttpClientHandler();
 
+    private final HttpClientConnection connection;
+
     private ConcurrentLinkedQueue<HttpPipelineContext> contexts = new ConcurrentLinkedQueue<>();
 
     private HttpPipelineContext currentContext = new HttpPipelineContext(null, NULL_HANDLER);
-
-    private HttpClientConnection connection;
-
-    public ClientPipelineHttpHandler(HttpClientConnection connection) {
-        this.connection = connection;
-    }
 
     public void add(HttpRequest request, HttpClientHandler handler) {
         contexts.offer(new HttpPipelineContext(request, handler));

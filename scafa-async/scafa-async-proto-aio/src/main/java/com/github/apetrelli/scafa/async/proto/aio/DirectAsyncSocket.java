@@ -12,13 +12,12 @@ import com.github.apetrelli.scafa.async.proto.util.CompletionHandlerFuture;
 import com.github.apetrelli.scafa.proto.IORuntimeException;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class DirectAsyncSocket implements AsyncSocket {
 	
-	protected AsynchronousSocketChannel channel;
-    
-	public DirectAsyncSocket(AsynchronousSocketChannel channel) {
-		this.channel = channel;
-	}
+	protected final AsynchronousSocketChannel channel;
 	
 	@Override
 	public CompletableFuture<Void> connect() {

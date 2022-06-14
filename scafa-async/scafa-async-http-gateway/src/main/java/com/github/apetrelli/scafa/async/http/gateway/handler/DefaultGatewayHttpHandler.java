@@ -23,26 +23,24 @@ import java.util.concurrent.CompletableFuture;
 import com.github.apetrelli.scafa.async.proto.socket.AsyncSocket;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
+
+import lombok.RequiredArgsConstructor;
+
 import com.github.apetrelli.scafa.async.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.async.http.HttpHandler;
 import com.github.apetrelli.scafa.async.http.gateway.MappedGatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.async.http.impl.HttpHandlerSupport;
 
+@RequiredArgsConstructor
 public class DefaultGatewayHttpHandler<T extends HttpAsyncSocket<HttpRequest>> extends HttpHandlerSupport implements HttpHandler {
-
-    protected AsyncSocket sourceChannel;
-
-    protected T connection;
     
-    protected ByteBuffer writeBuffer;
+    protected final ByteBuffer writeBuffer = ByteBuffer.allocate(16384);
 
-    private MappedGatewayHttpConnectionFactory<T> connectionFactory;
+    private final MappedGatewayHttpConnectionFactory<T> connectionFactory;
 
-    public DefaultGatewayHttpHandler(MappedGatewayHttpConnectionFactory<T> connectionFactory, AsyncSocket sourceChannel) {
-        this.connectionFactory = connectionFactory;
-        this.sourceChannel = sourceChannel;
-        writeBuffer = ByteBuffer.allocate(16384);
-    }
+    private final AsyncSocket sourceChannel;
+
+    private T connection;
     
     @Override
     public CompletableFuture<Void> onResponseHeader(HttpResponse response) {
@@ -51,8 +49,7 @@ public class DefaultGatewayHttpHandler<T extends HttpAsyncSocket<HttpRequest>> e
 
     @Override
     public CompletableFuture<Void> onRequestHeader(HttpRequest request) {
-		return connectionFactory.create(sourceChannel, request).thenAccept(x -> connection = x)
-				.thenCompose(x -> connection.sendHeader(request, writeBuffer));
+		return createConnection(request).thenCompose(x -> x.sendHeader(request, writeBuffer));
     }
     
     @Override
@@ -81,4 +78,8 @@ public class DefaultGatewayHttpHandler<T extends HttpAsyncSocket<HttpRequest>> e
     		connection.disconnect(); // Ignore the outcome
         }
     }
+
+	protected CompletableFuture<T> createConnection(HttpRequest request) {
+		return connectionFactory.create(sourceChannel, request).thenApply(x -> connection = x);
+	}
 }

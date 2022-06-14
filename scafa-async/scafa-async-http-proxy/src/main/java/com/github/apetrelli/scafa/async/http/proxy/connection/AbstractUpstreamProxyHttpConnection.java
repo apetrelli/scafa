@@ -17,28 +17,29 @@
  */
 package com.github.apetrelli.scafa.async.http.proxy.connection;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
-import com.github.apetrelli.scafa.async.proto.processor.DataHandler;
-import com.github.apetrelli.scafa.async.proto.socket.AsyncSocket;
-import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.async.http.HttpAsyncSocket;
 import com.github.apetrelli.scafa.async.http.gateway.MappedGatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.async.http.gateway.connection.AbstractGatewayHttpConnection;
 import com.github.apetrelli.scafa.async.http.proxy.ProxyHttpConnection;
+import com.github.apetrelli.scafa.async.proto.processor.DataHandler;
+import com.github.apetrelli.scafa.async.proto.socket.AsyncSocket;
+import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
 import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
 
+import lombok.extern.java.Log;
+
+@Log
 public abstract class AbstractUpstreamProxyHttpConnection extends AbstractGatewayHttpConnection<AsyncSocket> implements ProxyHttpConnection {
 
-    private static final Logger LOG = Logger.getLogger(AbstractUpstreamProxyHttpConnection.class.getName());
-
-    protected HttpRequestManipulator manipulator;
+    protected final HttpRequestManipulator manipulator;
 
 	public AbstractUpstreamProxyHttpConnection(MappedGatewayHttpConnectionFactory<?> factory,
 			ProcessorFactory<DataHandler, AsyncSocket> clientProcessorFactory, AsyncSocket sourceChannel,
@@ -50,9 +51,13 @@ public abstract class AbstractUpstreamProxyHttpConnection extends AbstractGatewa
     
     @Override
     public CompletableFuture<Void> connect(HttpConnectRequest request, ByteBuffer writeBuffer) {
-        if (LOG.isLoggable(Level.INFO)) {
-            LOG.log(Level.INFO, "Connected thread {0} to port {1} and host {2}:{3}", new Object[] {
-                    Thread.currentThread().getName(), socket.getAddress(), request.getHost(), request.getPort()});
+        if (log.isLoggable(Level.INFO)) {
+            try {
+            	log.log(Level.INFO, "Connected thread {0} to address {1} and host ", new Object[] {
+				        Thread.currentThread().getName(), socket.getAddress(), request.getHostPort()});
+			} catch (IOException e) {
+				log.log(Level.WARNING, "Error when parsing connect request", e);
+			}
         }
         return doConnect(request, writeBuffer);
     }
@@ -67,8 +72,8 @@ public abstract class AbstractUpstreamProxyHttpConnection extends AbstractGatewa
             request = new HttpRequest(request);
             manipulator.manipulate(request);
         }
-        if (LOG.isLoggable(Level.INFO)) {
-            LOG.log(Level.INFO, "Connected thread {0} to port {1} and URL {2}",
+        if (log.isLoggable(Level.INFO)) {
+        	log.log(Level.INFO, "Connected thread {0} to port {1} and URL {2}",
                     new Object[] { Thread.currentThread().getName(), socket.getAddress(), request.getResource() });
         }
         return request;
