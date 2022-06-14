@@ -1,5 +1,6 @@
 module com.github.apetrelli.scafa.proto {
 	requires java.logging;
+	requires lombok;
 	exports com.github.apetrelli.scafa.proto;
 	exports com.github.apetrelli.scafa.proto.client;
 	exports com.github.apetrelli.scafa.proto.data;

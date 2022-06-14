@@ -7,16 +7,14 @@ import com.github.apetrelli.scafa.sync.http.HttpSyncSocket;
 import com.github.apetrelli.scafa.sync.http.output.DataSenderFactory;
 import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class DirectHttpSyncSocketFactory implements SocketFactory<HttpSyncSocket<HttpRequest>> {
 
-	private SocketFactory<SyncSocket> socketFactory;
+	private final SocketFactory<SyncSocket> socketFactory;
 	
-	private DataSenderFactory dataSenderFactory;
-	
-	public DirectHttpSyncSocketFactory(SocketFactory<SyncSocket> socketFactory, DataSenderFactory dataSenderFactory) {
-		this.socketFactory = socketFactory;
-		this.dataSenderFactory = dataSenderFactory;
-	}
+	private final DataSenderFactory dataSenderFactory;
 
 	@Override
 	public HttpSyncSocket<HttpRequest> create(HostPort hostPort, String interfaceName, boolean forceIpV4) {

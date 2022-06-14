@@ -13,9 +13,9 @@ import com.github.apetrelli.scafa.proto.util.AsciiString;
 
 public class ParsedResource {
 
-	private String resource;
+	private final String resource;
 
-	private Map<String, List<String>> parameters = new LinkedHashMap<>();
+	private final Map<String, List<String>> parameters = new LinkedHashMap<>();
 
 	public ParsedResource(AsciiString unparsedResourceAscii) {
 		String unparsedResource = unparsedResourceAscii.toString();

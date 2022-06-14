@@ -17,9 +17,9 @@ public class DirectHttpSyncSocket<H extends HeaderHolder> extends SyncSocketWrap
 
 	private static final Logger LOG = Logger.getLogger(DirectHttpSyncSocket.class.getName());
 	
-	private DataSenderFactory dataSenderFactory;
-	
 	private DataSender dataSender;
+	
+	private final DataSenderFactory dataSenderFactory;
 	
 	public DirectHttpSyncSocket(SyncSocket socket, DataSenderFactory dataSenderFactory) {
 		super(socket);

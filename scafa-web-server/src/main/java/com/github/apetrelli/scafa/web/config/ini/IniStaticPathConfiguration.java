@@ -6,7 +6,7 @@ import com.github.apetrelli.scafa.web.config.StaticPathConfiguration;
 
 public class IniStaticPathConfiguration extends IniPathConfiguration implements StaticPathConfiguration {
 
-	private String rootFilesystemPath;
+	private final String rootFilesystemPath;
 	
 	public IniStaticPathConfiguration(Section section, String rootFilesystemPath) {
 		super(section);

@@ -9,16 +9,14 @@ import com.github.apetrelli.scafa.sync.http.socket.direct.DirectHttpSyncSocket;
 import com.github.apetrelli.scafa.sync.proto.SyncServerSocket;
 import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class HttpSyncServerSocket<H extends HeaderHolder> implements SyncServerSocket<HttpSyncSocket<H>> {
 
 	private final SyncServerSocket<SyncSocket> serverSocket;
 
 	private final DataSenderFactory dataSenderFactory;
-
-	public HttpSyncServerSocket(SyncServerSocket<SyncSocket> serverSocket, DataSenderFactory dataSenderFactory) {
-		this.serverSocket = serverSocket;
-		this.dataSenderFactory = dataSenderFactory;
-	}
 
 	@Override
 	public HttpSyncSocket<H> accept() {

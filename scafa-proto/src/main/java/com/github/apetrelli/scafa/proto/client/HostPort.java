@@ -17,15 +17,14 @@
  */
 package com.github.apetrelli.scafa.proto.client;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class HostPort {
-    private String host;
+	
+    private final String host;
 
-    private int port;
-
-    public HostPort(String host, int port) {
-        this.host = host;
-        this.port = port;
-    }
+    private final int port;
 
     public String getHost() {
         return host;

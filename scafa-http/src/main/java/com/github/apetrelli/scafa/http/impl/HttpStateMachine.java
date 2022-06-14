@@ -9,6 +9,9 @@ import com.github.apetrelli.scafa.http.HttpSink;
 import com.github.apetrelli.scafa.http.HttpStatus;
 import com.github.apetrelli.scafa.proto.processor.ProtocolStateMachine;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class HttpStateMachine<H, R> implements ProtocolStateMachine<H, HttpProcessingContext, R> {
 
     private static final byte CR = 13;
@@ -19,11 +22,7 @@ public class HttpStateMachine<H, R> implements ProtocolStateMachine<H, HttpProce
     
     private static final byte COLON = 58;
     
-    private HttpSink<H, R> sink;
-	
-	public HttpStateMachine(HttpSink<H, R> sink) {
-		this.sink = sink;
-	}
+    private final HttpSink<H, R> sink;
 
 	@Override
 	public R out(HttpProcessingContext context, H handler) {

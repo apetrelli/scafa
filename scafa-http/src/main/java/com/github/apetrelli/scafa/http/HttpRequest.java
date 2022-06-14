@@ -26,22 +26,22 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.util.AsciiString;
 
-public class HttpRequest extends HeaderHolder {
+import lombok.extern.java.Log;
 
-	private static final Logger LOG = Logger.getLogger(HttpRequest.class.getName());
+@Log
+public class HttpRequest extends HeaderHolder {
 
     private static final Map<String, Integer> protocol2port = new HashMap<>();
 
-    private AsciiString method;
+    private final AsciiString method;
 
-    private AsciiString resource;
+    private final AsciiString resource;
 
-    private AsciiString httpVersion;
+    private final AsciiString httpVersion;
 
     static {
         protocol2port.put("http", 80);
@@ -67,36 +67,12 @@ public class HttpRequest extends HeaderHolder {
         return method;
     }
 
-    public void setMethod(AsciiString method) {
-        if (this.method != null) {
-            byteSize -= this.method.length();
-        }
-        this.method = method;
-        byteSize += this.method.length();
-    }
-
     public AsciiString getResource() {
         return resource;
     }
 
-    public void setResource(AsciiString resource) {
-        if (this.resource != null) {
-            byteSize -= this.resource.length();
-        }
-        this.resource = resource;
-        byteSize += this.resource.length();
-    }
-
     public AsciiString getHttpVersion() {
         return httpVersion;
-    }
-
-    public void setHttpVersion(AsciiString httpVersion) {
-        if (this.httpVersion != null) {
-            byteSize -= this.httpVersion.length();
-        }
-        this.httpVersion = httpVersion;
-        byteSize += this.httpVersion.length();
     }
 
     public HostPort getHostPort() throws IOException {
@@ -113,7 +89,7 @@ public class HttpRequest extends HeaderHolder {
 	                    port = protocol2port.get(realUrl.getProtocol());
 	                } catch (MalformedURLException e) {
 	                    // Rare, only in HTTP 1.0
-	                    LOG.log(Level.FINE, "Host header not present and connect executed!", e);
+	                    log.log(Level.FINE, "Host header not present and connect executed!", e);
 	                    hostStringSplit = url.split(":");
 	                    if (hostStringSplit.length != 2) {
 	                        throw new IOException("Malformed Host url: " + url);

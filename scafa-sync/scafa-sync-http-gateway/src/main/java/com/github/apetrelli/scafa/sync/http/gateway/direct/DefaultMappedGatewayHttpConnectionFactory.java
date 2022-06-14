@@ -21,27 +21,25 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.http.HttpRequest;
+import com.github.apetrelli.scafa.proto.IORuntimeException;
+import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.sync.http.HttpSyncSocket;
 import com.github.apetrelli.scafa.sync.http.gateway.GatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.sync.http.gateway.MappedGatewayHttpConnectionFactory;
-import com.github.apetrelli.scafa.proto.IORuntimeException;
-import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
+
+@RequiredArgsConstructor
+@Log
 public class DefaultMappedGatewayHttpConnectionFactory<T extends HttpSyncSocket<HttpRequest>> implements MappedGatewayHttpConnectionFactory<T> {
 
-    private static final Logger LOG = Logger.getLogger(DefaultMappedGatewayHttpConnectionFactory.class.getName());
+    private final Map<HostPort, T> connectionCache = new HashMap<>();
 
-    private Map<HostPort, T> connectionCache = new HashMap<>();
-
-    private GatewayHttpConnectionFactory<T> connectionFactory;
-
-    public DefaultMappedGatewayHttpConnectionFactory(GatewayHttpConnectionFactory<T> connectionFactory) {
-        this.connectionFactory = connectionFactory;
-    }
+    private final GatewayHttpConnectionFactory<T> connectionFactory;
     
     @Override
     public T create(SyncSocket sourceChannel, HttpRequest request) {
@@ -69,8 +67,8 @@ public class DefaultMappedGatewayHttpConnectionFactory<T extends HttpSyncSocket<
     private T create(SyncSocket sourceChannel, HostPort hostPort) {
     	T connection = connectionCache.get(hostPort);
         if (connection == null) {
-            if (LOG.isLoggable(Level.INFO)) {
-                LOG.log(Level.INFO, "Connecting thread {0} to address {1}",
+            if (log.isLoggable(Level.INFO)) {
+                log.log(Level.INFO, "Connecting thread {0} to address {1}",
                         new Object[] { Thread.currentThread().getName(), hostPort });
             }
             connection = connectionFactory.create(this, sourceChannel, hostPort);

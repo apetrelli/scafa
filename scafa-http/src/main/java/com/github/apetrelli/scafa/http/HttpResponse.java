@@ -22,11 +22,11 @@ import java.nio.ByteBuffer;
 import com.github.apetrelli.scafa.proto.util.AsciiString;
 
 public class HttpResponse extends HeaderHolder {
-    private AsciiString httpVersion;
+    private final AsciiString httpVersion;
 
-    private AsciiString code;
+    private final AsciiString code;
 
-    private AsciiString message;
+    private final AsciiString message;
 
     public HttpResponse(AsciiString httpVersion, AsciiString code, AsciiString message) {
         this.httpVersion = httpVersion;
@@ -46,32 +46,12 @@ public class HttpResponse extends HeaderHolder {
         return httpVersion;
     }
 
-    public void setHttpVersion(AsciiString httpVersion) {
-        if (this.httpVersion != null) {
-            byteSize -= this.httpVersion.length();
-        }
-        this.httpVersion = httpVersion;
-        byteSize += this.httpVersion.length();
-    }
-
     public AsciiString getCode() {
         return code;
     }
 
-    public void setCode(AsciiString code) {
-        this.code = code;
-    }
-
     public AsciiString getMessage() {
         return message;
-    }
-
-    public void setMessage(AsciiString message) {
-        if (this.message != null) {
-            byteSize -= this.message.length();
-        }
-        this.message = message;
-        byteSize += this.message.length();
     }
 
     @Override

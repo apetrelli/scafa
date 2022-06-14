@@ -67,8 +67,8 @@ public class DirectProxyHttpConnection extends AbstractGatewayHttpConnection<Htt
 		} catch (MalformedURLException e) {
 			throw new HttpException(e);
 		}
-        HttpRequest modifiedRequest = new HttpRequest(request);
-        modifiedRequest.setResource(new AsciiString(realurl.getFile()));
+		HttpRequest modifiedRequest = new HttpRequest(request.getMethod(), new AsciiString(realurl.getFile()),
+				request.getHttpVersion());
         if (LOG.isLoggable(Level.INFO)) {
             LOG.log(Level.INFO, "Direct connection: connected thread {0} to port {1} and URL {2}",
                     new Object[] { Thread.currentThread().getName(), socket.getAddress(), request.getResource() });

@@ -8,21 +8,16 @@ import com.github.apetrelli.scafa.sync.http.gateway.MappedGatewayHttpConnectionF
 import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 import com.github.apetrelli.scafa.sync.proto.processor.DataHandler;
 
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 public class ChannelDisconnectorHandler extends HandlerSupport implements DataHandler {
 
-	private MappedGatewayHttpConnectionFactory<?> factory;
+	private final MappedGatewayHttpConnectionFactory<?> factory;
 	
-	private SyncSocket socket;
+	private final SyncSocket socket;
 
-	private HostPort socketAddress;
-
-	public ChannelDisconnectorHandler(MappedGatewayHttpConnectionFactory<?> factory,
-			SyncSocket socket, HostPort socketAddress) {
-		this.factory = factory;
-		this.socket = socket;
-		this.socketAddress = socketAddress;
-	}
+	private final HostPort socketAddress;
 	
 	@Override
 	public void onData(ByteBuffer buffer) {

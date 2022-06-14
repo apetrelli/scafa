@@ -26,11 +26,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
+import lombok.extern.java.Log;
+
+@Log
 public class ProxyResources {
-
-    private static final Logger LOG = Logger.getLogger(ProxyResources.class.getName());
 
     private static final ProxyResources INSTANCE = new ProxyResources();
 
@@ -77,7 +77,7 @@ public class ProxyResources {
             getFuture(client.write(ByteBuffer.wrap(realHeader.getBytes(StandardCharsets.US_ASCII))));
             getFuture(client.write(ByteBuffer.wrap(page)));
         } catch (IOException e) {
-            LOG.log(Level.SEVERE, "Error when sending error page", e);
+            log.log(Level.SEVERE, "Error when sending error page", e);
         }
     }
 

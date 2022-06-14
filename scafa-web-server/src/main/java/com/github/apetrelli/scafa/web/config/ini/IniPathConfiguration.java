@@ -4,13 +4,12 @@ import org.ini4j.Profile.Section;
 
 import com.github.apetrelli.scafa.web.config.PathConfiguration;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class IniPathConfiguration implements PathConfiguration {
 
-	protected Section section;
-
-	public IniPathConfiguration(Section section) {
-		this.section = section;
-	}
+	protected final Section section;
 
 	@Override
 	public String getBasePath() {

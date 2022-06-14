@@ -33,14 +33,13 @@ public class DefaultGatewayHttpHandler<T extends HttpSyncSocket<HttpRequest>> ex
 
     protected T connection;
     
-    protected ByteBuffer writeBuffer;
+    protected ByteBuffer writeBuffer = ByteBuffer.allocate(16384);
 
     private MappedGatewayHttpConnectionFactory<T> connectionFactory;
 
     public DefaultGatewayHttpHandler(MappedGatewayHttpConnectionFactory<T> connectionFactory, SyncSocket sourceChannel) {
         this.connectionFactory = connectionFactory;
         this.sourceChannel = sourceChannel;
-        writeBuffer = ByteBuffer.allocate(16384);
 }
     
     @Override

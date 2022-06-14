@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -25,9 +24,10 @@ import org.ini4j.Profile.Section;
 
 import com.github.apetrelli.scafa.proxy.ConfigurationUtils;
 
-public class ConfigurationWindow {
+import lombok.extern.java.Log;
 
-	private static final Logger LOG = Logger.getLogger(ConfigurationWindow.class.getName());
+@Log
+public class ConfigurationWindow {
 
 	private static final String[] PROXY_TYPES = {"direct", "anon", "basic", "ntlm"};
 
@@ -93,7 +93,7 @@ public class ConfigurationWindow {
 		try {
 			this.ini = ConfigurationUtils.loadIni(profile);
 		} catch (IOException e) {
-			LOG.log(Level.WARNING, "Cannot load file for profile " + profile);
+			log.log(Level.WARNING, "Cannot load file for profile " + profile);
 			this.ini = new Ini();
 		}
 		serverPortNumber.setText("");
@@ -181,7 +181,7 @@ public class ConfigurationWindow {
 				try {
 					ConfigurationUtils.saveIni(ini, profile);
 				} catch (IOException e1) {
-					LOG.log(Level.SEVERE, "Cannot save ini file", e1);
+					log.log(Level.SEVERE, "Cannot save ini file", e1);
 				}
 				shell.close();
 			}

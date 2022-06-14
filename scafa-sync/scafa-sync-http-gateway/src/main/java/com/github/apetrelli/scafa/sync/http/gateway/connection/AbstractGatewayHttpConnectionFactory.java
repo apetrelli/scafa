@@ -11,30 +11,22 @@ import com.github.apetrelli.scafa.sync.proto.RunnableStarter;
 import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 import com.github.apetrelli.scafa.sync.proto.processor.DataHandler;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public abstract class AbstractGatewayHttpConnectionFactory<T extends HttpSyncSocket<HttpRequest>> implements GatewayHttpConnectionFactory<T> {
 
-	protected SocketFactory<HttpSyncSocket<HttpRequest>> socketFactory;
+	protected final SocketFactory<HttpSyncSocket<HttpRequest>> socketFactory;
 	
-	protected ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory;
+	protected final ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory;
 	
-	protected RunnableStarter runnableStarter;
+	protected final RunnableStarter runnableStarter;
 	
-	protected HostPort destinationSocketAddress;
+	protected final HostPort destinationSocketAddress;
 
-	private String interfaceName;
+	private final String interfaceName;
 
-	private boolean forceIpV4;
-
-	public AbstractGatewayHttpConnectionFactory(SocketFactory<HttpSyncSocket<HttpRequest>> socketFactory,
-			ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory, RunnableStarter runnableStarter,
-			HostPort destinationSocketAddress, String interfaceName, boolean forceIpV4) {
-		this.socketFactory = socketFactory;
-		this.clientProcessorFactory = clientProcessorFactory;
-		this.runnableStarter = runnableStarter;
-		this.destinationSocketAddress = destinationSocketAddress;
-		this.interfaceName = interfaceName;
-		this.forceIpV4 = forceIpV4;
-	}
+	private final boolean forceIpV4;
 
 	@Override
 	public T create(MappedGatewayHttpConnectionFactory<T> factory,

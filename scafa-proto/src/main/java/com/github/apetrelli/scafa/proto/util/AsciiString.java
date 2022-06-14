@@ -3,22 +3,19 @@ package com.github.apetrelli.scafa.proto.util;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class AsciiString {
 
-	protected byte[] array;
+	protected final byte[] array;
 	
-	protected int from;
+	protected final int from;
 	
-	protected int to;
+	protected final int to;
 	
 	public AsciiString(byte[] array) {
 		this(array, 0, array.length);
-	}
-	
-	public AsciiString(byte[] array, int from, int to) {
-		this.array = array;
-		this.from = from;
-		this.to = to;
 	}
 	
 	public AsciiString(String string) {

@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -22,13 +23,13 @@ import com.github.apetrelli.scafa.web.config.SocketConfiguration;
 
 public class IniConfiguration implements Configuration{
 	
-	private Map<String, AsciiString> mimeTypeConfig;
+	private final Map<String, AsciiString> mimeTypeConfig = new HashMap<>();
 	
-	private List<SocketConfiguration> sockets;
+	private final List<SocketConfiguration> sockets;
 	
 	public IniConfiguration(Ini ini, String rootFilesystemPath, URL mimeTypeConfigResource) throws IOException {
 		prepareMimeTypes(mimeTypeConfigResource);
-		prepareSockets(ini, rootFilesystemPath);
+		sockets = new ArrayList<>(prepareSockets(ini, rootFilesystemPath));
 	}
 	
 	@Override
@@ -42,7 +43,6 @@ public class IniConfiguration implements Configuration{
 	}
 
 	private void prepareMimeTypes(URL mimeTypeConfigResource) throws IOException {
-		mimeTypeConfig = new HashMap<>();
 		try (InputStream is = mimeTypeConfigResource.openStream();
 				InputStreamReader isr = new InputStreamReader(is, StandardCharsets.US_ASCII);
 				BufferedReader br = new BufferedReader(isr)) {
@@ -61,7 +61,7 @@ public class IniConfiguration implements Configuration{
 		}
 	}
 
-	private void prepareSockets(Ini ini, String rootFilesystemPath) {
+	private Collection<IniSocketConfiguration> prepareSockets(Ini ini, String rootFilesystemPath) {
 		Map<String, IniSocketConfiguration> name2socket = new LinkedHashMap<>();
 		Map<String, List<PathConfiguration>> socket2path = new LinkedHashMap<>();
 		ini.keySet().stream().map(ini::get).forEach(x -> {
@@ -76,7 +76,7 @@ public class IniConfiguration implements Configuration{
 			}
 		});
 		name2socket.entrySet().forEach(x -> x.getValue().setPaths(new ArrayList<>(socket2path.get(x.getKey()))));
-		sockets = new ArrayList<>(name2socket.values());
+		return name2socket.values();
 	}
 
 	private void mapToSocket(Map<String, List<PathConfiguration>> socket2path, Section section,

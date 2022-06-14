@@ -23,16 +23,18 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
-import java.util.logging.Logger;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
+import lombok.extern.java.Log;
+
+@Log
 public abstract class AbstractScafaLauncher implements ScafaProxyLauncher {
 
-    private static final Logger LOG = Logger.getLogger(AbstractScafaLauncher.class.getName());
     private File scafaDirectory;
 
     @Override
@@ -43,7 +45,7 @@ public abstract class AbstractScafaLauncher implements ScafaProxyLauncher {
         try (InputStream stream = new FileInputStream(new File(scafaDirectory, "logging.properties"))) {
             LogManager.getLogManager().readConfiguration(stream);
         } catch (IOException e) {
-            LOG.log(Level.SEVERE, "Cannot load logging configuration, exiting", e);
+            log.log(Level.SEVERE, "Cannot load logging configuration, exiting", e);
             System.exit(1);
         }
     }
@@ -53,15 +55,15 @@ public abstract class AbstractScafaLauncher implements ScafaProxyLauncher {
         File file = new File(scafaDirectory, "lastused.txt");
         if (file.exists()) {
             try {
-                String profile = FileUtils.readFileToString(file);
+                String profile = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
                 File profileFile = new File(scafaDirectory, profile + ".ini");
                 if (profileFile.exists()) {
                     return profile;
                 } else {
-                    LOG.log(Level.SEVERE, "The file {0}.ini does not exist, defaulting to direct", profile);
+                	log.log(Level.SEVERE, "The file {0}.ini does not exist, defaulting to direct", profile);
                 }
             } catch (IOException e) {
-                LOG.log(Level.SEVERE, "Cannot load current profile configuration", e);
+            	log.log(Level.SEVERE, "Cannot load current profile configuration", e);
             }
             return null;
         }
@@ -72,9 +74,9 @@ public abstract class AbstractScafaLauncher implements ScafaProxyLauncher {
 	public void saveLastUsedProfile(String profile) {
         File file = new File(scafaDirectory, "lastused.txt");
         try {
-            FileUtils.write(file, profile);
+            FileUtils.write(file, profile, StandardCharsets.UTF_8);
         } catch (IOException e) {
-            LOG.log(Level.SEVERE, "Cannot write current profile configuration", e);
+        	log.log(Level.SEVERE, "Cannot write current profile configuration", e);
         }
     }
 
@@ -104,7 +106,7 @@ public abstract class AbstractScafaLauncher implements ScafaProxyLauncher {
                 OutputStream os = new FileOutputStream(destination)) {
             IOUtils.copy(is, os);
         } catch (IOException e) {
-            LOG.log(Level.SEVERE, "Cannot transfer file", e);
+        	log.log(Level.SEVERE, "Cannot transfer file", e);
         }
     }
 }

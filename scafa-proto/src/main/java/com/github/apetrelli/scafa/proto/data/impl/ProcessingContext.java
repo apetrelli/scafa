@@ -1,12 +1,13 @@
 package com.github.apetrelli.scafa.proto.data.impl;
 
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class ProcessingContext<ST> extends SimpleInput {
 
+	@NonNull
 	private ST status;
-
-	public ProcessingContext(ST status) {
-		this.status = status;
-	}
 
 	public ST getStatus() {
 		return status;

@@ -4,7 +4,6 @@ import static com.github.apetrelli.scafa.http.HttpHeaders.CONNECT;
 
 import java.nio.ByteBuffer;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.http.HttpProcessingContext;
 import com.github.apetrelli.scafa.http.HttpRequest;
@@ -12,9 +11,10 @@ import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.HttpSink;
 import com.github.apetrelli.scafa.sync.http.HttpHandler;
 
+import lombok.extern.java.Log;
+
+@Log
 public class SyncHttpSink implements HttpSink<HttpHandler, Void> {
-	
-	private static final Logger LOG = Logger.getLogger(SyncHttpSink.class.getName());
 	
 	@Override
 	public void onStart(HttpHandler handler) {
@@ -66,8 +66,8 @@ public class SyncHttpSink implements HttpSink<HttpHandler, Void> {
 				context.getChunkOffset(), context.getChunkLength());
 		context.reduceChunk(sizeToSend);
 		buffer.limit(oldLimit);
-		if (LOG.isLoggable(Level.FINEST)) {
-			LOG.log(Level.FINEST, "Handling chunk from {0} to {1}",
+		if (log.isLoggable(Level.FINEST)) {
+			log.log(Level.FINEST, "Handling chunk from {0} to {1}",
 					new Object[] { context.getChunkOffset(), context.getChunkOffset() + sizeToSend });
 		}
 		return null;

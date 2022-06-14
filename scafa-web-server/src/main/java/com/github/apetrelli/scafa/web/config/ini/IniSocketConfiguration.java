@@ -8,15 +8,14 @@ import com.github.apetrelli.scafa.web.config.PathConfiguration;
 import com.github.apetrelli.scafa.web.config.Protocol;
 import com.github.apetrelli.scafa.web.config.SocketConfiguration;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class IniSocketConfiguration implements SocketConfiguration {
 
-	private Section section;
+	private final Section section;
 	
 	private List<PathConfiguration> paths;
-	
-	public IniSocketConfiguration(Section section) {
-		this.section = section;
-	}
 
 	@Override
 	public int getPort() {

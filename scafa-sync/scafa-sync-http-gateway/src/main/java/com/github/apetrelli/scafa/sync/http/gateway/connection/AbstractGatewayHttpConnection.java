@@ -33,15 +33,15 @@ import com.github.apetrelli.scafa.sync.proto.processor.DataHandler;
 
 public abstract class AbstractGatewayHttpConnection<T extends SyncSocket> extends AbstractClientConnection<HttpSyncSocket<HttpRequest>> implements HttpSyncSocket<HttpRequest> {
 
-    protected T sourceChannel;
+    protected final T sourceChannel;
     
-    protected ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory;
+    protected final ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory;
 
-    protected HostPort destinationSocketAddress;
+    protected final HostPort destinationSocketAddress;
 
-    protected MappedGatewayHttpConnectionFactory<?> factory;
+    protected final MappedGatewayHttpConnectionFactory<?> factory;
     
-    private RunnableStarter runnableStarter;
+    private final RunnableStarter runnableStarter;
 
 	public AbstractGatewayHttpConnection(MappedGatewayHttpConnectionFactory<?> factory,
 			ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory, RunnableStarter runnableStarter,

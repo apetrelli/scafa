@@ -3,7 +3,6 @@ package com.github.apetrelli.scafa.systray;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.DeviceData;
@@ -23,17 +22,17 @@ import com.github.apetrelli.scafa.proxy.ScafaProxyLauncher;
 import com.github.apetrelli.scafa.systray.edit.ConfigurationWindow;
 import com.github.apetrelli.scafa.systray.edit.PromptWindow;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
+
+@RequiredArgsConstructor
+@Log
 public class ScafaSystrayLauncher {
 
-    private static final Logger LOG = Logger.getLogger(ScafaSystrayLauncher.class.getName());
-	private ScafaProxyLauncher launcher;
+	private final ScafaProxyLauncher launcher;
 	private Menu selectionMenu;
 	private Menu editMenu;
 	private Shell shell;
-	
-	public ScafaSystrayLauncher(ScafaProxyLauncher launcher) {
-		this.launcher = launcher;
-	}
 
     public void launch() {
         try (InputStream is = ScafaSystrayLauncher.class.getResourceAsStream("/scafa.png")) {
@@ -56,7 +55,7 @@ public class ScafaSystrayLauncher {
             SWTResourceManager.dispose();
             display.dispose();
         } catch (IOException e) {
-            LOG.log(Level.SEVERE, "Cannot load systray image", e);
+            log.log(Level.SEVERE, "Cannot load systray image", e);
             System.exit(1);
         }
     }

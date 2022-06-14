@@ -23,13 +23,12 @@ import com.github.apetrelli.scafa.sync.http.gateway.GatewayHttpConnectionFactory
 import com.github.apetrelli.scafa.sync.http.gateway.GatewayHttpConnectionFactoryFactory;
 import com.github.apetrelli.scafa.sync.http.gateway.MappedGatewayHttpConnectionFactory;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class DefaultGatewayHttpConnectionFactoryFactory<T extends HttpSyncSocket<HttpRequest>> implements GatewayHttpConnectionFactoryFactory<T> {
 
-    private GatewayHttpConnectionFactory<T> connectionFactory;
-
-    public DefaultGatewayHttpConnectionFactoryFactory(GatewayHttpConnectionFactory<T> connectionFactory) {
-        this.connectionFactory = connectionFactory;
-    }
+    private final GatewayHttpConnectionFactory<T> connectionFactory;
 
     @Override
     public MappedGatewayHttpConnectionFactory<T> create() {
