@@ -10,6 +10,9 @@ import com.github.apetrelli.scafa.sync.proto.SyncServerSocket;
 import com.github.apetrelli.scafa.sync.proto.SyncServerSocketFactory;
 import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class DirectSyncServerSocketFactory implements SyncServerSocketFactory<SyncSocket> {
 
     private final int portNumber;
@@ -17,12 +20,6 @@ public class DirectSyncServerSocketFactory implements SyncServerSocketFactory<Sy
     private final String interfaceName;
 
     private final boolean forceIpV4;
-    
-	public DirectSyncServerSocketFactory(int portNumber, String interfaceName, boolean forceIpV4) {
-		this.portNumber = portNumber;
-		this.interfaceName = interfaceName;
-		this.forceIpV4 = forceIpV4;
-	}
 	
 	public DirectSyncServerSocketFactory(int portNumber) {
 		this(portNumber, null, false);

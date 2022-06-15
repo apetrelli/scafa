@@ -8,16 +8,14 @@ import com.github.apetrelli.scafa.sync.http.HttpHandler;
 import com.github.apetrelli.scafa.sync.http.impl.HttpHandlerSupport;
 import com.github.apetrelli.scafa.sync.http.server.HttpServerHandler;
 
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 public class HttpServerHandlerAdapter extends HttpHandlerSupport implements HttpHandler {
 
-	private HttpServerHandler handler;
+	private final HttpServerHandler handler;
 
 	private HttpRequest currentRequest;
-
-	public HttpServerHandlerAdapter(HttpServerHandler handler) {
-		this.handler = handler;
-	}
 
 	@Override
 	public void onStart() {

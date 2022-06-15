@@ -6,13 +6,12 @@ import com.github.apetrelli.scafa.sync.http.server.HttpServer;
 import com.github.apetrelli.scafa.sync.http.server.HttpServerHandler;
 import com.github.apetrelli.scafa.sync.http.server.HttpServerHandlerFactory;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class NotFoundHttpServerHandlerFactory implements HttpServerHandlerFactory {
 
-	private HttpServer server;
-
-	public NotFoundHttpServerHandlerFactory(HttpServer server) {
-		this.server = server;
-	}
+	private final HttpServer server;
 
 	@Override
 	public HttpServerHandler create(HttpSyncSocket<HttpResponse> channel) {

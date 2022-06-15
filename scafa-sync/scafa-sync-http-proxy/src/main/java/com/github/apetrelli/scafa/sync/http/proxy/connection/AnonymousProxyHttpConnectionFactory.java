@@ -32,7 +32,7 @@ import com.github.apetrelli.scafa.sync.proto.processor.DataHandler;
 
 public class AnonymousProxyHttpConnectionFactory extends AbstractGatewayHttpConnectionFactory<ProxyHttpConnection> {
 
-	private HttpRequestManipulator manipulator;
+	private final HttpRequestManipulator manipulator;
 
 	public AnonymousProxyHttpConnectionFactory(SocketFactory<HttpSyncSocket<HttpRequest>> socketFactory,
 			ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory, RunnableStarter runnableStarter,

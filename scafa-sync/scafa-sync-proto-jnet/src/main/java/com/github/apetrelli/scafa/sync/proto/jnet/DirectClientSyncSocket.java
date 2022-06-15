@@ -15,11 +15,11 @@ public class DirectClientSyncSocket extends DirectSyncSocket {
 	
 	private static final Logger LOG = Logger.getLogger(DirectClientSyncSocket.class.getName());
 
-	private HostPort socketAddress;
+	private final HostPort socketAddress;
 
-    private String interfaceName;
+    private final String interfaceName;
 
-    private boolean forceIpV4;
+    private final boolean forceIpV4;
     
 	public DirectClientSyncSocket(Socket channel, HostPort socketAddress,
 			String interfaceName, boolean forceIpV4) {

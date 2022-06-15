@@ -20,7 +20,7 @@ import com.github.apetrelli.scafa.sync.proto.processor.DataHandler;
 
 public class BasicAuthProxyHttpConnection extends AbstractUpstreamProxyHttpConnection {
 
-	private AsciiString authString;
+	private final AsciiString authString;
 
 	public BasicAuthProxyHttpConnection(MappedGatewayHttpConnectionFactory<?> factory,
 			ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory,

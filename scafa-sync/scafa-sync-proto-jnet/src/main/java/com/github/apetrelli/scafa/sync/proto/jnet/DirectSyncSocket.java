@@ -12,6 +12,9 @@ import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.sync.proto.SocketRuntimeException;
 import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class DirectSyncSocket implements SyncSocket {
 	
 	protected final Socket channel;
@@ -19,10 +22,6 @@ public class DirectSyncSocket implements SyncSocket {
 	private InputStream is;
 	
 	private OutputStream os;
-	
-	public DirectSyncSocket(Socket channel) {
-		this.channel = channel;
-	}
 
 	@Override
 	public void connect() {

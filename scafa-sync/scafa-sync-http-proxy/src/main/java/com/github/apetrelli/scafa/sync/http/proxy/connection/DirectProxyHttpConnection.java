@@ -23,27 +23,26 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.http.HttpCodes;
 import com.github.apetrelli.scafa.http.HttpException;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
+import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
+import com.github.apetrelli.scafa.proto.util.AsciiString;
 import com.github.apetrelli.scafa.sync.http.HttpSyncSocket;
 import com.github.apetrelli.scafa.sync.http.gateway.MappedGatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.sync.http.gateway.connection.AbstractGatewayHttpConnection;
 import com.github.apetrelli.scafa.sync.http.proxy.ProxyHttpConnection;
-import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
-import com.github.apetrelli.scafa.proto.util.AsciiString;
 import com.github.apetrelli.scafa.sync.proto.RunnableStarter;
 import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 import com.github.apetrelli.scafa.sync.proto.processor.DataHandler;
 
+import lombok.extern.java.Log;
 
+@Log
 public class DirectProxyHttpConnection extends AbstractGatewayHttpConnection<HttpSyncSocket<HttpResponse>> implements ProxyHttpConnection {
-
-    private static final Logger LOG = Logger.getLogger(DirectProxyHttpConnection.class.getName());
 
 	public DirectProxyHttpConnection(MappedGatewayHttpConnectionFactory<?> factory,
 			ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory, RunnableStarter runnableStarter,
@@ -69,8 +68,8 @@ public class DirectProxyHttpConnection extends AbstractGatewayHttpConnection<Htt
 		}
 		HttpRequest modifiedRequest = new HttpRequest(request.getMethod(), new AsciiString(realurl.getFile()),
 				request.getHttpVersion());
-        if (LOG.isLoggable(Level.INFO)) {
-            LOG.log(Level.INFO, "Direct connection: connected thread {0} to port {1} and URL {2}",
+        if (log.isLoggable(Level.INFO)) {
+            log.log(Level.INFO, "Direct connection: connected thread {0} to port {1} and URL {2}",
                     new Object[] { Thread.currentThread().getName(), socket.getAddress(), request.getResource() });
         }
         return modifiedRequest;

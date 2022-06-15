@@ -32,9 +32,9 @@ import com.github.apetrelli.scafa.sync.proto.processor.DataHandler;
 
 public class BasicAuthProxyHttpConnectionFactory extends AbstractGatewayHttpConnectionFactory<ProxyHttpConnection> {
 
-	private String username, password;
+	private final String username, password;
 
-	private HttpRequestManipulator manipulator;
+	private final HttpRequestManipulator manipulator;
 
 	public BasicAuthProxyHttpConnectionFactory(SocketFactory<HttpSyncSocket<HttpRequest>> socketFactory,
 			ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory,

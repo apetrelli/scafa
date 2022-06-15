@@ -22,14 +22,13 @@ import com.github.apetrelli.scafa.proto.processor.ProtocolStateMachine;
 import com.github.apetrelli.scafa.sync.proto.processor.InputProcessor;
 import com.github.apetrelli.scafa.sync.proto.processor.InputProcessorFactory;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class StatefulInputProcessorFactory<H, P extends ProcessingContext<?>> implements
         InputProcessorFactory<H, P> {
 
-	private ProtocolStateMachine<H, P, Void> stateMachine;
-
-	public StatefulInputProcessorFactory(ProtocolStateMachine<H, P, Void> stateMachine) {
-		this.stateMachine = stateMachine;
-	}
+	private final ProtocolStateMachine<H, P, Void> stateMachine;
 
 	@Override
 	public InputProcessor<P> create(H handler) {

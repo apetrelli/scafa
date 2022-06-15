@@ -7,7 +7,6 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import com.github.apetrelli.scafa.http.HttpProcessingContext;
@@ -49,9 +48,10 @@ import com.github.apetrelli.scafa.web.config.PathConfiguration;
 import com.github.apetrelli.scafa.web.config.SocketConfiguration;
 import com.github.apetrelli.scafa.web.config.StaticPathConfiguration;
 
+import lombok.extern.java.Log;
+
+@Log
 public class ScafaWebServerLauncher extends AbstractScafaWebServerLauncher {
-	
-	private static final Logger LOG = Logger.getLogger(ScafaWebServerLauncher.class.getName());
 	
 	private List<ScafaListener<HttpHandler, HttpSyncSocket<HttpResponse>>> listeners;
 	
@@ -84,7 +84,7 @@ public class ScafaWebServerLauncher extends AbstractScafaWebServerLauncher {
 				try {
 					x.listen();
 				} catch (IOException e) {
-					LOG.log(Level.SEVERE, "Cannot start listener", e);
+					log.log(Level.SEVERE, "Cannot start listener", e);
 				}
 			})).collect(Collectors.toList());
 			futures.forEach(t -> {

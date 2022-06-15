@@ -37,21 +37,21 @@ public class StaticHttpServerHandler extends HttpServerHandlerSupport {
 
 	private static final AsciiString ONLY_GET_ALLOWED = new AsciiString("Only GET allowed");
 
-	private String basePath;
+	private final String basePath;
 	
-	private AsciiString basePathAscii;
+	private final AsciiString basePathAscii;
 	
-	private AsciiString basePathSlash;
+	private final AsciiString basePathSlash;
+	
+	private final Map<String, Path> localResource2path;
 
-	private String indexResource;
+	private final String indexResource;
 
-	private Map<String, AsciiString> mimeTypeConfig;
+	private final Map<String, AsciiString> mimeTypeConfig;
 
-	private HttpServer server;
+	private final HttpServer server;
 	
-	private ByteBuffer writeBuffer;
-	
-	private Map<String, Path> localResource2path;
+	private final ByteBuffer writeBuffer;
 
 	public StaticHttpServerHandler(HttpSyncSocket<HttpResponse> channel, String basePath, Map<String, Path> localResource2path,
 			String indexResource, Map<String, AsciiString> mimeTypeConfig, HttpServer server) {

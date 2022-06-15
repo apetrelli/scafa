@@ -5,15 +5,15 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.sync.proto.RunnableStarter;
 
-public class ThreadRunnableStarter implements RunnableStarter {
+import lombok.extern.java.Log;
 
-	private static final Logger LOG = Logger.getLogger(ThreadRunnableStarter.class.getName());
+@Log
+public class ThreadRunnableStarter implements RunnableStarter {
 	
-	private ExecutorService scheduler = Executors.newCachedThreadPool();
+	private final ExecutorService scheduler = Executors.newCachedThreadPool();
 
 	@Override
 	public Future<?> start(Runnable runnable) {
@@ -26,7 +26,7 @@ public class ThreadRunnableStarter implements RunnableStarter {
 			scheduler.shutdown();
 			scheduler.awaitTermination(60, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
-			LOG.log(Level.INFO, "Error during waiting for termination", e);
+			log.log(Level.INFO, "Error during waiting for termination", e);
 			Thread.currentThread().interrupt();
 		}
 	}

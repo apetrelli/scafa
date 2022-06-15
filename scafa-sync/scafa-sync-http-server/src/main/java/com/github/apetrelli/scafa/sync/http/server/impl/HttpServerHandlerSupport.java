@@ -16,20 +16,19 @@ import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.sync.http.HttpSyncSocket;
 import com.github.apetrelli.scafa.sync.http.server.HttpServerHandler;
+
+import lombok.RequiredArgsConstructor;
+
 import com.github.apetrelli.scafa.proto.util.AsciiString;
 
+@RequiredArgsConstructor
 public class HttpServerHandlerSupport implements HttpServerHandler {
 
 	private static final AsciiString UNEXPECTED_EXCEPTION = new AsciiString("Unexpected exception");
 
-	protected HttpSyncSocket<HttpResponse> channel;
+	protected final HttpSyncSocket<HttpResponse> channel;
 	
-	protected ByteBuffer writeBuffer;
-
-	public HttpServerHandlerSupport(HttpSyncSocket<HttpResponse> channel) {
-		this.channel = channel;
-		writeBuffer = ByteBuffer.allocate(16384);
-	}
+	protected final ByteBuffer writeBuffer = ByteBuffer.allocate(16384);
 
 	@Override
 	public void onStart() {

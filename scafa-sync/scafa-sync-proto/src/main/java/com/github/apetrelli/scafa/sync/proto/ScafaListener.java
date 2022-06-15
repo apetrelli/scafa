@@ -19,33 +19,27 @@ package com.github.apetrelli.scafa.sync.proto;
 
 import java.io.IOException;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.proto.processor.HandlerFactory;
 import com.github.apetrelli.scafa.proto.processor.Processor;
 import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
+
+@RequiredArgsConstructor
+@Log
 public class ScafaListener<H, S extends SyncSocket> {
+    
+    private final SyncServerSocketFactory<S> asyncServerSocketFactory;
+    
+    private final ProcessorFactory<H, SyncSocket> processorFactory;
 
-    private static final Logger LOG = Logger.getLogger(ScafaListener.class.getName());
+    private final HandlerFactory<H, S> handlerFactory;
     
-    private SyncServerSocketFactory<S> asyncServerSocketFactory;
-    
-    private ProcessorFactory<H, SyncSocket> processorFactory;
-
-    private HandlerFactory<H, S> handlerFactory;
-    
-    private RunnableStarter runnableStarter;
+    private final RunnableStarter runnableStarter;
 
     private SyncServerSocket<S> server;
-
-	public ScafaListener(SyncServerSocketFactory<S> asyncServerSocketFactory, ProcessorFactory<H, SyncSocket> processorFactory,
-			HandlerFactory<H, S> handlerFactory, RunnableStarter runnableStarter) {
-		this.asyncServerSocketFactory = asyncServerSocketFactory;
-        this.processorFactory = processorFactory;
-        this.handlerFactory = handlerFactory;
-        this.runnableStarter = runnableStarter;
-    }
 
     public void listen() throws IOException {
     	this.server = asyncServerSocketFactory.create();
@@ -68,7 +62,7 @@ public class ScafaListener<H, S extends SyncSocket> {
             try {
                 server.close();
             } catch (IOException e) {
-                LOG.log(Level.WARNING, "Error when closing server channel", e);
+                log.log(Level.WARNING, "Error when closing server channel", e);
             }
         }
     }

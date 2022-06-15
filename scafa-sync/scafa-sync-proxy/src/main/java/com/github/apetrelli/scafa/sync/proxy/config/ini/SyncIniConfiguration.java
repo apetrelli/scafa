@@ -39,11 +39,11 @@ import com.github.apetrelli.scafa.sync.proto.processor.DataHandler;
 
 public class SyncIniConfiguration extends AbstractIniConfiguration<GatewayHttpConnectionFactory<ProxyHttpConnection>> {
     
-    private SocketFactory<HttpSyncSocket<HttpRequest>> socketFactory;
-    private DataSenderFactory dataSenderFactory;
-    private ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory;
-    private RunnableStarter runnableStarter;
-    private HttpStateMachine<HttpHandler, Void> stateMachine;
+    private final SocketFactory<HttpSyncSocket<HttpRequest>> socketFactory;
+    private final DataSenderFactory dataSenderFactory;
+    private final ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory;
+    private final RunnableStarter runnableStarter;
+    private final HttpStateMachine<HttpHandler, Void> stateMachine;
 
 	public static SyncIniConfiguration create(String profile, SocketFactory<HttpSyncSocket<HttpRequest>> socketFactory,
 			DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory,

@@ -18,9 +18,9 @@ import com.github.apetrelli.scafa.sync.proto.processor.DataHandler;
 
 public class SyncConfigurationProxyHttpConnectionFactory implements GatewayHttpConnectionFactory<ProxyHttpConnection> {
 
-    private Configuration<GatewayHttpConnectionFactory<ProxyHttpConnection>> configuration;
+    private final Configuration<GatewayHttpConnectionFactory<ProxyHttpConnection>> configuration;
 
-    private GatewayHttpConnectionFactory<ProxyHttpConnection> directHttpConnectionFactory;
+    private final GatewayHttpConnectionFactory<ProxyHttpConnection> directHttpConnectionFactory;
 
     public SyncConfigurationProxyHttpConnectionFactory(Configuration<GatewayHttpConnectionFactory<ProxyHttpConnection>> configuration,
     		SocketFactory<HttpSyncSocket<HttpRequest>> socketFactory, DataSenderFactory dataSenderFactory,

@@ -64,15 +64,15 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
 
     private boolean authenticated = false;
 
-    private String domain, username, password;
+    private final String domain, username, password;
 
-    private HttpStateMachine<HttpHandler, Void> stateMachine;
+    private final HttpStateMachine<HttpHandler, Void> stateMachine;
 
-    private TentativeHandler tentativeHandler;
+    private final TentativeHandler tentativeHandler;
 
-    private NtlmHttpProcessingContextFactory processingContextFactory;
+    private final NtlmHttpProcessingContextFactory processingContextFactory;
 
-    private ByteBuffer readBuffer = ByteBuffer.allocate(16384);
+    private final ByteBuffer readBuffer = ByteBuffer.allocate(16384);
 
 	public NtlmProxyHttpConnection(MappedGatewayHttpConnectionFactory<?> factory,
 			ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory,

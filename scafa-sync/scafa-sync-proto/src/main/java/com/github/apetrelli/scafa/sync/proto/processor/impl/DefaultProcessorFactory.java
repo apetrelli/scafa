@@ -29,23 +29,19 @@ import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
 import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 import com.github.apetrelli.scafa.sync.proto.processor.InputProcessorFactory;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class DefaultProcessorFactory<P extends Input, H extends Handler>
 		implements ProcessorFactory<H, SyncSocket>, AutoCloseable {
 
-	private InputProcessorFactory<H, P> inputProcessorFactory;
+	private final InputProcessorFactory<H, P> inputProcessorFactory;
 
-	private ProcessingContextFactory<P> processingContextFactory;
+	private final ProcessingContextFactory<P> processingContextFactory;
 	
-	private AtomicLong currentId = new AtomicLong(0L);
+	private final AtomicLong currentId = new AtomicLong(0L);
 	
-	private Map<Long, DefaultProcessor<P, H>> id2processor;
-
-	public DefaultProcessorFactory(InputProcessorFactory<H, P> inputProcessorFactory,
-			ProcessingContextFactory<P> processingContextFactory) {
-		this.inputProcessorFactory = inputProcessorFactory;
-		this.processingContextFactory = processingContextFactory;
-		id2processor = new ConcurrentHashMap<>();
-	}
+	private final Map<Long, DefaultProcessor<P, H>> id2processor = new ConcurrentHashMap<>();
 
 	@Override
 	public Processor<H> create(SyncSocket client) {

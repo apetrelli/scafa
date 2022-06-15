@@ -37,13 +37,13 @@ import com.github.apetrelli.scafa.sync.proto.processor.DataHandler;
 
 public class NtlmProxyHttpConnectionFactory extends AbstractGatewayHttpConnectionFactory<ProxyHttpConnection> {
 	
-	private DataSenderFactory dataSenderFactory;
+	private final DataSenderFactory dataSenderFactory;
 
-	private String domain, username, password;
+	private final String domain, username, password;
 
-	private HttpRequestManipulator manipulator;
+	private final HttpRequestManipulator manipulator;
 
-	private HttpStateMachine<HttpHandler, Void> stateMachine;
+	private final HttpStateMachine<HttpHandler, Void> stateMachine;
 
 	public NtlmProxyHttpConnectionFactory(SocketFactory<HttpSyncSocket<HttpRequest>> socketFactory, DataSenderFactory dataSenderFactory,
 			ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory, RunnableStarter runnableStarter,

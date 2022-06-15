@@ -19,7 +19,6 @@ package com.github.apetrelli.scafa.sync.proto.processor.impl;
 
 import java.nio.ByteBuffer;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.proto.IORuntimeException;
 import com.github.apetrelli.scafa.proto.data.Input;
@@ -31,28 +30,22 @@ import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 import com.github.apetrelli.scafa.sync.proto.processor.InputProcessor;
 import com.github.apetrelli.scafa.sync.proto.processor.InputProcessorFactory;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
+
+@RequiredArgsConstructor
+@Log
 public class DefaultProcessor<P extends Input, H extends Handler> implements Processor<H> {
-
-    private static final Logger LOG = Logger.getLogger(DefaultProcessor.class.getName());
-
-    private SyncSocket client;
-
-    private InputProcessorFactory<H, P> inputProcessorFactory;
-
-    private ProcessingContextFactory<P> processingContextFactory;
     
-    private long id;
-    
-    private DefaultProcessorFactory<P, H> processorFactory;
+    private final long id;
 
-	public DefaultProcessor(long id, SyncSocket client, InputProcessorFactory<H, P> inputProcessorFactory,
-			ProcessingContextFactory<P> processingContextFactory, DefaultProcessorFactory<P, H> processorFactory) {
-		this.id = id;
-        this.client = client;
-        this.inputProcessorFactory = inputProcessorFactory;
-        this.processingContextFactory = processingContextFactory;
-        this.processorFactory = processorFactory;
-    }
+    private final SyncSocket client;
+
+    private final InputProcessorFactory<H, P> inputProcessorFactory;
+
+    private final ProcessingContextFactory<P> processingContextFactory;
+    
+    private final DefaultProcessorFactory<P, H> processorFactory;
 
     @Override
     public void process(H handler) {
@@ -62,12 +55,12 @@ public class DefaultProcessor<P extends Input, H extends Handler> implements Pro
         try {
         	read(context, handler, processor);
         } catch (SocketRuntimeException exc) {
-            LOG.log(Level.INFO, "Channel closed", exc);
+            log.log(Level.INFO, "Channel closed", exc);
         } catch (IORuntimeException exc) {
-            LOG.log(Level.INFO, "I/O exception, closing", exc);
+            log.log(Level.INFO, "I/O exception, closing", exc);
             disconnect(handler);
         } catch (RuntimeException exc) {
-            LOG.log(Level.SEVERE, "Unrecognized exception, use the handler", exc);
+            log.log(Level.SEVERE, "Unrecognized exception, use the handler", exc);
             handler.onError(exc);
         }
     }
@@ -76,7 +69,7 @@ public class DefaultProcessor<P extends Input, H extends Handler> implements Pro
     	try {
     		client.disconnect();
     	} catch (RuntimeException y) {
-			LOG.log(Level.SEVERE, "Error when disposing client", y);
+			log.log(Level.SEVERE, "Error when disposing client", y);
     	}
     }
 

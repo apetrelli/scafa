@@ -31,35 +31,27 @@ import com.github.apetrelli.scafa.sync.proto.RunnableStarter;
 import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 import com.github.apetrelli.scafa.sync.proto.processor.DataHandler;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class DirectHttpConnectionFactory implements GatewayHttpConnectionFactory<ProxyHttpConnection> {
 
-	private SocketFactory<HttpSyncSocket<HttpRequest>> socketFactory;
+	private final SocketFactory<HttpSyncSocket<HttpRequest>> socketFactory;
 
-	private DataSenderFactory dataSenderFactory;
+	private final DataSenderFactory dataSenderFactory;
 	
-	private ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory;
+	private final ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory;
 	
-	private RunnableStarter runnableStarter;
+	private final RunnableStarter runnableStarter;
 
-	private String interfaceName;
+	private final String interfaceName;
 
-	private boolean forceIpV4;
+	private final boolean forceIpV4;
 
 	public DirectHttpConnectionFactory(SocketFactory<HttpSyncSocket<HttpRequest>> socketFactory,
 			DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory,
 			RunnableStarter runnableStarter) {
 		this(socketFactory, dataSenderFactory, clientProcessorFactory, runnableStarter, null, false);
-	}
-
-	public DirectHttpConnectionFactory(SocketFactory<HttpSyncSocket<HttpRequest>> socketFactory, DataSenderFactory dataSenderFactory,
-			ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory, RunnableStarter runnableStarter,
-			String interfaceName, boolean forceIpV4) {
-		this.socketFactory = socketFactory;
-		this.dataSenderFactory = dataSenderFactory;
-		this.clientProcessorFactory = clientProcessorFactory;
-		this.runnableStarter = runnableStarter;
-		this.interfaceName = interfaceName;
-		this.forceIpV4 = forceIpV4;
 	}
 
 	@Override

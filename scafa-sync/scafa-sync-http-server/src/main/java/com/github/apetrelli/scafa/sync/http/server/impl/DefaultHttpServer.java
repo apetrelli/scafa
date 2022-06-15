@@ -15,17 +15,16 @@ import com.github.apetrelli.scafa.sync.http.HttpSyncSocket;
 import com.github.apetrelli.scafa.sync.http.output.DataSender;
 import com.github.apetrelli.scafa.sync.http.output.DataSenderFactory;
 import com.github.apetrelli.scafa.sync.http.server.HttpServer;
+
+import lombok.RequiredArgsConstructor;
+
 import com.github.apetrelli.scafa.proto.IORuntimeException;
 import com.github.apetrelli.scafa.proto.util.AsciiString;
 
-
+@RequiredArgsConstructor
 public class DefaultHttpServer implements HttpServer {
 
-	private DataSenderFactory dataSenderFactory;
-
-	public DefaultHttpServer(DataSenderFactory dataSenderFactory) {
-		this.dataSenderFactory = dataSenderFactory;
-	}
+	private final DataSenderFactory dataSenderFactory;
 	
 	@Override
 	public void response(HttpSyncSocket<HttpResponse> channel, HttpResponse response, ByteBuffer writeBuffer) {

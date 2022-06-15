@@ -7,13 +7,12 @@ import com.github.apetrelli.scafa.sync.http.gateway.GatewayHttpConnectionFactory
 import com.github.apetrelli.scafa.proto.processor.HandlerFactory;
 import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class DefaultGatewayHttpHandlerFactory<T extends HttpSyncSocket<HttpRequest>> implements HandlerFactory<HttpHandler, SyncSocket> {
 
-	private GatewayHttpConnectionFactoryFactory<T> factory;
-
-	public DefaultGatewayHttpHandlerFactory(GatewayHttpConnectionFactoryFactory<T> factory) {
-		this.factory = factory;
-	}
+	private final GatewayHttpConnectionFactoryFactory<T> factory;
 
 	@Override
 	public HttpHandler create(SyncSocket sourceChannel) {

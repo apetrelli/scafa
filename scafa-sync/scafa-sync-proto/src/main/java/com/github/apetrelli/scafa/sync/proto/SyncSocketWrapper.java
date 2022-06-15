@@ -4,13 +4,12 @@ import java.nio.ByteBuffer;
 
 import com.github.apetrelli.scafa.proto.client.HostPort;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class SyncSocketWrapper<T extends SyncSocket> implements SyncSocket {
 
-	protected T socket;
-	
-	public SyncSocketWrapper(T socket) {
-		this.socket = socket;
-	}
+	protected final T socket;
 
 	public HostPort getAddress() {
 		return socket.getAddress();

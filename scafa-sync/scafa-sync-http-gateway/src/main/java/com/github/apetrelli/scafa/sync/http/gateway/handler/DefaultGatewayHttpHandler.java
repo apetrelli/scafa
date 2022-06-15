@@ -27,20 +27,18 @@ import com.github.apetrelli.scafa.sync.http.gateway.MappedGatewayHttpConnectionF
 import com.github.apetrelli.scafa.sync.http.impl.HttpHandlerSupport;
 import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 
-public class DefaultGatewayHttpHandler<T extends HttpSyncSocket<HttpRequest>> extends HttpHandlerSupport implements HttpHandler {
+import lombok.RequiredArgsConstructor;
 
-    protected SyncSocket sourceChannel;
+@RequiredArgsConstructor
+public class DefaultGatewayHttpHandler<T extends HttpSyncSocket<HttpRequest>> extends HttpHandlerSupport implements HttpHandler {
 
     protected T connection;
     
-    protected ByteBuffer writeBuffer = ByteBuffer.allocate(16384);
+    protected final ByteBuffer writeBuffer = ByteBuffer.allocate(16384);
 
-    private MappedGatewayHttpConnectionFactory<T> connectionFactory;
+    private final MappedGatewayHttpConnectionFactory<T> connectionFactory;
 
-    public DefaultGatewayHttpHandler(MappedGatewayHttpConnectionFactory<T> connectionFactory, SyncSocket sourceChannel) {
-        this.connectionFactory = connectionFactory;
-        this.sourceChannel = sourceChannel;
-}
+    private final SyncSocket sourceChannel;
     
     @Override
     public void onResponseHeader(HttpResponse response) {
@@ -49,7 +47,7 @@ public class DefaultGatewayHttpHandler<T extends HttpSyncSocket<HttpRequest>> ex
 
     @Override
     public void onRequestHeader(HttpRequest request) {
-    	connection = connectionFactory.create(sourceChannel, request);
+    	connection = createConnection(request);
     	connection.sendHeader(request, writeBuffer);
     }
     
@@ -79,4 +77,8 @@ public class DefaultGatewayHttpHandler<T extends HttpSyncSocket<HttpRequest>> ex
     		connection.disconnect(); // Ignore the outcome
         }
     }
+
+	protected T createConnection(HttpRequest request) {
+		return connectionFactory.create(sourceChannel, request);
+	}
 }

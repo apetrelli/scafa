@@ -5,5 +5,6 @@ module com.github.apetrelli.scafa.sync.web {
 	requires com.github.apetrelli.scafa.sync.proto.jnet;
 	requires com.github.apetrelli.scafa.sync.proto.thread;
 	requires java.logging;
+	requires lombok;
     requires transitive ini4j;
 }
