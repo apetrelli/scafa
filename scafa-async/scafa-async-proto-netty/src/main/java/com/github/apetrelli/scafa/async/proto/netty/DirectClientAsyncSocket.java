@@ -1,15 +1,15 @@
-package com.github.apetrelli.scafa.async.proto.aio;
+package com.github.apetrelli.scafa.async.proto.netty;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.nio.channels.AsynchronousSocketChannel;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.util.NetworkUtils;
 
+import io.netty.channel.socket.SocketChannel;
 import lombok.extern.java.Log;
 
 @Log
@@ -20,8 +20,8 @@ public class DirectClientAsyncSocket extends DirectAsyncSocket {
     private final String interfaceName;
 
     private final boolean forceIpV4;
-    
-	public DirectClientAsyncSocket(AsynchronousSocketChannel channel, HostPort socketAddress,
+
+	public DirectClientAsyncSocket(SocketChannel channel, HostPort socketAddress,
 			String interfaceName, boolean forceIpV4) {
 		super(channel);
 		this.socketAddress = socketAddress;
@@ -41,25 +41,32 @@ public class DirectClientAsyncSocket extends DirectAsyncSocket {
                     new Object[] { Thread.currentThread().getName(), socketAddress});
         }
         try {
-            bindChannel();
+    		InetAddress address = NetworkUtils.getInterfaceAddress(interfaceName, forceIpV4);
+            CompletableFuture<Void> future = new CompletableFuture<>();
+            if (address != null) {
+                channel.bind(new InetSocketAddress(address, 0)).addListener(f -> {
+                	if (f.isSuccess()) {
+                		doConnect(future);
+                	} else {
+                		future.completeExceptionally(f.cause());
+                	}
+                });
+            } else {
+            	doConnect(future);
+            }
+            return future;
         } catch (IOException e1) {
             return CompletableFuture.failedFuture(e1);
         }
-        return establishConnection();
 	}
 
-	private void bindChannel() throws IOException {
-		InetAddress address = NetworkUtils.getInterfaceAddress(interfaceName, forceIpV4);
-        if (address != null) {
-            channel.bind(new InetSocketAddress(address, 0));
-        }
+	private void doConnect(CompletableFuture<Void> future) {
+		channel.connect(new InetSocketAddress(socketAddress.getHost(), socketAddress.getPort())).addListener(f -> {
+        	if (f.isSuccess()) {
+        		future.complete(null);
+        	} else {
+        		future.completeExceptionally(f.cause());
+        	}
+        });
 	}
-
-    private CompletableFuture<Void> establishConnection() {
-        log.log(Level.FINEST, "Trying to connect to {0}", socketAddress);
-        CompletableFuture<Void> future = new CompletableFuture<>();
-        channel.connect(new InetSocketAddress(socketAddress.getHost(), socketAddress.getPort()), future, CompleterCompletionHandler.INSTANCE);
-        return future;
-    }
-
 }
