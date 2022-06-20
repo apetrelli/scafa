@@ -18,8 +18,9 @@
 package com.github.apetrelli.scafa.async.proxy.headless;
 
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
+import com.github.apetrelli.scafa.async.proto.aio.AioAsyncServerSocketFactoryFactory;
+import com.github.apetrelli.scafa.async.proto.aio.DirectClientAsyncSocketFactory;
 import com.github.apetrelli.scafa.async.proxy.AsyncScafaLauncher;
 
 import lombok.extern.java.Log;
@@ -32,7 +33,7 @@ public class ScafaMain {
         if (args.length > 0) {
             profile = args[0];
         }
-        AsyncScafaLauncher launcher = new AsyncScafaLauncher();
+        AsyncScafaLauncher launcher = new AsyncScafaLauncher(new DirectClientAsyncSocketFactory(), new AioAsyncServerSocketFactoryFactory());
         launcher.initialize();
         launcher.launch(profile);
 

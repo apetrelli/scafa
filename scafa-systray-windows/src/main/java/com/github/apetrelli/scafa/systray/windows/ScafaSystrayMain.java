@@ -19,6 +19,8 @@ package com.github.apetrelli.scafa.systray.windows;
 
 import org.eclipse.swt.internal.Library;
 
+import com.github.apetrelli.scafa.async.proto.aio.AioAsyncServerSocketFactoryFactory;
+import com.github.apetrelli.scafa.async.proto.aio.DirectClientAsyncSocketFactory;
 import com.github.apetrelli.scafa.async.proxy.AsyncScafaLauncher;
 import com.github.apetrelli.scafa.systray.ScafaSystrayLauncher;
 
@@ -26,7 +28,8 @@ public class ScafaSystrayMain {
 
     public static void main(String[] args) {
         Library.loadLibrary("swt");
-    	ScafaSystrayLauncher launcher = new ScafaSystrayLauncher(new AsyncScafaLauncher());
+		ScafaSystrayLauncher launcher = new ScafaSystrayLauncher(
+				new AsyncScafaLauncher(new DirectClientAsyncSocketFactory(), new AioAsyncServerSocketFactoryFactory()));
     	launcher.launch();
     }
 }
