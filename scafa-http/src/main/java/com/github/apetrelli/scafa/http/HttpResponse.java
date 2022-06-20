@@ -56,8 +56,8 @@ public class HttpResponse extends HeaderHolder {
 
     @Override
 	public void fill(ByteBuffer buffer) {
-		buffer.put(httpVersion.getArray(), httpVersion.getFrom(), httpVersion.getTo()).put(SPACE).put(code.getArray(),
-				code.getFrom(), code.getTo());
+		buffer.put(httpVersion.getArray(), httpVersion.getFrom(), httpVersion.length()).put(SPACE).put(code.getArray(),
+				code.getFrom(), code.length());
         if (message != null) {
         	buffer.put(SPACE).put(message.getArray());
         }

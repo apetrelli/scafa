@@ -2,6 +2,8 @@ package com.github.apetrelli.scafa.async.proto.netty;
 
 import java.util.concurrent.CompletableFuture;
 
+import com.github.apetrelli.scafa.async.proto.socket.AsyncSocket;
+
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
@@ -14,14 +16,16 @@ public class ServerSocketChannelInitializer extends ChannelInitializer<SocketCha
 
 	@Override
 	protected void initChannel(SocketChannel ch) throws Exception {
-		serverSocketContextHolder.getCompletableFutureForAccept().complete(new DirectAsyncSocket(ch));
+		CompletableFuture<AsyncSocket> previousCompletableFuture = serverSocketContextHolder.getCompletableFutureForAccept();
 		serverSocketContextHolder.setCompletableFutureForAccept(new CompletableFuture<>());
+		previousCompletableFuture.complete(new DirectAsyncSocket(ch));
 	}
 	
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-		serverSocketContextHolder.getCompletableFutureForAccept().completeExceptionally(cause);
+		CompletableFuture<AsyncSocket> previousCompletableFuture = serverSocketContextHolder.getCompletableFutureForAccept();
 		serverSocketContextHolder.setCompletableFutureForAccept(new CompletableFuture<>());
+		previousCompletableFuture.completeExceptionally(cause);
 	}
 
 }

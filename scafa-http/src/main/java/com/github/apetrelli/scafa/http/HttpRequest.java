@@ -121,8 +121,9 @@ public class HttpRequest extends HeaderHolder {
 
     @Override
 	public void fill(ByteBuffer buffer) {
-        buffer.put(method.getArray()).put(SPACE).put(resource.getArray()).put(SPACE)
-                .put(httpVersion.getArray()).put(CR).put(LF);
+		buffer.put(method.getArray(), method.getFrom(), method.length()).put(SPACE)
+				.put(resource.getArray(), resource.getFrom(), resource.length()).put(SPACE)
+				.put(httpVersion.getArray(), httpVersion.getFrom(), httpVersion.length()).put(CR).put(LF);
         loadInBuffer(buffer);
 	}
 
