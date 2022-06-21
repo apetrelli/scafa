@@ -63,6 +63,13 @@ public class HttpRequest extends HeaderHolder {
         copyBase(toCopy);
     }
 
+    public HttpRequest(HttpRequest toCopy, AsciiString resource) {
+        method = toCopy.method;
+        this.resource = resource;
+        httpVersion = toCopy.httpVersion;
+        copyBase(toCopy);
+    }
+
     public AsciiString getMethod() {
         return method;
     }

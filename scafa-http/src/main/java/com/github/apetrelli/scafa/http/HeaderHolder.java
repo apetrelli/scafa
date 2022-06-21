@@ -88,8 +88,12 @@ public abstract class HeaderHolder {
 
     protected void loadInBuffer(ByteBuffer buffer) {
         headers.entrySet().stream().forEach(t -> {
+			HeaderName key = t.getKey();
 			t.getValue().forEach(
-					u -> buffer.put(t.getKey().getArray()).put(COLON).put(SPACE).put(u.getArray()).put(CR).put(LF));
+					u -> {
+						buffer.put(key.getArray(), key.getFrom(), key.length()).put(COLON).put(SPACE)
+								.put(u.getArray(), u.getFrom(), u.length()).put(CR).put(LF);
+					});
         });
         buffer.put(CR).put(LF);
     }
