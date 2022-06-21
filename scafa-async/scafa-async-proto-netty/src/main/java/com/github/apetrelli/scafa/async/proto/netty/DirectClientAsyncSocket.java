@@ -13,7 +13,7 @@ import io.netty.channel.socket.SocketChannel;
 import lombok.extern.java.Log;
 
 @Log
-public class DirectClientAsyncSocket extends DirectAsyncSocket {
+public class DirectClientAsyncSocket extends CoalescingAsyncSocket {
 
 	private final HostPort socketAddress;
 

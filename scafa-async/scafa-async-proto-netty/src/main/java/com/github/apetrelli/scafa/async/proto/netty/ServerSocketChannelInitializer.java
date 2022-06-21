@@ -18,7 +18,7 @@ public class ServerSocketChannelInitializer extends ChannelInitializer<SocketCha
 	protected void initChannel(SocketChannel ch) throws Exception {
 		CompletableFuture<AsyncSocket> previousCompletableFuture = serverSocketContextHolder.getCompletableFutureForAccept();
 		serverSocketContextHolder.setCompletableFutureForAccept(new CompletableFuture<>());
-		previousCompletableFuture.complete(new DirectAsyncSocket(ch));
+		previousCompletableFuture.complete(new CoalescingAsyncSocket(ch));
 	}
 	
 	@Override

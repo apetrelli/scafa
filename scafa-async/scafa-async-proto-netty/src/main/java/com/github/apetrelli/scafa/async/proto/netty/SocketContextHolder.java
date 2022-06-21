@@ -16,6 +16,6 @@ public class SocketContextHolder {
 	private ByteBuffer byteBuffer;
 	
 	private CompletableFuture<Integer> completableFutureForRead;
-	
-	private CompletableFuture<Void> completableFutureForNextRead;
+//	
+//	private CompletableFuture<Void> completableFutureForNextRead;
 }

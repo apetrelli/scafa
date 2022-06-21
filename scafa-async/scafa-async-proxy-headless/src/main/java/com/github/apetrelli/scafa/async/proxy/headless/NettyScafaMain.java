@@ -46,7 +46,8 @@ public class NettyScafaMain {
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         ServerBootstrap serverBootstrap = new ServerBootstrap();
 		serverBootstrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class)
-				.option(ChannelOption.SO_BACKLOG, 128).childOption(ChannelOption.SO_KEEPALIVE, true);
+				.option(ChannelOption.SO_BACKLOG, 128).childOption(ChannelOption.SO_KEEPALIVE, true)
+				.childOption(ChannelOption.AUTO_READ, true).childOption(ChannelOption.AUTO_CLOSE, false);
 		Bootstrap clientBootstrap = new Bootstrap();
 		clientBootstrap.group(workerGroup).channel(NioSocketChannel.class).handler(new ChannelInitializer<Channel>() {
 
@@ -54,7 +55,7 @@ public class NettyScafaMain {
 			protected void initChannel(Channel ch) throws Exception {
 				// Do nothing
 			}
-		}).option(ChannelOption.SO_KEEPALIVE, true);
+		}).option(ChannelOption.SO_KEEPALIVE, true).option(ChannelOption.AUTO_READ, true).option(ChannelOption.AUTO_CLOSE, false);
         AsyncScafaLauncher launcher = new AsyncScafaLauncher(new DirectClientAsyncSocketFactory(clientBootstrap), new NettyAsyncServerSocketFactoryFactory(serverBootstrap));
         launcher.initialize();
         launcher.launch(profile);

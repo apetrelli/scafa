@@ -35,10 +35,16 @@ public class DirectAsyncSocket implements AsyncSocket {
 				int length = buf.readableBytes();
 				log.log(Level.FINEST, "Got bytes to read for uuid {0}", socketContextHolder.getCid());
 				log.finest(() -> "Reading " + length + " bytes and putting in a buffer with position " + byteBuffer.position() + " and limit " + byteBuffer.limit());
-				buf.getBytes(buf.readerIndex(), byteBuffer.array(), byteBuffer.position(), length);
-				byteBuffer.position(byteBuffer.position() + length);
+				byteBuffer.flip();
+				Thread.sleep(1000);
+//				buf.getBytes(buf.readerIndex(), byteBuffer.array(), byteBuffer.position(), length);
+//				byteBuffer.position(byteBuffer.position() + length);
+				byteBuffer.limit(Math.min(byteBuffer.capacity(), length));
+				buf.readBytes(byteBuffer);
+//				byteBuffer.flip();
 				socketContextHolder.getCompletableFutureForRead().complete(length);
-				socketContextHolder.getCompletableFutureForNextRead().complete(null);
+				socketContextHolder.setByteBuffer(null);
+//				socketContextHolder.getCompletableFutureForNextRead().complete(null);
 				buf.release();
 			}
 
@@ -46,11 +52,12 @@ public class DirectAsyncSocket implements AsyncSocket {
 			public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
 				log.log(Level.WARNING, "Exception during read", cause);
 				socketContextHolder.getCompletableFutureForRead().completeExceptionally(cause);
-				socketContextHolder.getCompletableFutureForNextRead().complete(null);
+				socketContextHolder.setByteBuffer(null);
+//				socketContextHolder.getCompletableFutureForNextRead().complete(null);
 			}
 
 		});
-		socketContextHolder.setCompletableFutureForNextRead(CompletableFuture.completedFuture(null));
+//		socketContextHolder.setCompletableFutureForNextRead(CompletableFuture.completedFuture(null));
 	}
 
 	@Override
@@ -84,15 +91,34 @@ public class DirectAsyncSocket implements AsyncSocket {
 	@Override
 	public CompletableFuture<Integer> read(ByteBuffer buffer) {
 		CompletableFuture<Integer> completableFuture = new CompletableFuture<>();
-		return socketContextHolder.getCompletableFutureForNextRead().thenCompose(x -> {
-			socketContextHolder.setCompletableFutureForNextRead(new CompletableFuture<>());
-			socketContextHolder.setCompletableFutureForRead(completableFuture);
-			socketContextHolder.setByteBuffer(buffer);
-			socketContextHolder.setCid(UUID.randomUUID());
-			log.log(Level.FINEST, "Calling read with uuid {0}", socketContextHolder.getCid());
-			channel.read();
-			return completableFuture;
-		});
+//		return socketContextHolder.getCompletableFutureForNextRead().thenCompose(x -> {
+//			socketContextHolder.setCompletableFutureForNextRead(new CompletableFuture<>());
+//			socketContextHolder.setCompletableFutureForRead(completableFuture);
+//			socketContextHolder.setByteBuffer(buffer);
+//			socketContextHolder.setCid(UUID.randomUUID());
+//			log.log(Level.FINEST, "Calling read with uuid {0}", socketContextHolder.getCid());
+//			channel.read();
+//			return completableFuture;
+//		});
+//		socketContextHolder.setCompletableFutureForNextRead(new CompletableFuture<>());
+		socketContextHolder.setCompletableFutureForRead(completableFuture);
+		socketContextHolder.setByteBuffer(buffer);
+		socketContextHolder.setCid(UUID.randomUUID());
+		log.log(Level.FINEST, "Calling read with uuid {0}", socketContextHolder.getCid());
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		channel.read();
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return completableFuture;
 	}
 
 	@Override
@@ -104,6 +130,7 @@ public class DirectAsyncSocket implements AsyncSocket {
 		CompletableFuture<Integer> completableFuture = new CompletableFuture<>();
 		channel.writeAndFlush(writeBuf).addListener(f -> {
 			if (f.isSuccess()) {
+				buffer.position(buffer.limit());
 				completableFuture.complete(remaining);
 			} else {
 				completableFuture.completeExceptionally(f.cause());
