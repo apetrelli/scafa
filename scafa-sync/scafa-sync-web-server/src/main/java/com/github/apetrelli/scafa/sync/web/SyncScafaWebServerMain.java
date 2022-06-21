@@ -1,10 +1,15 @@
 package com.github.apetrelli.scafa.sync.web;
 
+import com.github.apetrelli.scafa.sync.proto.jnet.DirectClientSyncSocketFactory;
+import com.github.apetrelli.scafa.sync.proto.jnet.JnetSyncServerSocketFactoryFactory;
+import com.github.apetrelli.scafa.sync.proto.loom.VirtualThreadRunnableStarterFactory;
+
 public class SyncScafaWebServerMain {
 
 	public static void main(String[] args) {
 		
-		com.github.apetrelli.scafa.sync.web.ScafaWebServerLauncher launcher = new com.github.apetrelli.scafa.sync.web.ScafaWebServerLauncher();
+		ScafaWebServerLauncher launcher = new ScafaWebServerLauncher(new DirectClientSyncSocketFactory(),
+				new JnetSyncServerSocketFactoryFactory(), new VirtualThreadRunnableStarterFactory());
 
 		Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override

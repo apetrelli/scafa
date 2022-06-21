@@ -3,6 +3,7 @@ module com.github.apetrelli.scafa.sync.web {
 	requires transitive com.github.apetrelli.scafa.sync.http.server;
 	requires transitive com.github.apetrelli.scafa.web;
 	requires com.github.apetrelli.scafa.sync.proto.jnet;
+	requires com.github.apetrelli.scafa.sync.proto.loom;
 	requires com.github.apetrelli.scafa.sync.proto.thread;
 	requires java.logging;
 	requires lombok;

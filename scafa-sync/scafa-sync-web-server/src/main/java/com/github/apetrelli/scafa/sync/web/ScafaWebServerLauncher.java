@@ -32,26 +32,33 @@ import com.github.apetrelli.scafa.sync.http.server.statics.NotFoundHttpServerHan
 import com.github.apetrelli.scafa.sync.http.socket.direct.DirectHttpSyncSocketFactory;
 import com.github.apetrelli.scafa.sync.http.socket.server.HttpSyncServerSocketFactory;
 import com.github.apetrelli.scafa.sync.proto.RunnableStarter;
+import com.github.apetrelli.scafa.sync.proto.RunnableStarterFactory;
 import com.github.apetrelli.scafa.sync.proto.ScafaListener;
 import com.github.apetrelli.scafa.sync.proto.SyncServerSocketFactory;
+import com.github.apetrelli.scafa.sync.proto.SyncServerSocketFactoryFactory;
 import com.github.apetrelli.scafa.sync.proto.SyncSocket;
-import com.github.apetrelli.scafa.sync.proto.jnet.DirectClientSyncSocketFactory;
-import com.github.apetrelli.scafa.sync.proto.jnet.DirectSyncServerSocketFactory;
 import com.github.apetrelli.scafa.sync.proto.processor.DataHandler;
 import com.github.apetrelli.scafa.sync.proto.processor.impl.DefaultProcessorFactory;
 import com.github.apetrelli.scafa.sync.proto.processor.impl.PassthroughInputProcessorFactory;
 import com.github.apetrelli.scafa.sync.proto.processor.impl.StatefulInputProcessorFactory;
-import com.github.apetrelli.scafa.sync.proto.thread.ThreadRunnableStarter;
 import com.github.apetrelli.scafa.web.AbstractScafaWebServerLauncher;
 import com.github.apetrelli.scafa.web.config.Configuration;
 import com.github.apetrelli.scafa.web.config.PathConfiguration;
 import com.github.apetrelli.scafa.web.config.SocketConfiguration;
 import com.github.apetrelli.scafa.web.config.StaticPathConfiguration;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 
+@RequiredArgsConstructor
 @Log
 public class ScafaWebServerLauncher extends AbstractScafaWebServerLauncher {
+	
+	private final SocketFactory<SyncSocket> clientSocketFactory;
+	
+	private final SyncServerSocketFactoryFactory serverSocketFactoryFactory;
+    
+	private final RunnableStarterFactory runnableStarterFactory;
 	
 	private List<ScafaListener<HttpHandler, HttpSyncSocket<HttpResponse>>> listeners;
 	
@@ -63,14 +70,14 @@ public class ScafaWebServerLauncher extends AbstractScafaWebServerLauncher {
 	@Override
 	protected void launch(Configuration config) {
 		HttpStateMachine<HttpHandler, Void> stateMachine = new HttpStateMachine<>(new SyncHttpSink());
-		try (ThreadRunnableStarter runnableStarter = new ThreadRunnableStarter();
+		try (RunnableStarter runnableStarter = runnableStarterFactory.create();
 				DefaultProcessorFactory<HttpProcessingContext, HttpHandler> defaultProcessorFactory = new DefaultProcessorFactory<>(
 						new StatefulInputProcessorFactory<>(stateMachine), new HttpProcessingContextFactory());
 				DefaultProcessorFactory<Input, DataHandler> clientProcessorFactory = new DefaultProcessorFactory<>(
 						new PassthroughInputProcessorFactory(), new SimpleInputFactory())) {
 			DataSenderFactory dataSenderFactory = new DefaultDataSenderFactory();
 			SocketFactory<HttpSyncSocket<HttpRequest>> socketFactory = new DirectHttpSyncSocketFactory(
-					new DirectClientSyncSocketFactory(), dataSenderFactory);
+					clientSocketFactory, dataSenderFactory);
 			HttpServer server = new DefaultHttpServer(dataSenderFactory);
 			NotFoundHttpServerHandlerFactory notFoundFactory = new NotFoundHttpServerHandlerFactory(server);
 			HandlerFactory<HttpHandler, HttpSyncSocket<HttpResponse>> defaultHandlerFactory = new HttpServerHandlerAdapterFactory(
@@ -106,7 +113,7 @@ public class ScafaWebServerLauncher extends AbstractScafaWebServerLauncher {
 			ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory, HttpServer server,
 			HandlerFactory<HttpHandler, HttpSyncSocket<HttpResponse>> defaultHandlerFactory,
 			RunnableStarter runnableStarter) {
-        SyncServerSocketFactory<SyncSocket> serverSocketFactory = new DirectSyncServerSocketFactory(socketConfig.getPort(), null, false);
+        SyncServerSocketFactory<SyncSocket> serverSocketFactory = serverSocketFactoryFactory.create(socketConfig.getPort());
 		WebCompositeHttpHandlerFactoryBuilder builder = new WebCompositeHttpHandlerFactoryBuilder();
 		builder.withMimeTypeConfig(mimeTypeConfig)
 				.withSocketFactory(socketFactory).withHttpServer(server)
