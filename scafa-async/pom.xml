@@ -22,5 +22,6 @@
   	<module>scafa-async-proxy</module>
   	<module>scafa-async-proxy-headless</module>
   	<module>scafa-async-web-server</module>
+  	<module>scafa-async-file-nio</module>
   </modules>
 </project>

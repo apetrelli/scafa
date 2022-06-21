@@ -2,7 +2,10 @@ package com.github.apetrelli.scafa.async.web;
 
 import java.io.IOException;
 import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import com.github.apetrelli.scafa.async.file.aio.AioPathBufferContextReaderFactory;
+import com.github.apetrelli.scafa.async.proto.aio.AioAsyncServerSocketFactoryFactory;
+import com.github.apetrelli.scafa.async.proto.aio.DirectClientAsyncSocketFactory;
 
 import lombok.extern.java.Log;
 
@@ -11,7 +14,8 @@ public class ScafaWebServerMain {
 
 	public static void main(String[] args) throws IOException {
 		
-		ScafaWebServerLauncher launcher = new ScafaWebServerLauncher();
+		ScafaWebServerLauncher launcher = new ScafaWebServerLauncher(new DirectClientAsyncSocketFactory(),
+				new AioAsyncServerSocketFactoryFactory(), new AioPathBufferContextReaderFactory());
 		String rootDirectory;
 		if (args.length > 0) {
 			rootDirectory = args[0];
