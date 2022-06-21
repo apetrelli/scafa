@@ -5,4 +5,7 @@ import java.util.concurrent.Future;
 public interface RunnableStarter extends AutoCloseable {
 
 	Future<?> start(Runnable runnable);
+	
+	@Override
+	void close();
 }

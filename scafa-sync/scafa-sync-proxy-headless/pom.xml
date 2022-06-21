@@ -12,6 +12,21 @@
 			<artifactId>scafa-sync-proxy</artifactId>
 			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
+		<dependency>
+			<groupId>com.github.apetrelli.scafa</groupId>
+			<artifactId>scafa-sync-proto-jnet</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>com.github.apetrelli.scafa</groupId>
+			<artifactId>scafa-sync-proto-thread</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>com.github.apetrelli.scafa</groupId>
+			<artifactId>scafa-sync-proto-loom</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>

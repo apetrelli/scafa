@@ -27,7 +27,7 @@
   <description>Scafa: a universal non-caching proxy for the road warrior</description>
   <url>https://github.com/apetrelli/scafa</url>
   <properties>
-	<java.version>11</java.version>
+	<java.version>19</java.version>
 	<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 	<resource.delimiter>@</resource.delimiter>
 	<maven.compiler.source>${java.version}</maven.compiler.source>

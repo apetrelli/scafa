@@ -17,6 +17,9 @@
  */
 package com.github.apetrelli.scafa.sync.proxy.headless;
 
+import com.github.apetrelli.scafa.sync.proto.jnet.DirectClientSyncSocketFactory;
+import com.github.apetrelli.scafa.sync.proto.jnet.JnetSyncServerSocketFactoryFactory;
+import com.github.apetrelli.scafa.sync.proto.loom.VirtualThreadRunnableStarterFactory;
 import com.github.apetrelli.scafa.sync.proxy.SyncScafaLauncher;
 
 public class SyncScafaMain {
@@ -27,7 +30,8 @@ public class SyncScafaMain {
             profile = args[0];
         }
 
-        SyncScafaLauncher launcher = new SyncScafaLauncher();
+		SyncScafaLauncher launcher = new SyncScafaLauncher(new DirectClientSyncSocketFactory(),
+				new JnetSyncServerSocketFactoryFactory(), new VirtualThreadRunnableStarterFactory());
         launcher.initialize();
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
