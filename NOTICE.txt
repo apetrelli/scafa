@@ -25,3 +25,4 @@ SWT (EPL): https://www.eclipse.org/swt/
 jCIFS (LGPL): http://jcifs.samba.org
 ini4j (Apache License 2.0): http://ini4j.sourceforge.net/
 Apache Commons IO (Apache License 2.0): https://commons.apache.org/proper/commons-io/
+Netty (Apache License 2.0): https://netty.io/
