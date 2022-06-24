@@ -7,7 +7,7 @@ import com.github.apetrelli.scafa.async.proto.socket.AsyncSocket;
 
 public class SocketQueueManager {
 	
-	private final ConcurrentLinkedQueue<Object> socketQueue = new ConcurrentLinkedQueue<>();
+	private final ConcurrentLinkedQueue<CompletableFuture<AsyncSocket>> socketQueue = new ConcurrentLinkedQueue<>();
 
 	private CompletableFuture<AsyncSocket> currentCompletableFuture = CompletableFuture.completedFuture(null);
 	
@@ -15,7 +15,7 @@ public class SocketQueueManager {
 		if (!currentCompletableFuture.isDone()) {
 			currentCompletableFuture.complete(socket);
 		} else {
-			socketQueue.offer(socket);
+			socketQueue.offer(CompletableFuture.completedFuture(socket));
 		}
 	}
 	
@@ -23,7 +23,7 @@ public class SocketQueueManager {
 		if (!currentCompletableFuture.isDone()) {
 			currentCompletableFuture.completeExceptionally(exc);
 		} else {
-			socketQueue.offer(exc);
+			socketQueue.offer(CompletableFuture.failedFuture(exc));
 		}
 	}
 	
@@ -32,15 +32,10 @@ public class SocketQueueManager {
 			return CompletableFuture.failedFuture(new IllegalStateException(
 					"Trying to return a new CompletableFuture before completing the one before"));
 		}
-		CompletableFuture<AsyncSocket> completableFuture = new CompletableFuture<>();
-		this.currentCompletableFuture = completableFuture;
-		if (!socketQueue.isEmpty()) {
-			Object result = socketQueue.remove();
-			if (result instanceof AsyncSocket) {
-				completableFuture.complete((AsyncSocket) result);
-			} else {
-				completableFuture.completeExceptionally((Throwable) result);
-			}
+		CompletableFuture<AsyncSocket> completableFuture = socketQueue.poll();
+		if (completableFuture == null) {
+			completableFuture = new CompletableFuture<>();
+			this.currentCompletableFuture = completableFuture;
 		}
 		return completableFuture;
 	}
