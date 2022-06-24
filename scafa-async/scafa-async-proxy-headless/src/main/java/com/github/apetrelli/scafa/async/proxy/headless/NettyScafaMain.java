@@ -24,13 +24,11 @@ import com.github.apetrelli.scafa.async.proto.netty.NettyAsyncServerSocketFactor
 import com.github.apetrelli.scafa.async.proxy.AsyncScafaLauncher;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import lombok.extern.java.Log;
 
@@ -44,10 +42,6 @@ public class NettyScafaMain {
         }
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
-        ServerBootstrap serverBootstrap = new ServerBootstrap();
-		serverBootstrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class)
-				.option(ChannelOption.SO_BACKLOG, 128).childOption(ChannelOption.SO_KEEPALIVE, true)
-				.childOption(ChannelOption.AUTO_READ, true).childOption(ChannelOption.AUTO_CLOSE, false);
 		Bootstrap clientBootstrap = new Bootstrap();
 		clientBootstrap.group(workerGroup).channel(NioSocketChannel.class).handler(new ChannelInitializer<Channel>() {
 
@@ -56,7 +50,8 @@ public class NettyScafaMain {
 				// Do nothing
 			}
 		}).option(ChannelOption.SO_KEEPALIVE, true).option(ChannelOption.AUTO_READ, true).option(ChannelOption.AUTO_CLOSE, false);
-        AsyncScafaLauncher launcher = new AsyncScafaLauncher(new DirectClientAsyncSocketFactory(clientBootstrap), new NettyAsyncServerSocketFactoryFactory(serverBootstrap));
+        AsyncScafaLauncher launcher = new AsyncScafaLauncher(new DirectClientAsyncSocketFactory(clientBootstrap),
+        		new NettyAsyncServerSocketFactoryFactory(bossGroup, workerGroup));
         launcher.initialize();
         launcher.launch(profile);
 

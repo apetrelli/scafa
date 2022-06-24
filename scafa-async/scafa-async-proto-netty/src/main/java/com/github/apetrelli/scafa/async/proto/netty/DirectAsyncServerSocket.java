@@ -12,13 +12,13 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class DirectAsyncServerSocket implements AsyncServerSocket<AsyncSocket>{
 	
-	private final ServerSocketContextHolder serverSocketContextHolder;
+	private final SocketQueueManager socketQueueManager;
 	
 	private final ServerSocketChannel serverSocketChannel;
 	
 	@Override
 	public CompletableFuture<AsyncSocket> accept() {
-		return serverSocketContextHolder.getCompletableFutureForAccept();
+		return socketQueueManager.newCompletableFuture();
 	}
 
 	@Override

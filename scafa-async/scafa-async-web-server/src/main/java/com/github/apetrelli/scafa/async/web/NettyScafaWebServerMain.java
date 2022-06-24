@@ -8,13 +8,11 @@ import com.github.apetrelli.scafa.async.proto.netty.DirectClientAsyncSocketFacto
 import com.github.apetrelli.scafa.async.proto.netty.NettyAsyncServerSocketFactoryFactory;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import lombok.extern.java.Log;
 
@@ -25,10 +23,6 @@ public class NettyScafaWebServerMain {
 		
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
-        ServerBootstrap serverBootstrap = new ServerBootstrap();
-		serverBootstrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class)
-				.option(ChannelOption.SO_BACKLOG, 128).childOption(ChannelOption.SO_KEEPALIVE, true)
-				.childOption(ChannelOption.AUTO_READ, true).childOption(ChannelOption.AUTO_CLOSE, false);
 		Bootstrap clientBootstrap = new Bootstrap();
 		clientBootstrap.group(workerGroup).channel(NioSocketChannel.class).handler(new ChannelInitializer<Channel>() {
 
@@ -39,7 +33,7 @@ public class NettyScafaWebServerMain {
 		}).option(ChannelOption.SO_KEEPALIVE, true).option(ChannelOption.AUTO_READ, true).option(ChannelOption.AUTO_CLOSE, false);
 		ScafaWebServerLauncher launcher = new ScafaWebServerLauncher(
 				new DirectClientAsyncSocketFactory(clientBootstrap),
-				new NettyAsyncServerSocketFactoryFactory(serverBootstrap), new NioPathBufferContextReaderFactory());
+				new NettyAsyncServerSocketFactoryFactory(bossGroup, workerGroup), new NioPathBufferContextReaderFactory());
 		String rootDirectory;
 		if (args.length > 0) {
 			rootDirectory = args[0];
