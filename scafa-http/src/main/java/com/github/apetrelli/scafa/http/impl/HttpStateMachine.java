@@ -1,7 +1,5 @@
 package com.github.apetrelli.scafa.http.impl;
 
-import java.nio.ByteBuffer;
-
 import com.github.apetrelli.scafa.http.HttpBodyMode;
 import com.github.apetrelli.scafa.http.HttpException;
 import com.github.apetrelli.scafa.http.HttpProcessingContext;
@@ -84,11 +82,11 @@ public class HttpStateMachine<H, R> implements ProtocolStateMachine<H, HttpProce
 				retValue = sink.data(context, handler);
 				break;
 			case CHUNK_COUNT:
-				onChunkCount(context);
+				evaluateChunkLength(context, currentByte);
 				break;
 			case CHUNK_COUNT_CR:
 				context.currentOrNextByte(currentByte); // discard CR
-				context.evaluateChunkLength(0, context.getBuffer().position());
+				context.evaluateChunkLength();
 				break;
 			case CHUNK_COUNT_LF:
 				context.currentOrNextByte(currentByte); // discard LF.
@@ -268,15 +266,6 @@ public class HttpStateMachine<H, R> implements ProtocolStateMachine<H, HttpProce
 		return currentByte;
 	}
 
-	private void onChunkCount(HttpProcessingContext context) {
-		ByteBuffer buffer = context.getBuffer();
-		int from = buffer.position();
-		byte currentByte = skipContentBody(buffer, (byte) 0);
-		if (currentByte == CR) {
-			context.evaluateChunkLength(from, buffer.position() - 1);
-		}
-	}
-
 	private void onHeader(HttpProcessingContext context, Byte currentByte) {
 		context.markStart(0);
 		context.transferToHeader(currentByte);
@@ -361,11 +350,16 @@ public class HttpStateMachine<H, R> implements ProtocolStateMachine<H, HttpProce
 				x -> x != CR && x != SPACE);
 	}
 
-	private byte skipContentBody(ByteBuffer buffer, byte currentByte) {
-		while (buffer.hasRemaining() && currentByte != CR) {
-		    currentByte = buffer.get();
+	private void evaluateChunkLength(HttpProcessingContext context, Byte inputByte) {
+		byte currentByte = inputByte != null ? inputByte : context.getBuffer().get();
+		while (context.getBuffer().hasRemaining() && currentByte != CR) {
+			context.addToChunkLength(currentByte);
+			currentByte = context.getBuffer().get();
 		}
-		return currentByte;
+		if (currentByte == CR) {
+			context.setStatus(HttpStatus.CHUNK_COUNT_CR);
+			context.evaluateChunkLength();
+		}
 	}
 
 	private byte skipContent(HttpProcessingContext context, byte currentByte) {

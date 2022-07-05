@@ -5,7 +5,6 @@ import static com.github.apetrelli.scafa.http.HttpHeaders.CONTENT_LENGTH;
 import static com.github.apetrelli.scafa.http.HttpHeaders.TRANSFER_ENCODING;
 
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.function.IntPredicate;
 import java.util.logging.Level;
@@ -23,6 +22,18 @@ public class HttpProcessingContext extends ProcessingContext<HttpStatus> {
 	private static final Logger LOG = Logger.getLogger(HttpProcessingContext.class.getName());
 	
 	private static final AsciiString HTTP_RESPONSE_PREFIX = new AsciiString("HTTP/");
+    
+    private static final byte ZERO = 48;
+    
+    private static final byte NINE = 57;
+    
+    private static final byte UC_A = 65;
+    
+    private static final byte UC_Z = 90;
+    
+    private static final byte LC_A = 97;
+    
+    private static final byte LC_Z = 122;
 	
 	private ByteBuffer headerBuffer;
 	
@@ -37,6 +48,8 @@ public class HttpProcessingContext extends ProcessingContext<HttpStatus> {
     private long bodySize;
 
     private long bodyOffset;
+    
+    private long currentChunkLength;
 
     private long totalChunkedTransferLength;
 
@@ -261,18 +274,25 @@ public class HttpProcessingContext extends ProcessingContext<HttpStatus> {
             }
         }
     }
-
-    public void evaluateChunkLength(int from, int to) {
-		String chunkCountHex = new String(getBuffer().array(), getBuffer().arrayOffset() + from,
-				getBuffer().arrayOffset() + to, StandardCharsets.US_ASCII);
-        try {
-            long chunkCount = Long.parseLong(chunkCountHex, 16);
-            LOG.log(Level.FINEST, "Preparing to read {0} bytes of a chunk", chunkCount);
-            setChunkLength(chunkCount);
-        } catch (NumberFormatException e) {
-            throw new HttpException("Invalid chunk count " + chunkCountHex, e);
-        }
+    
+    public void addToChunkLength(byte currentByte) {
+		long currentDigit = -1;
+		if (currentByte >= ZERO && currentByte <= NINE) {
+			currentDigit = currentByte - ZERO;
+		} else if (currentByte >= UC_A && currentByte <= UC_Z) {
+			currentDigit = currentByte - UC_A + 10;
+		} else if (currentByte >= LC_A && currentByte <= LC_Z) {
+			currentDigit = currentByte - LC_A + 10;
+		}
+		if (currentDigit >= 0) {
+			currentChunkLength = currentChunkLength * 16 + currentDigit;
+		}
     }
+
+    public void evaluateChunkLength() {
+    	setChunkLength(currentChunkLength);
+    }
+    
     public void reset() {
     	headerBuffer.clear();
     	start = 0;
@@ -281,6 +301,7 @@ public class HttpProcessingContext extends ProcessingContext<HttpStatus> {
         countdown = 0L;
         bodySize = 0L;
         bodyOffset = 0L;
+        currentChunkLength = 0L;
         totalChunkedTransferLength = 0L;
         chunkOffset = 0L;
         chunkLength = 0L;
