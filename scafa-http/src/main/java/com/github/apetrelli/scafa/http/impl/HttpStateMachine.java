@@ -28,7 +28,7 @@ public class HttpStateMachine<H, R> implements ProtocolStateMachine<H, HttpProce
 	public R out(HttpProcessingContext context, H handler) {
 		R retValue = null;
 		while (retValue == null && context.getBuffer().hasRemaining()) {
-			next(context);
+			Byte currentByte = next(context);
 			switch (context.getStatus()) {
 			case IDLE:
 				break;
@@ -37,16 +37,16 @@ public class HttpStateMachine<H, R> implements ProtocolStateMachine<H, HttpProce
 				sink.onStart(handler);
 				break;
 			case REQUEST_LINE_FIRST_TOKEN:
-	            onRequestLine(context);
+	            onRequestLine(context, currentByte);
 				break;
 			case REQUEST_LINE_SECOND_TOKEN:
-				onRequestSecondToken(context, SPACE);
+				onRequestSecondToken(context, currentByte);
 				break;
 			case REQUEST_LINE_FINAL_CONTENT:
-				onRequestFinalContent(context, SPACE);
+				onRequestFinalContent(context, currentByte);
 				break;
 			case REQUEST_LINE_CR:
-	            context.getAndTransferToHeader(); // discard CR.
+	            context.getAndTransferToHeader(currentByte); // discard CR.
 				context.evaluateFinalContent(0);
 				endRequestLine(context);
 				break;
@@ -55,28 +55,28 @@ public class HttpStateMachine<H, R> implements ProtocolStateMachine<H, HttpProce
 			case PENULTIMATE_BYTE:
 			case LAST_BYTE:
 			case CHUNK_LF:
-	            context.getBuffer().get(); // discard LF.
+	            context.currentOrNextByte(currentByte); // discard LF.
 				break;
 			case POSSIBLE_HEADER_CR:
-	            context.getAndTransferToHeader(); // discard CR.
+	            context.getAndTransferToHeader(currentByte); // discard CR.
 	            context.evaluateBodyMode();
 				break;
 			case SEND_HEADER_AND_END:
-	            context.getAndTransferToHeader(); // discard LF.
+	            context.getAndTransferToHeader(currentByte); // discard LF.
 				retValue = sink.endHeaderAndRequest(context, handler);
 				break;
 			case POSSIBLE_HEADER_LF:
-	            context.getAndTransferToHeader(); // discard LF.
+	            context.getAndTransferToHeader(currentByte); // discard LF.
 	            retValue = sink.endHeader(context, handler);
 				break;
 			case HEADER_NAME:
-				onHeader(context);
+				onHeader(context, currentByte);
 				break;
 			case HEADER_VALUE:
-				onHeaderValue(context, SPACE);
+				onHeaderValue(context, currentByte);
 				break;
 			case HEADER_CR:
-	            context.getAndTransferToHeader(); // discard CR
+	            context.getAndTransferToHeader(currentByte); // discard CR
 				context.evaluateHeaderValue(0);
 	            context.addHeaderLine();
 				break;
@@ -87,18 +87,18 @@ public class HttpStateMachine<H, R> implements ProtocolStateMachine<H, HttpProce
 				onChunkCount(context);
 				break;
 			case CHUNK_COUNT_CR:
-	            context.getBuffer().get(); // discard CR
+				context.currentOrNextByte(currentByte); // discard CR
 				context.evaluateChunkLength(0, context.getBuffer().position());
 				break;
 			case CHUNK_COUNT_LF:
-	            context.getBuffer().get(); // discard LF.
+				context.currentOrNextByte(currentByte); // discard LF.
 	            retValue = sink.endChunkCount(context, handler);
 				break;
 			case CHUNK:
 				retValue = sink.chunkData(context, handler);
 				break;
 			case CHUNK_CR:
-				context.getBuffer().get(); // discard CR
+				context.currentOrNextByte(currentByte); // discard CR
 				retValue = sink.onChunkEnd(handler);
 				break;
 			case CONNECT:
@@ -108,7 +108,8 @@ public class HttpStateMachine<H, R> implements ProtocolStateMachine<H, HttpProce
 		return retValue != null ? retValue : sink.completed();
 	}
 	
-	private HttpStatus next(HttpProcessingContext context) {
+	private Byte next(HttpProcessingContext context) {
+		Byte currentByte = null;
 		HttpStatus newStatus = null;
 		switch (context.getStatus()) {
 		case IDLE:
@@ -118,7 +119,8 @@ public class HttpStateMachine<H, R> implements ProtocolStateMachine<H, HttpProce
 			newStatus = HttpStatus.REQUEST_LINE_FIRST_TOKEN;
 			break;
 		case REQUEST_LINE_FIRST_TOKEN:
-            switch (context.peekNextByte()) {
+			currentByte = context.getBuffer().get();
+            switch (currentByte) {
             case CR:
                 newStatus = HttpStatus.REQUEST_LINE_CR;
                 break;
@@ -133,7 +135,8 @@ public class HttpStateMachine<H, R> implements ProtocolStateMachine<H, HttpProce
             }
 			break;
 		case REQUEST_LINE_SECOND_TOKEN:
-            switch (context.peekNextByte()) {
+			currentByte = context.getBuffer().get();
+            switch (currentByte) {
             case CR:
                 newStatus = HttpStatus.REQUEST_LINE_CR;
                 break;
@@ -148,7 +151,8 @@ public class HttpStateMachine<H, R> implements ProtocolStateMachine<H, HttpProce
             }
 			break;
 		case REQUEST_LINE_FINAL_CONTENT:
-            switch (context.peekNextByte()) {
+			currentByte = context.getBuffer().get();
+            switch (currentByte) {
             case CR:
                 newStatus = HttpStatus.REQUEST_LINE_CR;
                 break;
@@ -163,7 +167,8 @@ public class HttpStateMachine<H, R> implements ProtocolStateMachine<H, HttpProce
 			newStatus = HttpStatus.REQUEST_LINE_LF;
 			break;
 		case REQUEST_LINE_LF:
-			newStatus = context.peekNextByte() == CR ? HttpStatus.POSSIBLE_HEADER_CR : HttpStatus.HEADER_NAME;
+			currentByte = context.getBuffer().get();
+			newStatus = currentByte == CR ? HttpStatus.POSSIBLE_HEADER_CR : HttpStatus.HEADER_NAME;
 			break;
 		case POSSIBLE_HEADER_CR:
 			newStatus = context.getBodyMode() == HttpBodyMode.EMPTY ? HttpStatus.SEND_HEADER_AND_END : HttpStatus.POSSIBLE_HEADER_LF;
@@ -184,7 +189,8 @@ public class HttpStateMachine<H, R> implements ProtocolStateMachine<H, HttpProce
             }
 			break;
 		case HEADER_NAME:
-            switch (context.peekNextByte()) {
+			currentByte = context.getBuffer().get();
+            switch (currentByte) {
             case CR:
                 newStatus = HttpStatus.HEADER_CR;
                 break;
@@ -199,7 +205,8 @@ public class HttpStateMachine<H, R> implements ProtocolStateMachine<H, HttpProce
             }
 			break;
 		case HEADER_VALUE:
-            switch (context.peekNextByte()) {
+			currentByte = context.getBuffer().get();
+            switch (currentByte) {
             case CR:
                 newStatus = HttpStatus.HEADER_CR;
                 break;
@@ -214,7 +221,8 @@ public class HttpStateMachine<H, R> implements ProtocolStateMachine<H, HttpProce
 			newStatus = HttpStatus.HEADER_LF;
 			break;
 		case HEADER_LF:
-			newStatus = context.peekNextByte() == CR ? HttpStatus.POSSIBLE_HEADER_CR : HttpStatus.HEADER_NAME;
+			currentByte = context.getBuffer().get();
+			newStatus = currentByte == CR ? HttpStatus.POSSIBLE_HEADER_CR : HttpStatus.HEADER_NAME;
 			break;
 		case BODY:
 			newStatus = context.getCountdown() > 0L ? HttpStatus.BODY : HttpStatus.START_REQUEST_LINE;
@@ -226,7 +234,8 @@ public class HttpStateMachine<H, R> implements ProtocolStateMachine<H, HttpProce
 			newStatus = HttpStatus.START_REQUEST_LINE;
 			break;
 		case CHUNK_COUNT:
-            switch (context.peekNextByte()) {
+			currentByte = context.getBuffer().get();
+            switch (currentByte) {
             case CR:
                 newStatus = HttpStatus.CHUNK_COUNT_CR;
                 break;
@@ -256,7 +265,7 @@ public class HttpStateMachine<H, R> implements ProtocolStateMachine<H, HttpProce
 			newStatus = HttpStatus.CONNECT;
 		}
 		context.setStatus(newStatus);
-		return newStatus;
+		return currentByte;
 	}
 
 	private void onChunkCount(HttpProcessingContext context) {
@@ -268,15 +277,15 @@ public class HttpStateMachine<H, R> implements ProtocolStateMachine<H, HttpProce
 		}
 	}
 
-	private void onHeader(HttpProcessingContext context) {
+	private void onHeader(HttpProcessingContext context, Byte currentByte) {
 		context.markStart(0);
-		byte currentByte = 0;
-		currentByte = context.transferToHeaderBuffer(currentByte, x -> x != COLON && x != CR && x != SPACE);
+		context.transferToHeader(currentByte);
+		currentByte = context.transferToHeaderBuffer(currentByte != null ? currentByte : 0, x -> x != COLON && x != CR && x != SPACE);
 		if (currentByte == COLON) {
 			context.evaluateHeaderName(-1);
 			context.setStatus(HttpStatus.HEADER_VALUE);
 			if (context.getBuffer().hasRemaining()) {
-				currentByte = context.getAndTransferToHeader(); // Go to next whitespace, or real header value.
+				currentByte = context.getAndTransferToHeader(null); // Go to next whitespace, or real header value.
 				onHeaderValue(context, currentByte);
 			}
 		} else if (currentByte == CR || currentByte == SPACE) {
@@ -284,7 +293,7 @@ public class HttpStateMachine<H, R> implements ProtocolStateMachine<H, HttpProce
 		}
 	}
 
-	private void onHeaderValue(HttpProcessingContext context, byte currentByte) {
+	private void onHeaderValue(HttpProcessingContext context, Byte currentByte) {
 		currentByte = skipWhitespace(context, currentByte);
 		if (currentByte == CR) {
 			throw new HttpException("The header line ended incorrectly after first token");
@@ -299,9 +308,9 @@ public class HttpStateMachine<H, R> implements ProtocolStateMachine<H, HttpProce
 		}
 	}
 
-	private void onRequestLine(HttpProcessingContext context) {
+	private void onRequestLine(HttpProcessingContext context, Byte inputByte) {
 		context.markStart(0);
-		byte currentByte = skipToken(context, (byte) 0);
+		byte currentByte = skipToken(context, inputByte);
 		if (currentByte == SPACE) {
 			context.evaluateFirstToken(-1);
 			context.setStatus(HttpStatus.REQUEST_LINE_SECOND_TOKEN);
@@ -311,7 +320,7 @@ public class HttpStateMachine<H, R> implements ProtocolStateMachine<H, HttpProce
 		}
 	}
 
-	private void onRequestSecondToken(HttpProcessingContext context, byte currentByte) {
+	private void onRequestSecondToken(HttpProcessingContext context, Byte currentByte) {
 		currentByte = skipWhitespace(context, currentByte);
 		if (currentByte == CR) {
 			throw new HttpException("The request line ended incorrectly after first token");
@@ -329,7 +338,7 @@ public class HttpStateMachine<H, R> implements ProtocolStateMachine<H, HttpProce
 		} // No carry as it is only whitespace
 	}
 
-	private void onRequestFinalContent(HttpProcessingContext context, byte currentByte) {
+	private void onRequestFinalContent(HttpProcessingContext context, Byte currentByte) {
 		currentByte = skipWhitespace(context, currentByte);
 		if (currentByte == CR) {
 			throw new HttpException("The request line ended incorrectly after first token");
@@ -343,12 +352,13 @@ public class HttpStateMachine<H, R> implements ProtocolStateMachine<H, HttpProce
 		}
 	}
 
-	private byte skipWhitespace(HttpProcessingContext context, byte currentByte) {
-		return context.transferToHeaderBuffer(currentByte, x -> x == SPACE);
+	private byte skipWhitespace(HttpProcessingContext context, Byte currentByte) {
+		return context.transferToHeaderBuffer(currentByte != null ? currentByte : SPACE, x -> x == SPACE);
 	}
 
-	private byte skipToken(HttpProcessingContext context, byte currentByte) {
-		return context.transferToHeaderBuffer(currentByte, x -> x != CR && x != SPACE);
+	private byte skipToken(HttpProcessingContext context, Byte currentByte) {
+		return context.transferToHeaderBuffer(currentByte != null ? currentByte.byteValue() : 0,
+				x -> x != CR && x != SPACE);
 	}
 
 	private byte skipContentBody(ByteBuffer buffer, byte currentByte) {

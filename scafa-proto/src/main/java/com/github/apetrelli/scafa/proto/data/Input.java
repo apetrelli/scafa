@@ -22,6 +22,4 @@ import java.nio.ByteBuffer;
 public interface Input {
 
     ByteBuffer getBuffer();
-
-    byte peekNextByte();
 }

@@ -17,9 +17,4 @@ public class SimpleInput implements Input {
 		this.buffer = buffer;
 	}
 
-	@Override
-	public byte peekNextByte() {
-        return buffer.array()[buffer.position()];
-	}
-
 }

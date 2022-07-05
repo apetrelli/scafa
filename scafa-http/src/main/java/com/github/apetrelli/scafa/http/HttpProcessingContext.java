@@ -78,10 +78,22 @@ public class HttpProcessingContext extends ProcessingContext<HttpStatus> {
 		start = headerBuffer.arrayOffset() + headerBuffer.position() + offset;
 	}
 	
-	public byte getAndTransferToHeader() {
-		byte currentByte = getBuffer().get();
+	public byte getAndTransferToHeader(Byte currentByte) {
+		if (currentByte == null) {
+			currentByte = getBuffer().get();
+		}
 		headerBuffer.put(currentByte);
 		return currentByte;
+	}
+	
+	public byte currentOrNextByte(Byte currentByte) {
+		return currentByte != null ? currentByte :buffer.get();
+	}
+	
+	public void transferToHeader(Byte currentByte) {
+		if (currentByte != null) {
+			headerBuffer.put(currentByte);
+		}
 	}
 	
 	public byte transferToHeaderBuffer(byte currentByte, IntPredicate tester) {
