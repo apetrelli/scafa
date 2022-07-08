@@ -90,7 +90,7 @@
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>scafa-async-proxy-headless</artifactId>
+      <artifactId>scafa-sync-proxy-headless</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
