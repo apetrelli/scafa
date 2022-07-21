@@ -34,4 +34,13 @@ public class FlowBuffer {
 	public int maxLength() {
 		return array.length;
 	}
+	
+	public void put(byte currentByte) {
+		array[length] = currentByte;
+		length++;
+	}
+	
+	public void clear() {
+		length = 0;
+	}
 }

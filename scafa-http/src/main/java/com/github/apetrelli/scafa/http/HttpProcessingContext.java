@@ -4,13 +4,13 @@ import static com.github.apetrelli.scafa.http.HttpHeaders.CHUNKED;
 import static com.github.apetrelli.scafa.http.HttpHeaders.CONTENT_LENGTH;
 import static com.github.apetrelli.scafa.http.HttpHeaders.TRANSFER_ENCODING;
 
-import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.function.IntPredicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.proto.data.impl.ProcessingContext;
+import com.github.apetrelli.scafa.proto.io.FlowBuffer;
 import com.github.apetrelli.scafa.proto.io.InputFlow;
 import com.github.apetrelli.scafa.proto.util.AsciiString;
 
@@ -38,7 +38,7 @@ public class HttpProcessingContext extends ProcessingContext<HttpStatus> {
     
     private static final byte LC_Z = 122;
 	
-	private ByteBuffer headerBuffer;
+	private final FlowBuffer headerBuffer = new FlowBuffer(16384);
 	
 	private int start = 0;
 	
@@ -85,13 +85,9 @@ public class HttpProcessingContext extends ProcessingContext<HttpStatus> {
 	public HttpProcessingContext(InputFlow in, @NonNull HttpStatus status) {
 		super(in, status);
 	}
-
-	public void setHeaderBuffer(ByteBuffer headerBuffer) {
-		this.headerBuffer = headerBuffer;
-	}
 	
 	public void markStart(int offset) {
-		start = headerBuffer.arrayOffset() + headerBuffer.position() + offset;
+		start = headerBuffer.length() + offset;
 	}
 	
 	public byte getAndTransferToHeader(Byte currentByte) {
@@ -190,7 +186,7 @@ public class HttpProcessingContext extends ProcessingContext<HttpStatus> {
     }
     
     public void evaluateFirstToken(int endOffset) {
-    	AsciiString string = new AsciiString(headerBuffer.array(), start, headerBuffer.arrayOffset() + headerBuffer.position() + endOffset);
+    	AsciiString string = new AsciiString(headerBuffer.array(), start, headerBuffer.length() + endOffset);
     	byte[] stringArray = string.getArray();
 		if (stringArray.length >= HTTP_RESPONSE_PREFIX.length() && Arrays.equals(stringArray, 0,
 				HTTP_RESPONSE_PREFIX.length(), HTTP_RESPONSE_PREFIX.getArray(), 0, HTTP_RESPONSE_PREFIX.length())) {
@@ -203,7 +199,7 @@ public class HttpProcessingContext extends ProcessingContext<HttpStatus> {
     }
     
     public void evaluateSecondToken(int endOffset) {
-    	AsciiString string = new AsciiString(headerBuffer.array(), start, headerBuffer.arrayOffset() + headerBuffer.position() + endOffset);
+    	AsciiString string = new AsciiString(headerBuffer.array(), start, headerBuffer.length() + endOffset);
     	switch (messageType) {
     	case REQUEST:
         	resource = string;
@@ -217,7 +213,7 @@ public class HttpProcessingContext extends ProcessingContext<HttpStatus> {
     }
     
     public void evaluateFinalContent(int endOffset) {
-    	AsciiString string = new AsciiString(headerBuffer.array(), start, headerBuffer.arrayOffset() + headerBuffer.position() + endOffset);
+    	AsciiString string = new AsciiString(headerBuffer.array(), start, headerBuffer.length() + endOffset);
     	switch (messageType) {
     	case REQUEST:
         	httpVersion = string;
@@ -246,11 +242,11 @@ public class HttpProcessingContext extends ProcessingContext<HttpStatus> {
     }
     
     public void evaluateHeaderName(int endOffset) {
-    	headerName = new HeaderName(headerBuffer.array(), start, headerBuffer.arrayOffset() + headerBuffer.position() + endOffset);
+    	headerName = new HeaderName(headerBuffer.array(), start, headerBuffer.length() + endOffset);
     }
     
     public void evaluateHeaderValue(int endOffset) {
-    	headerValue = new AsciiString(headerBuffer.array(), start, headerBuffer.arrayOffset() + headerBuffer.position() + endOffset);
+    	headerValue = new AsciiString(headerBuffer.array(), start, headerBuffer.length() + endOffset);
     }
 
     public void addHeaderLine() {
