@@ -1,18 +1,18 @@
 package com.github.apetrelli.scafa.sync.http.output.impl;
 
-import java.nio.ByteBuffer;
-
-import com.github.apetrelli.scafa.sync.proto.SyncSocket;
+import com.github.apetrelli.scafa.proto.Socket;
+import com.github.apetrelli.scafa.proto.io.FlowBuffer;
 
 public class DirectDataSender extends AbstractDataSender {
 
-    public DirectDataSender(SyncSocket channel) {
+    public DirectDataSender(Socket channel) {
         super(channel);
     }
     
     @Override
-    public void send(ByteBuffer buffer) {
-        channel.flushBuffer(buffer);
+    public void send(FlowBuffer buffer) {
+        channel.out().write(buffer);
+        channel.out().flush();
     }
     
     @Override

@@ -14,6 +14,7 @@ import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.impl.HttpProcessingContextFactory;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
+import com.github.apetrelli.scafa.proto.Socket;
 import com.github.apetrelli.scafa.proto.SocketFactory;
 import com.github.apetrelli.scafa.proto.data.Input;
 import com.github.apetrelli.scafa.proto.data.impl.SimpleInputFactory;
@@ -36,7 +37,6 @@ import com.github.apetrelli.scafa.sync.proto.RunnableStarterFactory;
 import com.github.apetrelli.scafa.sync.proto.ScafaListener;
 import com.github.apetrelli.scafa.sync.proto.SyncServerSocketFactory;
 import com.github.apetrelli.scafa.sync.proto.SyncServerSocketFactoryFactory;
-import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 import com.github.apetrelli.scafa.sync.proto.processor.DataHandler;
 import com.github.apetrelli.scafa.sync.proto.processor.impl.DefaultProcessorFactory;
 import com.github.apetrelli.scafa.sync.proto.processor.impl.PassthroughInputProcessorFactory;
@@ -54,7 +54,7 @@ import lombok.extern.java.Log;
 @Log
 public class ScafaWebServerLauncher extends AbstractScafaWebServerLauncher {
 	
-	private final SocketFactory<SyncSocket> clientSocketFactory;
+	private final SocketFactory<Socket> clientSocketFactory;
 	
 	private final SyncServerSocketFactoryFactory serverSocketFactoryFactory;
     
@@ -69,7 +69,7 @@ public class ScafaWebServerLauncher extends AbstractScafaWebServerLauncher {
 
 	@Override
 	protected void launch(Configuration config) {
-		HttpStateMachine<HttpHandler, Void> stateMachine = new HttpStateMachine<>(new SyncHttpSink());
+		HttpStateMachine<HttpHandler> stateMachine = new HttpStateMachine<>(new SyncHttpSink());
 		try (RunnableStarter runnableStarter = runnableStarterFactory.create();
 				DefaultProcessorFactory<HttpProcessingContext, HttpHandler> defaultProcessorFactory = new DefaultProcessorFactory<>(
 						new StatefulInputProcessorFactory<>(stateMachine), new HttpProcessingContextFactory());
@@ -110,10 +110,10 @@ public class ScafaWebServerLauncher extends AbstractScafaWebServerLauncher {
 			SocketConfiguration socketConfig, DataSenderFactory dataSenderFactory,
 			SocketFactory<HttpSyncSocket<HttpRequest>> socketFactory,
 			DefaultProcessorFactory<HttpProcessingContext, HttpHandler> defaultProcessorFactory,
-			ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory, HttpServer server,
+			ProcessorFactory<DataHandler, Socket> clientProcessorFactory, HttpServer server,
 			HandlerFactory<HttpHandler, HttpSyncSocket<HttpResponse>> defaultHandlerFactory,
 			RunnableStarter runnableStarter) {
-        SyncServerSocketFactory<SyncSocket> serverSocketFactory = serverSocketFactoryFactory.create(socketConfig.getPort());
+        SyncServerSocketFactory<Socket> serverSocketFactory = serverSocketFactoryFactory.create(socketConfig.getPort());
 		WebCompositeHttpHandlerFactoryBuilder builder = new WebCompositeHttpHandlerFactoryBuilder();
 		builder.withMimeTypeConfig(mimeTypeConfig)
 				.withSocketFactory(socketFactory).withHttpServer(server)

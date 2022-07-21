@@ -1,11 +1,10 @@
 package com.github.apetrelli.scafa.sync.http.gateway.handler;
 
-import java.nio.ByteBuffer;
-
+import com.github.apetrelli.scafa.proto.Socket;
 import com.github.apetrelli.scafa.proto.client.HostPort;
+import com.github.apetrelli.scafa.proto.io.FlowBuffer;
 import com.github.apetrelli.scafa.proto.processor.HandlerSupport;
 import com.github.apetrelli.scafa.sync.http.gateway.MappedGatewayHttpConnectionFactory;
-import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 import com.github.apetrelli.scafa.sync.proto.processor.DataHandler;
 
 import lombok.RequiredArgsConstructor;
@@ -15,13 +14,13 @@ public class ChannelDisconnectorHandler extends HandlerSupport implements DataHa
 
 	private final MappedGatewayHttpConnectionFactory<?> factory;
 	
-	private final SyncSocket socket;
+	private final Socket socket;
 
 	private final HostPort socketAddress;
 	
 	@Override
-	public void onData(ByteBuffer buffer) {
-		socket.flushBuffer(buffer);
+	public void onData(FlowBuffer buffer) {
+		socket.out().write(buffer);
 	}
 
 	@Override

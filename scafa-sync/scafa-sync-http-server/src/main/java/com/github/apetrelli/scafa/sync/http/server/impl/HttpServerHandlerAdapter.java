@@ -1,9 +1,8 @@
 package com.github.apetrelli.scafa.sync.http.server.impl;
 
-import java.nio.ByteBuffer;
-
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
+import com.github.apetrelli.scafa.proto.io.FlowBuffer;
 import com.github.apetrelli.scafa.sync.http.HttpHandler;
 import com.github.apetrelli.scafa.sync.http.impl.HttpHandlerSupport;
 import com.github.apetrelli.scafa.sync.http.server.HttpServerHandler;
@@ -34,17 +33,17 @@ public class HttpServerHandlerAdapter extends HttpHandlerSupport implements Http
 	}
 	
 	@Override
-	public void onBody(ByteBuffer buffer, long offset, long length) {
+	public void onBody(FlowBuffer buffer, long offset, long length) {
 		handler.onBody(currentRequest, buffer, offset, length);
 	}
 
 	@Override
-	public void onChunk(ByteBuffer buffer, long totalOffset, long chunkOffset, long chunkLength) {
+	public void onChunk(FlowBuffer buffer, long totalOffset, long chunkOffset, long chunkLength) {
 		handler.onBody(currentRequest, buffer, totalOffset, -1);
 	}
 	
 	@Override
-	public void onDataToPassAlong(ByteBuffer buffer) {
+	public void onDataToPassAlong(FlowBuffer buffer) {
         throw new UnsupportedOperationException("CONNECT method not supported");
 	}
 

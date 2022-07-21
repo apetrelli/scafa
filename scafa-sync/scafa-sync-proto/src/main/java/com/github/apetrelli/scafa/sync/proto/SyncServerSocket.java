@@ -2,7 +2,9 @@ package com.github.apetrelli.scafa.sync.proto;
 
 import java.io.Closeable;
 
-public interface SyncServerSocket<T extends SyncSocket> extends Closeable {
+import com.github.apetrelli.scafa.proto.Socket;
+
+public interface SyncServerSocket<T extends Socket> extends Closeable {
 
 	T accept();
 	

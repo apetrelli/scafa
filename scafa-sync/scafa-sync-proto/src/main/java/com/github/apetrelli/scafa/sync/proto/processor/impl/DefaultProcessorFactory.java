@@ -21,19 +21,19 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.github.apetrelli.scafa.proto.Socket;
 import com.github.apetrelli.scafa.proto.data.Input;
 import com.github.apetrelli.scafa.proto.data.ProcessingContextFactory;
 import com.github.apetrelli.scafa.proto.processor.Handler;
 import com.github.apetrelli.scafa.proto.processor.Processor;
 import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
-import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 import com.github.apetrelli.scafa.sync.proto.processor.InputProcessorFactory;
 
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class DefaultProcessorFactory<P extends Input, H extends Handler>
-		implements ProcessorFactory<H, SyncSocket>, AutoCloseable {
+		implements ProcessorFactory<H, Socket>, AutoCloseable {
 
 	private final InputProcessorFactory<H, P> inputProcessorFactory;
 
@@ -44,7 +44,7 @@ public class DefaultProcessorFactory<P extends Input, H extends Handler>
 	private final Map<Long, DefaultProcessor<P, H>> id2processor = new ConcurrentHashMap<>();
 
 	@Override
-	public Processor<H> create(SyncSocket client) {
+	public Processor<H> create(Socket client) {
 		long id = currentId.getAndIncrement();
 		DefaultProcessor<P, H> processor = new DefaultProcessor<>(id, client, inputProcessorFactory, processingContextFactory, this);
 		id2processor.put(id, processor);

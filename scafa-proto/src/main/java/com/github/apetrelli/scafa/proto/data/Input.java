@@ -17,9 +17,9 @@
  */
 package com.github.apetrelli.scafa.proto.data;
 
-import java.nio.ByteBuffer;
+import com.github.apetrelli.scafa.proto.io.InputFlow;
 
 public interface Input {
 
-    ByteBuffer getBuffer();
+   InputFlow in();
 }

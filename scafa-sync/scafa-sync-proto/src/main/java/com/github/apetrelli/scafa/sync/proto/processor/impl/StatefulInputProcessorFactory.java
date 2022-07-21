@@ -28,7 +28,7 @@ import lombok.RequiredArgsConstructor;
 public class StatefulInputProcessorFactory<H, P extends ProcessingContext<?>> implements
         InputProcessorFactory<H, P> {
 
-	private final ProtocolStateMachine<H, P, Void> stateMachine;
+	private final ProtocolStateMachine<H, P> stateMachine;
 
 	@Override
 	public InputProcessor<P> create(H handler) {

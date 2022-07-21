@@ -20,6 +20,7 @@ package com.github.apetrelli.scafa.sync.proto;
 import java.io.IOException;
 import java.util.logging.Level;
 
+import com.github.apetrelli.scafa.proto.Socket;
 import com.github.apetrelli.scafa.proto.processor.HandlerFactory;
 import com.github.apetrelli.scafa.proto.processor.Processor;
 import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
@@ -29,11 +30,11 @@ import lombok.extern.java.Log;
 
 @RequiredArgsConstructor
 @Log
-public class ScafaListener<H, S extends SyncSocket> {
+public class ScafaListener<H, S extends Socket> {
     
     private final SyncServerSocketFactory<S> asyncServerSocketFactory;
     
-    private final ProcessorFactory<H, SyncSocket> processorFactory;
+    private final ProcessorFactory<H, Socket> processorFactory;
 
     private final HandlerFactory<H, S> handlerFactory;
     

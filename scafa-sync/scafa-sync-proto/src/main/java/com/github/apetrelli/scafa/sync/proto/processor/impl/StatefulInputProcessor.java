@@ -17,8 +17,6 @@
  */
 package com.github.apetrelli.scafa.sync.proto.processor.impl;
 
-import java.nio.ByteBuffer;
-
 import com.github.apetrelli.scafa.proto.data.impl.ProcessingContext;
 import com.github.apetrelli.scafa.proto.processor.ProtocolStateMachine;
 import com.github.apetrelli.scafa.sync.proto.processor.InputProcessor;
@@ -30,14 +28,11 @@ public class StatefulInputProcessor<H, P extends ProcessingContext<?>> implement
 
     private final H handler;
 
-    private final ProtocolStateMachine<H, ? super P, Void> stateMachine;
+    private final ProtocolStateMachine<H, ? super P> stateMachine;
     
     @Override
     public P process(P context) {
-        ByteBuffer buffer = context.getBuffer();
-        while (buffer.hasRemaining()) {
-        	stateMachine.out(context, handler);
-        }
+    	stateMachine.out(context, handler);
         return context;
     }
 

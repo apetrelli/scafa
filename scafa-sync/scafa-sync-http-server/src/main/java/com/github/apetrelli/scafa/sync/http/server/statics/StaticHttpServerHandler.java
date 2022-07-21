@@ -18,7 +18,6 @@ import static com.github.apetrelli.scafa.http.HttpHeaders.OK;
 import static com.github.apetrelli.scafa.http.HttpHeaders.SCAFA;
 import static com.github.apetrelli.scafa.http.HttpHeaders.SERVER;
 
-import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.util.Map;
 
@@ -26,10 +25,11 @@ import com.github.apetrelli.scafa.http.HttpCodes;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.HttpUtils;
+import com.github.apetrelli.scafa.proto.io.FlowBuffer;
+import com.github.apetrelli.scafa.proto.util.AsciiString;
 import com.github.apetrelli.scafa.sync.http.HttpSyncSocket;
 import com.github.apetrelli.scafa.sync.http.server.HttpServer;
 import com.github.apetrelli.scafa.sync.http.server.impl.HttpServerHandlerSupport;
-import com.github.apetrelli.scafa.proto.util.AsciiString;
 
 public class StaticHttpServerHandler extends HttpServerHandlerSupport {
 
@@ -51,7 +51,7 @@ public class StaticHttpServerHandler extends HttpServerHandlerSupport {
 
 	private final HttpServer server;
 	
-	private final ByteBuffer writeBuffer;
+	private final FlowBuffer writeBuffer;
 
 	public StaticHttpServerHandler(HttpSyncSocket<HttpResponse> channel, String basePath, Map<String, Path> localResource2path,
 			String indexResource, Map<String, AsciiString> mimeTypeConfig, HttpServer server) {
@@ -63,7 +63,7 @@ public class StaticHttpServerHandler extends HttpServerHandlerSupport {
 		this.indexResource = indexResource;
 		this.mimeTypeConfig = mimeTypeConfig;
 		this.server = server;
-		writeBuffer = ByteBuffer.allocate(16384);
+		writeBuffer = new FlowBuffer(16384);
 	}
 	
 	@Override
@@ -74,7 +74,7 @@ public class StaticHttpServerHandler extends HttpServerHandlerSupport {
 				if (localResource.isEmpty() && !basePath.equals("/")) {
 					HttpResponse response = createSimpleResponse(HttpCodes.FOUND, FOUND);
 					response.setHeader(LOCATION, basePathSlash);
-					server.response(channel, response, writeBuffer);
+					server.response(channel, response);
 				} else {
 					while (localResource.startsWith("/")) {
 						localResource = localResource.substring(1);
@@ -118,7 +118,7 @@ public class StaticHttpServerHandler extends HttpServerHandlerSupport {
 
 	private void sendSimpleMessage(AsciiString httpCode, AsciiString message) {
 		HttpResponse response = createSimpleResponse(httpCode, message);
-		server.response(channel, response, writeBuffer);
+		server.response(channel, response);
 	}
 
 	private HttpResponse createSimpleResponse(AsciiString httpCode, AsciiString message) {

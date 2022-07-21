@@ -17,7 +17,6 @@
  */
 package com.github.apetrelli.scafa.http;
 
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -25,9 +24,41 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.github.apetrelli.scafa.proto.io.OutputFlow;
 import com.github.apetrelli.scafa.proto.util.AsciiString;
 
 public abstract class HeaderHolder {
+	
+	private static final class StringBuilderOutputFlow implements OutputFlow {
+
+		private StringBuilder builder = new StringBuilder();
+		
+		@Override
+		public OutputFlow write(byte currentByte) {
+			builder.append((char) currentByte);
+			return this;
+		}
+
+		@Override
+		public OutputFlow write(byte[] bytes, int from, int length) {
+			for (int i = 0; i < length; i++) {
+				builder.append((char) bytes[from + i]);
+			}
+			return this;
+		}
+
+		@Override
+		public OutputFlow flush() {
+			// Does nothing
+			return this;
+		}
+		
+		@Override
+		public String toString() {
+			return builder.toString();
+		}
+		
+	}
 
     protected static final byte CR = 13;
 
@@ -80,22 +111,23 @@ public abstract class HeaderHolder {
     	return Collections.unmodifiableCollection(headers.keySet());
     }
 
-	public ByteBuffer allocateOptimalBuffer() {
-		return ByteBuffer.allocate(byteSize);
-	}
-
-    public abstract void fill(ByteBuffer buffer);
-
-    protected void loadInBuffer(ByteBuffer buffer) {
+    public void fill(OutputFlow out) {
         headers.entrySet().stream().forEach(t -> {
 			HeaderName key = t.getKey();
 			t.getValue().forEach(
 					u -> {
-						buffer.put(key.getArray(), key.getFrom(), key.length()).put(COLON).put(SPACE)
-								.put(u.getArray(), u.getFrom(), u.length()).put(CR).put(LF);
+						out.write(key.getArray(), key.getFrom(), key.length()).write(COLON).write(SPACE)
+								.write(u.getArray(), u.getFrom(), u.length()).write(CR).write(LF);
 					});
         });
-        buffer.put(CR).put(LF);
+        out.write(CR).write(LF).flush();
+    }
+    
+    @Override
+    public String toString() {
+    	StringBuilderOutputFlow flow = new StringBuilderOutputFlow();
+    	fill(flow);
+    	return flow.toString();
     }
 
     protected void copyBase(HeaderHolder toCopy) {

@@ -1,20 +1,17 @@
 package com.github.apetrelli.scafa.proto.data.impl;
 
-import java.nio.ByteBuffer;
-
 import com.github.apetrelli.scafa.proto.data.Input;
+import com.github.apetrelli.scafa.proto.io.InputFlow;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class SimpleInput implements Input {
 
-	protected ByteBuffer buffer;
+	protected final InputFlow in;
 
 	@Override
-	public ByteBuffer getBuffer() {
-		return buffer;
+	public InputFlow in() {
+		return in;
 	}
-
-	public void setBuffer(ByteBuffer buffer) {
-		this.buffer = buffer;
-	}
-
 }

@@ -19,9 +19,8 @@ package com.github.apetrelli.scafa.sync.http.proxy.ntlm;
 
 import static com.github.apetrelli.scafa.http.HttpCodes.PROXY_AUTHENTICATION_REQUIRED;
 
-import java.nio.ByteBuffer;
-
 import com.github.apetrelli.scafa.http.HttpResponse;
+import com.github.apetrelli.scafa.proto.io.FlowBuffer;
 import com.github.apetrelli.scafa.sync.http.HttpSyncSocket;
 
 public class TentativeHandler extends CapturingHandler {
@@ -31,22 +30,15 @@ public class TentativeHandler extends CapturingHandler {
     private boolean onlyCaptureMode = false;
 
     private HttpSyncSocket<HttpResponse> sourceChannel;
-    
-    private ByteBuffer writeBuffer;
 
     public TentativeHandler(HttpSyncSocket<HttpResponse> sourceChannel) {
         this.sourceChannel = sourceChannel;
     }
-    
-    public void setWriteBuffer(ByteBuffer writeBuffer) {
-		this.writeBuffer = writeBuffer;
-	}
 
     @Override
     public void reset() {
         needsAuthorizing = false;
         onlyCaptureMode = false;
-        writeBuffer = null;
         super.reset();
     }
 
@@ -64,12 +56,12 @@ public class TentativeHandler extends CapturingHandler {
         if (onlyCaptureMode || PROXY_AUTHENTICATION_REQUIRED.equals(response.getCode())) {
             needsAuthorizing = true;
         } else {
-            sourceChannel.sendHeader(response, writeBuffer);
+            sourceChannel.sendHeader(response);
         }
     }
     
     @Override
-    public void onBody(ByteBuffer buffer, long offset, long length) {
+    public void onBody(FlowBuffer buffer, long offset, long length) {
         if (needsAuthorizing) {
             super.onBody(buffer, offset, length);
         } else {
@@ -78,7 +70,7 @@ public class TentativeHandler extends CapturingHandler {
     }
 
     @Override
-    public void onChunk(ByteBuffer buffer, long totalOffset, long chunkOffset, long chunkLength) {
+    public void onChunk(FlowBuffer buffer, long totalOffset, long chunkOffset, long chunkLength) {
         if (needsAuthorizing) {
             super.onChunk(buffer, totalOffset, chunkOffset, chunkLength);
         } else {

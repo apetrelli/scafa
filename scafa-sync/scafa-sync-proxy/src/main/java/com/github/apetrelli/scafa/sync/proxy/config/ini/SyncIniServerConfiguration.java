@@ -4,6 +4,10 @@ import org.ini4j.Profile.Section;
 
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
+import com.github.apetrelli.scafa.proto.Socket;
+import com.github.apetrelli.scafa.proto.SocketFactory;
+import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
+import com.github.apetrelli.scafa.proxy.config.ini.AbstractIniServerConfiguration;
 import com.github.apetrelli.scafa.sync.http.HttpHandler;
 import com.github.apetrelli.scafa.sync.http.HttpSyncSocket;
 import com.github.apetrelli.scafa.sync.http.gateway.GatewayHttpConnectionFactory;
@@ -13,11 +17,7 @@ import com.github.apetrelli.scafa.sync.http.proxy.connection.AnonymousProxyHttpC
 import com.github.apetrelli.scafa.sync.http.proxy.connection.BasicAuthProxyHttpConnectionFactory;
 import com.github.apetrelli.scafa.sync.http.proxy.connection.DirectHttpConnectionFactory;
 import com.github.apetrelli.scafa.sync.http.proxy.ntlm.NtlmProxyHttpConnectionFactory;
-import com.github.apetrelli.scafa.proto.SocketFactory;
-import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
-import com.github.apetrelli.scafa.proxy.config.ini.AbstractIniServerConfiguration;
 import com.github.apetrelli.scafa.sync.proto.RunnableStarter;
-import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 import com.github.apetrelli.scafa.sync.proto.processor.DataHandler;
 
 
@@ -28,8 +28,8 @@ public class SyncIniServerConfiguration extends AbstractIniServerConfiguration<G
 
 	private static GatewayHttpConnectionFactory<ProxyHttpConnection> buildConnectionFactory(Section section,
 			SocketFactory<HttpSyncSocket<HttpRequest>> socketFactory, DataSenderFactory dataSenderFactory,
-			ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory, RunnableStarter runnableStarter,
-			HttpStateMachine<HttpHandler, Void> stateMachine) {
+			ProcessorFactory<DataHandler, Socket> clientProcessorFactory, RunnableStarter runnableStarter,
+			HttpStateMachine<HttpHandler> stateMachine) {
 		GatewayHttpConnectionFactory<ProxyHttpConnection> connectionFactory;
 		String type = section.get("type");
         switch (type) {
@@ -59,8 +59,8 @@ public class SyncIniServerConfiguration extends AbstractIniServerConfiguration<G
 	}
 
 	public SyncIniServerConfiguration(Section section, SocketFactory<HttpSyncSocket<HttpRequest>> socketFactory,
-			DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory,
-			RunnableStarter runnableStarter, HttpStateMachine<HttpHandler, Void> stateMachine) {
+			DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler, Socket> clientProcessorFactory,
+			RunnableStarter runnableStarter, HttpStateMachine<HttpHandler> stateMachine) {
 		super(section, buildConnectionFactory(section, socketFactory, dataSenderFactory, clientProcessorFactory,
 				runnableStarter, stateMachine));
     }

@@ -13,7 +13,7 @@ public class PassthroughInputProcessor<P extends Input> implements InputProcesso
 	
 	@Override
 	public P process(P context) {
-		handler.onData(context.getBuffer());
+		handler.onData(context.in().readBuffer());
 		return context;
 	}
 }

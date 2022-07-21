@@ -17,15 +17,14 @@
  */
 package com.github.apetrelli.scafa.sync.http.gateway.handler;
 
-import java.nio.ByteBuffer;
-
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
+import com.github.apetrelli.scafa.proto.Socket;
+import com.github.apetrelli.scafa.proto.io.FlowBuffer;
 import com.github.apetrelli.scafa.sync.http.HttpHandler;
 import com.github.apetrelli.scafa.sync.http.HttpSyncSocket;
 import com.github.apetrelli.scafa.sync.http.gateway.MappedGatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.sync.http.impl.HttpHandlerSupport;
-import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 
 import lombok.RequiredArgsConstructor;
 
@@ -33,12 +32,10 @@ import lombok.RequiredArgsConstructor;
 public class DefaultGatewayHttpHandler<T extends HttpSyncSocket<HttpRequest>> extends HttpHandlerSupport implements HttpHandler {
 
     protected T connection;
-    
-    protected final ByteBuffer writeBuffer = ByteBuffer.allocate(16384);
 
     private final MappedGatewayHttpConnectionFactory<T> connectionFactory;
 
-    private final SyncSocket sourceChannel;
+    private final Socket sourceChannel;
     
     @Override
     public void onResponseHeader(HttpResponse response) {
@@ -48,22 +45,22 @@ public class DefaultGatewayHttpHandler<T extends HttpSyncSocket<HttpRequest>> ex
     @Override
     public void onRequestHeader(HttpRequest request) {
     	connection = createConnection(request);
-    	connection.sendHeader(request, writeBuffer);
+    	connection.sendHeader(request);
     }
     
     @Override
-    public void onBody(ByteBuffer buffer, long offset, long length) {
+    public void onBody(FlowBuffer buffer, long offset, long length) {
         connection.sendData(buffer);
     }
     
     @Override
-    public void onChunk(ByteBuffer buffer, long totalOffset, long chunkOffset, long chunkLength) {
+    public void onChunk(FlowBuffer buffer, long totalOffset, long chunkOffset, long chunkLength) {
         connection.sendData(buffer);
     }
     
     @Override
-    public void onDataToPassAlong(ByteBuffer buffer) {
-        connection.flushBuffer(buffer);
+    public void onDataToPassAlong(FlowBuffer buffer) {
+        connection.out().write(buffer).flush();
     }
     
     @Override

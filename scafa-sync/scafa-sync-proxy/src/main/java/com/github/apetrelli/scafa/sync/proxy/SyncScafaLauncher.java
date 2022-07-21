@@ -24,6 +24,7 @@ import com.github.apetrelli.scafa.http.HttpProcessingContext;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.impl.HttpProcessingContextFactory;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
+import com.github.apetrelli.scafa.proto.Socket;
 import com.github.apetrelli.scafa.proto.SocketFactory;
 import com.github.apetrelli.scafa.proto.data.Input;
 import com.github.apetrelli.scafa.proto.data.impl.SimpleInputFactory;
@@ -42,7 +43,6 @@ import com.github.apetrelli.scafa.sync.proto.RunnableStarterFactory;
 import com.github.apetrelli.scafa.sync.proto.ScafaListener;
 import com.github.apetrelli.scafa.sync.proto.SyncServerSocketFactory;
 import com.github.apetrelli.scafa.sync.proto.SyncServerSocketFactoryFactory;
-import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 import com.github.apetrelli.scafa.sync.proto.processor.DataHandler;
 import com.github.apetrelli.scafa.sync.proto.processor.impl.DefaultProcessorFactory;
 import com.github.apetrelli.scafa.sync.proto.processor.impl.PassthroughInputProcessorFactory;
@@ -57,17 +57,17 @@ import lombok.extern.java.Log;
 @RequiredArgsConstructor
 public class SyncScafaLauncher extends AbstractScafaLauncher {
 	
-	private final SocketFactory<SyncSocket> clientSocketFactory;
+	private final SocketFactory<Socket> clientSocketFactory;
 	
 	private final SyncServerSocketFactoryFactory serverSocketFactoryFactory;
     
 	private final RunnableStarterFactory runnableStarterFactory;
 	
-    private ScafaListener<HttpHandler, SyncSocket> proxy;
+    private ScafaListener<HttpHandler, Socket> proxy;
 
     @Override
     public void launch(String profile) {
-    	HttpStateMachine<HttpHandler, Void> stateMachine = new HttpStateMachine<>(new SyncHttpSink());
+    	HttpStateMachine<HttpHandler> stateMachine = new HttpStateMachine<>(new SyncHttpSink());
     	try (RunnableStarter runnableStarter = runnableStarterFactory.create();
         		DefaultProcessorFactory<Input, DataHandler> clientProcessorFactory = new DefaultProcessorFactory<>(
                 		new PassthroughInputProcessorFactory(), new SimpleInputFactory());
@@ -83,7 +83,7 @@ public class SyncScafaLauncher extends AbstractScafaLauncher {
 					new SyncConfigurationProxyHttpConnectionFactory(configuration, socketFactory, dataSenderFactory,
 							clientProcessorFactory, runnableStarter));
             ProxyHttpHandlerFactory proxyHttpHandlerFactory = new ProxyHttpHandlerFactory(connectionFactoryFactory);
-            SyncServerSocketFactory<SyncSocket> syncServerSocketFactory = serverSocketFactoryFactory.create(port);
+            SyncServerSocketFactory<Socket> syncServerSocketFactory = serverSocketFactoryFactory.create(port);
             proxy = new ScafaListener<>(syncServerSocketFactory, defaultProcessorFactory, proxyHttpHandlerFactory, runnableStarter);
             proxy.listen();
         } catch (IOException e) {

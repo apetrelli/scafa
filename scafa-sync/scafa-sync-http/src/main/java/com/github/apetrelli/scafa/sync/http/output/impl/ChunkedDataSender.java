@@ -1,51 +1,47 @@
 package com.github.apetrelli.scafa.sync.http.output.impl;
 
-import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
-import com.github.apetrelli.scafa.sync.proto.SyncSocket;
+import com.github.apetrelli.scafa.proto.Socket;
+import com.github.apetrelli.scafa.proto.io.FlowBuffer;
+import com.github.apetrelli.scafa.proto.io.OutputFlow;
 
 public class ChunkedDataSender extends AbstractDataSender {
 
-	private static final String END_OF_CHUNKED_TRANSFER_SIZE_STRING = "0";
+	private static final byte ZERO = 48;
 
 	private static final byte CR = 13;
 
 	private static final byte LF = 10;
 
-	public ChunkedDataSender(SyncSocket channel) {
+	public ChunkedDataSender(Socket channel) {
 		super(channel);
 	}
 	
 	@Override
-	public void send(ByteBuffer buffer) {
-		sendChunkSize(buffer.remaining());
-		channel.flushBuffer(buffer);
-		sendNewline();
+	public void send(FlowBuffer buffer) {
+		OutputFlow out = channel.out();
+		sendChunkSize(out, buffer.length());
+		out.write(buffer);
+		sendNewline(out);
+		out.flush();
 	}
 	
 	@Override
 	public void end() {
-		sendEndOfChunkedTransfer();
+		sendEndOfChunkedTransfer(channel.out());
 	}
 
-	private void sendChunkSize(long size) {
+	private void sendChunkSize(OutputFlow out, long size) {
 		String sizeString = Long.toString(size, 16);
-		ByteBuffer buffer = ByteBuffer.allocate(sizeString.length() + 2);
-		buffer.put(sizeString.getBytes(StandardCharsets.US_ASCII)).put(CR).put(LF);
-		channel.flipAndFlushBuffer(buffer);
+		out.write(sizeString.getBytes(StandardCharsets.US_ASCII)).write(CR).write(LF).flush();
 	}
 
-	private void sendNewline() {
-		ByteBuffer buffer = ByteBuffer.allocate(2);
-		buffer.put(CR).put(LF);
-		channel.flipAndFlushBuffer(buffer);
+	private void sendNewline(OutputFlow out) {
+		out.write(CR).write(LF);
 	}
 
-	public void sendEndOfChunkedTransfer() {
-		ByteBuffer buffer = ByteBuffer.allocate(END_OF_CHUNKED_TRANSFER_SIZE_STRING.length() + 4);
-		buffer.put(END_OF_CHUNKED_TRANSFER_SIZE_STRING.getBytes(StandardCharsets.US_ASCII)).put(CR).put(LF).put(CR)
-				.put(LF);
-		channel.flipAndFlushBuffer(buffer);
+	public void sendEndOfChunkedTransfer(OutputFlow out) {
+		out.write(ZERO).write(CR).write(LF).write(CR).write(LF).flush();
 	}
 }

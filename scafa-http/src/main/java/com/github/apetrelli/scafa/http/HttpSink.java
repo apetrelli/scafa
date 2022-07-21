@@ -1,22 +1,20 @@
 package com.github.apetrelli.scafa.http;
 
-public interface HttpSink<H, R> {
+public interface HttpSink<H> {
 	
 	void onStart(H handler);
 	
-	R endHeader(HttpProcessingContext context, H handler);
+	void endHeader(HttpProcessingContext context, H handler);
 	
-	R endHeaderAndRequest(HttpProcessingContext context, H handler);
+	void endHeaderAndRequest(HttpProcessingContext context, H handler);
 	
-	R data(HttpProcessingContext context, H handler);
+	boolean data(HttpProcessingContext context, H handler);
 	
-	R chunkData(HttpProcessingContext context, H handler);
+	void chunkData(HttpProcessingContext context, H handler);
 	
-	R endChunkCount(HttpProcessingContext context, H handler);
+	boolean endChunkCount(HttpProcessingContext context, H handler);
 	
-	R onChunkEnd(H handler);
+	void onChunkEnd(H handler);
 	
-	R onDataToPassAlong(HttpProcessingContext context, H handler);
-	
-	R completed();
+	void onDataToPassAlong(HttpProcessingContext context, H handler);
 }

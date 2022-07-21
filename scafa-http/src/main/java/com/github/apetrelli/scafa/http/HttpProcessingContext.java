@@ -11,7 +11,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.github.apetrelli.scafa.proto.data.impl.ProcessingContext;
+import com.github.apetrelli.scafa.proto.io.InputFlow;
 import com.github.apetrelli.scafa.proto.util.AsciiString;
+
+import lombok.NonNull;
 
 public class HttpProcessingContext extends ProcessingContext<HttpStatus> {
 	
@@ -78,11 +81,11 @@ public class HttpProcessingContext extends ProcessingContext<HttpStatus> {
     private HeaderName headerName;
     
     private AsciiString headerValue;
-
-	public HttpProcessingContext(HttpStatus status) {
-		super(status);
+    
+	public HttpProcessingContext(InputFlow in, @NonNull HttpStatus status) {
+		super(in, status);
 	}
-	
+
 	public void setHeaderBuffer(ByteBuffer headerBuffer) {
 		this.headerBuffer = headerBuffer;
 	}
@@ -93,14 +96,14 @@ public class HttpProcessingContext extends ProcessingContext<HttpStatus> {
 	
 	public byte getAndTransferToHeader(Byte currentByte) {
 		if (currentByte == null) {
-			currentByte = getBuffer().get();
+			currentByte = in.read();
 		}
 		headerBuffer.put(currentByte);
 		return currentByte;
 	}
 	
 	public byte currentOrNextByte(Byte currentByte) {
-		return currentByte != null ? currentByte :buffer.get();
+		return currentByte != null ? currentByte : in.read();
 	}
 	
 	public void transferToHeader(Byte currentByte) {
@@ -110,8 +113,8 @@ public class HttpProcessingContext extends ProcessingContext<HttpStatus> {
 	}
 	
 	public byte transferToHeaderBuffer(byte currentByte, IntPredicate tester) {
-		while (buffer.hasRemaining() && tester.test(currentByte)) {
-		    currentByte = buffer.get();
+		while (tester.test(currentByte)) {
+		    currentByte = in.read();
 		    headerBuffer.put(currentByte);
 		}
 		return currentByte;

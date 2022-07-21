@@ -10,16 +10,15 @@ import static com.github.apetrelli.scafa.http.HttpHeaders.TEXT_PLAIN;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.nio.ByteBuffer;
 
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
+import com.github.apetrelli.scafa.proto.io.FlowBuffer;
+import com.github.apetrelli.scafa.proto.util.AsciiString;
 import com.github.apetrelli.scafa.sync.http.HttpSyncSocket;
 import com.github.apetrelli.scafa.sync.http.server.HttpServerHandler;
 
 import lombok.RequiredArgsConstructor;
-
-import com.github.apetrelli.scafa.proto.util.AsciiString;
 
 @RequiredArgsConstructor
 public class HttpServerHandlerSupport implements HttpServerHandler {
@@ -27,8 +26,6 @@ public class HttpServerHandlerSupport implements HttpServerHandler {
 	private static final AsciiString UNEXPECTED_EXCEPTION = new AsciiString("Unexpected exception");
 
 	protected final HttpSyncSocket<HttpResponse> channel;
-	
-	protected final ByteBuffer writeBuffer = ByteBuffer.allocate(16384);
 
 	@Override
 	public void onStart() {
@@ -41,8 +38,8 @@ public class HttpServerHandlerSupport implements HttpServerHandler {
 	}
 
 	@Override
-	public void onBody(HttpRequest request, ByteBuffer buffer, long offset, long length) {
-		buffer.position(buffer.limit());
+	public void onBody(HttpRequest request, FlowBuffer buffer, long offset, long length) {
+		// Does nothing
 	}
 
 	@Override
@@ -61,9 +58,8 @@ public class HttpServerHandlerSupport implements HttpServerHandler {
 		}
 		byte[] bytes = baos.toByteArray();
 		response.addHeader(CONTENT_LENGTH, new AsciiString(Integer.toString(bytes.length)));
-		channel.sendHeader(response, writeBuffer);
-		ByteBuffer buffer = ByteBuffer.wrap(bytes);
-		channel.sendData(buffer);
+		channel.sendHeader(response);
+		channel.sendData(FlowBuffer.wrap(bytes));
 	}
 
 }

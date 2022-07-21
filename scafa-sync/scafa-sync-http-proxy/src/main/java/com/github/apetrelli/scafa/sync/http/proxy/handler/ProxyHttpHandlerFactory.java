@@ -17,21 +17,21 @@
  */
 package com.github.apetrelli.scafa.sync.http.proxy.handler;
 
+import com.github.apetrelli.scafa.proto.Socket;
 import com.github.apetrelli.scafa.proto.processor.HandlerFactory;
 import com.github.apetrelli.scafa.sync.http.HttpHandler;
 import com.github.apetrelli.scafa.sync.http.gateway.GatewayHttpConnectionFactoryFactory;
 import com.github.apetrelli.scafa.sync.http.proxy.ProxyHttpConnection;
-import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class ProxyHttpHandlerFactory implements HandlerFactory<HttpHandler, SyncSocket> {
+public class ProxyHttpHandlerFactory implements HandlerFactory<HttpHandler, Socket> {
 
     private final GatewayHttpConnectionFactoryFactory<ProxyHttpConnection> connectionFactoryFactory;
 
     @Override
-    public HttpHandler create(SyncSocket sourceChannel) {
+    public HttpHandler create(Socket sourceChannel) {
         return new DefaultProxyHttpHandler(connectionFactoryFactory.create(), sourceChannel);
     }
 

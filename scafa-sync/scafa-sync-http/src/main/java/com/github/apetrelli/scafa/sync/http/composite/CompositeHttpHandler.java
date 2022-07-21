@@ -1,10 +1,10 @@
 package com.github.apetrelli.scafa.sync.http.composite;
 
-import java.nio.ByteBuffer;
 import java.util.regex.Pattern;
 
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
+import com.github.apetrelli.scafa.proto.io.FlowBuffer;
 import com.github.apetrelli.scafa.sync.http.HttpHandler;
 
 import lombok.RequiredArgsConstructor;
@@ -64,7 +64,7 @@ public class CompositeHttpHandler implements HttpHandler {
 	}
 
 	@Override
-	public void onBody(ByteBuffer buffer, long offset, long length) {
+	public void onBody(FlowBuffer buffer, long offset, long length) {
 		currentHandler.onBody(buffer, offset, length);
 	}
 	
@@ -74,7 +74,7 @@ public class CompositeHttpHandler implements HttpHandler {
 	}
 
 	@Override
-	public void onChunk(ByteBuffer buffer, long totalOffset, long chunkOffset, long chunkLength) {
+	public void onChunk(FlowBuffer buffer, long totalOffset, long chunkOffset, long chunkLength) {
 		currentHandler.onChunk(buffer, totalOffset, chunkOffset, chunkLength);
 	}
 
@@ -89,7 +89,7 @@ public class CompositeHttpHandler implements HttpHandler {
 	}
 
 	@Override
-	public void onDataToPassAlong(ByteBuffer buffer) {
+	public void onDataToPassAlong(FlowBuffer buffer) {
 		currentHandler.onDataToPassAlong(buffer);
 	}
 

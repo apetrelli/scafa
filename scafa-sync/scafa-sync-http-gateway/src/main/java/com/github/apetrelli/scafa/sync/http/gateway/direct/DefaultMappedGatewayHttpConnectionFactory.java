@@ -24,11 +24,11 @@ import java.util.logging.Level;
 
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.proto.IORuntimeException;
+import com.github.apetrelli.scafa.proto.Socket;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.sync.http.HttpSyncSocket;
 import com.github.apetrelli.scafa.sync.http.gateway.GatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.sync.http.gateway.MappedGatewayHttpConnectionFactory;
-import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
@@ -42,7 +42,7 @@ public class DefaultMappedGatewayHttpConnectionFactory<T extends HttpSyncSocket<
     private final GatewayHttpConnectionFactory<T> connectionFactory;
     
     @Override
-    public T create(SyncSocket sourceChannel, HttpRequest request) {
+    public T create(Socket sourceChannel, HttpRequest request) {
         try {
             return create(sourceChannel, request.getHostPort());
         } catch (IOException e) {
@@ -52,7 +52,7 @@ public class DefaultMappedGatewayHttpConnectionFactory<T extends HttpSyncSocket<
 
     @Override
     public void disconnectAll() throws IOException {
-        connectionCache.values().stream().forEach(SyncSocket::disconnect);
+        connectionCache.values().stream().forEach(Socket::disconnect);
         connectionCache.clear();
     }
 
@@ -64,7 +64,7 @@ public class DefaultMappedGatewayHttpConnectionFactory<T extends HttpSyncSocket<
         }
     }
 
-    private T create(SyncSocket sourceChannel, HostPort hostPort) {
+    private T create(Socket sourceChannel, HostPort hostPort) {
     	T connection = connectionCache.get(hostPort);
         if (connection == null) {
             if (log.isLoggable(Level.INFO)) {

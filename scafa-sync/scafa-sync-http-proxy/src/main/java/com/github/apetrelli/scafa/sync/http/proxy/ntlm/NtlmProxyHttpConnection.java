@@ -26,7 +26,6 @@ import static com.github.apetrelli.scafa.http.HttpHeaders.PROXY_AUTHORIZATION;
 import static com.github.apetrelli.scafa.http.HttpHeaders.PROXY_CONNECTION;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 import com.github.apetrelli.scafa.http.HttpException;
 import com.github.apetrelli.scafa.http.HttpRequest;
@@ -36,15 +35,15 @@ import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
 import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
 import com.github.apetrelli.scafa.http.proxy.ntlm.NtlmHttpProcessingContext;
 import com.github.apetrelli.scafa.http.proxy.ntlm.NtlmHttpProcessingContextFactory;
+import com.github.apetrelli.scafa.proto.Socket;
+import com.github.apetrelli.scafa.proto.client.HostPort;
+import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
+import com.github.apetrelli.scafa.proto.util.AsciiString;
 import com.github.apetrelli.scafa.sync.http.HttpHandler;
 import com.github.apetrelli.scafa.sync.http.HttpSyncSocket;
 import com.github.apetrelli.scafa.sync.http.gateway.MappedGatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.sync.http.proxy.connection.AbstractUpstreamProxyHttpConnection;
-import com.github.apetrelli.scafa.proto.client.HostPort;
-import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
-import com.github.apetrelli.scafa.proto.util.AsciiString;
 import com.github.apetrelli.scafa.sync.proto.RunnableStarter;
-import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 import com.github.apetrelli.scafa.sync.proto.processor.DataHandler;
 import com.github.apetrelli.scafa.sync.proto.processor.impl.StatefulInputProcessor;
 
@@ -66,19 +65,17 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
 
     private final String domain, username, password;
 
-    private final HttpStateMachine<HttpHandler, Void> stateMachine;
+    private final HttpStateMachine<HttpHandler> stateMachine;
 
     private final TentativeHandler tentativeHandler;
 
     private final NtlmHttpProcessingContextFactory processingContextFactory;
 
-    private final ByteBuffer readBuffer = ByteBuffer.allocate(16384);
-
 	public NtlmProxyHttpConnection(MappedGatewayHttpConnectionFactory<?> factory,
-			ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory,
+			ProcessorFactory<DataHandler, Socket> clientProcessorFactory,
 			RunnableStarter runnableStarter, HttpSyncSocket<HttpResponse> sourceChannel,
 			HttpSyncSocket<HttpRequest> socket, HostPort destinationSocketAddress, String domain, String username,
-			String password, HttpStateMachine<HttpHandler, Void> stateMachine, HttpRequestManipulator manipulator) {
+			String password, HttpStateMachine<HttpHandler> stateMachine, HttpRequestManipulator manipulator) {
 		super(factory, clientProcessorFactory, runnableStarter, sourceChannel, socket, destinationSocketAddress,
 				manipulator);
         this.domain = domain;
@@ -90,30 +87,30 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
     }
 
     @Override
-    protected void doSendHeader(HttpRequest request, ByteBuffer buffer) {
+    protected void doSendHeader(HttpRequest request) {
         if (!authenticated) {
-            authenticate(request, buffer);
+            authenticate(request);
         } else {
-            socket.sendHeader(request, buffer);
+            socket.sendHeader(request);
         }
     }
     @Override
-    protected void doConnect(HttpConnectRequest request, ByteBuffer buffer) {
+    protected void doConnect(HttpConnectRequest request) {
         if (!authenticated) {
-            authenticateOnConnect(request, buffer);
+            authenticateOnConnect(request);
         } else {
-            socket.sendHeader(request, buffer);
+            socket.sendHeader(request);
         }
     }
 
-    private void authenticateOnConnect(HttpRequest request, ByteBuffer buffer) {
+    private void authenticateOnConnect(HttpRequest request) {
         HttpRequest modifiedRequest = new HttpRequest(request);
         modifiedRequest.setHeader(PROXY_CONNECTION, KEEP_ALIVE);
         StatefulInputProcessor<HttpHandler, NtlmHttpProcessingContext> processor = new StatefulInputProcessor<>(tentativeHandler, stateMachine);
-        ntlmAuthenticate(modifiedRequest, modifiedRequest, tentativeHandler, processor, buffer);
+        ntlmAuthenticate(modifiedRequest, modifiedRequest, tentativeHandler, processor);
     }
 
-    private void authenticate(HttpRequest request, ByteBuffer buffer) {
+    private void authenticate(HttpRequest request) {
         HttpRequest finalRequest = new HttpRequest(request);
         finalRequest.setHeader(PROXY_CONNECTION, KEEP_ALIVE);
         HttpRequest modifiedRequest = new HttpRequest(finalRequest);
@@ -123,13 +120,13 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
         }
         StatefulInputProcessor<HttpHandler, NtlmHttpProcessingContext> processor = new StatefulInputProcessor<>(
                 tentativeHandler, stateMachine);
-        socket.sendHeader(modifiedRequest, buffer);
-        int x = readResponse(tentativeHandler, processor, buffer);
+        socket.sendHeader(modifiedRequest);
+        int x = readResponse(tentativeHandler, processor);
 		if (x >= 0) {
 			if (tentativeHandler.isNeedsAuthorizing()) {
 				tentativeHandler.setOnlyCaptureMode(true);
 				if (tentativeHandler.getResponse().getHeaders(PROXY_AUTHENTICATE).contains(PROXY_AUTHENTICATE_NTLM)) {
-					ntlmAuthenticate(modifiedRequest, finalRequest, tentativeHandler, processor, buffer);
+					ntlmAuthenticate(modifiedRequest, finalRequest, tentativeHandler, processor);
 				}
 			} else {
 				authenticated = true;
@@ -141,11 +138,11 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
     }
 
     private void ntlmAuthenticate(HttpRequest modifiedRequest, HttpRequest finalRequest, TentativeHandler handler,
-            StatefulInputProcessor<HttpHandler, NtlmHttpProcessingContext> processor, ByteBuffer buffer) {
+            StatefulInputProcessor<HttpHandler, NtlmHttpProcessingContext> processor) {
         Type1Message message1 = new Type1Message(TYPE_1_FLAGS, null, null);
         modifiedRequest.setHeader(PROXY_AUTHORIZATION, new AsciiString(NTLM + Base64.encode(message1.toByteArray())));
-        socket.sendHeader(modifiedRequest, buffer);
-        int result = readResponse(handler, processor, buffer);
+        socket.sendHeader(modifiedRequest);
+        int result = readResponse(handler, processor);
 		if (result >= 0) {
 			try {
 				switch (handler.getResponse().getCode().toString()) {
@@ -159,7 +156,7 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
                                     message2.getFlags());
                             finalRequest.setHeader(PROXY_AUTHORIZATION,
                                     new AsciiString(NTLM + Base64.encode(message3.toByteArray())));
-                            socket.sendHeader(finalRequest, buffer);
+                            socket.sendHeader(finalRequest);
                         	authenticated = true;
                         	prepareChannel();
 						} else {
@@ -184,10 +181,9 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
     }
 
     private int readResponse(TentativeHandler handler,
-            StatefulInputProcessor<HttpHandler, NtlmHttpProcessingContext> processor, ByteBuffer buffer) {
+            StatefulInputProcessor<HttpHandler, NtlmHttpProcessingContext> processor) {
         handler.reset();
-        handler.setWriteBuffer(buffer);
-        NtlmHttpProcessingContext context = processingContextFactory.create();
+        NtlmHttpProcessingContext context = processingContextFactory.create(socket.in());
         return readResponse(handler, processor, context);
     }
 
@@ -195,15 +191,7 @@ public class NtlmProxyHttpConnection extends AbstractUpstreamProxyHttpConnection
 			StatefulInputProcessor<HttpHandler, NtlmHttpProcessingContext> processor,
 			NtlmHttpProcessingContext context) {
         while (!handler.isFinished()) {
-            readBuffer.clear();
-            int x = socket.read(readBuffer);
-            if (x >= 0) {
-	            context.addBytesRead(x);
-	            readBuffer.flip();
-	            processor.process(context);
-            } else {
-            	throw new HttpException("Connection closed");
-            }
+            processor.process(context);
         }
         return context.getBytesRead();
     }

@@ -19,15 +19,15 @@ package com.github.apetrelli.scafa.sync.http.proxy.connection;
 
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
+import com.github.apetrelli.scafa.proto.Socket;
+import com.github.apetrelli.scafa.proto.SocketFactory;
+import com.github.apetrelli.scafa.proto.client.HostPort;
+import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
 import com.github.apetrelli.scafa.sync.http.HttpSyncSocket;
 import com.github.apetrelli.scafa.sync.http.gateway.MappedGatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.sync.http.gateway.connection.AbstractGatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.sync.http.proxy.ProxyHttpConnection;
-import com.github.apetrelli.scafa.proto.SocketFactory;
-import com.github.apetrelli.scafa.proto.client.HostPort;
-import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
 import com.github.apetrelli.scafa.sync.proto.RunnableStarter;
-import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 import com.github.apetrelli.scafa.sync.proto.processor.DataHandler;
 
 public class BasicAuthProxyHttpConnectionFactory extends AbstractGatewayHttpConnectionFactory<ProxyHttpConnection> {
@@ -37,7 +37,7 @@ public class BasicAuthProxyHttpConnectionFactory extends AbstractGatewayHttpConn
 	private final HttpRequestManipulator manipulator;
 
 	public BasicAuthProxyHttpConnectionFactory(SocketFactory<HttpSyncSocket<HttpRequest>> socketFactory,
-			ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory,
+			ProcessorFactory<DataHandler, Socket> clientProcessorFactory,
 			RunnableStarter runnableStarter, HostPort proxySocketAddress, String interfaceName, boolean forceIpV4,
 			String username, String password, HttpRequestManipulator manipulator) {
 		super(socketFactory, clientProcessorFactory, runnableStarter, proxySocketAddress, interfaceName, forceIpV4);
@@ -48,7 +48,7 @@ public class BasicAuthProxyHttpConnectionFactory extends AbstractGatewayHttpConn
 
 	@Override
 	protected ProxyHttpConnection createConnection(MappedGatewayHttpConnectionFactory<ProxyHttpConnection> factory,
-			SyncSocket sourceChannel, HttpSyncSocket<HttpRequest> httpSocket, HostPort socketAddress) {
+			Socket sourceChannel, HttpSyncSocket<HttpRequest> httpSocket, HostPort socketAddress) {
 		return new BasicAuthProxyHttpConnection(factory, clientProcessorFactory, runnableStarter, sourceChannel,
 				httpSocket, socketAddress, manipulator, username, password);
 	}

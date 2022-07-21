@@ -17,10 +17,9 @@
  */
 package com.github.apetrelli.scafa.sync.http.impl;
 
-import java.nio.ByteBuffer;
-
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
+import com.github.apetrelli.scafa.proto.io.FlowBuffer;
 import com.github.apetrelli.scafa.proto.processor.HandlerSupport;
 import com.github.apetrelli.scafa.sync.http.HttpHandler;
 
@@ -42,8 +41,8 @@ public class HttpHandlerSupport extends HandlerSupport implements HttpHandler {
     }
     
     @Override
-    public void onBody(ByteBuffer buffer, long offset, long length) {
-        buffer.position(buffer.limit());
+    public void onBody(FlowBuffer buffer, long offset, long length) {
+    	// Does nothing.
     }
     
     @Override
@@ -52,9 +51,9 @@ public class HttpHandlerSupport extends HandlerSupport implements HttpHandler {
     }
     
     @Override
-    public void onChunk(ByteBuffer buffer, long totalOffset,
+    public void onChunk(FlowBuffer buffer, long totalOffset,
     		long chunkOffset, long chunkLength) {
-        buffer.position(buffer.limit());
+    	// Does nothing.
     }
     
     @Override
@@ -68,8 +67,8 @@ public class HttpHandlerSupport extends HandlerSupport implements HttpHandler {
     }
     
     @Override
-    public void onDataToPassAlong(ByteBuffer buffer) {
-        buffer.position(buffer.limit());
+    public void onDataToPassAlong(FlowBuffer buffer) {
+    	// Does nothing.
     }
     
     @Override

@@ -20,13 +20,13 @@ package com.github.apetrelli.scafa.sync.http.gateway;
 import java.io.IOException;
 
 import com.github.apetrelli.scafa.http.HttpRequest;
-import com.github.apetrelli.scafa.sync.http.HttpSyncSocket;
+import com.github.apetrelli.scafa.proto.Socket;
 import com.github.apetrelli.scafa.proto.client.HostPort;
-import com.github.apetrelli.scafa.sync.proto.SyncSocket;
+import com.github.apetrelli.scafa.sync.http.HttpSyncSocket;
 
 public interface MappedGatewayHttpConnectionFactory<T extends HttpSyncSocket<HttpRequest>> {
 
-    T create(SyncSocket sourceChannel, HttpRequest request);
+    T create(Socket sourceChannel, HttpRequest request);
 
     void disconnectAll() throws IOException;
 

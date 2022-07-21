@@ -17,25 +17,24 @@
  */
 package com.github.apetrelli.scafa.sync.http.gateway.connection;
 
-import java.nio.ByteBuffer;
-
 import com.github.apetrelli.scafa.http.HttpRequest;
+import com.github.apetrelli.scafa.proto.Socket;
+import com.github.apetrelli.scafa.proto.client.HostPort;
+import com.github.apetrelli.scafa.proto.io.FlowBuffer;
+import com.github.apetrelli.scafa.proto.processor.Processor;
+import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
 import com.github.apetrelli.scafa.sync.http.HttpSyncSocket;
 import com.github.apetrelli.scafa.sync.http.gateway.MappedGatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.sync.http.gateway.handler.ChannelDisconnectorHandler;
-import com.github.apetrelli.scafa.proto.client.HostPort;
-import com.github.apetrelli.scafa.proto.processor.Processor;
-import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
 import com.github.apetrelli.scafa.sync.proto.RunnableStarter;
-import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 import com.github.apetrelli.scafa.sync.proto.client.AbstractClientConnection;
 import com.github.apetrelli.scafa.sync.proto.processor.DataHandler;
 
-public abstract class AbstractGatewayHttpConnection<T extends SyncSocket> extends AbstractClientConnection<HttpSyncSocket<HttpRequest>> implements HttpSyncSocket<HttpRequest> {
+public abstract class AbstractGatewayHttpConnection<T extends Socket> extends AbstractClientConnection<HttpSyncSocket<HttpRequest>> implements HttpSyncSocket<HttpRequest> {
 
     protected final T sourceChannel;
     
-    protected final ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory;
+    protected final ProcessorFactory<DataHandler, Socket> clientProcessorFactory;
 
     protected final HostPort destinationSocketAddress;
 
@@ -44,7 +43,7 @@ public abstract class AbstractGatewayHttpConnection<T extends SyncSocket> extend
     private final RunnableStarter runnableStarter;
 
 	public AbstractGatewayHttpConnection(MappedGatewayHttpConnectionFactory<?> factory,
-			ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory, RunnableStarter runnableStarter,
+			ProcessorFactory<DataHandler, Socket> clientProcessorFactory, RunnableStarter runnableStarter,
 			T sourceChannel, HttpSyncSocket<HttpRequest> socket, HostPort destinationSocketAddress) {
 		super(socket);
 		this.clientProcessorFactory = clientProcessorFactory;
@@ -55,14 +54,14 @@ public abstract class AbstractGatewayHttpConnection<T extends SyncSocket> extend
 	}
 	
 	@Override
-	public void sendHeader(HttpRequest request, ByteBuffer buffer) {
+	public void sendHeader(HttpRequest request) {
         HttpRequest modifiedRequest;
         modifiedRequest = createForwardedRequest(request);
-        doSendHeader(modifiedRequest, buffer);
+        doSendHeader(modifiedRequest);
     }
 	
 	@Override
-	public void sendData(ByteBuffer buffer) {
+	public void sendData(FlowBuffer buffer) {
     	socket.sendData(buffer);
     }
 	
@@ -82,8 +81,8 @@ public abstract class AbstractGatewayHttpConnection<T extends SyncSocket> extend
 
     protected abstract HttpRequest createForwardedRequest(HttpRequest request);
 
-    protected void doSendHeader(HttpRequest request, ByteBuffer buffer) {
-        socket.sendHeader(request, buffer);
+    protected void doSendHeader(HttpRequest request) {
+        socket.sendHeader(request);
     }
 
 	@Override

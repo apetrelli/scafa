@@ -1,15 +1,13 @@
 package com.github.apetrelli.scafa.sync.http.output.impl;
 
-import java.nio.ByteBuffer;
-
+import com.github.apetrelli.scafa.proto.io.FlowBuffer;
 import com.github.apetrelli.scafa.sync.http.output.DataSender;
 
 public class NullDataSender implements DataSender {
 
 	@Override
-	public void send(ByteBuffer buffer) {
+	public void send(FlowBuffer buffer) {
 		// Discard all the data.
-		buffer.position(buffer.limit());
 	}
 
 	@Override

@@ -22,12 +22,12 @@ import static com.github.apetrelli.scafa.http.HttpHeaders.HOST;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
 import com.github.apetrelli.scafa.proto.client.HostPort;
+import com.github.apetrelli.scafa.proto.io.OutputFlow;
 import com.github.apetrelli.scafa.proto.util.AsciiString;
 
 import lombok.extern.java.Log;
@@ -127,11 +127,11 @@ public class HttpRequest extends HeaderHolder {
     }
 
     @Override
-	public void fill(ByteBuffer buffer) {
-		buffer.put(method.getArray(), method.getFrom(), method.length()).put(SPACE)
-				.put(resource.getArray(), resource.getFrom(), resource.length()).put(SPACE)
-				.put(httpVersion.getArray(), httpVersion.getFrom(), httpVersion.length()).put(CR).put(LF);
-        loadInBuffer(buffer);
+	public void fill(OutputFlow out) {
+		out.write(method.getArray(), method.getFrom(), method.length()).write(SPACE)
+				.write(resource.getArray(), resource.getFrom(), resource.length()).write(SPACE)
+				.write(httpVersion.getArray(), httpVersion.getFrom(), httpVersion.length()).write(CR).write(LF);
+        super.fill(out);
 	}
 
     public ParsedResource getParsedResource() {

@@ -17,10 +17,9 @@
  */
 package com.github.apetrelli.scafa.sync.http;
 
-import java.nio.ByteBuffer;
-
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
+import com.github.apetrelli.scafa.proto.io.FlowBuffer;
 import com.github.apetrelli.scafa.proto.processor.Handler;
 
 public interface HttpHandler extends Handler {
@@ -31,17 +30,17 @@ public interface HttpHandler extends Handler {
 
     void onRequestHeader(HttpRequest request);
 
-    void onBody(ByteBuffer buffer, long offset, long length);
+    void onBody(FlowBuffer buffer, long offset, long length);
 
     void onChunkStart(long totalOffset, long chunkLength);
 
-    void onChunk(ByteBuffer buffer, long totalOffset, long chunkOffset, long chunkLength);
+    void onChunk(FlowBuffer buffer, long totalOffset, long chunkOffset, long chunkLength);
 
     void onChunkEnd();
 
     void onChunkedTransferEnd();
 
-    void onDataToPassAlong(ByteBuffer buffer);
+    void onDataToPassAlong(FlowBuffer buffer);
 
     void onEnd();
 }

@@ -4,6 +4,12 @@ import java.util.Map;
 
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
+import com.github.apetrelli.scafa.proto.Socket;
+import com.github.apetrelli.scafa.proto.SocketFactory;
+import com.github.apetrelli.scafa.proto.client.HostPort;
+import com.github.apetrelli.scafa.proto.processor.HandlerFactory;
+import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
+import com.github.apetrelli.scafa.proto.util.AsciiString;
 import com.github.apetrelli.scafa.sync.http.HttpHandler;
 import com.github.apetrelli.scafa.sync.http.HttpSyncSocket;
 import com.github.apetrelli.scafa.sync.http.composite.CompositeHttpHandlerFactory;
@@ -16,13 +22,7 @@ import com.github.apetrelli.scafa.sync.http.gateway.handler.DefaultGatewayHttpHa
 import com.github.apetrelli.scafa.sync.http.server.HttpServer;
 import com.github.apetrelli.scafa.sync.http.server.impl.HttpServerHandlerAdapterFactory;
 import com.github.apetrelli.scafa.sync.http.server.statics.StaticHttpServerHandlerFactory;
-import com.github.apetrelli.scafa.proto.SocketFactory;
-import com.github.apetrelli.scafa.proto.client.HostPort;
-import com.github.apetrelli.scafa.proto.processor.HandlerFactory;
-import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
-import com.github.apetrelli.scafa.proto.util.AsciiString;
 import com.github.apetrelli.scafa.sync.proto.RunnableStarter;
-import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 import com.github.apetrelli.scafa.sync.proto.processor.DataHandler;
 
 public class WebCompositeHttpHandlerFactoryBuilder {
@@ -98,7 +98,7 @@ public class WebCompositeHttpHandlerFactoryBuilder {
 			GatewayHttpConnectionFactory<HttpSyncSocket<HttpRequest>> connectionFactory = new DirectGatewayHttpConnectionFactory(socketFactory,
 					clientProcessorFactory, runnableStarter, destinationSocketAddress);
 	        GatewayHttpConnectionFactoryFactory<HttpSyncSocket<HttpRequest>> factoryFactory = new DefaultGatewayHttpConnectionFactoryFactory<>(connectionFactory);
-	        HandlerFactory<HttpHandler, SyncSocket> handlerFactory = new DefaultGatewayHttpHandlerFactory<>(factoryFactory);
+	        HandlerFactory<HttpHandler, Socket> handlerFactory = new DefaultGatewayHttpHandlerFactory<>(factoryFactory);
 	        WebCompositeHttpHandlerFactoryBuilder.this.innerBuilder.withPattern(basePathPattern, handlerFactory);
 			return WebCompositeHttpHandlerFactoryBuilder.this;
 		}
@@ -110,7 +110,7 @@ public class WebCompositeHttpHandlerFactoryBuilder {
 	
     private SocketFactory<HttpSyncSocket<HttpRequest>> socketFactory;
 	
-    private ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory;
+    private ProcessorFactory<DataHandler, Socket> clientProcessorFactory;
     
     private RunnableStarter runnableStarter;
 
@@ -130,7 +130,7 @@ public class WebCompositeHttpHandlerFactoryBuilder {
 		return this;
 	}
 	
-	public WebCompositeHttpHandlerFactoryBuilder withClientProcessorFactory(ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory) {
+	public WebCompositeHttpHandlerFactoryBuilder withClientProcessorFactory(ProcessorFactory<DataHandler, Socket> clientProcessorFactory) {
 		this.clientProcessorFactory = clientProcessorFactory;
 		return this;
 	}

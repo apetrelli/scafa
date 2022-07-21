@@ -6,17 +6,16 @@ import java.net.Socket;
 
 import com.github.apetrelli.scafa.proto.IORuntimeException;
 import com.github.apetrelli.scafa.sync.proto.SyncServerSocket;
-import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class DirectSyncServerSocket implements SyncServerSocket<SyncSocket> {
+public class DirectSyncServerSocket implements SyncServerSocket<com.github.apetrelli.scafa.proto.Socket> {
 
 	private final ServerSocket channel;
 
 	@Override
-	public SyncSocket accept() {
+	public com.github.apetrelli.scafa.proto.Socket accept() {
 		Socket socket;
 		try {
 			socket = channel.accept();

@@ -24,30 +24,30 @@ import org.ini4j.Profile.Section;
 
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
+import com.github.apetrelli.scafa.proto.Socket;
+import com.github.apetrelli.scafa.proto.SocketFactory;
+import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
+import com.github.apetrelli.scafa.proxy.config.ServerConfiguration;
+import com.github.apetrelli.scafa.proxy.config.ini.AbstractIniConfiguration;
 import com.github.apetrelli.scafa.sync.http.HttpHandler;
 import com.github.apetrelli.scafa.sync.http.HttpSyncSocket;
 import com.github.apetrelli.scafa.sync.http.gateway.GatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.sync.http.output.DataSenderFactory;
 import com.github.apetrelli.scafa.sync.http.proxy.ProxyHttpConnection;
-import com.github.apetrelli.scafa.proto.SocketFactory;
-import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
-import com.github.apetrelli.scafa.proxy.config.ServerConfiguration;
-import com.github.apetrelli.scafa.proxy.config.ini.AbstractIniConfiguration;
 import com.github.apetrelli.scafa.sync.proto.RunnableStarter;
-import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 import com.github.apetrelli.scafa.sync.proto.processor.DataHandler;
 
 public class SyncIniConfiguration extends AbstractIniConfiguration<GatewayHttpConnectionFactory<ProxyHttpConnection>> {
     
     private final SocketFactory<HttpSyncSocket<HttpRequest>> socketFactory;
     private final DataSenderFactory dataSenderFactory;
-    private final ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory;
+    private final ProcessorFactory<DataHandler, Socket> clientProcessorFactory;
     private final RunnableStarter runnableStarter;
-    private final HttpStateMachine<HttpHandler, Void> stateMachine;
+    private final HttpStateMachine<HttpHandler> stateMachine;
 
 	public static SyncIniConfiguration create(String profile, SocketFactory<HttpSyncSocket<HttpRequest>> socketFactory,
-			DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory,
-			RunnableStarter runnableStarter, HttpStateMachine<HttpHandler, Void> stateMachine) throws IOException {
+			DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler, Socket> clientProcessorFactory,
+			RunnableStarter runnableStarter, HttpStateMachine<HttpHandler> stateMachine) throws IOException {
         Ini ini = AbstractIniConfiguration.loadIni(profile);
 		SyncIniConfiguration configuration = new SyncIniConfiguration(ini, socketFactory, dataSenderFactory,
 				clientProcessorFactory, runnableStarter, stateMachine);
@@ -56,8 +56,8 @@ public class SyncIniConfiguration extends AbstractIniConfiguration<GatewayHttpCo
     }
 
 	protected SyncIniConfiguration(Ini ini, SocketFactory<HttpSyncSocket<HttpRequest>> socketFactory,
-			DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory,
-			RunnableStarter runnableStarter, HttpStateMachine<HttpHandler, Void> stateMachine) {
+			DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler, Socket> clientProcessorFactory,
+			RunnableStarter runnableStarter, HttpStateMachine<HttpHandler> stateMachine) {
         super(ini);
         this.socketFactory = socketFactory;
         this.dataSenderFactory = dataSenderFactory;

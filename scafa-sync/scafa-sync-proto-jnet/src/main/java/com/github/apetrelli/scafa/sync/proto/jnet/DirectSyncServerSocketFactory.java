@@ -5,15 +5,15 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 
+import com.github.apetrelli.scafa.proto.Socket;
 import com.github.apetrelli.scafa.proto.util.NetworkUtils;
 import com.github.apetrelli.scafa.sync.proto.SyncServerSocket;
 import com.github.apetrelli.scafa.sync.proto.SyncServerSocketFactory;
-import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class DirectSyncServerSocketFactory implements SyncServerSocketFactory<SyncSocket> {
+public class DirectSyncServerSocketFactory implements SyncServerSocketFactory<Socket> {
 
     private final int portNumber;
 
@@ -26,7 +26,7 @@ public class DirectSyncServerSocketFactory implements SyncServerSocketFactory<Sy
 	}
 
 	@Override
-	public SyncServerSocket<SyncSocket> create() throws IOException {
+	public SyncServerSocket<Socket> create() throws IOException {
 		ServerSocket server = new ServerSocket(portNumber);
         bindChannel(server);
         return new DirectSyncServerSocket(server);

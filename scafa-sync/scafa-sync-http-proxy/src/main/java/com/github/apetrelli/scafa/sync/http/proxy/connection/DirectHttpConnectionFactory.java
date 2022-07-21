@@ -18,17 +18,17 @@
 package com.github.apetrelli.scafa.sync.http.proxy.connection;
 
 import com.github.apetrelli.scafa.http.HttpRequest;
+import com.github.apetrelli.scafa.proto.Socket;
+import com.github.apetrelli.scafa.proto.SocketFactory;
+import com.github.apetrelli.scafa.proto.client.HostPort;
+import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
 import com.github.apetrelli.scafa.sync.http.HttpSyncSocket;
 import com.github.apetrelli.scafa.sync.http.gateway.GatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.sync.http.gateway.MappedGatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.sync.http.output.DataSenderFactory;
 import com.github.apetrelli.scafa.sync.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.sync.http.socket.direct.DirectHttpSyncSocket;
-import com.github.apetrelli.scafa.proto.SocketFactory;
-import com.github.apetrelli.scafa.proto.client.HostPort;
-import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
 import com.github.apetrelli.scafa.sync.proto.RunnableStarter;
-import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 import com.github.apetrelli.scafa.sync.proto.processor.DataHandler;
 
 import lombok.RequiredArgsConstructor;
@@ -40,7 +40,7 @@ public class DirectHttpConnectionFactory implements GatewayHttpConnectionFactory
 
 	private final DataSenderFactory dataSenderFactory;
 	
-	private final ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory;
+	private final ProcessorFactory<DataHandler, Socket> clientProcessorFactory;
 	
 	private final RunnableStarter runnableStarter;
 
@@ -49,14 +49,14 @@ public class DirectHttpConnectionFactory implements GatewayHttpConnectionFactory
 	private final boolean forceIpV4;
 
 	public DirectHttpConnectionFactory(SocketFactory<HttpSyncSocket<HttpRequest>> socketFactory,
-			DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory,
+			DataSenderFactory dataSenderFactory, ProcessorFactory<DataHandler, Socket> clientProcessorFactory,
 			RunnableStarter runnableStarter) {
 		this(socketFactory, dataSenderFactory, clientProcessorFactory, runnableStarter, null, false);
 	}
 
 	@Override
 	public ProxyHttpConnection create(MappedGatewayHttpConnectionFactory<ProxyHttpConnection> factory,
-			SyncSocket sourceChannel, HostPort socketAddress) {
+			Socket sourceChannel, HostPort socketAddress) {
 		HttpSyncSocket<HttpRequest> httpSocket = socketFactory.create(socketAddress, interfaceName, forceIpV4);
 		return new DirectProxyHttpConnection(factory, clientProcessorFactory, runnableStarter,
 				new DirectHttpSyncSocket<>(sourceChannel, dataSenderFactory), httpSocket);

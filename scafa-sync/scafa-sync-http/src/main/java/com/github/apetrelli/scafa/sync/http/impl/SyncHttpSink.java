@@ -2,26 +2,21 @@ package com.github.apetrelli.scafa.sync.http.impl;
 
 import static com.github.apetrelli.scafa.http.HttpHeaders.CONNECT;
 
-import java.nio.ByteBuffer;
-import java.util.logging.Level;
-
 import com.github.apetrelli.scafa.http.HttpProcessingContext;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.HttpSink;
+import com.github.apetrelli.scafa.proto.io.FlowBuffer;
 import com.github.apetrelli.scafa.sync.http.HttpHandler;
 
-import lombok.extern.java.Log;
-
-@Log
-public class SyncHttpSink implements HttpSink<HttpHandler, Void> {
+public class SyncHttpSink implements HttpSink<HttpHandler> {
 	
 	@Override
 	public void onStart(HttpHandler handler) {
 		handler.onStart();
 	}
 
-	public Void endHeader(HttpProcessingContext context, HttpHandler handler) {
+	public void endHeader(HttpProcessingContext context, HttpHandler handler) {
 		HttpRequest request = context.getRequest();
 		HttpResponse response = context.getResponse();
 		if (request != null) {
@@ -32,72 +27,60 @@ public class SyncHttpSink implements HttpSink<HttpHandler, Void> {
 		} else if (response != null) {
 			handler.onResponseHeader(new HttpResponse(response));
 		}
-		return null;
 	}
 
-	public Void endHeaderAndRequest(HttpProcessingContext context, HttpHandler handler) {
+	public void endHeaderAndRequest(HttpProcessingContext context, HttpHandler handler) {
 		endHeader(context, handler);
 		handler.onEnd();
-		return null;
 	}
 
-	public Void data(HttpProcessingContext context, HttpHandler handler) {
-		ByteBuffer buffer = context.getBuffer();
-		int oldLimit = buffer.limit();
-		int size = oldLimit - buffer.position();
-		int sizeToSend = (int) Math.min(size, context.getCountdown());
-		buffer.limit(buffer.position() + sizeToSend);
-		handler.onBody(buffer, context.getBodyOffset(), context.getBodySize());
-		context.reduceBody(sizeToSend);
-		buffer.limit(oldLimit);
-		if (context.getCountdown() <= 0L) {
+	public boolean data(HttpProcessingContext context, HttpHandler handler) {
+		boolean retValue = false;
+		long countdown = context.getCountdown();
+		while (countdown > 0) {
+			FlowBuffer buffer = context.in().read(countdown);
+			handler.onBody(buffer, context.getBodyOffset(), context.getBodySize());
+			context.reduceBody(buffer.length());
+			countdown = context.getCountdown();
+		}
+		if (countdown <= 0L) {
 			handler.onEnd();
+			retValue = true;
 		}
-		return null;
+		return retValue;
 	}
 
-	public Void chunkData(HttpProcessingContext context, HttpHandler handler) {
-		ByteBuffer buffer = context.getBuffer();
-		int oldLimit = buffer.limit();
-		int size = oldLimit - buffer.position();
-		int sizeToSend = (int) Math.min(size, context.getCountdown());
-		buffer.limit(buffer.position() + sizeToSend);
-		handler.onChunk(buffer, context.getTotalChunkedTransferLength() - context.getChunkLength(),
-				context.getChunkOffset(), context.getChunkLength());
-		context.reduceChunk(sizeToSend);
-		buffer.limit(oldLimit);
-		if (log.isLoggable(Level.FINEST)) {
-			log.log(Level.FINEST, "Handling chunk from {0} to {1}",
-					new Object[] { context.getChunkOffset(), context.getChunkOffset() + sizeToSend });
+	public void chunkData(HttpProcessingContext context, HttpHandler handler) {
+		long countdown = context.getCountdown();
+		while (countdown > 0) {
+			FlowBuffer buffer = context.in().read(countdown);
+			handler.onChunk(buffer, context.getTotalChunkedTransferLength() - context.getChunkLength(),
+					context.getChunkOffset(), context.getChunkLength());
+			context.reduceChunk(buffer.length());
+			countdown = context.getCountdown();
 		}
-		return null;
 	}
 
-	public Void endChunkCount(HttpProcessingContext context, HttpHandler handler) {
+	public boolean endChunkCount(HttpProcessingContext context, HttpHandler handler) {
+		boolean retValue = false;
 		long chunkCount = context.getChunkLength();
 		handler.onChunkStart(context.getTotalChunkedTransferLength(), chunkCount);
 		if (chunkCount == 0L) {
 			handler.onChunkEnd();
 			handler.onChunkedTransferEnd();
 			handler.onEnd();
+			retValue = true;
 		}
-		return null;
+		return retValue;
 	}
 
 	@Override
-	public Void onChunkEnd(HttpHandler handler) {
+	public void onChunkEnd(HttpHandler handler) {
 		handler.onChunkEnd();
-		return null;
 	}
 	
 	@Override
-	public Void onDataToPassAlong(HttpProcessingContext context, HttpHandler handler) {
-		handler.onDataToPassAlong(context.getBuffer());
-		return null;
-	}
-	
-	@Override
-	public Void completed() {
-		return null;
+	public void onDataToPassAlong(HttpProcessingContext context, HttpHandler handler) {
+		handler.onDataToPassAlong(context.in().readBuffer());
 	}
 }

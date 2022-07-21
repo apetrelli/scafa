@@ -19,19 +19,19 @@ package com.github.apetrelli.scafa.sync.http.proxy.connection;
 
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.proxy.HttpRequestManipulator;
-import com.github.apetrelli.scafa.sync.http.HttpSyncSocket;
-import com.github.apetrelli.scafa.sync.http.gateway.MappedGatewayHttpConnectionFactory;
+import com.github.apetrelli.scafa.proto.Socket;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
+import com.github.apetrelli.scafa.sync.http.HttpSyncSocket;
+import com.github.apetrelli.scafa.sync.http.gateway.MappedGatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.sync.proto.RunnableStarter;
-import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 import com.github.apetrelli.scafa.sync.proto.processor.DataHandler;
 
 public class AnonymousProxyHttpConnection extends AbstractUpstreamProxyHttpConnection {
 
 	public AnonymousProxyHttpConnection(MappedGatewayHttpConnectionFactory<?> factory,
-			ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory,
-			RunnableStarter runnableStarter, SyncSocket sourceChannel,
+			ProcessorFactory<DataHandler, Socket> clientProcessorFactory,
+			RunnableStarter runnableStarter, Socket sourceChannel,
 			HttpSyncSocket<HttpRequest> socket, HostPort destinationSocketAddress,
 			HttpRequestManipulator manipulator) {
 		super(factory, clientProcessorFactory, runnableStarter, sourceChannel, socket, destinationSocketAddress,

@@ -1,33 +1,31 @@
 package com.github.apetrelli.scafa.sync.proto.jnet;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketException;
-import java.nio.ByteBuffer;
 
 import com.github.apetrelli.scafa.proto.IORuntimeException;
 import com.github.apetrelli.scafa.proto.client.HostPort;
+import com.github.apetrelli.scafa.proto.io.InputFlow;
+import com.github.apetrelli.scafa.proto.io.OutputFlow;
 import com.github.apetrelli.scafa.sync.proto.SocketRuntimeException;
-import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class DirectSyncSocket implements SyncSocket {
+public class DirectSyncSocket implements com.github.apetrelli.scafa.proto.Socket {
 	
 	protected final Socket channel;
 
-	private InputStream is;
+	private InputFlow is;
 	
-	private OutputStream os;
+	private OutputFlow os;
 
 	@Override
 	public void connect() {
 		try {
-			is = channel.getInputStream();
-			os = channel.getOutputStream();
+			is = new SocketInputStreamInputFlow(channel.getInputStream());
+			os = new OutputStreamOutputFlow(channel.getOutputStream());
 		} catch (SocketException e) {
 			throw new SocketRuntimeException(e);
 		} catch (IOException e) {
@@ -54,35 +52,18 @@ public class DirectSyncSocket implements SyncSocket {
 	}
 
 	@Override
-	public int read(ByteBuffer buffer) {
-		try {
-			int count = is.read(buffer.array(), buffer.position() + buffer.arrayOffset(), buffer.remaining());
-			if (count >= 0) {
-				buffer.position(buffer.position() + count);
-			}
-			return count;
-		} catch (SocketException e) {
-			throw new SocketRuntimeException(e);
-		} catch (IOException e) {
-			throw new IORuntimeException(e);
-		}
-	}
-
-	@Override
-	public int write(ByteBuffer buffer) {
-		try {
-			int count = buffer.remaining();
-			os.write(buffer.array(), buffer.position() + buffer.arrayOffset(), buffer.remaining());
-			buffer.position(buffer.limit());
-			return count;
-		} catch (IOException e) {
-			throw new IORuntimeException(e);
-		}
-	}
-
-	@Override
 	public boolean isOpen() {
 		return !channel.isClosed();
+	}
+
+	@Override
+	public InputFlow in() {
+		return is;
+	}
+
+	@Override
+	public OutputFlow out() {
+		return os;
 	}
 
 }

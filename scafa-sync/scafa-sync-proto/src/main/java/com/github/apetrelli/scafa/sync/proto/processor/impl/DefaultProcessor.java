@@ -17,16 +17,16 @@
  */
 package com.github.apetrelli.scafa.sync.proto.processor.impl;
 
-import java.nio.ByteBuffer;
 import java.util.logging.Level;
 
 import com.github.apetrelli.scafa.proto.IORuntimeException;
+import com.github.apetrelli.scafa.proto.Socket;
 import com.github.apetrelli.scafa.proto.data.Input;
 import com.github.apetrelli.scafa.proto.data.ProcessingContextFactory;
+import com.github.apetrelli.scafa.proto.io.FlowClosedException;
 import com.github.apetrelli.scafa.proto.processor.Handler;
 import com.github.apetrelli.scafa.proto.processor.Processor;
 import com.github.apetrelli.scafa.sync.proto.SocketRuntimeException;
-import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 import com.github.apetrelli.scafa.sync.proto.processor.InputProcessor;
 import com.github.apetrelli.scafa.sync.proto.processor.InputProcessorFactory;
 
@@ -39,7 +39,7 @@ public class DefaultProcessor<P extends Input, H extends Handler> implements Pro
     
     private final long id;
 
-    private final SyncSocket client;
+    private final Socket client;
 
     private final InputProcessorFactory<H, P> inputProcessorFactory;
 
@@ -50,7 +50,7 @@ public class DefaultProcessor<P extends Input, H extends Handler> implements Pro
     @Override
     public void process(H handler) {
         handler.onConnect();
-        P context = processingContextFactory.create();
+        P context = processingContextFactory.create(client.in());
         InputProcessor<P> processor = inputProcessorFactory.create(handler);
         try {
         	read(context, handler, processor);
@@ -75,12 +75,12 @@ public class DefaultProcessor<P extends Input, H extends Handler> implements Pro
 
 	private void read(P context, H handler, InputProcessor<P> processor) {
 		try {
-		    while (client.read(context.getBuffer()) >= 0) {
-		        ByteBuffer buffer = context.getBuffer();
-		        buffer.flip();
-		        processor.process(context);
-		        buffer.clear();
-		    }
+			while (context.in().hasData()) {
+				processor.process(context);
+			}
+		} catch (FlowClosedException e) {
+			// Actually ignoring the exception, because closing stream is a thing that happens normally.
+			log.log(Level.INFO, "Input flow of stream closed", e);
 		} finally {
 			disconnect(handler);
 		}

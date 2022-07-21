@@ -1,15 +1,14 @@
 package com.github.apetrelli.scafa.sync.http;
 
-import java.nio.ByteBuffer;
-
 import com.github.apetrelli.scafa.http.HeaderHolder;
-import com.github.apetrelli.scafa.sync.proto.SyncSocket;
+import com.github.apetrelli.scafa.proto.Socket;
+import com.github.apetrelli.scafa.proto.io.FlowBuffer;
 
-public interface HttpSyncSocket<H extends HeaderHolder> extends SyncSocket {
+public interface HttpSyncSocket<H extends HeaderHolder> extends Socket {
 
-	void sendHeader(H holder, ByteBuffer buffer);
+	void sendHeader(H holder);
 	
-	void sendData(ByteBuffer buffer);
+	void sendData(FlowBuffer buffer);
 
 	void endData();
 }

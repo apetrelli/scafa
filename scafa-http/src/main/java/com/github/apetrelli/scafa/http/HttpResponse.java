@@ -17,8 +17,7 @@
  */
 package com.github.apetrelli.scafa.http;
 
-import java.nio.ByteBuffer;
-
+import com.github.apetrelli.scafa.proto.io.OutputFlow;
 import com.github.apetrelli.scafa.proto.util.AsciiString;
 
 public class HttpResponse extends HeaderHolder {
@@ -55,14 +54,14 @@ public class HttpResponse extends HeaderHolder {
     }
 
     @Override
-	public void fill(ByteBuffer buffer) {
-		buffer.put(httpVersion.getArray(), httpVersion.getFrom(), httpVersion.length()).put(SPACE).put(code.getArray(),
+	public void fill(OutputFlow out) {
+		out.write(httpVersion.getArray(), httpVersion.getFrom(), httpVersion.length()).write(SPACE).write(code.getArray(),
 				code.getFrom(), code.length());
         if (message != null) {
-        	buffer.put(SPACE).put(message.getArray());
+        	out.write(SPACE).write(message.getArray(), message.getFrom(), message.length());
         }
-        buffer.put(CR).put(LF);
-        loadInBuffer(buffer);
+        out.write(CR).write(LF);
+        super.fill(out);
 	}
 
 }

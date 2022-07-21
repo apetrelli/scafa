@@ -7,6 +7,7 @@ import com.github.apetrelli.scafa.http.HttpProcessingContext;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.impl.HttpProcessingContextFactory;
 import com.github.apetrelli.scafa.http.impl.HttpStateMachine;
+import com.github.apetrelli.scafa.proto.Socket;
 import com.github.apetrelli.scafa.proto.SocketFactory;
 import com.github.apetrelli.scafa.proto.client.HostPort;
 import com.github.apetrelli.scafa.proto.data.Input;
@@ -23,7 +24,6 @@ import com.github.apetrelli.scafa.sync.http.socket.direct.DirectHttpSyncSocketFa
 import com.github.apetrelli.scafa.sync.proto.RunnableStarter;
 import com.github.apetrelli.scafa.sync.proto.ScafaListener;
 import com.github.apetrelli.scafa.sync.proto.SyncServerSocketFactory;
-import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 import com.github.apetrelli.scafa.sync.proto.processor.DataHandler;
 import com.github.apetrelli.scafa.sync.proto.processor.impl.DefaultProcessorFactory;
 import com.github.apetrelli.scafa.sync.proto.processor.impl.PassthroughInputProcessorFactory;
@@ -36,18 +36,18 @@ import lombok.extern.java.Log;
 @Log
 public class DirectHttpGateway {
 
-	private final SocketFactory<SyncSocket> clientSocketFactory;
+	private final SocketFactory<Socket> clientSocketFactory;
 
-	private final SyncServerSocketFactory<SyncSocket> serverSocketFactory;
+	private final SyncServerSocketFactory<Socket> serverSocketFactory;
 
 	private final RunnableStarter runnableStarter;
 
 	private final HostPort destinationSocketAddress;
 
-	private ScafaListener<HttpHandler, SyncSocket> listener;
+	private ScafaListener<HttpHandler, Socket> listener;
 
 	public void launch() {
-		HttpStateMachine<HttpHandler, Void> stateMachine = new HttpStateMachine<>(new SyncHttpSink());
+		HttpStateMachine<HttpHandler> stateMachine = new HttpStateMachine<>(new SyncHttpSink());
 		StatefulInputProcessorFactory<HttpHandler, HttpProcessingContext> inputProcessorFactory = new StatefulInputProcessorFactory<>(
 				stateMachine);
 		HttpProcessingContextFactory processingContextFactory = new HttpProcessingContextFactory();
@@ -59,7 +59,7 @@ public class DirectHttpGateway {
 				socketFactory, clientProcessorFactory, runnableStarter, destinationSocketAddress);
 		GatewayHttpConnectionFactoryFactory<HttpSyncSocket<HttpRequest>> factoryFactory = new DefaultGatewayHttpConnectionFactoryFactory<>(
 				connectionFactory);
-		HandlerFactory<HttpHandler, SyncSocket> handlerFactory = new DefaultGatewayHttpHandlerFactory<>(factoryFactory);
+		HandlerFactory<HttpHandler, Socket> handlerFactory = new DefaultGatewayHttpHandlerFactory<>(factoryFactory);
 		DefaultProcessorFactory<HttpProcessingContext, HttpHandler> defaultProcessorFactory = new DefaultProcessorFactory<>(
 				inputProcessorFactory, processingContextFactory);
 		listener = new ScafaListener<>(serverSocketFactory, defaultProcessorFactory, handlerFactory, runnableStarter);

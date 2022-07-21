@@ -1,10 +1,10 @@
 package com.github.apetrelli.scafa.sync.http.output;
 
-import java.nio.ByteBuffer;
+import com.github.apetrelli.scafa.proto.io.FlowBuffer;
 
 public interface DataSender {
 
-	void send(ByteBuffer buffer);
+	void send(FlowBuffer buffer);
 
 	void end();
 }

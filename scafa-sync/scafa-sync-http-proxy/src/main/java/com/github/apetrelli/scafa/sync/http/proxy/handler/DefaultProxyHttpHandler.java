@@ -20,20 +20,20 @@ package com.github.apetrelli.scafa.sync.http.proxy.handler;
 import static com.github.apetrelli.scafa.http.HttpHeaders.CONNECT;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 import com.github.apetrelli.scafa.http.HttpException;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
+import com.github.apetrelli.scafa.proto.Socket;
+import com.github.apetrelli.scafa.proto.io.FlowBuffer;
 import com.github.apetrelli.scafa.sync.http.gateway.MappedGatewayHttpConnectionFactory;
 import com.github.apetrelli.scafa.sync.http.gateway.handler.DefaultGatewayHttpHandler;
 import com.github.apetrelli.scafa.sync.http.proxy.ProxyHttpConnection;
-import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 
 public class DefaultProxyHttpHandler extends DefaultGatewayHttpHandler<ProxyHttpConnection> implements ProxyHttpHandler {
 
-    public DefaultProxyHttpHandler(MappedGatewayHttpConnectionFactory<ProxyHttpConnection> connectionFactory, SyncSocket sourceChannel) {
+    public DefaultProxyHttpHandler(MappedGatewayHttpConnectionFactory<ProxyHttpConnection> connectionFactory, Socket sourceChannel) {
     	super(connectionFactory, sourceChannel);
     }
 
@@ -58,24 +58,24 @@ public class DefaultProxyHttpHandler extends DefaultGatewayHttpHandler<ProxyHttp
     }
     
     @Override
-    public void onBody(ByteBuffer buffer, long offset, long length) {
+    public void onBody(FlowBuffer buffer, long offset, long length) {
         connection.sendData(buffer);
     }
     
     @Override
-    public void onChunk(ByteBuffer buffer, long totalOffset, long chunkOffset, long chunkLength) {
+    public void onChunk(FlowBuffer buffer, long totalOffset, long chunkOffset, long chunkLength) {
         connection.sendData(buffer);
     }
     
     @Override
     public void onConnectMethod(HttpConnectRequest connectRequest) {
 		connection = createConnection(connectRequest);
-		connection.connect(connectRequest, writeBuffer);
+		connection.connect(connectRequest);
     }
     
     @Override
-    public void onDataToPassAlong(ByteBuffer buffer) {
-        connection.flushBuffer(buffer);
+    public void onDataToPassAlong(FlowBuffer buffer) {
+        connection.out().write(buffer).flush();
     }
     
     @Override

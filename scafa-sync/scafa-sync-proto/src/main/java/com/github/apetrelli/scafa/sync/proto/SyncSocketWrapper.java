@@ -1,13 +1,14 @@
 package com.github.apetrelli.scafa.sync.proto;
 
-import java.nio.ByteBuffer;
-
+import com.github.apetrelli.scafa.proto.Socket;
 import com.github.apetrelli.scafa.proto.client.HostPort;
+import com.github.apetrelli.scafa.proto.io.InputFlow;
+import com.github.apetrelli.scafa.proto.io.OutputFlow;
 
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class SyncSocketWrapper<T extends SyncSocket> implements SyncSocket {
+public class SyncSocketWrapper<T extends Socket> implements Socket {
 
 	protected final T socket;
 
@@ -26,26 +27,21 @@ public class SyncSocketWrapper<T extends SyncSocket> implements SyncSocket {
 	}
 	
 	@Override
-	public int read(ByteBuffer buffer) {
-		return socket.read(buffer);
+	public InputFlow in() {
+		return socket.in();
 	}
 	
 	@Override
-	public int write(ByteBuffer buffer) {
-		return socket.write(buffer);
+	public OutputFlow out() {
+		return socket.out();
 	}
-
+	
 	public boolean isOpen() {
 		return socket.isOpen();
 	}
 	
 	@Override
-	public void flushBuffer(ByteBuffer buffer) {
-		socket.flushBuffer(buffer);
-	}
-	
-	@Override
-	public void flipAndFlushBuffer(ByteBuffer buffer) {
-		socket.flipAndFlushBuffer(buffer);
+	public void close() {
+		socket.close();
 	}
 }

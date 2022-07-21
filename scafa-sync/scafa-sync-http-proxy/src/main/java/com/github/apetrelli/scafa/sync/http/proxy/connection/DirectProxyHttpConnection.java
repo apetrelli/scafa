@@ -21,7 +21,6 @@ import static com.github.apetrelli.scafa.http.HttpHeaders.OK;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.ByteBuffer;
 import java.util.logging.Level;
 
 import com.github.apetrelli.scafa.http.HttpCodes;
@@ -29,6 +28,7 @@ import com.github.apetrelli.scafa.http.HttpException;
 import com.github.apetrelli.scafa.http.HttpRequest;
 import com.github.apetrelli.scafa.http.HttpResponse;
 import com.github.apetrelli.scafa.http.proxy.HttpConnectRequest;
+import com.github.apetrelli.scafa.proto.Socket;
 import com.github.apetrelli.scafa.proto.processor.ProcessorFactory;
 import com.github.apetrelli.scafa.proto.util.AsciiString;
 import com.github.apetrelli.scafa.sync.http.HttpSyncSocket;
@@ -36,7 +36,6 @@ import com.github.apetrelli.scafa.sync.http.gateway.MappedGatewayHttpConnectionF
 import com.github.apetrelli.scafa.sync.http.gateway.connection.AbstractGatewayHttpConnection;
 import com.github.apetrelli.scafa.sync.http.proxy.ProxyHttpConnection;
 import com.github.apetrelli.scafa.sync.proto.RunnableStarter;
-import com.github.apetrelli.scafa.sync.proto.SyncSocket;
 import com.github.apetrelli.scafa.sync.proto.processor.DataHandler;
 
 import lombok.extern.java.Log;
@@ -45,17 +44,17 @@ import lombok.extern.java.Log;
 public class DirectProxyHttpConnection extends AbstractGatewayHttpConnection<HttpSyncSocket<HttpResponse>> implements ProxyHttpConnection {
 
 	public DirectProxyHttpConnection(MappedGatewayHttpConnectionFactory<?> factory,
-			ProcessorFactory<DataHandler, SyncSocket> clientProcessorFactory, RunnableStarter runnableStarter,
+			ProcessorFactory<DataHandler, Socket> clientProcessorFactory, RunnableStarter runnableStarter,
 			HttpSyncSocket<HttpResponse> sourceChannel, HttpSyncSocket<HttpRequest> socket) {
 		super(factory, clientProcessorFactory, runnableStarter, sourceChannel, socket, socket.getAddress());
     }
     
     @Override
-    public void connect(HttpConnectRequest request, ByteBuffer buffer) {
+    public void connect(HttpConnectRequest request) {
         // Already connected, need only to send a 200.
         AsciiString httpVersion = request.getHttpVersion();
         HttpResponse response = new HttpResponse(httpVersion, HttpCodes.OK, OK);
-        sourceChannel.sendHeader(response, buffer);
+        sourceChannel.sendHeader(response);
         sourceChannel.endData();
     }
 

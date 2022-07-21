@@ -18,12 +18,12 @@
 package com.github.apetrelli.scafa.sync.http.gateway;
 
 import com.github.apetrelli.scafa.http.HttpRequest;
-import com.github.apetrelli.scafa.sync.http.HttpSyncSocket;
+import com.github.apetrelli.scafa.proto.Socket;
 import com.github.apetrelli.scafa.proto.client.HostPort;
-import com.github.apetrelli.scafa.sync.proto.SyncSocket;
+import com.github.apetrelli.scafa.sync.http.HttpSyncSocket;
 
 public interface GatewayHttpConnectionFactory <T extends HttpSyncSocket<HttpRequest>> {
 
-	T create(MappedGatewayHttpConnectionFactory<T> factory, SyncSocket sourceChannel,
+	T create(MappedGatewayHttpConnectionFactory<T> factory, Socket sourceChannel,
 			HostPort socketAddress);
 }
