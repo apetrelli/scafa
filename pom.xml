@@ -69,6 +69,7 @@
     <module>scafa-web-server</module>
     <module>scafa-async</module>
     <module>scafa-sync</module>
+    <module>scafa-http2</module>
   </modules>
   <build>
     <plugins>

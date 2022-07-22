@@ -119,7 +119,7 @@ public class ScafaWebServerLauncher extends AbstractScafaWebServerLauncher {
 				.withSocketFactory(socketFactory).withHttpServer(server)
 				.withDefaultHandlerFactory(defaultHandlerFactory).withClientProcessorFactory(clientProcessorFactory);
         socketConfig.getPaths().forEach(x -> buildPortion(x, builder));
-        SyncServerSocketFactory<HttpSyncSocket<HttpResponse>> httpServerSocketFactory = new HttpSyncServerSocketFactory<>(serverSocketFactory, dataSenderFactory);
+        SyncServerSocketFactory<HttpSyncSocket<HttpResponse>> httpServerSocketFactory = new HttpSyncServerSocketFactory<HttpResponse>(serverSocketFactory, dataSenderFactory);
 		return new ScafaListener<>(httpServerSocketFactory, defaultProcessorFactory, builder.build(), runnableStarter);
 	}
 

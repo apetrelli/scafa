@@ -50,14 +50,14 @@ public class HttpServerHandlerSupport implements HttpServerHandler {
 	@Override
 	public void onRequestError(HttpRequest request, Throwable exc) {
 		HttpResponse response = new HttpResponse(HTTP_1_1, INTERNAL_SERVER_ERROR, UNEXPECTED_EXCEPTION);
-		response.setHeader(SERVER, SCAFA);
-		response.setHeader(CONTENT_TYPE, TEXT_PLAIN);
+		response.headers().setHeader(SERVER, SCAFA);
+		response.headers().setHeader(CONTENT_TYPE, TEXT_PLAIN);
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		try (PrintStream ps = new PrintStream(baos)) {
 			exc.printStackTrace(ps);
 		}
 		byte[] bytes = baos.toByteArray();
-		response.addHeader(CONTENT_LENGTH, new AsciiString(Integer.toString(bytes.length)));
+		response.headers().addHeader(CONTENT_LENGTH, new AsciiString(Integer.toString(bytes.length)));
 		channel.sendHeader(response);
 		channel.sendData(FlowBuffer.wrap(bytes));
 	}

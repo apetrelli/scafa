@@ -34,7 +34,7 @@ public class DefaultHttpServer implements HttpServer {
 	public void response(HttpSyncSocket<HttpResponse> channel, HttpResponse response,
 			InputStream payload, FlowBuffer writeBuffer) {
 		HttpResponse realResponse = new HttpResponse(response);
-		realResponse.setHeader(TRANSFER_ENCODING, CHUNKED);
+		realResponse.headers().setHeader(TRANSFER_ENCODING, CHUNKED);
 		responseWithPayload(channel, realResponse, payload, writeBuffer);
 	}
 
@@ -42,7 +42,7 @@ public class DefaultHttpServer implements HttpServer {
 	public void response(HttpSyncSocket<HttpResponse> channel, HttpResponse response,
 			InputStream payload, long size, FlowBuffer writeBuffer) {
 		HttpResponse realResponse = new HttpResponse(response);
-		realResponse.setHeader(CONTENT_LENGTH, new AsciiString(Long.toString(size)));
+		realResponse.headers().setHeader(CONTENT_LENGTH, new AsciiString(Long.toString(size)));
 		responseWithPayload(channel, realResponse, payload, writeBuffer);
 	}
 	

@@ -27,7 +27,11 @@ import java.util.Map;
 import com.github.apetrelli.scafa.proto.io.OutputFlow;
 import com.github.apetrelli.scafa.proto.util.AsciiString;
 
-public abstract class HeaderHolder {
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor
+public class HeaderHolder implements OutputFlowSerializable {
 	
 	private static final class StringBuilderOutputFlow implements OutputFlow {
 
@@ -68,15 +72,17 @@ public abstract class HeaderHolder {
 
     private static final byte COLON = 58;
 
+    @Getter
     private Map<HeaderName, List<AsciiString>> headers = new LinkedHashMap<>();
-
-    protected int byteSize;
+    
+    public HeaderHolder(HeaderHolder toCopy) {
+    	headers.putAll(toCopy.headers);
+    }
 
     public void addHeader(HeaderName header, AsciiString value) {
     	// Usually there is one header value per header name, so it makes sense.
     	List<AsciiString> values = headers.computeIfAbsent(header, x -> new ArrayList<>(1));
         values.add(value);
-        byteSize += header.length() + 2 + value.length() + 2;
     }
 
     public void setHeader(HeaderName header, AsciiString value) {
@@ -85,12 +91,7 @@ public abstract class HeaderHolder {
     }
 
     public void removeHeader(HeaderName header) {
-        List<AsciiString> values = headers.remove(header);
-        if (values != null) {
-            values.stream().forEach(t -> {
-                byteSize -= header.length() + 2 + t.length() + 2;
-            });
-        }
+        headers.remove(header);
     }
 
     public AsciiString getHeader(HeaderName header) {
@@ -110,7 +111,9 @@ public abstract class HeaderHolder {
     public Collection<HeaderName> getHeaderNames() {
     	return Collections.unmodifiableCollection(headers.keySet());
     }
+    
 
+    @Override
     public void fill(OutputFlow out) {
         headers.entrySet().stream().forEach(t -> {
 			HeaderName key = t.getKey();
@@ -128,10 +131,5 @@ public abstract class HeaderHolder {
     	StringBuilderOutputFlow flow = new StringBuilderOutputFlow();
     	fill(flow);
     	return flow.toString();
-    }
-
-    protected void copyBase(HeaderHolder toCopy) {
-        headers.putAll(toCopy.headers);
-        byteSize = toCopy.byteSize;
     }
 }

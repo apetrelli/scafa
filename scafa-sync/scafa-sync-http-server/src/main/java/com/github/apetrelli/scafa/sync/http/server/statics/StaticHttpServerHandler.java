@@ -73,7 +73,7 @@ public class StaticHttpServerHandler extends HttpServerHandlerSupport {
 				String localResource = request.getParsedResource().getResource().substring(basePath.length());
 				if (localResource.isEmpty() && !basePath.equals("/")) {
 					HttpResponse response = createSimpleResponse(HttpCodes.FOUND, FOUND);
-					response.setHeader(LOCATION, basePathSlash);
+					response.headers().setHeader(LOCATION, basePathSlash);
 					server.response(channel, response);
 				} else {
 					while (localResource.startsWith("/")) {
@@ -86,18 +86,18 @@ public class StaticHttpServerHandler extends HttpServerHandlerSupport {
 						Path path = localResource2path.get(localResource);
 						if (path != null) {
 							HttpResponse response = new HttpResponse(HTTP_1_1, HttpCodes.OK, OK);
-							response.setHeader(SERVER, SCAFA);
-							response.setHeader(DATE, HttpUtils.getCurrentHttpDate());
-							AsciiString connection = request.getHeader(CONNECTION);
+							response.headers().setHeader(SERVER, SCAFA);
+							response.headers().setHeader(DATE, HttpUtils.getCurrentHttpDate());
+							AsciiString connection = request.headers().getHeader(CONNECTION);
 							if (!CLOSE_CONNECTION.equals(connection)) {
 								connection = KEEP_ALIVE;
 							}
-							response.setHeader(CONNECTION, connection);
+							response.headers().setHeader(CONNECTION, connection);
 							int dotPosition = localResource.lastIndexOf('.');
 							if (dotPosition >= 0) {
 								AsciiString contentType = mimeTypeConfig.get(localResource.substring(dotPosition + 1).toLowerCase());
 								if (contentType != null) {
-									response.setHeader(CONTENT_TYPE, contentType);
+									response.headers().setHeader(CONTENT_TYPE, contentType);
 								}
 							}
 							server.response(channel, response, path, writeBuffer);
@@ -123,8 +123,8 @@ public class StaticHttpServerHandler extends HttpServerHandlerSupport {
 
 	private HttpResponse createSimpleResponse(AsciiString httpCode, AsciiString message) {
 		HttpResponse response = new HttpResponse(HTTP_1_1, httpCode, message);
-		response.setHeader(SERVER, SCAFA);
-		response.setHeader(CONTENT_LENGTH, CONTENT_LENGTH_0);
+		response.headers().setHeader(SERVER, SCAFA);
+		response.headers().setHeader(CONTENT_LENGTH, CONTENT_LENGTH_0);
 		return response;
 	}
 }

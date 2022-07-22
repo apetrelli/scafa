@@ -66,7 +66,7 @@ public class HttpProcessingContext extends ProcessingContext<HttpStatus> {
 
     private HttpResponse response;
 
-    private HeaderHolder holder;
+    private Http1Conversation holder;
     
     private AsciiString method;
     
@@ -250,12 +250,12 @@ public class HttpProcessingContext extends ProcessingContext<HttpStatus> {
     }
 
     public void addHeaderLine() {
-    	holder.addHeader(headerName, headerValue);
+    	holder.headers().addHeader(headerName, headerValue);
     }
 
     public void evaluateBodyMode() {
         setBodyMode(HttpBodyMode.EMPTY);
-        AsciiString lengthString = holder.getHeader(CONTENT_LENGTH);
+        AsciiString lengthString = holder.headers().getHeader(CONTENT_LENGTH);
         if (lengthString != null) {
             try {
                 long length = Long.parseLong(lengthString.toString().trim());
@@ -267,7 +267,7 @@ public class HttpProcessingContext extends ProcessingContext<HttpStatus> {
                 LOG.log(Level.SEVERE, "The provided length is not an integer: " + lengthString, e);
             }
         } else { // Check chunked transfer
-            AsciiString encoding = holder.getHeader(TRANSFER_ENCODING);
+            AsciiString encoding = holder.headers().getHeader(TRANSFER_ENCODING);
             if (CHUNKED.equals(encoding)) {
                 setBodyMode(HttpBodyMode.CHUNKED);
             }

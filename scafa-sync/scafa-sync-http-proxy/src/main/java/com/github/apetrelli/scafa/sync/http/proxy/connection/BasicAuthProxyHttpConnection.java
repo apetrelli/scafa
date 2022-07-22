@@ -33,13 +33,13 @@ public class BasicAuthProxyHttpConnection extends AbstractUpstreamProxyHttpConne
 
 	@Override
 	protected void doConnect(HttpConnectRequest request) {
-		request.addHeader(PROXY_AUTHORIZATION, authString);
+		request.headers().addHeader(PROXY_AUTHORIZATION, authString);
 		super.doConnect(request);
 	}
 
 	@Override
 	protected void doSendHeader(HttpRequest request) {
-		request.addHeader(PROXY_AUTHORIZATION, authString);
+		request.headers().addHeader(PROXY_AUTHORIZATION, authString);
 		super.doSendHeader(request);
 	}
 }

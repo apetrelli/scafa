@@ -33,7 +33,7 @@ import com.github.apetrelli.scafa.proto.util.AsciiString;
 import lombok.extern.java.Log;
 
 @Log
-public class HttpRequest extends HeaderHolder {
+public class HttpRequest extends BaseHttpConversation implements Http1Conversation {
 
     private static final Map<String, Integer> protocol2port = new HashMap<>();
 
@@ -50,24 +50,24 @@ public class HttpRequest extends HeaderHolder {
     }
 
     public HttpRequest(AsciiString method, AsciiString resource, AsciiString httpVersion) {
+    	super(new HeaderHolder());
         this.method = method;
         this.resource = resource;
         this.httpVersion = httpVersion;
-        byteSize = method.length() + 1 + resource.length() + 1 + httpVersion.length() + 4;
     }
 
     public HttpRequest(HttpRequest toCopy) {
+    	super(new HeaderHolder(toCopy.headers()));
         method = toCopy.method;
         resource = toCopy.resource;
         httpVersion = toCopy.httpVersion;
-        copyBase(toCopy);
     }
 
     public HttpRequest(HttpRequest toCopy, AsciiString resource) {
+    	super(new HeaderHolder(toCopy.headers()));
         method = toCopy.method;
         this.resource = resource;
         httpVersion = toCopy.httpVersion;
-        copyBase(toCopy);
     }
 
     public AsciiString getMethod() {
@@ -84,7 +84,7 @@ public class HttpRequest extends HeaderHolder {
 
     public HostPort getHostPort() throws IOException {
         HostPort retValue;
-        AsciiString hostString = getHeader(HOST);
+        AsciiString hostString = headers().getHeader(HOST);
         String url = getResource().toString();
         if (hostString != null) {
             String[] hostStringSplit = hostString.toString().split(":");
@@ -128,10 +128,11 @@ public class HttpRequest extends HeaderHolder {
 
     @Override
 	public void fill(OutputFlow out) {
-		out.write(method.getArray(), method.getFrom(), method.length()).write(SPACE)
-				.write(resource.getArray(), resource.getFrom(), resource.length()).write(SPACE)
-				.write(httpVersion.getArray(), httpVersion.getFrom(), httpVersion.length()).write(CR).write(LF);
-        super.fill(out);
+		out.write(method.getArray(), method.getFrom(), method.length()).write(HttpChars.SPACE)
+				.write(resource.getArray(), resource.getFrom(), resource.length()).write(HttpChars.SPACE)
+				.write(httpVersion.getArray(), httpVersion.getFrom(), httpVersion.length()).write(HttpChars.CR)
+				.write(HttpChars.LF);
+        Http1Conversation.super.fill(out);
 	}
 
     public ParsedResource getParsedResource() {

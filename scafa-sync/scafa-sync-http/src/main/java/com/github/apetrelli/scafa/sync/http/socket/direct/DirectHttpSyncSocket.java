@@ -3,7 +3,7 @@ package com.github.apetrelli.scafa.sync.http.socket.direct;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.github.apetrelli.scafa.http.HeaderHolder;
+import com.github.apetrelli.scafa.http.HttpConversation;
 import com.github.apetrelli.scafa.http.HttpException;
 import com.github.apetrelli.scafa.proto.Socket;
 import com.github.apetrelli.scafa.proto.io.FlowBuffer;
@@ -13,7 +13,7 @@ import com.github.apetrelli.scafa.sync.http.output.DataSenderFactory;
 import com.github.apetrelli.scafa.sync.http.output.impl.DirectDataSender;
 import com.github.apetrelli.scafa.sync.proto.SyncSocketWrapper;
 
-public class DirectHttpSyncSocket<H extends HeaderHolder> extends SyncSocketWrapper<Socket> implements HttpSyncSocket<H> {
+public class DirectHttpSyncSocket<H extends HttpConversation> extends SyncSocketWrapper<Socket> implements HttpSyncSocket<H> {
 
 	private static final Logger LOG = Logger.getLogger(DirectHttpSyncSocket.class.getName());
 	

@@ -2,9 +2,11 @@ package com.github.apetrelli.scafa.http;
 
 import com.github.apetrelli.scafa.proto.util.AsciiString;
 
-public class HttpCodes {
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
-	private HttpCodes() {}
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public class HttpCodes {
 	
 	public static final AsciiString OK = new AsciiString("200");
 	

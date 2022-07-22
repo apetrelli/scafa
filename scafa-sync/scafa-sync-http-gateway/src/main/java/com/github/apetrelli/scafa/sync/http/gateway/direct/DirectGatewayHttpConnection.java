@@ -25,7 +25,7 @@ public class DirectGatewayHttpConnection extends AbstractGatewayHttpConnection<S
 	protected HttpRequest createForwardedRequest(HttpRequest request) {
 		HttpRequest realRequest = new HttpRequest(request);
 		int port = destinationSocketAddress.getPort();
-		realRequest.setHeader(HOST, new AsciiString(destinationSocketAddress.getHost() + (port == 80 ? "" : ":" + port)));
+		realRequest.headers().setHeader(HOST, new AsciiString(destinationSocketAddress.getHost() + (port == 80 ? "" : ":" + port)));
 		return realRequest;
 	}
 }

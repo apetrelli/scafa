@@ -2,7 +2,7 @@ package com.github.apetrelli.scafa.sync.http.socket.server;
 
 import java.io.IOException;
 
-import com.github.apetrelli.scafa.http.HeaderHolder;
+import com.github.apetrelli.scafa.http.HttpConversation;
 import com.github.apetrelli.scafa.proto.Socket;
 import com.github.apetrelli.scafa.sync.http.HttpSyncSocket;
 import com.github.apetrelli.scafa.sync.http.output.DataSenderFactory;
@@ -12,7 +12,7 @@ import com.github.apetrelli.scafa.sync.proto.SyncServerSocket;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class HttpSyncServerSocket<H extends HeaderHolder> implements SyncServerSocket<HttpSyncSocket<H>> {
+public class HttpSyncServerSocket<H extends HttpConversation> implements SyncServerSocket<HttpSyncSocket<H>> {
 
 	private final SyncServerSocket<Socket> serverSocket;
 

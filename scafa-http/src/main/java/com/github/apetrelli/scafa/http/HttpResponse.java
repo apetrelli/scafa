@@ -20,7 +20,7 @@ package com.github.apetrelli.scafa.http;
 import com.github.apetrelli.scafa.proto.io.OutputFlow;
 import com.github.apetrelli.scafa.proto.util.AsciiString;
 
-public class HttpResponse extends HeaderHolder {
+public class HttpResponse extends BaseHttpConversation implements Http1Conversation {
     private final AsciiString httpVersion;
 
     private final AsciiString code;
@@ -28,17 +28,17 @@ public class HttpResponse extends HeaderHolder {
     private final AsciiString message;
 
     public HttpResponse(AsciiString httpVersion, AsciiString code, AsciiString message) {
+    	super(new HeaderHolder());
         this.httpVersion = httpVersion;
         this.code = code;
         this.message = message;
-        byteSize = httpVersion.length() + 1 + 3 + (message != null ? 1 + message.length() : 0) + 4;
     }
 
     public HttpResponse(HttpResponse toCopy) {
+    	super(new HeaderHolder(toCopy.headers()));
         httpVersion = toCopy.httpVersion;
         code = toCopy.code;
         message = toCopy.message;
-        copyBase(toCopy);
     }
 
     public AsciiString getHttpVersion() {
@@ -55,13 +55,13 @@ public class HttpResponse extends HeaderHolder {
 
     @Override
 	public void fill(OutputFlow out) {
-		out.write(httpVersion.getArray(), httpVersion.getFrom(), httpVersion.length()).write(SPACE).write(code.getArray(),
+		out.write(httpVersion.getArray(), httpVersion.getFrom(), httpVersion.length()).write(HttpChars.SPACE).write(code.getArray(),
 				code.getFrom(), code.length());
         if (message != null) {
-        	out.write(SPACE).write(message.getArray(), message.getFrom(), message.length());
+        	out.write(HttpChars.SPACE).write(message.getArray(), message.getFrom(), message.length());
         }
-        out.write(CR).write(LF);
-        super.fill(out);
+        out.write(HttpChars.CR).write(HttpChars.LF);
+        Http1Conversation.super.fill(out);
 	}
 
 }

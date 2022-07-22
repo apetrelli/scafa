@@ -39,8 +39,8 @@ public class NotFoundHttpServerHandler extends HttpServerHandlerSupport {
 
 	private void sendSimpleMessage(AsciiString httpCode, AsciiString message) {
 		HttpResponse response = new HttpResponse(HTTP_1_1, httpCode, message);
-		response.setHeader(SERVER, SCAFA);
-		response.setHeader(CONTENT_LENGTH, CONTENT_LENGTH_0);
+		response.headers().setHeader(SERVER, SCAFA);
+		response.headers().setHeader(CONTENT_LENGTH, CONTENT_LENGTH_0);
 		server.response(channel, response);
 	}
 }

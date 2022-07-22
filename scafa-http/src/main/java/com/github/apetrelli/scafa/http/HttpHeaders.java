@@ -2,10 +2,11 @@ package com.github.apetrelli.scafa.http;
 
 import com.github.apetrelli.scafa.proto.util.AsciiString;
 
-public class HttpHeaders {
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
-	private HttpHeaders() {
-	}
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public class HttpHeaders {
 	
 	public static final HeaderName CONTENT_LENGTH = new HeaderName("Content-Length");
 
